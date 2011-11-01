@@ -1,7 +1,4 @@
-package Kbase
-columns=
-type=tsv
-::View::HTML;
+package Kbase::View::HTML;
 
 use strict;
 use warnings;
@@ -15,27 +12,15 @@ __PACKAGE__->config(
 
 =head1 NAME
 
-Kbase
-columns=
-type=tsv
-::View::HTML - TT View for Kbase
-columns=
-type=tsv
-
+Kbase::View::HTML - TT View for Kbase
 
 =head1 DESCRIPTION
 
-TT View for Kbase
-columns=
-type=tsv
-.
+TT View for Kbase.
 
 =head1 SEE ALSO
 
-L<Kbase
-columns=
-type=tsv
->
+L<Kbase>
 
 =head1 AUTHOR
 

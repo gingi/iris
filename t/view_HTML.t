@@ -3,9 +3,6 @@ use warnings;
 use Test::More;
 use Test::More;
 
-BEGIN { use_ok 'Kbase
-columns=
-type=tsv
-::View::HTML' }
+BEGIN { use_ok 'Kbase::View::HTML' }
 
 done_testing();
