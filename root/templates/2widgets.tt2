@@ -1,0 +1,7 @@
+<link rel="stylesheet" href="[% c.uri_for('/static/css/widgets.css') %]" />
+<div id="topwidget">
+    [% topwidget %]
+</div>
+<div id="bottomwidget">
+    [% bottomwidget %]
+</div>

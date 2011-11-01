@@ -28,9 +28,7 @@ The root page (/)
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
-    # Hello World
-    $c->response->body( $c->welcome_message );
+    $c->stash(template => 'index.tt2');
 }
 
 =head2 default
@@ -41,7 +39,9 @@ Standard 404 error page
 
 sub default :Path {
     my ( $self, $c ) = @_;
-    $c->response->body( 'Page not found' );
+    $c->stash(
+        error_msg => 'Page not found!'
+    );
     $c->response->status(404);
 }
 

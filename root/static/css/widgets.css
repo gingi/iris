@@ -1,0 +1,8 @@
+#topwidget, #bottomwidget {
+    display:block;
+    border:1px solid #999;
+    height:50%;
+    min-height:250px;
+    width:600px;
+    margin:30px auto 0;
+}
