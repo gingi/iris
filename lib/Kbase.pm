@@ -1,7 +1,4 @@
-package Kbase
-columns=
-type=tsv
-;
+package Kbase;
 use Moose;
 use namespace::autoclean;
 
@@ -39,10 +36,7 @@ our $VERSION = '0.01';
 # local deployment.
 
 __PACKAGE__->config(
-    name => 'Kbase
-columns=
-type=tsv
-',
+    name => 'Kbase',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     enable_catalyst_header => 1, # Send X-Catalyst header
@@ -54,10 +48,7 @@ __PACKAGE__->setup();
 
 =head1 NAME
 
-Kbase
-columns=
-type=tsv
- - Catalyst based application
+Kbase - Catalyst based application
 
 =head1 SYNOPSIS
 
@@ -69,10 +60,7 @@ type=tsv
 
 =head1 SEE ALSO
 
-L<Kbase
-columns=
-type=tsv
-::Controller::Root>, L<Catalyst>
+L<Kbase::Controller::Root>, L<Catalyst>
 
 =head1 AUTHOR
 
