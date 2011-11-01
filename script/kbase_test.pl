@@ -1,7 +1,10 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('kbase', 'Test');
+Catalyst::ScriptRunner->run('Kbase
+columns=
+type=tsv
+', 'Test');
 
 1;
 

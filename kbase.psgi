@@ -1,8 +1,17 @@
 use strict;
 use warnings;
 
-use kbase;
+use Kbase
+columns=
+type=tsv
+;
 
-my $app = kbase->apply_default_middlewares(kbase->psgi_app);
+my $app = Kbase
+columns=
+type=tsv
+->apply_default_middlewares(Kbase
+columns=
+type=tsv
+->psgi_app);
 $app;
 
