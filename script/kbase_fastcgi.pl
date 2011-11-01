@@ -1,10 +1,7 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('Kbase
-columns=
-type=tsv
-', 'FastCGI');
+Catalyst::ScriptRunner->run('Kbase', 'FastCGI');
 
 1;
 
