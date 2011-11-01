@@ -1,4 +1,4 @@
-package Kbase::Controller::Root;
+package kbase::Controller::Root;
 use Moose;
 use namespace::autoclean;
 
@@ -12,7 +12,7 @@ __PACKAGE__->config(namespace => '');
 
 =head1 NAME
 
-Kbase::Controller::Root - Root Controller for Kbase
+kbase::Controller::Root - Root Controller for kbase
 
 =head1 DESCRIPTION
 

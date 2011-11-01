@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('Kbase', 'Test');
+Catalyst::ScriptRunner->run('kbase', 'Test');
 
 1;
 

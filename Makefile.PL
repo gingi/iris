@@ -6,8 +6,8 @@ use Module::Install::Catalyst; # Complain loudly if you don't have
                                # Catalyst::Devel installed or haven't said
                                # 'make dist' to create a standalone tarball.
 
-name 'Kbase';
-all_from 'lib/Kbase.pm';
+name 'kbase';
+all_from 'lib/kbase.pm';
 
 requires 'Catalyst::Runtime' => '5.90006';
 requires 'Catalyst::Plugin::ConfigLoader';

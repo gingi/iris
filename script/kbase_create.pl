@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('Kbase', 'Create');
+Catalyst::ScriptRunner->run('kbase', 'Create');
 
 1;
 
