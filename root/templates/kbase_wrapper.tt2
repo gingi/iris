@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" [%#
+    %]"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>[% template.title or "Kbase Web" %]</title>
+<link rel="stylesheet" href="[% c.uri_for('/static/css/kbase.css') %]" />
+</head>
+
+<body>
+<div id="outer">
+<div id="header">
+    [%# Your logo could go here -%]
+    [%# Insert the page title -%]
+    <h1>[% template.title or site.title or "Kbase Web" %]</h1>
+</div>
+
+<div id="bodyblock">
+<div id="menu">
+    <ul>
+        <li><a href="[% c.uri_for('/') %]">Home</a></li>
+        <li><a href="[% c.uri_for('/about') %]" title="About">About</a></li>
+    </ul>
+</div><!-- end menu -->
+
+<div id="content">
+    [%# Status and error messages %]
+    <span class="message">[% status_msg %]</span>
+    <span class="error">[% error_msg %]</span>
+    [%# This is where TT will stick all of your template's contents. -%]
+    [% content %]
+</div><!-- end content -->
+</div><!-- end bodyblock -->
+
+<div id="footer">
+    Copyright (c) 2011 Cold Spring Harbor Laboratory
+</div>
+</div><!-- end outer -->
+
+</body>
+</html>
