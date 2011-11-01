@@ -1,4 +1,4 @@
-package kbase;
+package Kbase;
 use Moose;
 use namespace::autoclean;
 
@@ -36,7 +36,7 @@ our $VERSION = '0.01';
 # local deployment.
 
 __PACKAGE__->config(
-    name => 'kbase',
+    name => 'Kbase',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     enable_catalyst_header => 1, # Send X-Catalyst header
@@ -48,7 +48,7 @@ __PACKAGE__->setup();
 
 =head1 NAME
 
-kbase - Catalyst based application
+Kbase - Catalyst based application
 
 =head1 SYNOPSIS
 
@@ -60,7 +60,7 @@ kbase - Catalyst based application
 
 =head1 SEE ALSO
 
-L<kbase::Controller::Root>, L<Catalyst>
+L<Kbase::Controller::Root>, L<Catalyst>
 
 =head1 AUTHOR
 

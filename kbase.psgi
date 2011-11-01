@@ -1,8 +1,8 @@
 use strict;
 use warnings;
 
-use kbase;
+use Kbase;
 
-my $app = kbase->apply_default_middlewares(kbase->psgi_app);
+my $app = Kbase->apply_default_middlewares(Kbase->psgi_app);
 $app;
 

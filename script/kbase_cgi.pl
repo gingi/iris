@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('kbase', 'CGI');
+Catalyst::ScriptRunner->run('Kbase', 'CGI');
 
 1;
 

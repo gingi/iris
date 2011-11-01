@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use Catalyst::Test 'kbase';
+use Catalyst::Test 'Kbase';
 
 ok( request('/')->is_success, 'Request should succeed' );
 

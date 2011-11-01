@@ -5,7 +5,7 @@ BEGIN {
 }
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('kbase', 'Server');
+Catalyst::ScriptRunner->run('Kbase', 'Server');
 
 1;
 
