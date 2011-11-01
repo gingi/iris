@@ -5,7 +5,10 @@ BEGIN {
 }
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('kbase', 'Server');
+Catalyst::ScriptRunner->run('Kbase
+columns=
+type=tsv
+', 'Server');
 
 1;
 

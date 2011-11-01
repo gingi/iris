@@ -4,7 +4,10 @@ use strict;
 use warnings;
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('kbase', 'Create');
+Catalyst::ScriptRunner->run('Kbase
+columns=
+type=tsv
+', 'Create');
 
 1;
 

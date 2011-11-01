@@ -1,4 +1,7 @@
-package kbase::Controller::Root;
+package Kbase
+columns=
+type=tsv
+::Controller::Root;
 use Moose;
 use namespace::autoclean;
 
@@ -12,7 +15,13 @@ __PACKAGE__->config(namespace => '');
 
 =head1 NAME
 
-kbase::Controller::Root - Root Controller for kbase
+Kbase
+columns=
+type=tsv
+::Controller::Root - Root Controller for Kbase
+columns=
+type=tsv
+
 
 =head1 DESCRIPTION
 
