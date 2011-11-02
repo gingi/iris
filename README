@@ -16,7 +16,7 @@ $ git clone http://wildcat.cshl.edu/git/kbase-web.git
 $ cd kbase-web
 $ perl Makefile.PL
 $ make installdeps
-$ perl script/kbase-server.pl
+$ perl script/kbase_server.pl
 
 ---
 Author: Shiran Pasternak <shiran@cshl.edu>
