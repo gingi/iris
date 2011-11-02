@@ -13,6 +13,7 @@ requires 'Catalyst::Runtime' => '5.90006';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Plugin::StatusMessage';
+requires 'Catalyst::Plugin::StackTrace';
 requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::View::JSON';
 requires 'Catalyst::Controller::REST';

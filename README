@@ -2,6 +2,14 @@ KBASE WEB
 =========
 This is the project that serves the web interface to the Kbase project.
 
+REQUIRED MODULES
+================
+During installation, the app automatically installs other dependencies that it requires ('make installdeps'). But in order to get to that step, the following non-core CPAN modules need to be installed separately:
+
+    * Catalyst
+    * Catalyst::Devel
+    * Module::Install
+
 INSTALLATION
 ============
 $ git clone http://wildcat.cshl.edu/git/kbase-web.git
