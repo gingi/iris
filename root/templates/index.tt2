@@ -1,1 +1,2 @@
 <p>Welcome, friends.</p>
+<p>How about a nice little <a href="[% c.uri_for('/gwas') %]">prototype</a>?</p>

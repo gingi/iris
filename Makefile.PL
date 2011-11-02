@@ -12,7 +12,10 @@ all_from 'lib/Kbase.pm';
 requires 'Catalyst::Runtime' => '5.90006';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
+requires 'Catalyst::Plugin::StatusMessage';
 requires 'Catalyst::Action::RenderView';
+requires 'Catalyst::View::JSON';
+requires 'Catalyst::Controller::REST';
 requires 'Moose';
 requires 'namespace::autoclean';
 requires 'Config::General'; # This should reflect the config file format you've chosen

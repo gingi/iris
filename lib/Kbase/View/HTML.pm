@@ -6,7 +6,11 @@ use warnings;
 use base 'Catalyst::View::TT';
 
 __PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.tt',
+    TEMPLATE_EXTENSION => '.tt2',
+    # Set to 1 for detailed timer stats in your HTML as comments
+    TIMER              => 0,
+    # This is your wrapper template located in the 'root/src'
+    WRAPPER => 'kbase_wrapper.tt2',
     render_die => 1,
 );
 

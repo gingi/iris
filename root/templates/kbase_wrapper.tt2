@@ -15,7 +15,6 @@
     <h1>[% template.title or site.title or "Kbase Web" %]</h1>
 </div>
 
-<div id="bodyblock">
 <div id="menu">
     <ul>
         <li><a href="[% c.uri_for('/') %]">Home</a></li>
@@ -23,6 +22,7 @@
     </ul>
 </div><!-- end menu -->
 
+<div id="bodyblock">
 <div id="content">
     [%# Status and error messages %]
     <span class="message">[% status_msg %]</span>

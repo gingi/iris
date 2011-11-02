@@ -9,6 +9,7 @@ body {
 }
 #bodyblock {
     min-height:300px;
+    height:100%;
 }
 #outer {
     display:block;
@@ -36,27 +37,32 @@ body {
     font-style: normal;
     font-size: 8pt;
     color: #aaa;
-    padding-top: 20px;
+    padding-top: 5px;
     height:30px;
     position:absolute;
     bottom:0;
     left:0;
     width:100%;
+    border-top:1px dotted #666;
+    background-color:#eee;
+}
+#content {
+    padding-left:10px;
 }
 #menu {
     display:block;
     font-weight: bold;
-    background-color: #ddd;
-}
-#menu ul {
-    list-style: none;
-    float:left;
-    margin: 0 0 0 0;
-    padding: 0 0 50% 5px;
-    font-weight: normal;
-    background-color: #ddd;
+    float:right;
     height:100%;
     width: 100px;
+    background-color: #eee;
+    border-left: 1px dotted #666;
+}
+#menu ul {
+    list-style:none;
+    margin:0;
+    padding:0 0 50% 5px;
+    font-weight: normal;
 }
 #menu ul a {
     color:#BC2C2F;
