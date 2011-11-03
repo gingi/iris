@@ -22,7 +22,8 @@ use Catalyst qw/
     Static::Simple
     StackTrace
     StatusMessage
-/;
+    SubRequest
+    /;
 
 extends 'Catalyst';
 
@@ -39,22 +40,23 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name => 'Kbase',
+
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
-    enable_catalyst_header => 1, # Send X-Catalyst header
+    enable_catalyst_header                      => 1, # Send X-Catalyst header
 );
 __PACKAGE__->config(
+
     # Configure the view
     'View::HTML' => {
+
         #Set the location for TT files
-        INCLUDE_PATH => [
-            __PACKAGE__->path_to( 'root', 'templates' ),
-        ],
+        INCLUDE_PATH => [ __PACKAGE__->path_to('root', 'templates'), ],
     },
 );
+
 # Start the application
 __PACKAGE__->setup();
-
 
 =head1 NAME
 

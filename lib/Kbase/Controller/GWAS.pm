@@ -2,7 +2,7 @@ package Kbase::Controller::GWAS;
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
 
 =head1 NAME
 
@@ -16,17 +16,49 @@ Catalyst Controller.
 
 =cut
 
-
 =head2 index
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub index : Path : Args(0) {
+    my ($self, $c) = @_;
 
-    $c->stash(template => '2widgets.tt2');
+    my $study = $c->request->param('study');
+    if (!defined($study)) {
+        $c->forward('select_study');
+    } else {
+        my $top    = $c->subreq('/gwas/scores');
+        my $bottom = $study;                         # $c->subreq('/gwas/scores');
+        $c->stash(
+            template     => '2widgets.tt2',
+            topwidget    => $top,
+            bottomwidget => $bottom,
+        );
+    }
 }
 
+sub select_study : Path : FormConfig {
+    my ($self, $c) = @_;
+    
+    my $form = $c->stash->{form};
+    if ($form->submitted_and_valid) {
+        $c->flash->{study} = $form->param('study');
+        $c->response->redirect($c->uri_for($self->action_for('index')));
+    } else {
+        my $select = $form->get_element({name => 'study'});
+        $select->options([
+            [1, 'Arabidopsis 2010 Phenotype 1'],
+            [2, 'Arabidopsis 2010 Phenotype 2']]
+        );
+    }
+    $c->stash(template => 'gwas/select_study.tt2');
+}
+
+sub scores : Local {
+    my ($self, $c) = @_;
+    $c->stash(scores => [ 1, 2, 3 ]);
+    $c->forward('View::JSON');
+}
 
 =head1 AUTHOR
 

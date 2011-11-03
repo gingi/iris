@@ -75,5 +75,53 @@ body {
     color: #390;
 }
 .error {
-    color: #f00;
+    color: #BC2C2F;
+}
+input {
+    display: block;
+}
+select {
+    display: block;
+}
+.submit {
+    padding-top: .5em;
+    display: block;
+}
+form.mainform {
+    display: block;
+    width: 700px;
+    min-height: 400px;
+    margin: 20px auto;
+    padding: 60px 20px;
+    border: 1px dotted #666;
+}
+form.mainform * {
+    margin: 10px 10px;
+    font-size: 24pt;
+    vertical-align: middle;
+}
+form.mainform div {
+    display: block;
+}
+form.mainform div.class div.select {
+    margin: 0 auto;
+}
+form.mainform label, form.mainform select {
+    float: left;
+}
+form.mainform label {
+    color: #999;
+}
+form.mainform select {
+    padding: 25px 25px;
+}
+form.mainform div.submit {
+    margin-right: 60px;
+    float: right;
+}
+form.mainform div.submit input {
+    display: inline-block;
+    color: white;
+    padding: 10px;
+    background-color: #666;
 }
