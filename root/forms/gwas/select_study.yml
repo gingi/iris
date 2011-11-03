@@ -1,0 +1,13 @@
+---
+indicator: submit
+attributes:
+    class: mainform
+elements:
+    - type: Select
+      name: study
+      label: Study
+      size: 4
+
+    - type: Submit
+      name: submit
+      value: Explore

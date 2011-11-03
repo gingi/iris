@@ -27,8 +27,8 @@ sub index : Path : Args(0) {
     if (!defined($study)) {
         $c->forward('select_study');
     } else {
-        my $top    = $c->subreq('/gwas/scores');
-        my $bottom = $study;                         # $c->subreq('/gwas/scores');
+        my $top    = $c->subreq('/gwas/scores', {}, {study => $study});
+        my $bottom = 'Nothing here to see'; # $c->subreq('/gwas/scores');
         $c->stash(
             template     => '2widgets.tt2',
             topwidget    => $top,
@@ -42,8 +42,8 @@ sub select_study : Path : FormConfig {
     
     my $form = $c->stash->{form};
     if ($form->submitted_and_valid) {
-        $c->flash->{study} = $form->param('study');
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->stash(study => $form->param('study'));
+        $c->forward('index');
     } else {
         my $select = $form->get_element({name => 'study'});
         $select->options([
@@ -56,7 +56,8 @@ sub select_study : Path : FormConfig {
 
 sub scores : Local {
     my ($self, $c) = @_;
-    $c->stash(scores => [ 1, 2, 3 ]);
+    $c->stash->{study} = $c->request->{study};
+    $c->stash->{scores} = [ 1, 2, 3 ];
     $c->forward('View::JSON');
 }
 

@@ -3,10 +3,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use Catalyst::Test 'Kbase
-columns=
-type=tsv
-';
+use Catalyst::Test 'Kbase';
 
 ok( request('/')->is_success, 'Request should succeed' );
 

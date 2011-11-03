@@ -5,7 +5,7 @@ use base 'Catalyst::View::JSON';
 
 __PACKAGE__->config(
     'View::JSON' => {
-        allow_callback => 1,                          # defaults to 0
+        allow_callback => 0,                          # defaults to 0
         callback_param => 'cb',                       # defaults to 'callback'
         expose_stash   => [qw(foo bar)],              # defaults to everything
     },
