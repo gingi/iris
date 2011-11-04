@@ -83,7 +83,7 @@
             var x2 = [coords objectForKey:"x2"];
             var y1 = [coords objectForKey:"y1"];
             var y2 = [coords objectForKey:"y2"];
-            var density = [coords objectForKey:"density"];
+            var count = [coords objectForKey:"count"];
 
             var coordRect = CGRectMake(
                 x1 * widthScale + chrRect.origin.x,
@@ -91,6 +91,9 @@
                 (x2 - x1) * widthScale,
                 (y2 - y1) * heightScale
             );
+
+            var density = count * 81 / (coordRect.size.width * coordRect.size.height);
+
 
             var color = [[self dataSource] colorAtIndex:[chr objectForKey:"number"] - 1];
             var alphaColor = [CPColor colorWithCalibratedRed:[color redComponent]

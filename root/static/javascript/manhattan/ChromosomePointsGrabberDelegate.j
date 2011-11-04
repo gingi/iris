@@ -58,14 +58,15 @@
                     json.data[i][1], "x2",
                     json.data[i][2], "y1",
                     json.data[i][3], "y2",
-                    json.data[i][4], "density"
+                    json.data[i][4], "count",
+                    json.data[i][5], "density"
                 ]
             ];
         }
 
         [owner addCoordinates:coordsArray forChromosome:[self chromosome] withLabel:[self chromosomeLabel]];
 
-        if ([self refine]) {
+        if ([self refine] && [self bins] < 1000) {
             [ChromosomePointsGrabberDelegate chromosomePointsGrabberForExperiment:[self experiment]
                 andChromosome:[self chromosome]
                 withLabel:[self chromosomeLabel]
