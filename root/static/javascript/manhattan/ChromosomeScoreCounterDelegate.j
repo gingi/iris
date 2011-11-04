@@ -48,11 +48,10 @@
             andChromosome:json[i][0]
             withLabel:json[i][0]
             andOwner:[self owner]
-            inBins:10
+            inBins:5
         ];
 
     }
-    console.log("PZ : " + [[[CPApplication sharedApplication] delegate] pinZero]);
 
     [owner setYMin:[[[CPApplication sharedApplication] delegate] pinZero] ? 0 : minScore];
     [owner setYMax:maxScore];

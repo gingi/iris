@@ -21,8 +21,8 @@
     if (self = [super init]) {
         [self setColorArray:
             [CPArray arrayWithObjects:
-                [CPColor blueColor],
-                [CPColor grayColor]
+                [CPColor blackColor],
+                [CPColor orangeColor]
             ]
         ];
         [self setYMin:0];

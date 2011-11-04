@@ -45,6 +45,9 @@
 
     var bins = [self bins];
     try {
+
+        var shouldRefine = false;
+
         var json = [data objectFromJSON];
 
         var coordsArray = [CPArray array];
@@ -62,23 +65,32 @@
                     json.data[i][5], "density"
                 ]
             ];
+
+            if (! shouldRefine) {
+                var binArea = (json.data[i][1] - json.data[i][0]) * (json.data[i][3] - json.data[i][2]);
+                var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold];
+
+                if (pixelArea / binArea < 0.2) {
+                    shouldRefine = true;
+                }
+            }
         }
 
         [owner addCoordinates:coordsArray forChromosome:[self chromosome] withLabel:[self chromosomeLabel]];
 
-        if ([self refine] && [self bins] < 1000) {
+        if (shouldRefine && [self refine] && [self bins] < 1000) {
             [ChromosomePointsGrabberDelegate chromosomePointsGrabberForExperiment:[self experiment]
                 andChromosome:[self chromosome]
                 withLabel:[self chromosomeLabel]
                 andOwner:[self owner]
-                inBins:[self bins] + 5
+                inBins:[self bins] + 25
                 refine:YES
             ];
+
         }
     }
     catch (e) {
-        console.log("OMFG - " + e);
-        console.log("ON BINS : " + [self bins]);
+
         if ([self bins] > 0) {
             [ChromosomePointsGrabberDelegate chromosomePointsGrabberForExperiment:[self experiment]
                 andChromosome:[self chromosome]

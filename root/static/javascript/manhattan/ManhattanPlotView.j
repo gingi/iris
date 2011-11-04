@@ -5,6 +5,14 @@
     ManhattanDataObject dataSource @accessors;
 
     int yTicks @accessors;
+
+    int xThreshold @accessors;
+    int yThreshold @accessors;
+}
+
+-(void) setThreshold:(int) threshold {
+    [self setXThreshold:threshold];
+    [self setYThreshold:threshold];
 }
 
 -(CPTextField) label:(CPString) label inArea:(CGSize) area {
@@ -92,7 +100,15 @@
                 (y2 - y1) * heightScale
             );
 
-            var density = count * 81 / (coordRect.size.width * coordRect.size.height);
+            if (coordRect.size.width < [self xThreshold]) {
+                coordRect.size.width = [self xThreshold];
+            }
+
+            if (coordRect.size.height < [self yThreshold]) {
+                coordRect.size.height = [self yThreshold];
+            }
+
+            var density = count * [self xThreshold] * [self yThreshold] / (coordRect.size.width * coordRect.size.height);
 
 
             var color = [[self dataSource] colorAtIndex:[chr objectForKey:"number"] - 1];

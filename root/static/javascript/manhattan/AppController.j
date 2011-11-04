@@ -41,6 +41,7 @@
     [ChromosomeGrabberDelegate chromosomeGrabberForExperiment:[[[CPApplication sharedApplication] namedArguments] objectForKey:"id"] andOwner:mdo];
 
     [view setYTicks:2];
+    [view setThreshold:3];
     [view setDataSource:mdo];
     [view setNeedsDisplay:YES];
 
