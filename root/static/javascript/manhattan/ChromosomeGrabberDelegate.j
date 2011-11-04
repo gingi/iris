@@ -9,7 +9,8 @@
 
 +(CPURL) urlForExperiment:(int) experiment {
 
-    return "http://brie.cshl.edu/~olson/qdv/web/chr_list.pl?g=at";
+    //return "http://brie.cshl.edu/~olson/qdv/web/chr_list.pl?g=at";
+    return "/manhattanproxy/get_chromosomes";
 }
 
 +(id) chromosomeGrabberForExperiment:(int) experiment andOwner:(id) owner {

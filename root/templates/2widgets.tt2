@@ -3,5 +3,10 @@
     [% topwidget %]
 </div>
 <div id="bottomwidget">
-    [% bottomwidget %]
+    [% SET study_id = 3032 %]
+    <iframe name="cappuccino" src="/static/javascript/manhattan/index.html?id=[% study_id %]" scrolling="no" width="700" height="300" marginheight="0" marginwidth="0" frameborder="yes">
+        <p>Dude. How old is your browser?</p>
+    </iframe>
+</div>
+
 </div>

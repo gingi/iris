@@ -12,7 +12,14 @@
 
 +(CPURL) urlForExperiment:(int) experiment andChromosome:(int) chromosome inBins:(int) bins {
 
-    return [CPString stringWithFormat:"http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=get2DDist&b=%@&d=GWAS/%@&c1=pos&c2=score&w=id=%@+and+chr=%@",
+    /*return [CPString stringWithFormat:"http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=get2DDist&b=%@&d=GWAS/%@&c1=pos&c2=score&w=id=%@+and+chr=%@",
+        bins, //NOTE  - needs extension for variable size bins!
+        [[[CPApplication sharedApplication] delegate] study],
+        experiment,
+        chromosome
+    ];*/
+
+    return [CPString stringWithFormat:"/manhattanproxy/get_coordinates/%@/%@/%@/%@",
         bins, //NOTE  - needs extension for variable size bins!
         [[[CPApplication sharedApplication] delegate] study],
         experiment,
