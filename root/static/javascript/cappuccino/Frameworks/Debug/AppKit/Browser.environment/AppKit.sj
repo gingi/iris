@@ -1,11 +1,13 @@
-@STATIC;1.0;p;19;_CPAttachedWindow.jt;16125;@STATIC;1.0;I;21;Foundation/CPObject.ji;10;CPButton.ji;10;CPWindow.jt;16049;objj_executeFile("Foundation/CPObject.j", NO);
+@STATIC;1.0;p;19;_CPAttachedWindow.jt;16870;@STATIC;1.0;I;21;Foundation/CPObject.ji;10;CPButton.ji;10;CPWindow.jt;16794;objj_executeFile("Foundation/CPObject.j", NO);
 objj_executeFile("CPButton.j", YES);
 objj_executeFile("CPWindow.j", YES);
 CPClosableOnBlurWindowMask = 1 << 4;
 CPPopoverAppearanceMinimal = 0;
 CPPopoverAppearanceHUD = 1;
+var _CPAttachedWindow_attachedWindowShouldClose_ = 1 << 0,
+    _CPAttachedWindow_attachedWindowDidClose_ = 1 << 1;
 {var the_class = objj_allocateClassPair(CPWindow, "_CPAttachedWindow"),
-meta_class = the_class.isa;class_addIvars(the_class, [new objj_ivar("_animates"), new objj_ivar("_targetView"), new objj_ivar("_appearance"), new objj_ivar("_closeOnBlur"), new objj_ivar("_isClosed"), new objj_ivar("_shouldPerformAnimation"), new objj_ivar("_closeButton"), new objj_ivar("_animationDuration")]);
+meta_class = the_class.isa;class_addIvars(the_class, [new objj_ivar("_animates"), new objj_ivar("_targetView"), new objj_ivar("_appearance"), new objj_ivar("_closeOnBlur"), new objj_ivar("_isClosed"), new objj_ivar("_shouldPerformAnimation"), new objj_ivar("_closeButton"), new objj_ivar("_animationDuration"), new objj_ivar("_implementedDelegateMethods")]);
 objj_registerClassPair(the_class);
 class_addMethods(the_class, [new objj_method(sel_getUid("animates"), function $_CPAttachedWindow__animates(self, _cmd)
 { with(self)
@@ -76,7 +78,19 @@ _appearance = newValue;
         return;
     objj_msgSend(_windowView, "setAppearance:", anAppearance);
 }
-},["void","int"]), new objj_method(sel_getUid("observeValueForKeyPath:ofObject:change:context:"), function $_CPAttachedWindow__observeValueForKeyPath_ofObject_change_context_(self, _cmd, aPath, anObject, theChange, aContext)
+},["void","int"]), new objj_method(sel_getUid("setDelegate:"), function $_CPAttachedWindow__setDelegate_(self, _cmd, aDelegate)
+{ with(self)
+{
+    if (_delegate == aDelegate)
+        return;
+    _delegate = aDelegate;
+    _implementedDelegateMethods = 0;
+    if (objj_msgSend(_delegate, "respondsToSelector:", sel_getUid("attachedWindowShouldClose:")))
+        _implementedDelegateMethods |= _CPAttachedWindow_attachedWindowShouldClose_;
+    if (objj_msgSend(_delegate, "respondsToSelector:", sel_getUid("attachedWindowDidClose:")))
+        _implementedDelegateMethods |= _CPAttachedWindow_attachedWindowDidClose_;
+}
+},["void","id"]), new objj_method(sel_getUid("observeValueForKeyPath:ofObject:change:context:"), function $_CPAttachedWindow__observeValueForKeyPath_ofObject_change_context_(self, _cmd, aPath, anObject, theChange, aContext)
 { with(self)
 {
     if (objj_msgSend(aPath, "isEqual:", "frame"))
@@ -249,10 +263,9 @@ _appearance = newValue;
 {
     if (_closeOnBlur && !_isClosed)
     {
-        _isClosed = YES;
+        if (!_delegate || ((_implementedDelegateMethods & _CPAttachedWindow_attachedWindowShouldClose_)
+            && objj_msgSend(_delegate, "attachedWindowShouldClose:", self)))
         objj_msgSend(self, "close");
-        if (_delegate && objj_msgSend(_delegate, "respondsToSelector:", sel_getUid("didAttachedWindowClose:")))
-            objj_msgSend(_delegate, "didAttachedWindowClose:", self);
     }
 }
 },["void"]), new objj_method(sel_getUid("orderFront:"), function $_CPAttachedWindow__orderFront_(self, _cmd, aSender)
@@ -303,6 +316,7 @@ _appearance = newValue;
 },["IBAction","is"]), new objj_method(sel_getUid("close"), function $_CPAttachedWindow__close(self, _cmd)
 { with(self)
 {
+    _isClosed = YES;
     if (_animates && typeof(_DOMElement.style.WebkitTransform) != "undefined")
     {
         _DOMElement.style.opacity = 0;
@@ -316,8 +330,8 @@ _appearance = newValue;
         objj_msgSendSuper({ receiver:self, super_class:objj_getClass("_CPAttachedWindow").super_class }, "close");
     objj_msgSend(_targetView, "removeObserver:forKeyPath:", self, "frame");
     _shouldPerformAnimation = _animates;
-    if (_delegate && objj_msgSend(_delegate, "respondsToSelector:", sel_getUid("didAttachedWindowClose:")))
-        objj_msgSend(_delegate, "didAttachedWindowClose:", self);
+    if (_implementedDelegateMethods & _CPAttachedWindow_attachedWindowDidClose_)
+        objj_msgSend(_delegate, "attachedWindowDidClose:", self);
 }
 },["void"])]);
 class_addMethods(meta_class, [new objj_method(sel_getUid("_windowViewClassForStyleMask:"), function $_CPAttachedWindow___windowViewClassForStyleMask_(self, _cmd, aStyleMask)
@@ -15966,7 +15980,7 @@ class_addMethods(meta_class, [new objj_method(sel_getUid("DOMDataTransferPastebo
 },["_CPDOMDataTransferPasteboard"])]);
 }
 
-p;11;CPPopover.jt;10581;@STATIC;1.0;I;21;Foundation/CPObject.ji;10;CPButton.ji;9;CPColor.ji;9;CPImage.ji;13;CPImageView.ji;13;CPResponder.ji;8;CPView.ji;19;_CPAttachedWindow.jt;10422;objj_executeFile("Foundation/CPObject.j", NO);
+p;11;CPPopover.jt;11334;@STATIC;1.0;I;21;Foundation/CPObject.ji;10;CPButton.ji;9;CPColor.ji;9;CPImage.ji;13;CPImageView.ji;13;CPResponder.ji;8;CPView.ji;19;_CPAttachedWindow.jt;11175;objj_executeFile("Foundation/CPObject.j", NO);
 objj_executeFile("CPButton.j", YES);
 objj_executeFile("CPColor.j", YES);
 objj_executeFile("CPImage.j", YES);
@@ -16069,14 +16083,14 @@ _behavior = newValue;
     }
     return self;
 }
-},["CPPopover"]), new objj_method(sel_getUid("positionningRect"), function $CPPopover__positionningRect(self, _cmd)
+},["CPPopover"]), new objj_method(sel_getUid("positioningRect"), function $CPPopover__positioningRect(self, _cmd)
 { with(self)
 {
     if (!_attachedWindow || !objj_msgSend(_attachedWindow, "isVisible"))
         return nil;
     return objj_msgSend(_attachedWindow, "frame");
 }
-},["CPRect"]), new objj_method(sel_getUid("setPositionningRect:"), function $CPPopover__setPositionningRect_(self, _cmd, aRect)
+},["CPRect"]), new objj_method(sel_getUid("setPositioningRect:"), function $CPPopover__setPositioningRect_(self, _cmd, aRect)
 { with(self)
 {
     if (!_attachedWindow || !objj_msgSend(_attachedWindow, "isVisible"))
@@ -16142,6 +16156,7 @@ _behavior = newValue;
     }
     objj_msgSend(_attachedWindow, "setAppearance:", _appearance);
     objj_msgSend(_attachedWindow, "setAnimates:", _animates);
+    objj_msgSend(_attachedWindow, "setDelegate:", self);
     objj_msgSend(_attachedWindow, "setMovableByWindowBackground:", NO);
     objj_msgSend(_attachedWindow, "setFrame:", objj_msgSend(_attachedWindow, "frameRectForContentRect:", objj_msgSend(objj_msgSend(_contentViewController, "view"), "frame")));
     objj_msgSend(_attachedWindow, "setContentView:", objj_msgSend(_contentViewController, "view"));
@@ -16150,7 +16165,7 @@ _behavior = newValue;
     else if (positioningView)
         objj_msgSend(_attachedWindow, "positionRelativeToView:preferredEdge:", positioningView, preferredEdge);
     else
-        objj_msgSend(CPException, "raise:reason:", CPInvalidArgumentException, "you must set positioningRect or positioningRect");
+        objj_msgSend(CPException, "raise:reason:", CPInvalidArgumentException, "a value must be passed for positioningRect or positioningView");
     if (_implementedDelegateMethods & CPPopoverDelegate_popover_didShow_)
         objj_msgSend(_delegate, "popoverDidShow:", self);
 }
@@ -16171,8 +16186,20 @@ _behavior = newValue;
 {
     objj_msgSend(self, "close");
 }
-},["IBAction","id"])]);
+},["IBAction","id"]), new objj_method(sel_getUid("attachedWindowShouldClose:"), function $CPPopover__attachedWindowShouldClose_(self, _cmd, anAttachedWindow)
+{ with(self)
+{
+    objj_msgSend(self, "close");
+    return NO;
 }
+},["BOOL","_CPAttachedWindow"])]);
+}
+var CPPopoverNeedsComputeKey = "CPPopoverNeedsComputeKey",
+    CPPopoverAppearanceKey = "CPPopoverAppearanceKey",
+    CPPopoverAnimatesKey = "CPPopoverAnimatesKey",
+    CPPopoverContentViewControllerKey = "CPPopoverContentViewControllerKey",
+    CPPopoverDelegateKey = "CPPopoverDelegateKey",
+    CPPopoverBehaviorKey = "CPPopoverBehaviorKey";
 {
 var the_class = objj_getClass("CPPopover")
 if(!the_class) throw new SyntaxError("*** Could not find definition for class \"CPPopover\"");
@@ -16182,12 +16209,12 @@ var meta_class = the_class.isa;class_addMethods(the_class, [new objj_method(sel_
     self = objj_msgSendSuper({ receiver:self, super_class:objj_getClass("CPPopover").super_class }, "initWithCoder:", aCoder);
     if (self)
     {
-        _needsCompute = objj_msgSend(aCoder, "decodeIntForKey:", "_needsCompute");
-        _appearance = objj_msgSend(aCoder, "decodeIntForKey:", "_appearance");
-        _animates = objj_msgSend(aCoder, "decodeBoolForKey:", "_animates");
-        _contentViewController = objj_msgSend(aCoder, "decodeObjectForKey:", "_contentViewController");
-        objj_msgSend(self, "setDelegate:", objj_msgSend(aCoder, "decodeObjectForKey:", "_delegate"));
-        objj_msgSend(self, "setBehaviour:", objj_msgSend(aCoder, "decodeIntForKey:", "_behavior"));
+        _needsCompute = objj_msgSend(aCoder, "decodeIntForKey:", CPPopoverNeedsComputeKey);
+        _appearance = objj_msgSend(aCoder, "decodeIntForKey:", CPPopoverAppearanceKey);
+        _animates = objj_msgSend(aCoder, "decodeBoolForKey:", CPPopoverAnimatesKey);
+        _contentViewController = objj_msgSend(aCoder, "decodeObjectForKey:", CPPopoverContentViewControllerKey);
+        objj_msgSend(self, "setDelegate:", objj_msgSend(aCoder, "decodeObjectForKey:", CPPopoverDelegateKey));
+        objj_msgSend(self, "setBehaviour:", objj_msgSend(aCoder, "decodeIntForKey:", CPPopoverBehaviorKey));
     }
     return self;
 }
@@ -16195,12 +16222,12 @@ var meta_class = the_class.isa;class_addMethods(the_class, [new objj_method(sel_
 { with(self)
 {
     objj_msgSendSuper({ receiver:self, super_class:objj_getClass("CPPopover").super_class }, "encodeWithCoder:", aCoder);
-    objj_msgSend(aCoder, "encodeInt:forKey:", _behavior, "_behavior");
-    objj_msgSend(aCoder, "encodeInt:forKey:", _appearance, "_appearance");
-    objj_msgSend(aCoder, "encodeBool:forKey:", _needsCompute, "_needsCompute");
-    objj_msgSend(aCoder, "encodeObject:forKey:", _contentViewController, "_contentViewController");
-    objj_msgSend(aCoder, "encodeObject:forKey:", _delegate, "_delegate");
-    objj_msgSend(aCoder, "encodeObject:forKey:", _animates, "_animates");
+    objj_msgSend(aCoder, "encodeBool:forKey:", _needsCompute, CPPopoverNeedsComputeKey);
+    objj_msgSend(aCoder, "encodeInt:forKey:", _appearance, CPPopoverAppearanceKey);
+    objj_msgSend(aCoder, "encodeObject:forKey:", _animates, CPPopoverAnimatesKey);
+    objj_msgSend(aCoder, "encodeObject:forKey:", _contentViewController, CPPopoverContentViewControllerKey);
+    objj_msgSend(aCoder, "encodeObject:forKey:", _delegate, CPPopoverDelegateKey);
+    objj_msgSend(aCoder, "encodeInt:forKey:", _behavior, CPPopoverBehaviorKey);
 }
 },["void","CPCoder"])]);
 }
