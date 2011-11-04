@@ -10,7 +10,8 @@
 
 +(CPURL) urlForExperiment:(int) experiment {
 
-    return [CPString stringWithFormat:"http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=fbsql&d=GWAS/assoc&s=chr,min(score),max(score)&w=id=%@",
+    return [CPString stringWithFormat:"http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=fbsql&d=GWAS/%@&s=chr,min(score),max(score)&w=id=%@",
+        [[[CPApplication sharedApplication] delegate] study],
         experiment
     ];
 }

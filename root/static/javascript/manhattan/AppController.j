@@ -18,6 +18,7 @@
     ManhattanPlotView view;
     bool refine @accessors;
     bool pinZero @accessors;
+    bool study @accessors;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
@@ -31,9 +32,15 @@
     }
 
     [self setPinZero:false];
-    pinZeroArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"pinZero"];
+    var pinZeroArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"pinZero"];
     if (pinZeroArg != nil) {
         [self setPinZero:pinZeroArg==1 ? true : false];
+    }
+
+    [self setStudy:"assoc"];
+    var studyArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"study"];
+    if (studyArg != nil) {
+        [self setStudy:studyArg];
     }
 
     var mdo = [[ManhattanDataObject alloc] init];
