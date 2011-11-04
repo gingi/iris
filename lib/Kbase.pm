@@ -53,6 +53,7 @@ __PACKAGE__->config(
         #Set the location for TT files
         INCLUDE_PATH => [ __PACKAGE__->path_to('root', 'templates'), ],
     },
+    static => { dirs => ['static'], }
 );
 
 # Start the application

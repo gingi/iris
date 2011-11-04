@@ -54,10 +54,12 @@ sub select_study : Path : FormConfig {
     $c->stash(template => 'gwas/select_study.tt2');
 }
 
-sub scores : Local {
+sub scores : Local : Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{study} = $c->request->{study};
-    $c->stash->{scores} = [ 1, 2, 3 ];
+    $c->stash(
+        scores => [ 1, 2, 3 ],
+        study => $c->request->param('study')
+    );
     $c->forward('View::JSON');
 }
 
