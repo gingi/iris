@@ -2,7 +2,7 @@
 <div id="topwidget">
     [% topwidget %]
     <iframe name="cappuccino" src="[% c.uri_for('/static/javascript/manhattan/index.html', query_params) %]"
-        scrolling="no" width="700" height="300" marginheight="0" marginwidth="0" frameborder="yes">
+        scrolling="no" width="100%" height="100%" marginheight="0" marginwidth="0" frameborder="yes">
         <p>Dude. How old is your browser?</p>
     </iframe>
 </div>
