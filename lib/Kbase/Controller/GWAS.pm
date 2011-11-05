@@ -27,10 +27,17 @@ sub index : Path : Args(0) {
     if (!defined($study)) {
         $c->forward('select_study');
     } else {
-        my $top    = $c->subreq('/gwas/scores', {}, {study => $study});
-        my $bottom = 'Nothing here to see'; # $c->subreq('/gwas/scores');
+        my $top = "<h1>Study $study</h1>"; 
+        # $c->subreq('/gwas/manhattan', { study => $study });
+        my $bottom = 'Nothing here to see';
         $c->stash(
             template     => '2widgets.tt2',
+            query_params => {
+                id      => $study,
+                pinZero => 0,
+                refine  => 1,
+                study   => 'assoc',    #try 'padded' for HUGE amounts of data
+            },
             topwidget    => $top,
             bottomwidget => $bottom,
         );
@@ -39,27 +46,27 @@ sub index : Path : Args(0) {
 
 sub select_study : Path : FormConfig {
     my ($self, $c) = @_;
-    
+
     my $form = $c->stash->{form};
     if ($form->submitted_and_valid) {
         $c->stash(study => $form->param('study'));
         $c->forward('index');
     } else {
-        my $select = $form->get_element({name => 'study'});
-        $select->options([
-            [1, 'Arabidopsis 2010 Phenotype 1'],
-            [2, 'Arabidopsis 2010 Phenotype 2']]
+        my $select = $form->get_element({ name => 'study' });
+        $select->options(
+            [   [ 3032, 'Arabidopsis 2010 Study 3032' ],
+                [ 3034, 'Arabidopsis 2010 Study 3034' ],
+                [ 3035, 'Arabidopsis 2010 Study 3035' ],
+                [ 1,    'Arabidopsis 2010 Nonexistent Study' ],
+            ]
         );
     }
     $c->stash(template => 'gwas/select_study.tt2');
 }
 
-sub scores : Local : Args(0) {
+sub manhattan : Local : Args(0) {
     my ($self, $c) = @_;
-    $c->stash(
-        scores => [ 1, 2, 3 ],
-        study => $c->request->param('study')
-    );
+    $c->stash(study => $c->request->param('study'));
     $c->forward('View::JSON');
 }
 
