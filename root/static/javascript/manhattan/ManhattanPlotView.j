@@ -39,6 +39,14 @@
     return field;
 }
 
+-(float) widthScale {
+    return [self bounds].size.width  / ([[self dataSource] xMax] - [[self dataSource] xMin]);
+}
+
+-(float) heightScale {
+    return [self bounds].size.height / ([[self dataSource] yMax] - [[self dataSource] yMin]);
+}
+
 -(void) drawRect:(CGRect) rect {
 
     var context = [[CPGraphicsContext currentContext] graphicsPort];
@@ -62,8 +70,8 @@
     var viewWidth = [self bounds].size.width;
     var viewHeight = [self bounds].size.height;
 
-    var widthScale  = viewWidth  / ([[self dataSource] xMax] - [[self dataSource] xMin]);
-    var heightScale = viewHeight / ([[self dataSource] yMax] - [[self dataSource] yMin]);
+    var widthScale  = [self widthScale];
+    var heightScale = [self heightScale];
 
     var yMin = [[self dataSource] yMin];
 

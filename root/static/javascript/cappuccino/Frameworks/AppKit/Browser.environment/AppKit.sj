@@ -20339,7 +20339,7 @@ objj_msgSend(_d5,"encodeObject:forKey:",_tableView,_ce);
 objj_msgSend(_d5,"encodeBool:forKey:",_drawsColumnLines,_cf);
 }
 })]);
-p;13;CPTableView.jt;110210;@STATIC;1.0;I;20;Foundation/CPArray.jI;23;Foundation/CPIndexSet.ji;12;CGGradient.ji;11;CPControl.ji;15;CPTableColumn.ji;15;_CPCornerView.ji;12;CPScroller.jt;110046;
+p;13;CPTableView.jt;110255;@STATIC;1.0;I;20;Foundation/CPArray.jI;23;Foundation/CPIndexSet.ji;12;CGGradient.ji;11;CPControl.ji;15;CPTableColumn.ji;15;_CPCornerView.ji;12;CPScroller.jt;110091;
 objj_executeFile("Foundation/CPArray.j",NO);
 objj_executeFile("Foundation/CPIndexSet.j",NO);
 objj_executeFile("CGGradient.j",YES);
@@ -20523,6 +20523,7 @@ with(_3c){
 _reloadAllRows=YES;
 _objectValues={};
 _cachedRowHeights=[];
+objj_msgSend(_groupRows,"removeAllIndexes");
 objj_msgSend(_3c,"noteNumberOfRowsChanged");
 objj_msgSend(_3c,"setNeedsLayout");
 objj_msgSend(_3c,"setNeedsDisplay:",YES);

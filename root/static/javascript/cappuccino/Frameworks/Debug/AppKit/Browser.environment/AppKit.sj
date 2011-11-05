@@ -23460,7 +23460,7 @@ var meta_class = the_class.isa;class_addMethods(the_class, [new objj_method(sel_
 },["void","CPCoder"])]);
 }
 
-p;13;CPTableView.jt;163182;@STATIC;1.0;I;20;Foundation/CPArray.jI;23;Foundation/CPIndexSet.ji;12;CGGradient.ji;11;CPControl.ji;15;CPTableColumn.ji;15;_CPCornerView.ji;12;CPScroller.jt;163018;objj_executeFile("Foundation/CPArray.j", NO);
+p;13;CPTableView.jt;163232;@STATIC;1.0;I;20;Foundation/CPArray.jI;23;Foundation/CPIndexSet.ji;12;CGGradient.ji;11;CPControl.ji;15;CPTableColumn.ji;15;_CPCornerView.ji;12;CPScroller.jt;163068;objj_executeFile("Foundation/CPArray.j", NO);
 objj_executeFile("Foundation/CPIndexSet.j", NO);
 objj_executeFile("CGGradient.j", YES);
 objj_executeFile("CPControl.j", YES);
@@ -23672,6 +23672,7 @@ _disableAutomaticResizing = newValue;
     _reloadAllRows = YES;
     _objectValues = { };
     _cachedRowHeights = [];
+    objj_msgSend(_groupRows, "removeAllIndexes");
     objj_msgSend(self, "noteNumberOfRowsChanged");
     objj_msgSend(self, "setNeedsLayout");
     objj_msgSend(self, "setNeedsDisplay:", YES);

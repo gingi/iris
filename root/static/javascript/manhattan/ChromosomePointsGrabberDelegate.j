@@ -55,6 +55,8 @@
     try {
 
         var shouldRefine = false;
+        var widthScale  = [[owner view] widthScale];
+        var heightScale = [[owner view] heightScale];
 
         var json = [data objectFromJSON];
 
@@ -75,7 +77,9 @@
             ];
 
             if (! shouldRefine) {
-                var binArea = (json.data[i][1] - json.data[i][0]) * (json.data[i][3] - json.data[i][2]);
+                var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
+                var scaledHeight = (json.data[i][3] - json.data[i][2]) * heightScale;
+                var binArea = scaledWidth * scaledHeight;
                 var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold];
 
                 if (pixelArea / binArea < 0.2) {
