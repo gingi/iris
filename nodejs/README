@@ -7,23 +7,21 @@ REQUIRED MODULES
 During installation, the app automatically installs other dependencies that it requires. But in order to get to that step, the following need to be installed separately:
 
     * node.js
-		git clone http://github.com/joyent/node.git
+		git clone https://github.com/joyent/node.git
 		cd node
 		./configure
 		make
-		make install
+		sudo make install
     * npm
-		git clone http://github.com/isaacs/npm.git
+		git clone https://github.com/isaacs/npm.git
 		cd npm
-		./configure
-		make
-		make install
+		sudo make install
 
 INSTALLATION
 ============
 $ git clone http://wildcat.cshl.edu/git/kbase-web.git
 $ cd kbase-web/nodejs
-$ npm install -g express
+$ npm install express
 $ node app.js
 ---
 Author: Andrew Olson <olson@cshl.edu>
