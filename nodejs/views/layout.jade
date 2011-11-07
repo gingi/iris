@@ -1,0 +1,18 @@
+!!!
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	body
+		div#outer
+			div#header
+				h1= title
+			div#menu
+				ul
+					li <a href="/">Home</a>
+					li <a href="/about" title="About">About</a>
+			div#bodyblock
+				div#content
+					!=body
+			div#footer
+				| Copyright (c) 2011 Cold Spring Harbor Laboratory
