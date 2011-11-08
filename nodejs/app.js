@@ -52,7 +52,7 @@ app.get('/manhattanproxy/get_scores/:study/:id', function(req,res) {
 		port: 80,
 		path: '/~olson/qdv/web/run.pl?exe=fbsql&s=chr,min(score),max(score)'
 			+ '&d=GWAS/' + req.params.study
-			+ '&w=id=\''+req.params.id+'\''
+			+ '&w=id='+req.params.id
 	};
 	http.get(options, function(response) {
 		util.pump(response, res);
@@ -65,7 +65,7 @@ app.get('/manhattanproxy/get_coordinates/:bins/:study/:experiment/:chromosome', 
 		path: '/~olson/qdv/web/run.pl?exe=get2DDist&c1=pos&c2=score'
 			+ '&b='	+ req.params.bins
 			+ '&d=GWAS/' + req.params.study
-			+ '&w=id=\'' + req.params.experiment + '\'+and+chr=' + req.params.chromosome
+			+ '&w=id=' + req.params.experiment + '+and+chr=' + req.params.chromosome
 	};
 	http.get(options, function(response) {
 		util.pump(response, res);
