@@ -54,7 +54,7 @@
             andChromosome:json[i][0]
             withLabel:json[i][0]
             andOwner:[self owner]
-            inBins:5
+            inBins:[[[CPApplication sharedApplication] delegate] initialBins]
         ];
 
     }

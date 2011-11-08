@@ -19,6 +19,7 @@
     bool refine @accessors;
     bool pinZero @accessors;
     bool study @accessors;
+    int initialBins @accessors;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
@@ -42,6 +43,12 @@
     if (studyArg != nil) {
         [self setStudy:studyArg];
     }
+    
+    [self setInitialBins:5];
+    var initialBinsArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"initialBins"];
+    if (initialBinsArg != nil) {
+        [self setInitialBins:initialBinsArg];
+    }    
 
     var mdo = [[ManhattanDataObject alloc] init];
     [mdo setView:view];
