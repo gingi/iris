@@ -40,6 +40,27 @@
     return mdo;
 }
 
+-(void) setChromosomeLengthMap:(CPDictionary) newChromosomeLengthMap {
+    chromosomeLengthMap = newChromosomeLengthMap;
+    
+    var chrEnumerator = [chromosomeLengthMap keyEnumerator];
+    var chr = nil;
+    
+    var newChromosomes = [CPMutableArray array];
+    
+    while (chr = [chrEnumerator nextObject]) {
+        [newChromosomes addObject:
+            [CPMutableDictionary dictionaryWithObjectsAndKeys:
+                chr, "number",
+                chr, "name"
+            ]
+        ];
+
+    }
+    
+    [self setChromosomes:newChromosomes];
+}
+
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     var json = [data objectFromJSON];
     [self setupFromJSON:json];
@@ -78,20 +99,9 @@
     [view setNeedsDisplayInRect:[self rectForChromosome:chromosome]];
 }
 
--(void) reserveChromosomes:(int) chromosomeCount {
-    [self setChromosomes:[CPArray array]];
-
-    var i = 0;
-    for (i = 0; i < chromosomeCount; i++) {
-        [[self chromosomes] addObject:[CPNull null]];
-    }
-
-    [view setNeedsDisplay:YES];
-}
-
 -(CGRect) rectForChromosome:(int) chromosome {
 
-    var chrRect = [[self view] bounds];
+    var chrRect = [[self view] manhattanRect];
 
     var chrWidth = [[self chromosomeLengthMap] objectForKey:chromosome] / ([self xMax] - [self xMin]) * chrRect.size.width;
     var i = 0;
