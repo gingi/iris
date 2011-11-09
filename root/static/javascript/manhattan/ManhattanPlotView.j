@@ -171,8 +171,16 @@
             CGContextSetLineWidth(context, 1.0);
             CGContextSetFillColor(context, alphaColor);
             CGContextSetStrokeColor(context, alphaColor);
-            CGContextFillRect(context, coordRect);
-            CGContextStrokeRect(context, coordRect);
+            
+            if (density > 0.8 && count == 1) {
+                CGContextFillEllipseInRect(context, coordRect);
+                CGContextStrokeEllipseInRect(context, coordRect);
+            }
+            else {
+                CGContextFillRect(context, coordRect);
+                CGContextStrokeRect(context, coordRect);
+            }
+
 
         }
         
