@@ -86,6 +86,24 @@ sub get_all_points :Local :Args(3) {
     $c->response->body($results->content);
 }
 
+sub get_coordinates2 :Local :Args(5) {
+    my ( $self, $c, $bins1, $bins2, $study, $experiment, $chromosome ) = @_;
+
+    my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=scatter&b1=%s&b2=%s&d=GWAS/%s&c1=pos&c2=score&w=id=%s+and+chr=%s",
+        $bins1,
+        $bins2,
+        $study,
+        $experiment,
+        $chromosome
+    );
+
+    my $ua = LWP::UserAgent->new();
+    my $results = $ua->get($url);
+
+    $c->response->content_type('application/json');
+    $c->response->body($results->content);
+}
+
 
 
 =head1 AUTHOR
