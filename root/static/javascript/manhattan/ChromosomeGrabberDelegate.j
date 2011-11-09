@@ -42,9 +42,8 @@
     [owner setXMin:0];
     [owner setXMax:totalLength];
 
-    [owner reserveChromosomes:json.length];
     [owner setChromosomeLengthMap:chromosomeLengthMap];
-
+    
     [ChromosomeScoreCounterDelegate chromosomeScoreCounterForExperiment:[self experiment] andOwner:[self owner]];
 }
 

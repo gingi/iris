@@ -61,6 +61,9 @@
 
     [owner setYMin:[[[CPApplication sharedApplication] delegate] pinZero] ? 0 : minScore];
     [owner setYMax:maxScore];
+    
+    [[owner view] recalculateManhattanRect];
+    [[owner view] setNeedsDisplay:YES];
 
 }
 
