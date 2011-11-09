@@ -20,6 +20,7 @@
     bool pinZero @accessors;
     bool study @accessors;
     int initialBins @accessors;
+    CPString renderer @accessors;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
@@ -49,6 +50,13 @@
     if (initialBinsArg != nil) {
         [self setInitialBins:initialBinsArg];
     }    
+
+    [self setRenderer:"histogram"];
+    var rendererArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"renderer"];
+    if (rendererArg != nil) {
+        [self setRenderer:rendererArg];
+    }    
+
 
     var mdo = [[ManhattanDataObject alloc] init];
     [mdo setView:view];
