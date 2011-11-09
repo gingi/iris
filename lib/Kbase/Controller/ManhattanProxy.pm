@@ -70,6 +70,22 @@ sub get_coordinates :Local :Args(4) {
     $c->response->body($results->content);
 }
 
+sub get_all_points :Local :Args(3) {
+    my ( $self, $c, $study, $experiment, $chromosome ) = @_;
+
+    my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=fbsql&d=GWAS/%s&s=chr,pos,score&w=id=%s+and+chr=%s",
+        $study,
+        $experiment,
+        $chromosome
+    );
+
+    my $ua = LWP::UserAgent->new();
+    my $results = $ua->get($url);
+
+    $c->response->content_type('application/json');
+    $c->response->body($results->content);
+}
+
 
 
 =head1 AUTHOR

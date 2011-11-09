@@ -1,6 +1,7 @@
 @import <Foundation/CPObject.j>
 
 @import "ChromosomePointsGrabberDelegate.j"
+@import "ChromosomeHistogramGrabberDelegate.j"
 
 @implementation ChromosomeScoreCounterDelegate : CPObject {
     CPURL URL @accessors;
@@ -49,8 +50,12 @@
             maxScore = json[i][2];
         }
 
+        var rendererDictionary = [CPDictionary dictionaryWithObjectsAndKeys:
+            [ChromosomePointsGrabberDelegate class], @"points",
+            [ChromosomeHistogramGrabberDelegate class], @"histogram"
+        ];
 
-        [ChromosomePointsGrabberDelegate chromosomePointsGrabberForExperiment:[self experiment]
+        [[rendererDictionary objectForKey:[[[CPApplication sharedApplication] delegate] renderer]] coordinateGrabberForExperiment:[self experiment]
             andChromosome:json[i][0]
             withLabel:json[i][0]
             andOwner:[self owner]
