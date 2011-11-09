@@ -7,6 +7,13 @@ var express = require('express')
   , routes = require('./routes')
 	, util = require('util')
 	, http = require('http')
+	, redis = require('redis')
+
+var client = redis.createClient();
+client.on("error", function(err) {
+	console.log("error " + err);
+});
+
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -28,6 +35,28 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
+// cache responses from remote http services 
+
+use_redis = function(options,res) {
+	var key = options.host + options.path;
+	client.get(key, function(err,cached) {
+		if (cached) {
+			res.send(cached.toString());
+		} else {
+			http.get(options, function(response) {
+				util.pump(response,res);
+				var str = '';
+				response.on('data', function (chunk) {
+					str += chunk;
+				});
+				response.on('end', function () {
+					client.set(key, str);
+				});	
+			});
+		}
+	});	
+}
+
 // Routes
 
 app.get('/', routes.index);
@@ -35,15 +64,17 @@ app.get('/gwas', routes.select_study);
 app.get('/gwas/:study([0-9]+)', function(req,res) {
 	routes.gwas(req.params.study,res);
 });
+
 app.get('/manhattanproxy/get_chromosomes', function(req,res) {
 	var options = {
 		host: 'brie.cshl.edu',
 		port: 80,
 		path: '/~olson/qdv/web/chr_list.pl?g=at'
 	};
-	http.get(options, function(response) {
-		util.pump(response, res);
-	});
+	use_redis(options,res);
+//	http.get(options, function(response) {
+//		util.pump(response, res);
+//	});
 });
 
 app.get('/manhattanproxy/get_scores/:study/:id', function(req,res) {
@@ -54,10 +85,12 @@ app.get('/manhattanproxy/get_scores/:study/:id', function(req,res) {
 			+ '&d=GWAS/' + req.params.study
 			+ '&w=id='+req.params.id
 	};
-	http.get(options, function(response) {
-		util.pump(response, res);
-	});
+	use_redis(options,res);
+	//	http.get(options, function(response) {
+	//		util.pump(response, res);
+	//	});
 });
+
 app.get('/manhattanproxy/get_coordinates/:bins/:study/:experiment/:chromosome', function(req,res) {
 	var options = {
 		host: 'brie.cshl.edu',
@@ -67,9 +100,26 @@ app.get('/manhattanproxy/get_coordinates/:bins/:study/:experiment/:chromosome', 
 			+ '&d=GWAS/' + req.params.study
 			+ '&w=id=' + req.params.experiment + '+and+chr=' + req.params.chromosome
 	};
-	http.get(options, function(response) {
-		util.pump(response, res);
-	});
+	use_redis(options,res);
+	//	http.get(options, function(response) {
+	//		util.pump(response, res);
+	//	});
+});
+
+app.get('/manhattanproxy/get_coordinates/:b1/:b2/:study/:experiment/:chromosome', function(req,res) {
+	var options = {
+		host: 'brie.cshl.edu',
+		port: 80,
+		path: '/~olson/qdv/web/run.pl?exe=scatter&c1=pos&c2=score'
+			+ '&b1='	+ req.params.b1
+			+ '&b2='	+ req.params.b2
+			+ '&d=GWAS/' + req.params.study
+			+ '&w=id=' + req.params.experiment + '+and+chr=' + req.params.chromosome
+	};
+	use_redis(options,res);
+	//	http.get(options, function(response) {
+	//		util.pump(response, res);
+	//	});
 });
 
 
