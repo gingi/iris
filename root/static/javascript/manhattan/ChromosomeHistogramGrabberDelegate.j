@@ -103,6 +103,8 @@
     }
     catch (e) {
 
+        console.log("INVALID JSON ON HISTOGRAM GRABBER : " + e);
+
         if ([self bins] > 0) {
             [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]
                 andChromosome:[self chromosome]

@@ -2,6 +2,7 @@
 
 @import "ChromosomePointsGrabberDelegate.j"
 @import "ChromosomeHistogramGrabberDelegate.j"
+@import "ChromosomeScatterGrabberDelegate.j"
 
 @implementation ChromosomeScoreCounterDelegate : CPObject {
     CPURL URL @accessors;
@@ -37,39 +38,44 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    var json = [data objectFromJSON];
-
-    var i = 0;
-    var minScore = 10000000000;
-    var maxScore = 0;
-    for (i = 0; i < json.length; i++) {
-        if (json[i][1] < minScore) {
-            minScore = json[i][1];
-        }
-        if (json[i][2] > maxScore) {
-            maxScore = json[i][2];
-        }
-
-        var rendererDictionary = [CPDictionary dictionaryWithObjectsAndKeys:
-            [ChromosomePointsGrabberDelegate class], @"points",
-            [ChromosomeHistogramGrabberDelegate class], @"histogram"
-        ];
-
-        [[rendererDictionary objectForKey:[[[CPApplication sharedApplication] delegate] renderer]] coordinateGrabberForExperiment:[self experiment]
-            andChromosome:json[i][0]
-            withLabel:json[i][0]
-            andOwner:[self owner]
-            inBins:[[[CPApplication sharedApplication] delegate] initialBins]
-        ];
-
-    }
-
-    [owner setYMin:[[[CPApplication sharedApplication] delegate] pinZero] ? 0 : minScore];
-    [owner setYMax:maxScore];
+    try {
+        var json = [data objectFromJSON];
     
-    [[owner view] recalculateManhattanRect];
-    [[owner view] setNeedsDisplay:YES];
-
+        var i = 0;
+        var minScore = 10000000000;
+        var maxScore = 0;
+        for (i = 0; i < json.length; i++) {
+            if (json[i][1] < minScore) {
+                minScore = json[i][1];
+            }
+            if (json[i][2] > maxScore) {
+                maxScore = json[i][2];
+            }
+    
+            var rendererDictionary = [CPDictionary dictionaryWithObjectsAndKeys:
+                [ChromosomePointsGrabberDelegate class], @"points",
+                [ChromosomeHistogramGrabberDelegate class], @"histogram",
+                [ChromosomeScatterGrabberDelegate class], @"scatter"
+            ];
+    
+            [[rendererDictionary objectForKey:[[[CPApplication sharedApplication] delegate] renderer]] coordinateGrabberForExperiment:[self experiment]
+                andChromosome:json[i][0]
+                withLabel:json[i][0]
+                andOwner:[self owner]
+                inBins:[[[CPApplication sharedApplication] delegate] initialBins]
+            ];
+    
+        }
+    
+        [owner setYMin:[[[CPApplication sharedApplication] delegate] pinZero] ? 0 : minScore];
+        [owner setYMax:maxScore];
+        
+        [[owner view] recalculateManhattanRect];
+        [[owner view] setNeedsDisplay:YES];
+    }
+    catch (e) {
+        console.log("INVALID JSON ON SCORE GRABBER : " + e);
+    }
 }
 
 @end
