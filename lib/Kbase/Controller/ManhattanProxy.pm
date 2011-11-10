@@ -70,6 +70,25 @@ sub get_coordinates :Local :Args(4) {
     $c->response->body($results->content);
 }
 
+sub get_scatter :Local :Args(6) {
+    my ( $self, $c, $b1, $b2, $s, $study, $experiment, $chromosome ) = @_;
+
+    my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?s=2&exe=scatter&b1=%s&b2=%s&s=%s&d=GWAS/%s&w=id=%s+and+chr=%s&c1=pos&c2=score",
+        $b1,
+        $b2,
+        $s,
+        $study,
+        $experiment,
+        $chromosome
+    );
+print STDERR "URL IS $url\n";
+    my $ua = LWP::UserAgent->new();
+    my $results = $ua->get($url);
+
+    $c->response->content_type('application/json');
+    $c->response->body($results->content);
+}
+
 sub get_all_points :Local :Args(3) {
     my ( $self, $c, $study, $experiment, $chromosome ) = @_;
 

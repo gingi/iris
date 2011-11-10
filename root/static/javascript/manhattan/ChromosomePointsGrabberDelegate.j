@@ -80,7 +80,7 @@
 
     }
     catch (e) {
-        console.log("WTF : " + e);
+        console.log("INVALID JSON ON POINTS GRABBER : " + e);
     }
 
 }

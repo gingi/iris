@@ -28,23 +28,29 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    var json = [data objectFromJSON];
-
-    var chromosomeLengthMap = [CPDictionary dictionary];
-
-    var i = 0;
-    var totalLength = 0;
-    for (i = 0; i < json.length; i++) {
-        totalLength += json[i][1];
-        [chromosomeLengthMap setObject:json[i][1] forKey:json[i][0]];
-    }
-
-    [owner setXMin:0];
-    [owner setXMax:totalLength];
-
-    [owner setChromosomeLengthMap:chromosomeLengthMap];
     
-    [ChromosomeScoreCounterDelegate chromosomeScoreCounterForExperiment:[self experiment] andOwner:[self owner]];
+    try {
+        var json = [data objectFromJSON];
+    
+        var chromosomeLengthMap = [CPDictionary dictionary];
+    
+        var i = 0;
+        var totalLength = 0;
+        for (i = 0; i < json.length; i++) {
+            totalLength += json[i][1];
+            [chromosomeLengthMap setObject:json[i][1] forKey:json[i][0]];
+        }
+    
+        [owner setXMin:0];
+        [owner setXMax:totalLength];
+    
+        [owner setChromosomeLengthMap:chromosomeLengthMap];
+        
+        [ChromosomeScoreCounterDelegate chromosomeScoreCounterForExperiment:[self experiment] andOwner:[self owner]];
+    }
+    catch (e) {
+        console.log("INVALID JSON ON CHROMOSOME GRABBER : " + e);
+    }
 }
 
 
