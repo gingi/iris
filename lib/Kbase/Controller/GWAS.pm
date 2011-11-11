@@ -27,16 +27,18 @@ sub index : Path : Args(0) {
     if (!defined($study)) {
         $c->forward('select_study');
     } else {
-        my $top = "<h1>Study $study</h1>"; 
+        my $top = "<h1>Study $study</h1>";
+
         # $c->subreq('/gwas/manhattan', { study => $study });
         my $bottom = 'Nothing here to see';
         $c->stash(
             template     => '2widgets.tt2',
             query_params => {
-                id      => $study,
-                pinZero => 0,
-                refine  => 1,
-                study   => 'assoc',    #try 'padded' for HUGE amounts of data
+                id       => $study,
+                pinZero  => 0,
+                refine   => 1,
+                study    => 'assoc',    #try 'padded' for HUGE amounts of data
+                renderer => 'points'
             },
             topwidget    => $top,
             bottomwidget => $bottom,
