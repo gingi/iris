@@ -8,11 +8,8 @@
     int yMin @accessors;
     int yMax @accessors;
 
-    CPArray chromosomes @accessors;
+    CPDictionary chromosomes @accessors;
     CPArray colorArray @accessors;
-    CPDictionary chromosomeLengthMap @accessors;
-
-    CPURL URL @accessors;
 
     CPView view @accessors;
 }
@@ -27,90 +24,58 @@
         ];
         [self setYMin:0];
         [self setYMax:0];
+        
+        [self setChromosomes:[CPDictionary dictionary]];
     }
     return self;
 }
 
-+(id) manhattanDataObjectObjectWithURL:(CPString) url {
+-(CPDictionary) chromosome:(id) chr {
+    var chromosome = [[self chromosomes] objectForKey:chr];
 
-    var mdo = [[self alloc] init];
-    [mdo setURL:url];
-	var request = [[CPURLRequest alloc] initWithURL:url];
-    var connection = [CPURLConnection connectionWithRequest:request delegate:mdo];
-    return mdo;
-}
-
--(void) setChromosomeLengthMap:(CPDictionary) newChromosomeLengthMap {
-    chromosomeLengthMap = newChromosomeLengthMap;
-    
-    var chrEnumerator = [chromosomeLengthMap keyEnumerator];
-    var chr = nil;
-    
-    var newChromosomes = [CPMutableArray array];
-    
-    while (chr = [chrEnumerator nextObject]) {
-        [newChromosomes addObject:
-            [CPMutableDictionary dictionaryWithObjectsAndKeys:
-                chr, "number",
-                chr, "name"
-            ]
+    if (chromosome == nil) {
+        chromosome = [CPMutableDictionary dictionaryWithObjectsAndKeys:
+            chr, "number",
+            chr, "name",
+            [CPArray array], "coords"
         ];
-
+        [[self chromosomes] setObject:chromosome forKey:chr];
     }
     
-    [self setChromosomes:newChromosomes];
+    console.log("RET CHR : " + chromosome);
+    return chromosome;
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    var json = [data objectFromJSON];
-    [self setupFromJSON:json];
+-(CPArray) sortedChromosomeKeys {
+    return [[[self chromosomes] allKeys] sortedArrayUsingSelector:@selector(compare:)];
 }
-
 
 -(CPColor) colorAtIndex:(int) idx {
     return [[self colorArray] objectAtIndex:idx % [[self colorArray] count]];
-}
-
--(id) initWithJSON:(JSObject) json {
-    if (self = [super init]) {
-        [self setupFromJSON:json];
-    }
-
-    return self;
-}
-
--(void) setupFromJSON:(JSObject) json {
-    [self setC:json.c];
-    [self setMin:json.min];
-    [self setMax:json.max];
-    [self setCoordsFromArray:json.data];
-
-}
-
--(void) addCoordinates:(CPArray) coordinates forChromosome:(int) chromosome withLabel:(CPString) label {
-
-    var chrDic = [CPDictionary dictionaryWithObjectsAndKeys:
-        chromosome,     "number",
-        label,          "name",
-        coordinates,    "coords"
-    ];
-
-    [[self chromosomes] replaceObjectAtIndex:chromosome - 1 withObject:chrDic];
-    [view setNeedsDisplayInRect:[self rectForChromosome:chromosome]];
 }
 
 -(CGRect) rectForChromosome:(int) chromosome {
 
     var chrRect = [[self view] manhattanRect];
 
-    var chrWidth = [[self chromosomeLengthMap] objectForKey:chromosome] / ([self xMax] - [self xMin]) * chrRect.size.width;
+    var chrWidth = [[self chromosome:chromosome] objectForKey:"length"] / ([self xMax] - [self xMin]) * chrRect.size.width;
     var i = 0;
-    for (i = 1; i < chromosome; i++) {
-        chrRect.origin.x += [[self chromosomeLengthMap] objectForKey:i] / ([self xMax] - [self xMin]) * chrRect.size.width;
-    }
+    
+    var chrNumEnumerator = [[self sortedChromosomeKeys] objectEnumerator];
+    var chrNum = nil;
+
+    while (chrNum = [chrNumEnumerator nextObject]) {
+
+        var chr = [self chromosome:chrNum];
+        if (chrNum >= chromosome) {
+            continue;
+        }
+
+        chrRect.origin.x += [[self chromosome:chrNum] objectForKey:"length"] / ([self xMax] - [self xMin]) * chrRect.size.width;
+    }    
 
     chrRect.size.width = chrWidth;
-
+    console.log("RECT IS : " + CPStringFromRect(chrRect));
     return chrRect;
 }
 

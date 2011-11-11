@@ -31,20 +31,19 @@
     
     try {
         var json = [data objectFromJSON];
-    
-        var chromosomeLengthMap = [CPDictionary dictionary];
-    
+        
         var i = 0;
         var totalLength = 0;
         for (i = 0; i < json.length; i++) {
             totalLength += json[i][1];
-            [chromosomeLengthMap setObject:json[i][1] forKey:json[i][0]];
+
+            var chromosome = [owner chromosome:json[i][0]];
+            [chromosome setObject:json[i][1] forKey:"length"];
+            console.log("CHR IS : " + json[i][1] + " FOR : " + chromosome + ' on ' + json[i][0]);
         }
     
         [owner setXMin:0];
         [owner setXMax:totalLength];
-    
-        [owner setChromosomeLengthMap:chromosomeLengthMap];
         
         [ChromosomeScoreCounterDelegate chromosomeScoreCounterForExperiment:[self experiment] andOwner:[self owner]];
     }
