@@ -77,7 +77,7 @@
 }
 
 -(void) drawRect:(CGRect) rect {
-console.log("CALL 2 DRAWRECT");
+console.log("CALL 2 DRAWRECT ON " + CPStringFromRect(rect));
     var context = [[CPGraphicsContext currentContext] graphicsPort];
 
     var subViewEnumerator = [[self subviews] objectEnumerator];
@@ -118,10 +118,12 @@ console.log("DRAWING CHR : " + chr);
 
         var chrRect = [dataSource rectForChromosome:[chr objectForKey:"number"]];
 console.log("DRAWING : " + CPStringFromRect(chrRect));
-console.log("INTO : " + CPStringFromRect(rect));
-        //if (! CGRectContainsRect(rect, chrRect)) {
-    if (! CGRectIntersectsRect(rect, chrRect)) {
-        console.log("NO INTERSET. FAIL");
+console.log("INTO    : " + CPStringFromRect(rect));
+console.log("FULLY   : " + CPStringFromRect([self bounds]));
+console.log("UNION   : " + CPStringFromRect(CGRectUnion(rect, chrRect)));
+        if (! CGRectContainsRect(rect, chrRect)) {
+        //if (! CGRectIntersectsRect(rect, chrRect)) {
+            console.log("NO INTERSET. FAIL");
             continue;
         }
 
@@ -192,7 +194,7 @@ console.log("GOT COORDS : " + coords);
                 CGContextFillRect(context, coordRect);
                 CGContextStrokeRect(context, coordRect);
             }
-
+console.log("DENSITY : " + density);
 console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
         }
         
