@@ -41,8 +41,7 @@
         ];
         [[self chromosomes] setObject:chromosome forKey:chr];
     }
-    
-    console.log("RET CHR : " + chromosome);
+
     return chromosome;
 }
 
@@ -75,6 +74,13 @@
     }    
 
     chrRect.size.width = chrWidth;
+    
+    chrRect.origin.x = Math.floor(chrRect.origin.x);
+    chrRect.origin.y = Math.floor(chrRect.origin.y);
+    
+    chrRect.size.width = Math.floor(chrRect.size.width);
+    chrRect.size.height = Math.floor(chrRect.size.height);
+    
     console.log("RECT IS : " + CPStringFromRect(chrRect));
     return chrRect;
 }
