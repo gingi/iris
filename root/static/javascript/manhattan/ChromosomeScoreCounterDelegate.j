@@ -40,7 +40,7 @@
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     try {
         var json = [data objectFromJSON];
-    
+console.log("DATA IS : " + data);    
         var i = 0;
         var minScore = 10000000000;
         var maxScore = 0;
@@ -51,11 +51,12 @@
             if (json[i][2] > maxScore) {
                 maxScore = json[i][2];
             }
-    
+console.log("y : " + json[i][1] + ' -> ' + json[i][2]);
+console.log(json);
             var rendererDictionary = [CPDictionary dictionaryWithObjectsAndKeys:
-                [ChromosomePointsGrabberDelegate class], @"points",
+                [ChromosomePointsGrabberDelegate class],    @"points",
                 [ChromosomeHistogramGrabberDelegate class], @"histogram",
-                [ChromosomeScatterGrabberDelegate class], @"scatter"
+                [ChromosomeScatterGrabberDelegate class],   @"scatter"
             ];
     
             [[rendererDictionary objectForKey:[[[CPApplication sharedApplication] delegate] renderer]] coordinateGrabberForExperiment:[self experiment]
@@ -69,7 +70,8 @@
     
         [owner setYMin:[[[CPApplication sharedApplication] delegate] pinZero] ? 0 : minScore];
         [owner setYMax:maxScore];
-        
+console.log("Y : " + [owner yMin] + ' -> ' + [owner yMax]);
+console.log([[[CPApplication sharedApplication] delegate] pinZero]);
         [[owner view] recalculateManhattanRect];
         [[owner view] setNeedsDisplay:YES];
     }

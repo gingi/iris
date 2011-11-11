@@ -60,7 +60,15 @@
 
         var json = [data objectFromJSON];
 
-        var coordsArray = [CPArray array];
+        var coordsArray = [[owner chromosome:[self chromosome]] objectForKey:"coords"];
+        var coordsArrayEnumerator = [[CPArray arrayWithArray:coordsArray] objectEnumerator];
+        var c = nil;
+
+        while (c = [coordsArrayEnumerator nextObject]) {
+            if ([c objectForKey:"prune"] == true) {
+                [coordsArray removeObject:c];
+            }
+        }
 
         var i;
 
@@ -76,19 +84,33 @@
                 ]
             ];
 
-            if (! shouldRefine) {
+            if (1 || ! shouldRefine) {
                 var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
                 var scaledHeight = (json.data[i][3] - json.data[i][2]) * heightScale;
                 var binArea = scaledWidth * scaledHeight;
-                var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold];
+                var pixelArea = /* [[owner view] xThreshold] * [[owner view] yThreshold] * */ json.data[i][4];    //width * height * count
 
-                if (pixelArea / binArea < 0.2) {
+
+                if (pixelArea / binArea < 0.90) {
+                    [[coordsArray lastObject] setObject:true forKey:"prune"];
                     shouldRefine = true;
+                    console.log("SPARSE : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4]);
+                    console.log(
+                        json.data[i][0] + ' -> ' + json.data[i][1]
+                        + ' , ' +
+                        json.data[i][2] + ' -> ' + json.data[i][3]
+                    );
+                }
+                else {
+                    console.log("DENSE  : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4]);
                 }
             }
-        }
 
-        [owner addCoordinates:coordsArray forChromosome:[self chromosome] withLabel:[self chromosomeLabel]];
+        }
+console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:[self chromosome]]));
+console.log([owner view]);
+        [[owner view] setNeedsDisplayInRect:[owner rectForChromosome:[self chromosome]]];
+
 
         if (shouldRefine && [self refine] && [self bins] < 1000) {
             [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]

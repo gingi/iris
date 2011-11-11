@@ -27,37 +27,30 @@
 {
     // This is called when the application is done loading.
 	[CPMenu setMenuBarVisible:NO];
-	[self setRefine:true];
-    var refineArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"refine"];
-    if (refineArg != nil) {
-        [self setRefine:refineArg==1 ? true : false];
+	
+	var appArgs = [CPDictionary dictionaryWithObjectsAndKeys:
+	    true, "refine",
+	    false, "pinZero",
+	    "assoc", "study",
+	    5, "initialBins",
+	    "histogram", "renderer"
+	];
+	
+	var appArgsEnumerator = [appArgs keyEnumerator];
+	var arg = nil;
+	
+	while (arg = [appArgsEnumerator nextObject]) {
+	    var val = [appArgs objectForKey:arg];
+        var passedVal = [[[CPApplication sharedApplication] namedArguments] objectForKey:arg];
+        if (passedVal != nil) {
+            if ([arg isEqual:"refine"] || [arg isEqual:"pinZero"]) {
+                passedVal = passedVal == 1 ? true : false;
+            }
+            val = passedVal;
+        }
+        [self setValue:val forKey:arg];
     }
-
-    [self setPinZero:false];
-    var pinZeroArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"pinZero"];
-    if (pinZeroArg != nil) {
-        [self setPinZero:pinZeroArg==1 ? true : false];
-    }
-
-    [self setStudy:"assoc"];
-    var studyArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"study"];
-    if (studyArg != nil) {
-        [self setStudy:studyArg];
-    }
-    
-    [self setInitialBins:5];
-    var initialBinsArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"initialBins"];
-    if (initialBinsArg != nil) {
-        [self setInitialBins:initialBinsArg];
-    }    
-
-    [self setRenderer:"histogram"];
-    var rendererArg = [[[CPApplication sharedApplication] namedArguments] objectForKey:"renderer"];
-    if (rendererArg != nil) {
-        [self setRenderer:rendererArg];
-    }    
-
-
+console.log("REFINE : " + [self refine]);
     var mdo = [[ManhattanDataObject alloc] init];
     [mdo setView:view];
     [ChromosomeGrabberDelegate chromosomeGrabberForExperiment:[[[CPApplication sharedApplication] namedArguments] objectForKey:"id"] andOwner:mdo];

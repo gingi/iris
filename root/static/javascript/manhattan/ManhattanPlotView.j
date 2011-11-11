@@ -77,7 +77,7 @@
 }
 
 -(void) drawRect:(CGRect) rect {
-
+console.log("CALL 2 DRAWRECT");
     var context = [[CPGraphicsContext currentContext] graphicsPort];
 
     var subViewEnumerator = [[self subviews] objectEnumerator];
@@ -97,8 +97,8 @@
         [self drawScaleInRect:[self bounds]];
     }
 
-    var chromosomeEnumerator = [[dataSource chromosomes] objectEnumerator];
-    var chr = nil;
+    var chromosomeEnumerator = [[dataSource sortedChromosomeKeys] objectEnumerator];
+    var chrNum = nil;
 
     var manhattanRect = [self manhattanRect];
 
@@ -107,15 +107,21 @@
 
     var yMin = [[self dataSource] yMin];
 
-    while (chr = [chromosomeEnumerator nextObject]) {
+    while (chrNum = [chromosomeEnumerator nextObject]) {
+    
+        var chr = [[dataSource chromosomes] objectForKey:chrNum];
+console.log("DRAWING CHR : " + chr);
 
         if ([chr isEqual:[CPNull null]]) {
             continue;
         }
 
         var chrRect = [dataSource rectForChromosome:[chr objectForKey:"number"]];
-
-        if (! CGRectIntersectsRect(chrRect, rect)) {
+console.log("DRAWING : " + CPStringFromRect(chrRect));
+console.log("INTO : " + CPStringFromRect(rect));
+        //if (! CGRectContainsRect(rect, chrRect)) {
+    if (! CGRectIntersectsRect(rect, chrRect)) {
+        console.log("NO INTERSET. FAIL");
             continue;
         }
 
@@ -125,18 +131,20 @@
             chrColor = [CPColor darkGrayColor];
         }
 
+/*
         CGContextSetFillColor(context, chrColor);
         CGContextFillRect(context, chrRect);
         CGContextSetStrokeColor(context, chrColor);
         CGContextStrokeRect(context, chrRect);
+*/
 
         [self drawScaleLinesInRect:chrRect];
 
         var coordsEnumerator = [[chr objectForKey:"coords"] objectEnumerator];
         var coords = nil;
-
+console.log("GET COORDS");
         while (coords = [coordsEnumerator nextObject]) {
-
+console.log("GOT COORDS : " + coords);
             var x1 = [coords objectForKey:"x1"];
             var x2 = [coords objectForKey:"x2"];
             var y1 = [coords objectForKey:"y1"];
@@ -160,7 +168,7 @@
 
             coordRect = CGRectIntersection(coordRect, manhattanRect);
 
-            var density = count * [self xThreshold] * [self yThreshold] / (coordRect.size.width * coordRect.size.height);
+            var density = count /* * [self xThreshold] * [self yThreshold] */ / (coordRect.size.width * coordRect.size.height);
 
 
             var color = [[self dataSource] colorAtIndex:[chr objectForKey:"number"] - 1];
@@ -171,6 +179,10 @@
             CGContextSetLineWidth(context, 1.0);
             CGContextSetFillColor(context, alphaColor);
             CGContextSetStrokeColor(context, alphaColor);
+            CGContextSetStrokeColor(context, [CPColor blueColor]);
+            if ([coords objectForKey:"prune"] == true) {
+                CGContextSetStrokeColor(context, [CPColor yellowColor]);
+            }
             
             if (density > 0.8 && count == 1) {
                 CGContextFillEllipseInRect(context, coordRect);
@@ -181,7 +193,7 @@
                 CGContextStrokeRect(context, coordRect);
             }
 
-
+console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
         }
         
         CGContextBeginPath(context);
