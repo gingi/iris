@@ -1,4 +1,4 @@
-#topwidget, #bottomwidget {
+.widget {
     display:block;
     border:1px solid #999;
     height:50%;
