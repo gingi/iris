@@ -1,7 +1,0 @@
-<iframe name="cappuccino"
-    src="[% c.uri_for(cappuccino_view, query_params) %]"
-    scrolling="no"
-    width="100%" height="100%" marginheight="0" marginwidth="0"
-    frameborder="[% frameborder %]">
-    <p>Dude. How old is your browser?</p>
-</iframe>

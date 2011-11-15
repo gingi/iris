@@ -1,4 +1,2 @@
-[% META title = 'Select Study' %]
-
 [%# Render the HTML::FormFu Form %]
 [% form %]

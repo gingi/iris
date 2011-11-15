@@ -4,7 +4,7 @@
 }
 body {
     margin:0;
-    background-color:#3E3838;
+    background-color:#999;
 }
 #outer {
     min-height:750px;
@@ -34,7 +34,6 @@ body {
     border: 1px solid #f8f8f8;
 }
 #content {
-    padding-left:10px;
     width:900px;
 }
 #menu {
@@ -44,8 +43,10 @@ body {
     width: 100px;
     background-color: #eee;
     border-left: 1px dotted #585353;
+    height: 110%;
+    overflow: hidden;
 }
-#content,#menu,#bodyblock{ height: 675px; }
+#bodyblock{ height: 675px; overflow: scroll;}
 
 #menu ul {
     list-style:none;
