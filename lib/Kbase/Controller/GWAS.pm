@@ -4,6 +4,8 @@ use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
 
+__PACKAGE__->config({ default_view => 'HTML' });
+
 =head1 NAME
 
 Kbase::Controller::GWAS - Catalyst Controller
@@ -22,37 +24,28 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
-
-    my $study = $c->request->param('study');
-    if (!defined($study)) {
-        $c->forward('select_study');
-    } else {
-        my $top = "<h1>Study $study</h1>";
-
-        # $c->subreq('/gwas/manhattan', { study => $study });
-        my $bottom = 'Nothing here to see';
-        $c->stash(
-            template     => '2widgets.tt2',
-            query_params => {
-                id       => $study,
-                pinZero  => 0,
-                refine   => 1,
-                study    => 'assoc',    #try 'padded' for HUGE amounts of data
-                renderer => 'points'
-            },
-            topwidget    => $top,
-            bottomwidget => $bottom,
-        );
-    }
+    $c->response->body('Matched Kbase::Controller::GWAS in Widget.');
 }
 
-sub select_study : Path : FormConfig {
+sub view : Local {
+    my ($self, $c) = @_;
+    my $study = $c->request->param('study');
+    my $top = $c->subrequest("/widget/scatterplot", {}, { study => $study });
+    my $bottom = "<i>Your ad here.</i>";
+    $c->stash(
+        template  => '2widgets.tt2',
+        topwidget => $top,
+        bottomwidget => $bottom,
+    );
+}
+
+sub study : Local : FormConfig {
     my ($self, $c) = @_;
 
     my $form = $c->stash->{form};
     if ($form->submitted_and_valid) {
         $c->stash(study => $form->param('study'));
-        $c->forward('index');
+        $c->detach('view');
     } else {
         my $select = $form->get_element({ name => 'study' });
         $select->options(
@@ -62,15 +55,11 @@ sub select_study : Path : FormConfig {
                 [ 1,    'Arabidopsis 2010 Nonexistent Study' ],
             ]
         );
+        $c->stash(template => 'gwas/study.tt2');
     }
-    $c->stash(template => 'gwas/select_study.tt2');
 }
 
-sub manhattan : Local : Args(0) {
-    my ($self, $c) = @_;
-    $c->stash(study => $c->request->param('study'));
-    $c->forward('View::JSON');
-}
+sub end :ActionClass('RenderView') {}
 
 =head1 AUTHOR
 

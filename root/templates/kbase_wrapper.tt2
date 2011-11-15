@@ -1,3 +1,4 @@
+[% IF no_wrapper OR template.no_wrapper %] [% content %] [% ELSE %]
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" [%#
     %]"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -6,8 +7,7 @@
 <title>[% template.title or "Kbase Web" %]</title>
 <link rel="stylesheet" href="[% c.uri_for('/static/css/kbase.css') %]" />
 </head>
-
-<body>
+<body>    
 <div id="outer">
 <div id="header">
     [%# Your logo could go here -%]
@@ -15,6 +15,7 @@
     <h1>[% template.title or site.title or "Kbase Web" %]</h1>
 </div>
 
+<div id="bodyblock">
 <div id="menu">
     <ul>
         <li><a href="[% c.uri_for('/') %]">Home</a></li>
@@ -22,7 +23,6 @@
     </ul>
 </div><!-- end menu -->
 
-<div id="bodyblock">
 <div id="content">
     [%# Status and error messages %]
     <span class="message">[% status_msg %]</span>
@@ -39,3 +39,4 @@
 
 </body>
 </html>
+[% END #no_wrapper %]

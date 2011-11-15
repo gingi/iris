@@ -15,6 +15,7 @@ requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Plugin::StatusMessage';
 requires 'Catalyst::Plugin::StackTrace';
 requires 'Catalyst::Plugin::SubRequest';
+requires 'Catalyst::View::Component::SubInclude';
 requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::View::JSON';
 requires 'Catalyst::Controller::REST';

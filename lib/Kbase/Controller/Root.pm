@@ -26,8 +26,8 @@ The root page (/)
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub index : Path : Args(0) {
+    my ($self, $c) = @_;
     $c->stash(template => 'index.tt2');
 }
 
@@ -37,11 +37,9 @@ Standard 404 error page
 
 =cut
 
-sub default :Path {
-    my ( $self, $c ) = @_;
-    $c->stash(
-        error_msg => 'Page not found!'
-    );
+sub default : Path {
+    my ($self, $c) = @_;
+    $c->stash(error_msg => 'Page not found!');
     $c->response->status(404);
 }
 
@@ -51,7 +49,8 @@ Attempt to render a view, if needed.
 
 =cut
 
-sub end : ActionClass('RenderView') {}
+sub end : ActionClass('RenderView') {
+}
 
 =head1 AUTHOR
 
