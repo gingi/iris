@@ -8,9 +8,11 @@
     CPString chromosomeLabel @accessors;
     int bins @accessors;
     BOOL refine @accessors;
+    BOOL prune @accessors;
+    CPColor color @accessors;
 }
 
-+(CPURL) urlForExperiment:(int) experiment andChromosome:(int) chromosome inBins:(int) bins {
++(CPURL) urlForExperiment:(int) experiment andChromosome:(int) chromosome inBins:(int) bins withClause:(CPString) clause {
 
     /*return [CPString stringWithFormat:"http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=get2DDist&b=%@&d=GWAS/%@&c1=pos&c2=score&w=id=%@+and+chr=%@",
         bins, //NOTE  - needs extension for variable size bins!
@@ -19,11 +21,19 @@
         chromosome
     ];*/
 
-    return [CPString stringWithFormat:"/manhattanproxy/get_coordinates/%@/%@/%@/%@",
+    if ([clause length] > 0) {
+        clause = [CPString stringWithFormat:"?w=%@", encodeURI(clause)];
+    }
+    else {
+        clause = "";
+    }
+    
+    return [CPString stringWithFormat:"/manhattanproxy/get_coordinates/%@/%@/%@/%@%@",
         bins, //NOTE  - needs extension for variable size bins!
         [[[CPApplication sharedApplication] delegate] study],
         experiment,
-        chromosome
+        chromosome,
+        clause
     ];
 }
 
@@ -32,8 +42,8 @@
 }
 
 +(id) coordinateGrabberForExperiment:(int) experiment andChromosome:(int) chromosome withLabel:(CPString) label andOwner:(id) owner inBins:(int) bins refine:(BOOL) refine {
-
-    var url = [self urlForExperiment:experiment andChromosome:chromosome inBins:bins];
+console.log("CLAUSE IS : " + [[[CPApplication sharedApplication] delegate] clause]);
+    var url = [self urlForExperiment:experiment andChromosome:chromosome inBins:bins withClause:[[[CPApplication sharedApplication] delegate] clause]];
 
     var cpg = [[self alloc] init];
     [cpg setURL:url];
@@ -60,21 +70,32 @@
 
         var json = [data objectFromJSON];
 
-        var coordsArray = [[owner chromosome:[self chromosome]] objectForKey:"coords"];
+        /*var coordsArray = [[owner chromosome:[self chromosome]] objectForKey:"coords"];
         var coordsArrayEnumerator = [[CPArray arrayWithArray:coordsArray] objectEnumerator];
         var c = nil;
 
         while (c = [coordsArrayEnumerator nextObject]) {
-            if ([c objectForKey:"prune"] == true) {
+            if (1 || [c objectForKey:"prune"] == true) {
                 [coordsArray removeObject:c];
             }
+        }*/
+        
+        if ([self prune]) {
+            [[[owner chromosome:[self chromosome]] objectForKey:"coords"] removeObject:[self prune]];
         }
-
+        else {
+            [[owner chromosome:[self chromosome]] setObject:[CPArray array] forKey:"coords"];
+        }
+        
+        var coordsArray = [[owner chromosome:[self chromosome]] objectForKey:"coords"];
+        
         var i;
 
+        var newCoordsArray = [CPArray array];
+
         for (i = 0; i < json.data.length; i++) {
-            [coordsArray addObject:
-                [CPDictionary dictionaryWithObjectsAndKeys:
+        
+            var newCoord =  [CPDictionary dictionaryWithObjectsAndKeys:
                     json.data[i][0], "x1",
                     json.data[i][1], "x2",
                     json.data[i][2], "y1",
@@ -82,19 +103,22 @@
                     json.data[i][4], "count",
                     json.data[i][5], "density"
                 ]
-            ];
+        
+            [newCoordsArray addObject:newCoord];
 
             if (1 || ! shouldRefine) {
                 var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
                 var scaledHeight = (json.data[i][3] - json.data[i][2]) * heightScale;
                 var binArea = scaledWidth * scaledHeight;
-                var pixelArea = /* [[owner view] xThreshold] * [[owner view] yThreshold] * */ json.data[i][4];    //width * height * count
+                var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold] * json.data[i][4];    //width * height * count
+//                pixelArea = json.data[i][4];
 
-
-                if (pixelArea / binArea < 0.90) {
-                    [[coordsArray lastObject] setObject:true forKey:"prune"];
+                var pixelDensity = pixelArea / binArea;
+//                pixelDensity = pixelDensity - Math.floor(pixelDensity);
+                if (pixelDensity < 0.90) {
+                    [newCoord setObject:true forKey:"prune"];
                     shouldRefine = true;
-                    console.log("SPARSE : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4]);
+                    console.log("SPARSE : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
                     console.log(
                         json.data[i][0] + ' -> ' + json.data[i][1]
                         + ' , ' +
@@ -102,11 +126,47 @@
                     );
                 }
                 else {
-                    console.log("DENSE  : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4]);
+                    console.log("DENSE  : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
                 }
             }
 
         }
+        
+        [newCoordsArray sortUsingDescriptors:
+            [CPArray arrayWithObjects:
+                [[CPSortDescriptor alloc] initWithKey:"x1" ascending:YES],
+                [[CPSortDescriptor alloc] initWithKey:"y1" ascending:YES]
+            ]
+        ];
+        
+        {
+            var squareArray = [CPArray array];
+            var lastX1 = nil;
+            var lineArray = nil;
+            var newCoordsArrayEnumerator = [newCoordsArray objectEnumerator];
+            var coords = nil;
+            while (coords = [newCoordsArrayEnumerator nextObject]) {
+                if ([[coords objectForKey:"x1"] isEqual:lastX1]) {
+                    [lineArray addObject:coords];
+                }
+                else {
+                    lineArray = [CPArray array];
+                    [squareArray addObject:lineArray];
+                    [lineArray addObject:coords];
+                    lastX1 = [coords objectForKey:"x1"];
+                }   
+            }
+            console.log("SQUARE : " + [squareArray count] + ' and ' + [[squareArray objectAtIndex:2] count]);
+            for (j = 0; j < [squareArray count]; j++) {
+                console.log("SEES : " + [squareArray objectAtIndex:j]);
+            }
+        }
+        
+        
+        
+        
+        [coordsArray addObjectsFromArray:newCoordsArray];
+        
 console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:[self chromosome]]));
 console.log([owner view]);
         [[owner view] setNeedsDisplayInRect:[owner rectForChromosome:[self chromosome]]];

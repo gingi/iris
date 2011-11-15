@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 use LWP::UserAgent;
+use URI::Escape ();
 
 =head1 NAME
 
@@ -54,7 +55,7 @@ sub get_scores :Local :Args(2) {
 }
 
 sub get_coordinates :Local :Args(4) {
-    my ( $self, $c, $bins, $study, $experiment, $chromosome ) = @_;
+    my ( $self, $c, $bins, $study, $experiment, $chromosome, $clause ) = @_;
 
     my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=get2DDist&b=%s&d=GWAS/%s&c1=pos&c2=score&w=id=%s+and+chr=%s",
         $bins,
@@ -62,7 +63,14 @@ sub get_coordinates :Local :Args(4) {
         $experiment,
         $chromosome
     );
-
+    
+    my $clause = $c->request->query_parameters->{'w'};
+print STDERR "CLAUSE IS $clause\n";    
+    if (defined $clause) {
+        $url .= URI::Escape::uri_escape(" and $clause");
+    }
+    
+print STDERR "URL : $url\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
 
@@ -81,7 +89,7 @@ sub get_scatter :Local :Args(6) {
         $experiment,
         $chromosome
     );
-print STDERR "URL IS $url\n";
+print STDERR "URL IS $url ", $c->request->arguments->{'w'}, "\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
 
