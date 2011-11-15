@@ -21,6 +21,8 @@
     bool study @accessors;
     int initialBins @accessors;
     CPString renderer @accessors;
+    CPString clause @accessors;
+    bool debugDraw @accessors;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
@@ -31,9 +33,11 @@
 	var appArgs = [CPDictionary dictionaryWithObjectsAndKeys:
 	    true, "refine",
 	    false, "pinZero",
+	    false, "debugDraw",
 	    "assoc", "study",
 	    5, "initialBins",
-	    "histogram", "renderer"
+	    "histogram", "renderer",
+	    "", "clause"
 	];
 	
 	var appArgsEnumerator = [appArgs keyEnumerator];
@@ -42,8 +46,9 @@
 	while (arg = [appArgsEnumerator nextObject]) {
 	    var val = [appArgs objectForKey:arg];
         var passedVal = [[[CPApplication sharedApplication] namedArguments] objectForKey:arg];
+	    console.log("CHECKS " + arg + ' with ' + val + ' and ' + passedVal);
         if (passedVal != nil) {
-            if ([arg isEqual:"refine"] || [arg isEqual:"pinZero"]) {
+            if ([arg isEqual:"refine"] || [arg isEqual:"pinZero"] || [arg isEqual:"debugDraw"]) {
                 passedVal = passedVal == 1 ? true : false;
             }
             val = passedVal;
@@ -51,6 +56,7 @@
         [self setValue:val forKey:arg];
     }
 console.log("REFINE : " + [self refine]);
+console.log("CLAUSE : " + [self clause]);
     var mdo = [[ManhattanDataObject alloc] init];
     [mdo setView:view];
     [ChromosomeGrabberDelegate chromosomeGrabberForExperiment:[[[CPApplication sharedApplication] namedArguments] objectForKey:"id"] andOwner:mdo];

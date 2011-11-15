@@ -170,10 +170,16 @@ console.log("GOT COORDS : " + coords);
 
             coordRect = CGRectIntersection(coordRect, manhattanRect);
 
-            var density = count /* * [self xThreshold] * [self yThreshold] */ / (coordRect.size.width * coordRect.size.height);
-
+            var density = count * [self xThreshold] * [self yThreshold] / (coordRect.size.width * coordRect.size.height);
+            var rdensity = density - Math.floor(density);
+console.log("RDENSITY : " + density + "->" + rdensity);
+//            density = density - Math.floor(density);
 
             var color = [[self dataSource] colorAtIndex:[chr objectForKey:"number"] - 1];
+            if ([coords objectForKey:"color"] != nil) {
+                color = [coords objectForKey:"color"];
+            }
+            
             var alphaColor = [CPColor colorWithCalibratedRed:[color redComponent]
                                                     green:[color greenComponent]
                                                     blue:[color blueComponent]
@@ -181,9 +187,11 @@ console.log("GOT COORDS : " + coords);
             CGContextSetLineWidth(context, 1.0);
             CGContextSetFillColor(context, alphaColor);
             CGContextSetStrokeColor(context, alphaColor);
-            CGContextSetStrokeColor(context, [CPColor blueColor]);
-            if ([coords objectForKey:"prune"] == true) {
-                CGContextSetStrokeColor(context, [CPColor yellowColor]);
+            if ([[[CPApplication sharedApplication] delegate] debugDraw]) {
+                CGContextSetStrokeColor(context, [CPColor blueColor]);
+                if ([coords objectForKey:"prune"] == true) {
+                    CGContextSetStrokeColor(context, [CPColor yellowColor]);
+                }
             }
             
             if (density > 0.8 && count == 1) {
