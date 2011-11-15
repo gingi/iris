@@ -5,6 +5,7 @@ use warnings;
 use parent 'Catalyst::Controller';
 use LWP::UserAgent;
 use URI::Escape ();
+use JSON;
 
 =head1 NAME
 
@@ -65,8 +66,36 @@ sub get_coordinates :Local :Args(4) {
     );
     
     my $clause = $c->request->query_parameters->{'w'};
-print STDERR "CLAUSE IS $clause\n";    
+
     if (defined $clause) {
+
+        if (ref $clause) {
+            my $json;
+            my $o;
+            foreach my $c (@$clause) {
+                my $dirty_url = $url . URI::Escape::uri_escape(" and $c");
+                my $ua = LWP::UserAgent->new();
+                my $results = $ua->get($dirty_url);
+                print STDERR "DIRTY URL : $url\n";
+                my $structure = decode_json($results->content);
+                $o .= $results->content . "\n------\n";
+                
+                if (! defined $json) {
+                    $json = $structure;
+                }
+                else {
+                    push @{$json->{'data'}}, @{$structure->{'data'}}
+                }
+            }
+            
+            $c->response->content_type('application/json');
+            $c->response->body(encode_json($json));
+            #$c->response->content_type('text/plain');
+            #$c->response->body($o);
+
+            return;
+        }
+
         $url .= URI::Escape::uri_escape(" and $clause");
     }
     

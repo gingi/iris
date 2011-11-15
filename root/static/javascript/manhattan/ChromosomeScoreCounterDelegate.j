@@ -44,7 +44,7 @@ console.log("DATA IS : " + data);
         var i = 0;
         var minScore = 10000000000;
         var maxScore = 0;
-        for (i = 0; i < 1/*json.length*/; i++) {
+        for (i = 0; i < json.length; i++) {
             if (json[i][1] < minScore) {
                 minScore = json[i][1];
             }
