@@ -110,22 +110,18 @@ console.log("CALL 2 DRAWRECT ON " + CPStringFromRect(rect));
     while (chrNum = [chromosomeEnumerator nextObject]) {
     
         var chr = [[dataSource chromosomes] objectForKey:chrNum];
-console.log("DRAWING CHR : " + chr);
+console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr objectForKey:"coords"] count]);
 
         if ([chr isEqual:[CPNull null]]) {
             continue;
         }
 
         var chrRect = [dataSource rectForChromosome:[chr objectForKey:"number"]];
-console.log("DRAWING : " + CPStringFromRect(chrRect));
-console.log("INTO    : " + CPStringFromRect(rect));
-console.log("FULLY   : " + CPStringFromRect([self bounds]));
-console.log("UNION   : " + CPStringFromRect(CGRectUnion(rect, chrRect)));
-        if (! CGRectContainsRect(rect, chrRect)) {
-        //if (! CGRectIntersectsRect(rect, chrRect)) {
-            console.log("NO INTERSET. FAIL");
-            continue;
-        }
+//console.log("DRAWING : " + CPStringFromRect(chrRect));
+//console.log("INTO    : " + CPStringFromRect(rect));
+//console.log("FULLY   : " + CPStringFromRect([self bounds]));
+//console.log("UNION   : " + CPStringFromRect(CGRectUnion(rect, chrRect)));
+
 
         var chrColor = [CPColor whiteColor];
 
@@ -140,13 +136,13 @@ console.log("UNION   : " + CPStringFromRect(CGRectUnion(rect, chrRect)));
         CGContextStrokeRect(context, chrRect);
 */
 
-        [self drawScaleLinesInRect:chrRect];
+//        [self drawScaleLinesInRect:chrRect];
 
         var coordsEnumerator = [[chr objectForKey:"coords"] objectEnumerator];
         var coords = nil;
-console.log("GET COORDS");
+//console.log("GET COORDS = " + [[chr objectForKey:"coords"] count]);
         while (coords = [coordsEnumerator nextObject]) {
-console.log("GOT COORDS : " + coords);
+//console.log("GOT COORDS : " + coords);
             var x1 = [coords objectForKey:"x1"];
             var x2 = [coords objectForKey:"x2"];
             var y1 = [coords objectForKey:"y1"];
@@ -154,11 +150,21 @@ console.log("GOT COORDS : " + coords);
             var count = [coords objectForKey:"count"];
 
             var coordRect = CGRectMake(
-                chrRect.origin.x + x1 * widthScale,
-                chrRect.origin.y + manhattanRect.size.height - (y2 - y1) * heightScale - (y1 - yMin) * heightScale,
-                (x2 - x1) * widthScale,
-                (y2 - y1) * heightScale
+                Math.floor(chrRect.origin.x + x1 * widthScale),
+                Math.floor(chrRect.origin.y + manhattanRect.size.height - (y2 - y1) * heightScale - (y1 - yMin) * heightScale),
+                Math.ceil((x2 - x1) * widthScale),
+                Math.ceil((y2 - y1) * heightScale)
             );
+
+        [self drawScaleLinesInRect:coordRect];
+            
+        if (! CGRectContainsRect(rect, coordRect)) {
+        //if (! CGRectIntersectsRect(rect, chrRect)) {
+            console.log("NO INTERSET. FAIL");
+            continue;
+        }
+        
+
 
             if (coordRect.size.width < [self xThreshold]) {
                 coordRect.size.width = [self xThreshold];
@@ -172,7 +178,7 @@ console.log("GOT COORDS : " + coords);
 
             var density = count * [self xThreshold] * [self yThreshold] / (coordRect.size.width * coordRect.size.height);
             var rdensity = density - Math.floor(density);
-console.log("RDENSITY : " + density + "->" + rdensity);
+//console.log("RDENSITY : " + density + "->" + rdensity);
 //            density = density - Math.floor(density);
 
             var color = [[self dataSource] colorAtIndex:[chr objectForKey:"number"] - 1];
@@ -202,10 +208,11 @@ console.log("RDENSITY : " + density + "->" + rdensity);
                 CGContextFillRect(context, coordRect);
                 CGContextStrokeRect(context, coordRect);
             }
-console.log("DENSITY : " + density);
-console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
+//console.log("DENSITY : " + density);
+//console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
         }
-        
+
+// XXX NEEDS TO UPDATE TO ONLY STROKE BORDER WHEN COORDS INTERSECT IT. SHIT!         
         CGContextBeginPath(context);
         CGContextMoveToPoint(context, chrRect.origin.x, chrRect.origin.y);
         CGContextAddLineToPoint(context, chrRect.origin.x + chrRect.size.width, chrRect.origin.y);
@@ -228,7 +235,7 @@ console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
         CGContextSetStrokeColor(context, [CPColor blackColor]);
         CGContextSetLineWidth(context, 0.2);
         CGContextStrokePath(context);
-        
+      
     }
 
 }
@@ -429,10 +436,16 @@ console.log("DRAW COORD BLOCK : " + CPStringFromRect(coordRect));
         else if (endX > rect.origin.x + rect.size.width) {
             endX = rect.origin.x + rect.size.width;
         }
+        
+        var yCoord = viewHeight - i_scaled + viewBounds.origin.y;
+        
+        if (yCoord < rect.origin.y || yCoord > rect.origin.y + rect.size.height) {
+            continue;
+        }
     
         CGContextBeginPath(context);
-        CGContextMoveToPoint(context, startX, viewHeight - i_scaled + viewBounds.origin.y);
-        CGContextAddLineToPoint(context, endX, viewHeight - i_scaled + viewBounds.origin.y);
+        CGContextMoveToPoint(context, startX, yCoord);
+        CGContextAddLineToPoint(context, endX, yCoord);
         CGContextClosePath(context); 
         CGContextSetStrokeColor(context, [CPColor lightGrayColor]);
         CGContextSetLineWidth(context, 0.2);

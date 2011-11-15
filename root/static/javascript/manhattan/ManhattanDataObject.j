@@ -78,8 +78,8 @@
     chrRect.origin.x = Math.floor(chrRect.origin.x);
     chrRect.origin.y = Math.floor(chrRect.origin.y);
     
-    chrRect.size.width = Math.floor(chrRect.size.width);
-    chrRect.size.height = Math.floor(chrRect.size.height);
+    chrRect.size.width = Math.ceil(chrRect.size.width);
+    chrRect.size.height = Math.ceil(chrRect.size.height);
     
     console.log("RECT IS : " + CPStringFromRect(chrRect));
     return chrRect;
