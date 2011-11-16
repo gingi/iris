@@ -43,7 +43,7 @@ sub get_chromosomes :Local :Args(0) {
 sub get_scores :Local :Args(2) {
     my ( $self, $c, $study, $id) = @_;
 
-    my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=fbsql&d=GWAS/%s&s=chr,min(score),max(score)&w=id=%s",
+    my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=fbsql&d=GWAS/%s&s=chr,min(score),max(score),count(1)&w=id=%s",
         $study,
         $id
     );

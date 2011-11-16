@@ -135,7 +135,6 @@
                 [[[owner chromosome:[self chromosome]] objectForKey:"coords"] removeObject:toPrune];
                 
                 [[owner view] setNeedsDisplayInRect:redisplayArea];
-                console.log("PRUNES : " + CPStringFromRect(redisplayArea));
             }
         }
         else {
@@ -192,42 +191,32 @@
             );
             [[owner view] setNeedsDisplayInRect:coordRect];
 
-
-            if (1 || ! shouldRefine) {
-                var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
-                var scaledHeight = (json.data[i][3] - json.data[i][2]) * heightScale;
-                var binArea = scaledWidth * scaledHeight;
-                var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold] * json.data[i][4];    //width * height * count
+            var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
+            var scaledHeight = (json.data[i][3] - json.data[i][2]) * heightScale;
+            var binArea = scaledWidth * scaledHeight;
+            var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold] * json.data[i][4];    //width * height * count
 //                pixelArea = json.data[i][4];
 
-                var pixelDensity = pixelArea / binArea;
+            var pixelDensity = pixelArea / binArea;
 
-                if (pixelDensity < 0.90 && [self throttle]) {
-                    [newCoord setObject:true forKey:"prune"];
-                    shouldRefine = true;
-                    console.log("SPARSE : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
-                    console.log(
-                        json.data[i][0] + ' -> ' + json.data[i][1]
-                        + ' , ' +
-                        json.data[i][2] + ' -> ' + json.data[i][3]
-                    );
+            if (pixelDensity < 0.99 && [self throttle]) {
+                [newCoord setObject:true forKey:"prune"];
+                shouldRefine = true;
 
-                    [refinerPrune addObject:newCoord];
-                    [refinerClauses addObject:[CPString stringWithFormat:"pos >= %@ and pos <= %@ and score >= %@ and score <= %@",
-                                                        [newCoord objectForKey:"x1"],
-                                                        [newCoord objectForKey:"x2"],
-                                                        [newCoord objectForKey:"y1"],
-                                                        [newCoord objectForKey:"y2"]
-                                                    ]
-                    ];
-
-                }
-
+                [refinerPrune addObject:newCoord];
+                [refinerClauses addObject:[CPString stringWithFormat:"pos >= %@ and pos <= %@ and score >= %@ and score <= %@",
+                                                    [newCoord objectForKey:"x1"],
+                                                    [newCoord objectForKey:"x2"],
+                                                    [newCoord objectForKey:"y1"],
+                                                    [newCoord objectForKey:"y2"]
+                                                ]
+                ];
+                
             }
 
         }
         
-        if ([refinerClauses count]) {
+        if ([refinerClauses count] && [self refine]) {
         
             [refinerDelegate setPrune:refinerPrune];
             [refinerDelegate setURL:
@@ -248,12 +237,9 @@
                 }
                 refinerContent = [wClauses componentsJoinedByString:"&"];
             }
-            
-            var contentLength = [[CPString alloc] initWithFormat:@"%d", [refinerContent length]];
            var request = [[CPURLRequest alloc] initWithURL:[refinerDelegate URL]];
            [request setHTTPMethod:@"POST"];
            [request setHTTPBody:refinerContent];
-           [request setValue:contentLength forHTTPHeaderField:"Content-Length"];
            [request setValue:"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
            
            var connection = [CPURLConnection connectionWithRequest:request delegate:refinerDelegate];
@@ -291,18 +277,6 @@
             }
         }
 */
-        
-
-        if (shouldRefine && [self refine] && [self bins] < 1000) {
-            [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]
-                andChromosome:[self chromosome]
-                withLabel:[self chromosomeLabel]
-                andOwner:[self owner]
-                inBins:[self bins] + 25
-                refine:YES
-            ];
-
-        }
     }
     catch (e) {
 
