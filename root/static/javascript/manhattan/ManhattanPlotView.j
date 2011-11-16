@@ -80,6 +80,8 @@
 console.log("CALL 2 DRAWRECT ON " + CPStringFromRect(rect));
     var context = [[CPGraphicsContext currentContext] graphicsPort];
 
+    CGContextClipToRect(context, rect);
+
     var subViewEnumerator = [[self subviews] objectEnumerator];
     var sv = nil;
     while (sv = [subViewEnumerator nextObject]) {
@@ -96,6 +98,13 @@ console.log("CALL 2 DRAWRECT ON " + CPStringFromRect(rect));
         [self drawLabelsInRect:[self bounds]];
         [self drawScaleInRect:[self bounds]];
     }
+
+    CGContextSetFillColor(context, [CPColor whiteColor]);
+    CGContextFillRect(context, rect);
+    CGContextSetStrokeColor(context, [CPColor whiteColor]);
+    CGContextStrokeRect(context, rect);
+
+    [self drawScaleLinesInRect:rect];
 
     var chromosomeEnumerator = [[dataSource sortedChromosomeKeys] objectEnumerator];
     var chrNum = nil;
@@ -136,6 +145,9 @@ console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr ob
         CGContextStrokeRect(context, chrRect);
 */
 
+//        CGContextSetStrokeColor(context, [CPColor greenColor]);
+//        CGContextStrokeRect(context, chrRect);
+
 //        [self drawScaleLinesInRect:chrRect];
 
         var coordsEnumerator = [[chr objectForKey:"coords"] objectEnumerator];
@@ -156,7 +168,7 @@ console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr ob
                 Math.ceil((y2 - y1) * heightScale)
             );
 
-        [self drawScaleLinesInRect:coordRect];
+//XXX        [self drawScaleLinesInRect:coordRect];
             
         if (! CGRectContainsRect(rect, coordRect)) {
         //if (! CGRectIntersectsRect(rect, chrRect)) {
@@ -175,6 +187,7 @@ console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr ob
             }
 
             coordRect = CGRectIntersection(coordRect, manhattanRect);
+            coordRect = CGRectIntersection(coordRect, chrRect);
 
             var density = count * [self xThreshold] * [self yThreshold] / (coordRect.size.width * coordRect.size.height);
             var rdensity = density - Math.floor(density);
@@ -214,6 +227,13 @@ console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr ob
 
 // XXX NEEDS TO UPDATE TO ONLY STROKE BORDER WHEN COORDS INTERSECT IT. SHIT!         
         CGContextBeginPath(context);
+/*        
+        var topStart = chrRect.origin;
+        var topEnd = CGPointMake(chrRect.origin.x + chrRect.size.width, chrRect.origin.y);
+        
+        var bottomStart = CGPointMake(chrRect.origin.x + chrRect.size.width, chrRect.origin.y + chrRect.size.height);
+        var bottomEnd = CGPointMake(chrRect.origin.x + chrRect.size.width, chrRect.origin.y + chrRect.size.height);
+*/        
         CGContextMoveToPoint(context, chrRect.origin.x, chrRect.origin.y);
         CGContextAddLineToPoint(context, chrRect.origin.x + chrRect.size.width, chrRect.origin.y);
         CGContextMoveToPoint(context, chrRect.origin.x, chrRect.origin.y + chrRect.size.height);
@@ -422,27 +442,32 @@ console.log("DRAWING CHR : " + [chr objectForKey:"number"] + ' with ' + [[chr ob
         var markerPath = [CPBezierPath bezierPath];
 
         var startX = viewBounds.origin.x;
+/*
         if (startX < rect.origin.x) {
             startX = rect.origin.x;
         }
         else if (startX > rect.origin.x + rect.size.width) {
             startX = rect.origin.x + rect.size.width;
         }
+*/
 
         var endX = viewWidth + viewBounds.origin.x;
+        
+/*
         if (endX < rect.origin.x) {
             endX = rect.origin.x;
         }
         else if (endX > rect.origin.x + rect.size.width) {
             endX = rect.origin.x + rect.size.width;
         }
+*/
         
         var yCoord = viewHeight - i_scaled + viewBounds.origin.y;
-        
+/*        
         if (yCoord < rect.origin.y || yCoord > rect.origin.y + rect.size.height) {
             continue;
         }
-    
+*/
         CGContextBeginPath(context);
         CGContextMoveToPoint(context, startX, yCoord);
         CGContextAddLineToPoint(context, endX, yCoord);

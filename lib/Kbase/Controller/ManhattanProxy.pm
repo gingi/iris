@@ -55,8 +55,8 @@ sub get_scores :Local :Args(2) {
     $c->response->body($results->content);
 }
 
-sub get_coordinates :Local :Args(4) {
-    my ( $self, $c, $bins, $study, $experiment, $chromosome, $clause ) = @_;
+sub get_coordinates_serial :Local :Args(4) {
+    my ( $self, $c, $bins, $study, $experiment, $chromosome ) = @_;
 
     my $url = sprintf("http://brie.cshl.edu/~olson/qdv/web/run.pl?exe=get2DDist&b=%s&d=GWAS/%s&c1=pos&c2=score&w=id=%s+and+chr=%s",
         $bins,
@@ -71,27 +71,25 @@ sub get_coordinates :Local :Args(4) {
 
         if (ref $clause) {
             my $json;
-            my $o;
             foreach my $c (@$clause) {
                 my $dirty_url = $url . URI::Escape::uri_escape(" and $c");
                 my $ua = LWP::UserAgent->new();
                 my $results = $ua->get($dirty_url);
-                print STDERR "DIRTY URL : $url\n";
-                my $structure = decode_json($results->content);
-                $o .= $results->content . "\n------\n";
-                
-                if (! defined $json) {
-                    $json = $structure;
-                }
-                else {
-                    push @{$json->{'data'}}, @{$structure->{'data'}}
-                }
+                print STDERR "DIRTY URL : $dirty_url [$c]\n";
+                eval {
+                    my $structure = decode_json($results->content);
+                    
+                    if (! defined $json) {
+                        $json = $structure;
+                    }
+                    else {
+                        push @{$json->{'data'}}, @{$structure->{'data'}}
+                    }
+                };
             }
             
             $c->response->content_type('application/json');
             $c->response->body(encode_json($json));
-            #$c->response->content_type('text/plain');
-            #$c->response->body($o);
 
             return;
         }
@@ -99,9 +97,58 @@ sub get_coordinates :Local :Args(4) {
         $url .= URI::Escape::uri_escape(" and $clause");
     }
     
-print STDERR "URL : $url\n";
+#print STDERR "URL : $url\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
+
+    $c->response->content_type('application/json');
+    $c->response->body($results->content);
+}
+
+sub get_coordinates :Local :Args(4) {
+    my ( $self, $c, $bins, $study, $experiment, $chromosome ) = @_;
+
+    my $url = "http://brie.cshl.edu/~olson/qdv/web/run2.pl";
+    
+    my $clause = $c->request->parameters->{'w'};
+
+    my @w = ();
+
+    if (defined $clause) {
+
+        if (! ref $clause) {
+            $clause = [$clause];
+        }
+    
+        my $json;
+        foreach my $c (@$clause) {
+            push @w, 'w', #URI::Escape::uri_escape(
+                sprintf("id=%s and chr=%s and %s",
+                    $experiment,
+                    $chromosome,
+                    $c
+                )
+            #);
+            ;
+        }
+    }
+    else {
+        @w = ("w", sprintf("id=%s and chr=%s", $experiment, $chromosome));
+    }
+    
+print STDERR "URL : $url\n";
+print STDERR "W IS @w\n";
+    my $ua = LWP::UserAgent->new();
+    my $results = $ua->post($url,
+            [
+            exe => 'get2DDist',
+            b => $bins,
+            'd' => "GWAS/$study",
+            c1 => 'pos',
+            c2 => 'score',
+            @w
+        ]
+    );
 
     $c->response->content_type('application/json');
     $c->response->body($results->content);
@@ -118,7 +165,7 @@ sub get_scatter :Local :Args(6) {
         $experiment,
         $chromosome
     );
-print STDERR "URL IS $url ", $c->request->arguments->{'w'}, "\n";
+#print STDERR "URL IS $url ", $c->request->arguments->{'w'}, "\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
 
