@@ -44,7 +44,7 @@
         var i = 0;
         var minScore = 10000000000;
         var maxScore = 0;
-        for (i = 0; i < json.length; i++) {
+        for (i = 0; i < json.length ; i++) {
             if (json[i][1] < minScore) {
                 minScore = json[i][1];
             }
@@ -58,11 +58,25 @@
                 [ChromosomeScatterGrabberDelegate class],   @"scatter"
             ];
     
+            var pixelArea = [[owner view] xThreshold] * [[owner view] yThreshold] * json[i][3];    //width * height * count
+            var chrRect = [owner rectForChromosome:json[i][0]];
+            var chrArea = chrRect.size.width * chrRect.size.height;
+            
+            var density = pixelArea / chrArea;
+            
+            var bins = [[[CPApplication sharedApplication] delegate] initialBins];
+            
+            if (bins == [CPNull null]) {
+                //bins = density < 0.5 ? 100 : 25;
+                //alert(bins + ', ' + density);
+                bins = 25;
+            }
+    
             [[rendererDictionary objectForKey:[[[CPApplication sharedApplication] delegate] renderer]] coordinateGrabberForExperiment:[self experiment]
                 andChromosome:json[i][0]
                 withLabel:json[i][0]
                 andOwner:[self owner]
-                inBins:[[[CPApplication sharedApplication] delegate] initialBins]
+                inBins:bins
             ];
     
         }

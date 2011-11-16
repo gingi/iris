@@ -35,7 +35,7 @@
 	    false, "pinZero",
 	    false, "debugDraw",
 	    "assoc", "study",
-	    5, "initialBins",
+	    [CPNull null], "initialBins",
 	    "histogram", "renderer",
 	    "", "clause"
 	];
