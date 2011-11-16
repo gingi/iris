@@ -75,7 +75,6 @@ sub get_coordinates_serial :Local :Args(4) {
                 my $dirty_url = $url . URI::Escape::uri_escape(" and $c");
                 my $ua = LWP::UserAgent->new();
                 my $results = $ua->get($dirty_url);
-                print STDERR "DIRTY URL : $dirty_url [$c]\n";
                 eval {
                     my $structure = decode_json($results->content);
                     
@@ -97,7 +96,6 @@ sub get_coordinates_serial :Local :Args(4) {
         $url .= URI::Escape::uri_escape(" and $clause");
     }
     
-#print STDERR "URL : $url\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
 
@@ -136,8 +134,6 @@ sub get_coordinates :Local :Args(4) {
         @w = ("w", sprintf("id=%s and chr=%s", $experiment, $chromosome));
     }
     
-print STDERR "URL : $url\n";
-print STDERR "W IS @w\n";
     my $ua = LWP::UserAgent->new();
     my $results = $ua->post($url,
             [
@@ -165,7 +161,7 @@ sub get_scatter :Local :Args(6) {
         $experiment,
         $chromosome
     );
-#print STDERR "URL IS $url ", $c->request->arguments->{'w'}, "\n";
+
     my $ua = LWP::UserAgent->new();
     my $results = $ua->get($url);
 

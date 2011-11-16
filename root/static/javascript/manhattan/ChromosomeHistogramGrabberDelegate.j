@@ -42,17 +42,14 @@
                 [parsedClauses addObject:[CPString stringWithFormat:"w=%@", encodeURI(c)]];
             }
         }
-    console.log("WITH CLAUSES : ", clauses);    
     
         if ([parsedClauses count]) {
             clause = [CPString stringWithFormat:"?%@", [parsedClauses componentsJoinedByString:"&"]];
         }
     }
-    
-    console.log("NEW CLAUSE : " + clause);
-    
+        
     return [CPString stringWithFormat:"/manhattanproxy/get_coordinates/%@/%@/%@/%@%@",
-        bins, //NOTE  - needs extension for variable size bins!
+        bins,
         [[[CPApplication sharedApplication] delegate] study],
         experiment,
         chromosome,
@@ -65,7 +62,7 @@
 }
 
 +(id) coordinateGrabberForExperiment:(int) experiment andChromosome:(int) chromosome withLabel:(CPString) label andOwner:(id) owner inBins:(int) bins refine:(BOOL) refine {
-console.log("CLAUSE IS : " + [[[CPApplication sharedApplication] delegate] clause]);
+
     var url = [self urlForExperiment:experiment andChromosome:chromosome inBins:bins withClauses:[CPArray arrayWithObject:[[[CPApplication sharedApplication] delegate] clause]]];
 
     var cpg = [[self alloc] init];
@@ -97,8 +94,6 @@ console.log("CLAUSE IS : " + [[[CPApplication sharedApplication] delegate] claus
     }
     
     [cpg setThrottle:newThrottle];
-console.log("THROTTLE AT : " + newThrottle);
-//exit;
 
 	var request = [[CPURLRequest alloc] initWithURL:url];
     var connection = [CPURLConnection connectionWithRequest:request delegate:cpg];
@@ -116,21 +111,9 @@ console.log("THROTTLE AT : " + newThrottle);
 
         var json = [data objectFromJSON];
 
-        /*var coordsArray = [[owner chromosome:[self chromosome]] objectForKey:"coords"];
-        var coordsArrayEnumerator = [[CPArray arrayWithArray:coordsArray] objectEnumerator];
-        var c = nil;
-
-        while (c = [coordsArrayEnumerator nextObject]) {
-            if (1 || [c objectForKey:"prune"] == true) {
-                [coordsArray removeObject:c];
-            }
-        }*/
-        
-
         var chrRect = [owner rectForChromosome:[self chromosome]];
         var manhattanRect = [[owner view] manhattanRect];
         
-console.log("SHOULD PRUNE ? " + [self prune]);        
         if ([[self prune] count]) {
         
             var i = 0;
@@ -172,7 +155,9 @@ console.log("SHOULD PRUNE ? " + [self prune]);
         [refinerDelegate setChromosomeLabel:[self chromosomeLabel]];
         [refinerDelegate setBins:[self bins]];
         [refinerDelegate setRefine:[self refine]];
-//                    [refinerDelegate setColor:[CPColor redColor]];
+        if ([[[CPApplication sharedApplication] delegate] debugDraw]) {
+            [refinerDelegate setColor:[CPColor redColor]];
+        }
         [refinerDelegate setThrottle:[self throttle] - 1];
 
         var refinerClauses = [CPArray array];
@@ -206,7 +191,7 @@ console.log("SHOULD PRUNE ? " + [self prune]);
                 Math.ceil((y2 - y1) * heightScale)
             );
             [[owner view] setNeedsDisplayInRect:coordRect];
-            console.log("REDISPLAY IN " + CPStringFromRect(coordRect));
+
 
             if (1 || ! shouldRefine) {
                 var scaledWidth = (json.data[i][1] - json.data[i][0]) * widthScale;
@@ -216,10 +201,8 @@ console.log("SHOULD PRUNE ? " + [self prune]);
 //                pixelArea = json.data[i][4];
 
                 var pixelDensity = pixelArea / binArea;
-//                pixelDensity = pixelDensity - Math.floor(pixelDensity);
-console.log("IN WITH THROTTLE : " + [self throttle]);
+
                 if (pixelDensity < 0.90 && [self throttle]) {
-console.log("THROTTLED : " + [self throttle]);
                     [newCoord setObject:true forKey:"prune"];
                     shouldRefine = true;
                     console.log("SPARSE : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
@@ -238,12 +221,8 @@ console.log("THROTTLED : " + [self throttle]);
                                                     ]
                     ];
 
-console.log("REFINE WITH URL : " + [refinerDelegate URL]);                    
                 }
-                else {
-                    console.log("DENSE  : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
-                    console.log("DENSE INTERIOR : " + newCoord);
-                }
+
             }
 
         }
@@ -280,6 +259,8 @@ console.log("REFINE WITH URL : " + [refinerDelegate URL]);
            var connection = [CPURLConnection connectionWithRequest:request delegate:refinerDelegate];
         }
         
+        // I'm gonna keep this sitting in here...for now. This is the start of the code to attempt to combine rectangles into
+        // larger ones. I need to think about the algorithm a bit more.
 /*        [newCoordsArray sortUsingDescriptors:
             [CPArray arrayWithObjects:
                 [[CPSortDescriptor alloc] initWithKey:"x1" ascending:YES],
@@ -311,14 +292,6 @@ console.log("REFINE WITH URL : " + [refinerDelegate URL]);
         }
 */
         
-        
-        
-        
-//        [coordsArray addObjectsFromArray:newCoordsArray];
-        
-console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:[self chromosome]]));
-//        [[owner view] setNeedsDisplayInRect:[owner rectForChromosome:[self chromosome]]];
-
 
         if (shouldRefine && [self refine] && [self bins] < 1000) {
             [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]
@@ -335,19 +308,7 @@ console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:
 
         console.log("INVALID JSON ON HISTOGRAM GRABBER : " + e);
 
-        /*if ([self bins] > 0) {
-            [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]
-                andChromosome:[self chromosome]
-                withLabel:[self chromosomeLabel]
-                andOwner:[self owner]
-                inBins:[self bins] - 1
-                refine:NO
-            ];
-        }*/
     }
-    
-    console.log("ALL DATA LOADED");
-    //[[owner view] setNeedsDisplayInRect:[[owner view] bounds]];
 
 }
 
