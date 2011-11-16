@@ -46,7 +46,6 @@
 	while (arg = [appArgsEnumerator nextObject]) {
 	    var val = [appArgs objectForKey:arg];
         var passedVal = [[[CPApplication sharedApplication] namedArguments] objectForKey:arg];
-	    console.log("CHECKS " + arg + ' with ' + val + ' and ' + passedVal);
         if (passedVal != nil) {
             if ([arg isEqual:"refine"] || [arg isEqual:"pinZero"] || [arg isEqual:"debugDraw"]) {
                 passedVal = passedVal == 1 ? true : false;
@@ -55,8 +54,7 @@
         }
         [self setValue:val forKey:arg];
     }
-console.log("REFINE : " + [self refine]);
-console.log("CLAUSE : " + [self clause]);
+
     var mdo = [[ManhattanDataObject alloc] init];
     [mdo setView:view];
     [ChromosomeGrabberDelegate chromosomeGrabberForExperiment:[[[CPApplication sharedApplication] namedArguments] objectForKey:"id"] andOwner:mdo];

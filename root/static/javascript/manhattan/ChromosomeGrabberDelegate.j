@@ -39,7 +39,6 @@
 
             var chromosome = [owner chromosome:json[i][0]];
             [chromosome setObject:json[i][1] forKey:"length"];
-            console.log("CHR IS : " + json[i][1] + " FOR : " + chromosome + ' on ' + json[i][0]);
         }
     
         [owner setXMin:0];

@@ -81,7 +81,6 @@
     chrRect.size.width = Math.ceil(chrRect.size.width);
     chrRect.size.height = Math.ceil(chrRect.size.height);
     
-    console.log("RECT IS : " + CPStringFromRect(chrRect));
     return chrRect;
 }
 

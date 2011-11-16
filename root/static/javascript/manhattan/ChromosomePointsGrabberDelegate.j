@@ -76,7 +76,10 @@
             ];
 
         }
-        [owner addCoordinates:coordsArray forChromosome:[self chromosome] withLabel:[self chromosomeLabel]];
+
+        [[owner chromosome:[self chromosome]] setObject:coordsArray forKey:"coords"];
+
+        [[owner view] setNeedsDisplayInRect:[owner rectForChromosome:[self chromosome]]];
 
     }
     catch (e) {
