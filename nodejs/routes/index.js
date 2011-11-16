@@ -10,6 +10,12 @@ exports.select_study = function(req, res){
   res.render('select_study', { title: 'Kbase Web - select study' })
 };
 
-exports.gwas = function(study, res) {
-	res.render('gwas', { title: 'Kbase Web - study ' + study, "study": study});
+exports.query_scores = function(req, res) {
+	res.render('query_scores', { title: 'Kbase Web - query scores' })
+};
+
+exports.gwas = function(study, experiment, res) {
+	res.render('gwas', { title: 'Kbase Web - ' + experiment + '/' + study,
+	 	"study": study,
+	 	"experiment": experiment});
 };
