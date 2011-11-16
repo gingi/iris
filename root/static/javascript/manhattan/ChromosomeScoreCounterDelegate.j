@@ -66,9 +66,9 @@
             
             var bins = [[[CPApplication sharedApplication] delegate] initialBins];
             
+            //maybe dynamically figure out a good starting point?
             if (bins == [CPNull null]) {
-                //bins = density < 0.5 ? 100 : 25;
-                //alert(bins + ', ' + density);
+                //bins = density < 0.5 ? 5 : 25;
                 bins = 25;
             }
     
