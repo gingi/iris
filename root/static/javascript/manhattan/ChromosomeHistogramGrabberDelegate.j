@@ -143,10 +143,10 @@ console.log("SHOULD PRUNE ? " + [self prune]);
                 var y2 = [toPrune objectForKey:"y2"];
     
                 var redisplayArea = CGRectMake(
-                    Math.floor(chrRect.origin.x + x1 * widthScale) - 5,
-                    Math.floor(chrRect.origin.y + manhattanRect.size.height - (y2 - y1) * heightScale - (y1 - [owner yMin]) * heightScale) - 5,
-                    Math.ceil((x2 - x1) * widthScale) + 10,
-                    Math.ceil((y2 - y1) * heightScale) + 10
+                    Math.floor(chrRect.origin.x + x1 * widthScale),
+                    Math.floor(chrRect.origin.y + manhattanRect.size.height - (y2 - y1) * heightScale - (y1 - [owner yMin]) * heightScale),
+                    Math.ceil((x2 - x1) * widthScale),
+                    Math.ceil((y2 - y1) * heightScale)
                 );
     
                 [[[owner chromosome:[self chromosome]] objectForKey:"coords"] removeObject:toPrune];
@@ -164,6 +164,19 @@ console.log("SHOULD PRUNE ? " + [self prune]);
         var i;
 
         var newCoordsArray = [CPArray array];
+
+        var refinerDelegate = [[[self class] alloc] init];
+        [refinerDelegate setOwner:[self owner]];
+        [refinerDelegate setExperiment:[self experiment]];
+        [refinerDelegate setChromosome:[self chromosome]];
+        [refinerDelegate setChromosomeLabel:[self chromosomeLabel]];
+        [refinerDelegate setBins:[self bins]];
+        [refinerDelegate setRefine:[self refine]];
+//                    [refinerDelegate setColor:[CPColor redColor]];
+        [refinerDelegate setThrottle:[self throttle] - 1];
+
+        var refinerClauses = [CPArray array];
+        var refinerPrune = [CPArray array];
 
         for (i = 0; i < json.data.length; i++) {
         
@@ -205,7 +218,7 @@ console.log("SHOULD PRUNE ? " + [self prune]);
                 var pixelDensity = pixelArea / binArea;
 //                pixelDensity = pixelDensity - Math.floor(pixelDensity);
 console.log("IN WITH THROTTLE : " + [self throttle]);
-                if (pixelDensity < 0.80 && [self throttle]) {
+                if (pixelDensity < 0.90 && [self throttle]) {
 console.log("THROTTLED : " + [self throttle]);
                     [newCoord setObject:true forKey:"prune"];
                     shouldRefine = true;
@@ -215,42 +228,56 @@ console.log("THROTTLED : " + [self throttle]);
                         + ' , ' +
                         json.data[i][2] + ' -> ' + json.data[i][3]
                     );
-                    
-                    var refinerDelegate = [[[self class] alloc] init];
-                    [refinerDelegate setOwner:[self owner]];
-                    [refinerDelegate setExperiment:[self experiment]];
-                    [refinerDelegate setChromosome:[self chromosome]];
-                    [refinerDelegate setChromosomeLabel:[self chromosomeLabel]];
-                    [refinerDelegate setBins:[self bins]];
-                    [refinerDelegate setRefine:[self refine]];
-//                    [refinerDelegate setColor:[CPColor redColor]];
-                    [refinerDelegate setPrune:[CPArray arrayWithObject:newCoord]];
-                    [refinerDelegate setThrottle:[self throttle] - 1];
 
-                    [refinerDelegate setURL:
-                        [[self class] urlForExperiment:[refinerDelegate experiment]
-                                         andChromosome:[refinerDelegate chromosome]
-                                                inBins:[refinerDelegate bins]
-                                            withClauses:
-                                                [CPArray arrayWithObject:
-                                                    [CPString stringWithFormat:"pos >= %@ and pos <= %@ and score >= %@ and score <= %@",
+                    [refinerPrune addObject:newCoord];
+                    [refinerClauses addObject:[CPString stringWithFormat:"pos >= %@ and pos <= %@ and score >= %@ and score <= %@",
                                                         [newCoord objectForKey:"x1"],
                                                         [newCoord objectForKey:"x2"],
                                                         [newCoord objectForKey:"y1"],
                                                         [newCoord objectForKey:"y2"]
                                                     ]
-                                                ]
-                        ]
                     ];
-                   var request = [[CPURLRequest alloc] initWithURL:[refinerDelegate URL]];
-                   var connection = [CPURLConnection connectionWithRequest:request delegate:refinerDelegate];
+
 console.log("REFINE WITH URL : " + [refinerDelegate URL]);                    
                 }
                 else {
                     console.log("DENSE  : " + [self chromosome] + " density is: " + (pixelArea / binArea) + " for " + json.data[i][4] + ' of ' + pixelArea + ' inside: ' + binArea);
+                    console.log("DENSE INTERIOR : " + newCoord);
                 }
             }
 
+        }
+        
+        if ([refinerClauses count]) {
+        
+            [refinerDelegate setPrune:refinerPrune];
+            [refinerDelegate setURL:
+                [[self class] urlForExperiment:[refinerDelegate experiment]
+                                 andChromosome:[refinerDelegate chromosome]
+                                        inBins:[refinerDelegate bins]
+                                    withClauses:nil
+                ]
+            ];
+            
+            var refinerContent = "";
+           {
+                var i = 0;
+                var wClauses = [CPArray array];
+                for (i = 0; i < [refinerClauses count]; i++) {
+                    var clause = [refinerClauses objectAtIndex:i];
+                    [wClauses addObject:[CPString stringWithFormat:"w=%@", clause]];
+                }
+                refinerContent = [wClauses componentsJoinedByString:"&"];
+            }
+            
+            var contentLength = [[CPString alloc] initWithFormat:@"%d", [refinerContent length]];
+           var request = [[CPURLRequest alloc] initWithURL:[refinerDelegate URL]];
+           [request setHTTPMethod:@"POST"];
+           [request setHTTPBody:refinerContent];
+           [request setValue:contentLength forHTTPHeaderField:"Content-Length"];
+           [request setValue:"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+           
+           var connection = [CPURLConnection connectionWithRequest:request delegate:refinerDelegate];
         }
         
 /*        [newCoordsArray sortUsingDescriptors:
@@ -308,7 +335,7 @@ console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:
 
         console.log("INVALID JSON ON HISTOGRAM GRABBER : " + e);
 
-        if ([self bins] > 0) {
+        /*if ([self bins] > 0) {
             [ChromosomeHistogramGrabberDelegate coordinateGrabberForExperiment:[self experiment]
                 andChromosome:[self chromosome]
                 withLabel:[self chromosomeLabel]
@@ -316,7 +343,7 @@ console.log("REDRAW COORDS INSIDE " + CPStringFromRect([owner rectForChromosome:
                 inBins:[self bins] - 1
                 refine:NO
             ];
-        }
+        }*/
     }
     
     console.log("ALL DATA LOADED");
