@@ -7,6 +7,7 @@
 #include <set>		// std::set
 #include <iomanip>	// std::setprecision
 #include <algorithm>
+double fudge = 1.0;
 
 // printout the usage string
 static void usage(const char* name) {
@@ -134,10 +135,9 @@ static void parse_args(int argc, char** argv, ibis::table*& tbl,
 } // parse_args
 
 int first = 1;
-double epsilon = 0.000001;
 
-static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, int nb1,
- 	const char *col2, double min2, double max2, int nb2, const char *qcnd, uint32_t cutoff) {
+static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, int nb1, int iter1,
+ 	const char *col2, double min2, double max2, int nb2, int iter2, const char *qcnd, uint32_t cutoff) {
 
 	char combined_cond[200]="";
 	if (qcnd == 0 || *qcnd == 0)
@@ -205,9 +205,23 @@ static void get2DDist(const ibis::part*& part, const char *col1, double min1, do
 			double bmax1 = bmin1 + stride1;
 			double bmin2 = i2*stride2 + min2;
 			double bmax2 = bmin2 + stride2;
-			if (cnts[i] < cutoff) {
+			if (cnts[i] < cutoff && (iter1 > 0 || iter2 > 0)) {
 				// call it again with modified min1,max1,min2,max2
-				get2DDist(part,col1,bmin1,bmax1,nb1,col2,bmin2,bmax2,nb2,qcnd,0);
+				if (iter1 > 0) {
+					-- iter1;
+				}
+				else {
+					nb1=1;
+				}
+				if (iter2 > 0) {
+					-- iter2;
+				}
+				else {
+					nb2=1;
+				}
+				int newcutoff = ceil(fudge*cnts[i]/(nb1*nb2));
+				get2DDist(part,col1,bmin1,bmax1,nb1,iter1,
+								   col2,bmin2,bmax2,nb2,iter2,qcnd,newcutoff);
 			} else {
 				if (!first){
 					printf(",");
@@ -219,7 +233,7 @@ static void get2DDist(const ibis::part*& part, const char *col1, double min1, do
 				printf(f1,bmax1);printf(",");
 				printf(f2,bmin2);printf(",");
 				printf(f2,bmax2);
-				printf(",%d,0]\n",cnts[i]);
+				printf(",%d,%d]\n",cnts[i],iter1+iter2);
 			}
 		}
 	}
@@ -308,15 +322,14 @@ int main(int argc, char** argv) {
    const char* col2;
    int nbins1=25;
 	int nbins2=25;
-	int maxbins = 10000;
-	double fudge = 1.0;
+	int minbins = 5;
 	double umin1,umax1,umin2,umax2;
 	double uninitialized = -9.473829456;
 	umin1 = uninitialized;
 	umax1 = uninitialized;
 	umin2 = uninitialized;
 	umax2 = uninitialized;
-   parse_args(argc, argv, tbl, &nbins1, &nbins2, col1, col2, qcnd, &fudge, &maxbins, &umin1, &umax1, &umin2, &umax2);
+   parse_args(argc, argv, tbl, &nbins1, &nbins2, col1, col2, qcnd, &fudge, &minbins, &umin1, &umax1, &umin2, &umax2);
 
 	char selstr[100];
 	sprintf(selstr,"min(%s),max(%s),min(%s),max(%s)",col1,col1,col2,col2);
@@ -338,21 +351,27 @@ int main(int argc, char** argv) {
 
 //	printf("Content-type: application/json\n\n");
 	printf("{\"c1\":\"%s\",\"min1\":%f,\"max1\":%f,",col1,min1,max1);
-	printf("\"c2\":\"%s\",\"min2\":%f,\"max2\":%f,",col1,min1,max1);
+	printf("\"c2\":\"%s\",\"min2\":%f,\"max2\":%f,",col2,min2,max2);
 	printf("\"total\":%d,\"data\":[\n",tally);
 	
 	std::vector<const ibis::part*> parts;
 	tbl->getPartitions(parts);
 
-	int nbins = nbins1*nbins2;
-	if (nbins > maxbins) {
-		int nb1 = ceil(sqrt(nbins1));
-		int nb2 = ceil(sqrt(nbins2));
-		int cutoff = ceil(fudge*tally/(nb1*nb2));
-		get2DDist(parts[0],col1,min1,max1,nb1,col2,min2,max2,nb2,qcnd,cutoff);
-	} else {
-		get2DDist(parts[0],col1,min1,max1,nbins1,col2,min2,max2,nbins2,qcnd,0);
+	double scale1 = log(nbins1)/log(minbins);
+	int iter1 = 0;
+	if (scale1 > 1) {
+		nbins1 = ceil(scale1);
+		iter1 = floor(scale1);
 	}
+	double scale2 = log(nbins2)/log(minbins);
+	int iter2 = 0;
+	if (scale2 > 1) {
+		nbins2 = ceil(scale2);
+		iter2 = floor(scale2);
+	}
+	int cutoff = ceil(fudge*tally/(nbins1*nbins2));
+	get2DDist(parts[0],col1,min1,max1,nbins1,iter1,
+		                col2,min2,max2,nbins2,iter2,qcnd,cutoff);
 	printf("]}\n");
 
 	delete tbl;
