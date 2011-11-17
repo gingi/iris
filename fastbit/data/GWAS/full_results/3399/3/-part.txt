@@ -1,0 +1,77 @@
+# metadata file written by ibis::part::writeMetaData
+# on Wed Nov 16 06:35:11 2011 UTC
+
+BEGIN HEADER
+Name = "3"
+Description = "This table was created on Wed Nov 16 06:35:11 2011 UTC with 43745 rows and 10 columns."
+metaTags = chr = 3, id = 3399
+Number_of_columns = 10
+Number_of_rows = 43745
+Timestamp = 1321425311
+State = 0
+END HEADER
+
+Begin Column
+name = "alleles"
+description = alleles 
+data_type = "CATEGORY"
+minimum = 0
+maximum = 9223372036854775808
+End Column
+
+Begin Column
+name = "chr"
+description = chr 
+data_type = "CATEGORY"
+minimum = 1
+maximum = 1
+End Column
+
+Begin Column
+name = "consequence"
+description = consequence 
+data_type = "CATEGORY"
+minimum = 0
+maximum = 9223372036854775808
+End Column
+
+Begin Column
+name = "gene_id"
+data_type = "UINT"
+End Column
+
+Begin Column
+name = "id"
+description = id 
+data_type = "CATEGORY"
+minimum = 1
+maximum = 1
+End Column
+
+Begin Column
+name = "MAC"
+data_type = "UBYTE"
+End Column
+
+Begin Column
+name = "MAF"
+data_type = "FLOAT"
+End Column
+
+Begin Column
+name = "pos"
+data_type = "UINT"
+index = <binning nbins=2000/><encoding interval-equality/>
+sorted = true
+End Column
+
+Begin Column
+name = "score"
+data_type = "FLOAT"
+index = <binning nbins=2000/><encoding interval-equality/>
+End Column
+
+Begin Column
+name = "snp_id"
+data_type = "UINT"
+End Column
