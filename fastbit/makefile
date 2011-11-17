@@ -3,10 +3,10 @@ DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG) -lfastbit -lm
 
-all : scatter fbsql
+all : scatter fbsql join_once
 
 clean :
-	rm scatter.o scatter fbsql.o fbsql
+	rm scatter.o scatter fbsql.o fbsql join_once.o join_once
 
 scatter : scatter.o
 	$(CC) $(LFLAGS) scatter.o -o scatter
@@ -20,3 +20,8 @@ fbsql : fbsql.o
 fbsql.o : fbsql.cpp
 	$(CC) $(CFLAGS) fbsql.cpp
 
+join_once : join_once.o
+	$(CC) $(LFLAGS) join_once.o -o join_once
+
+join_once.o : join_once.cpp
+	$(CC) $(CFLAGS) join_once.cpp

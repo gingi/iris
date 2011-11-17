@@ -53,6 +53,16 @@ app.get('/histogram/GO', function(req,res) {
 	});
 });
 
+app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
+	var cmd = '../fastbit/join_once -d1 ../fastbit/data/GWAS/full_results/'
+		+ req.params.study + ' -d2 ../fastbit/data/ath_GO -s1 "gene_id,count(*)"'
+		+ ' -s2 "GO_term,count(*)" -j gene_id -w1 "' + req.params.where + '"';
+	var join = exec(cmd, function (err, stdout, stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});
+});
+
 app.get('/scatter/:from/:where/:etc', function(req,res) {
 	var cmd = '../fastbit/scatter -d ../fastbit/data/GWAS/' + req.params.from
 		+ ' -w "' + req.params.where + '" ' + req.params.etc;
