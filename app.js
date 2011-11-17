@@ -63,9 +63,9 @@ app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
 	});
 });
 
-app.get('/scatter/:from/:where/:etc', function(req,res) {
-	var cmd = '../fastbit/scatter -d ../fastbit/data/GWAS/' + req.params.from
-		+ ' -w "' + req.params.where + '" ' + req.params.etc;
+app.get('/scatter/GWAS/:study/:where/:b1/:b2', function(req,res) {
+	var cmd = '../fastbit/scatter -c1 pos -c2 score -d ../fastbit/data/GWAS/full_results/' + req.params.study
+		+ ' -w "' + req.params.where + '" -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
 		var scatter = exec(cmd, function (error, stdout, stderr) {
 			res.writeHead(200, {'Content-Type': 'application/json'});
 			res.end(stdout);
