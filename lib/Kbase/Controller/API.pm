@@ -31,7 +31,7 @@ sub fastbit : Local : ActionClass('REST') {
 
 sub fastbit_GET {
     my ($self, $c) = @_;
-    my $uri  = "$FB_URI/chr_list.pl?g=at";
+    my $uri  = "http://wildcat:3001/scatter/GWAS/3396/1/100/150";
     my $ua   = LWP::UserAgent->new;
     my $data = $ua->get($uri);
     $self->status_ok($c,
