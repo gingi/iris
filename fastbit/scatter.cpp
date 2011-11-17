@@ -145,7 +145,7 @@ static void get2DDist(const ibis::part*& part, const char *col1, double min1, do
 	else
 		sprintf(combined_cond, "%s", qcnd);
 
-//	printf("\n\nget2DDist(%s, %s, %f, %f, %d, %s, %f, %f, %d, %s, %d)\n\n", part->name(), col1, min1, max1, nb1, col2, min2, max2, nb2, qcnd, cutoff);
+//	printf("\n\nget2DDist(%s, %s, %f, %f, %d, %d, %s, %f, %f, %d, %d, %s, %d)\n\n", part->name(), col1, min1, max1, nb1, iter1, col2, min2, max2, nb2, iter2, qcnd, cutoff);
 
 	double stride1 = ibis::util::incrDouble((max1-min1)/nb1);
 	double stride2 = ibis::util::incrDouble((max2-min2)/nb2);
@@ -360,13 +360,13 @@ int main(int argc, char** argv) {
 	double scale1 = log(nbins1)/log(minbins);
 	int iter1 = 0;
 	if (scale1 > 1) {
-		nbins1 = ceil(scale1);
+		nbins1 = minbins;
 		iter1 = floor(scale1);
 	}
 	double scale2 = log(nbins2)/log(minbins);
 	int iter2 = 0;
 	if (scale2 > 1) {
-		nbins2 = ceil(scale2);
+		nbins2 = minbins;
 		iter2 = floor(scale2);
 	}
 	int cutoff = ceil(fudge*tally/(nbins1*nbins2));
