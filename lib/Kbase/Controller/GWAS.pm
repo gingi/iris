@@ -31,7 +31,7 @@ sub view : Local {
     my ($self, $c) = @_;
     my $study = $c->request->param('study');
     my $top = $c->subrequest("/widget/scatterplot", {}, { study => $study });
-    my $bottom = "<i>Your ad here.</i>";
+    my $bottom = $c->subrequest("/widget/flotplot");
     $c->stash(
         template  => '2widgets.tt2',
         topwidget => $top,

@@ -31,11 +31,9 @@ sub scatterplot : Local {
     my $study = $c->request->param('study');
     $c->stash(
         template         => 'scatterplot.tt2',
-        scatterplot_view => '/static/javascript/manhattan/index-debug.html',
+        scatterplot_view => '/static/javascript/manhattan/index.html',
         query_params     => {
             id       => $study,
-            pinZero  => 0,
-            refine   => 1,
             study    => 'assoc',    #try 'padded' for HUGE amounts of data
             renderer => 'points'
         },
@@ -43,6 +41,11 @@ sub scatterplot : Local {
         title => "Study $study",
         frameborder => 0,
     );
+}
+
+sub flotplot : Local {
+    my ($self, $c) = @_;
+    $c->stash(template => 'scatterplot-flot.tt', no_wrapper => 1);
 }
 
 =head1 AUTHOR
