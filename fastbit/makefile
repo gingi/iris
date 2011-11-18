@@ -14,6 +14,12 @@ scatter : scatter.o
 scatter.o : scatter.cpp
 	$(CC) $(CFLAGS) scatter.cpp
 
+scatter_new : scatter_new.o
+	$(CC) $(LFLAGS) scatter_new.o -o scatter_new
+
+scatter_new.o : scatter_new.cpp
+	$(CC) $(CFLAGS) scatter_new.cpp
+
 fbsql : fbsql.o
 	$(CC) $(LFLAGS) fbsql.o -o fbsql
 	
