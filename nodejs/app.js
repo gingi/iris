@@ -67,7 +67,7 @@ app.get('/histogram/GO', function(req,res) {
 app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
 	var cmd = '../fastbit/gwas2go -d ../fastbit/data2 -s '
 		+ req.params.study
-		+ ' -w ' + req.params.where;
+		+ ' -w "' + req.params.where + '"';
 	var join = exec(cmd, function(err,stdout,stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(stdout);
