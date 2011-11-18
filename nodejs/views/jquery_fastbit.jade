@@ -1,0 +1,32 @@
+!!! 5
+html(lang="en")
+head
+    script(src="/javascripts/raphael.js",type="text/javascript",charset="utf-8")
+script(src="/javascripts/jquery-1.7.js",type="text/javascript",charset="utf-8")
+script(src="/javascripts/fastbit-jquery.js",type="text/javascript",charset="utf-8")
+link(rel='stylesheet',href='http://localhost:3001/stylesheets/style.css', type="text/css", media="screen")
+link(rel='stylesheet',href='http://localhost:3001/stylesheets/widgets.css', type="text/css", media="screen")
+
+body
+    div#header
+        h1= title
+    #bodyblock
+        div#menu
+            ul
+                li <a href="/">Home</a>
+                li <a href="/about" title="About">About</a>
+        div#content
+            link(rel='stylesheet',
+            href="http://localhost:3001/stylesheets/widgets.css",
+            type="text/css",media="screen");
+
+            .widget
+                #topwidget
+                button(id="fetch_json") Fetch
+            .widget
+                #bottomwidget
+                
+    div#footer
+        | Copyright (c) 2011 Cold Spring Harbor Laboratory
+
+        
