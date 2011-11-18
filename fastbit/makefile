@@ -31,3 +31,9 @@ join_once : join_once.o
 
 join_once.o : join_once.cpp
 	$(CC) $(CFLAGS) join_once.cpp
+
+gwas2go : gwas2go.o
+	$(CC) $(LFLAGS) gwas2go.o -o gwas2go
+
+gwas2go.o : gwas2go.cpp
+	$(CC) $(CFLAGS) gwas2go.cpp
