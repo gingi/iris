@@ -65,6 +65,16 @@ app.get('/histogram/GO', function(req,res) {
 });
 
 app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
+	var cmd = '../fastbit/gwas2go -d ../fastbit/data2 -s '
+		+ req.params.study
+		+ ' -w ' + req.params.where;
+	var join = exec(cmd, function(err,stdout,stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});
+});
+
+app.get('/xhistogram/GO/GWAS/:study/:where', function(req,res) {
 	var cmd = '../fastbit/join_once -d1 ../fastbit/data/GWAS/full_results/'
 		+ req.params.study + ' -d2 ../fastbit/data/ath_GO -s1 "gene_id,count(*)"'
 		+ ' -s2 "GO_term,count(*)" -j gene_id -w1 "' + req.params.where + '"';
@@ -75,7 +85,7 @@ app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
 });
 
 app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
-	var cmd = '../fastbit/scatter_new -c1 pos -c2 score -d ../fastbit/data/GWAS/full_results/' + req.params.study
+	var cmd = '../fastbit/scatter_new -c1 pos -c2 score -d ../fastbit/data2/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
 		console.log(cmd);
 		var scatter = exec(cmd, function (error, stdout, stderr) {
