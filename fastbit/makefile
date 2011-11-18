@@ -3,7 +3,7 @@ DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG) -lfastbit -lm
 
-all : scatter fbsql join_once
+all : scatter fbsql join_once scatter_new
 
 clean :
 	rm scatter.o scatter fbsql.o fbsql join_once.o join_once
