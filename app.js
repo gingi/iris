@@ -31,6 +31,7 @@ app.configure(function(){
   app.use(express.static(__dirname + '/public'));
 });
 
+app.set('view options', { pretty: true })
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 });
