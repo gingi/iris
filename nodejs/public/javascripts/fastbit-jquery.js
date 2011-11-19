@@ -1,12 +1,13 @@
-//$(function() {
+
 $(document).ready(function(){
 
-    // Grab the data
 
-    var fastbitGet = '/scatter/GWAS/3396/1/10/15';
-
-
-    $('#fetch_json').click(function(){
+    $('#gwasquery_button').click(function(){
+        var study = $("input#study").val();
+        var chr = $("input#chr").val();
+        var bin1 = $("input#xbin").val();
+        var bin2 = $("input#ybin").val();
+        var fastbitGet = '/scatter/GWAS/' + study + "/" + chr + "/" + bin1 + "/" + bin2;
         writejson(fastbitGet);
     });
     function writejson (fastbitGet){
@@ -20,11 +21,4 @@ $(document).ready(function(){
         );
     }
     
-    // $('#topwidget input[value=Fetch]').toggle(function(){
-    //     alert("Registring click");
-    //     alert("As you can see, the link no longer took you to jquery.com");
-    //     event.preventDefault();
-    // );
-
-   
 });
