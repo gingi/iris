@@ -1,0 +1,3 @@
+[submodule "fastbit/fastbit"]
+	path = fastbit/fastbit
+	url = wildcat.cshl.edu:/opt/git/fastbit.git
