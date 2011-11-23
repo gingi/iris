@@ -137,12 +137,12 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 			res.end(stdout);
 		});
 });
-app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2', function(req,res) {
+app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,res) {
 	var cmd = '../fastbit/scatter_new -c1 pos -c2 score -d ../fastbit/data2/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
 		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
 		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2
-		+ ' -f ' + req.params.f;
+		+ ' -f ' + req.params.f + ' -m ' + req.params.m;
 		console.log(cmd);
 		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
 			res.writeHead(200, {'Content-Type': 'application/json'});

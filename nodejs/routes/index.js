@@ -7,7 +7,10 @@ exports.gwas = function(study, res) {
 	res.end('<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>'
 		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot("scatter",'+study+'))</script>'
-		+ '<canvas id="scatter" width="1100" height="500"></canvas>');
+		+ '<div style="position: relative;">'
+		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
+		+ ' <canvas id="scatteri" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>'
+		+ '</div>');
 };
 
 exports.allpoints = function(study,res) {
@@ -15,7 +18,10 @@ exports.allpoints = function(study,res) {
 	res.end('<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>'
 		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot_dots("scatter",'+study+'))</script>'
-		+ '<canvas id="scatter" width="1100" height="500"></canvas>');
+		+ '<div style="position: relative;">'
+		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
+		+ ' <canvas id="scatteri" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>'
+		+ '</div>');
 };
 
 exports.jquery_fastbit = function(req, res){

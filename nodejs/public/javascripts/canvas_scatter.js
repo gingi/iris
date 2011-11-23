@@ -39,7 +39,7 @@ function draw_manhattan(canvasid,study) {
 
 
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
-	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize)+"/"+Math.floor(ysize)+"/"+1+"/"+0+"/"+chr_length+"/"+0+"/"+global_max,
+	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize)+"/"+Math.floor(ysize)+"/"+1.2+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/100",
 		function(json) {
 			var xrange = chr_length;
 			var yrange = global_max;
@@ -84,7 +84,7 @@ function manhattan_plot_dots(canvasid,study) {
 		);
 	});
 }
-
+var ctxi;
 function draw_manhattan_dots(canvasid,study) {
   // get the canvas
 	var canvas = document.getElementById(canvasid);
@@ -93,6 +93,18 @@ function draw_manhattan_dots(canvasid,study) {
 	ctx.canvas.height = window.innerHeight - 20;
 	ctx.strokeStyle="black";
 	ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
+
+	// resize the interactive layer
+	var canvasi = document.getElementById(canvasid+'i');
+	ctxi = canvasi.getContext('2d');
+	ctxi.canvas.width = ctx.canvas.width;
+	ctxi.canvas.height = ctx.canvas.height;
+
+	// add event listeners
+	canvasi.addEventListener('mousedown', ev_canvas, false);
+	canvasi.addEventListener('mousemove', ev_canvas, false);
+	canvasi.addEventListener('mouseup',   ev_canvas, false);
+
 	var offset=0;
 	var ysize = ctx.canvas.height;
 	for(var i=0;i<chr_lengths.length;i++) {
@@ -121,4 +133,72 @@ function do_scatter_dots(ctx,study,chr,offset,xsize,ysize,chr_length) {
 				ctx.fillRect(Math.floor(x),Math.floor(y),2,2);
 			}
 		});
+}
+function drag_select () {
+	var tool = this;
+	this.started = false;
+	
+	this.mousedown = function (ev) {
+		tool.started = true;
+		tool.x = ev._x;
+		tool.y = ev._y;
+		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
+		ctxi.strokeRect(tool.x,tool.y,1,1);
+	};
+	
+	this.mousemove = function (ev) {
+		if (tool.started) {
+			var x1 = tool.x;
+			var y1 = tool.y;
+			var x2 = ev._x;
+			var y2 = ev._y;
+			if (x2 - x1 > 1) {
+				x1++;
+				x2--;
+				if (y2 - y1 > 1) {
+					y1++;
+					y2--;
+					ctxi.clearRect(x1,y1,x2,y2);
+				} else if (y1 - y2 > 1) {
+					y1--;
+					y2++;
+					ctxi.clearRect(x1,y1,x2,y2);
+				}
+			} else if (x1 - x2 > 1) {
+				x1--;
+				x2++;
+				if (y2 - y1 > 1) {
+					y1++;
+					y2--;
+					ctxi.clearRect(x1,y1,x2,y2);
+				} else if (y1 - y2 > 1) {
+					y1--;
+					y2++;
+					ctxi.clearRect(x1,y1,x2,y2);
+				}
+			}
+			ctxi.strokeRect(tool.x, tool.y, ev._x - tool.x + 1, ev._y - tool.y + 1);
+		}
+	};
+	
+	this.mouseup = function(ev) {
+		if (tool.started) {
+			alert("selected rectangle (" + tool.x + "," + tool.y + "," + ev._x + "," + ev._y + ")");
+			tool.started = false;
+		}
+	};
+}
+
+function ev_canvas (ev) {
+	if (ev.layerX || ev.layerX == 0) {
+		ev._x = ev.layerX;
+		ev._y = ev.layerY;
+	} else if (ev.offsetX || ev.offsetX == 0) {
+		ev._x = ev.offsetX;
+		ev._y = ev.offsetY;
+	}
+	var func = drag_select[ev.type];
+	if (func) {
+		func(ev)
+	}
 }
