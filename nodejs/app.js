@@ -144,7 +144,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2', function(req,res
 		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2
 		+ ' -f ' + req.params.f;
 		console.log(cmd);
-		var scatter = exec(cmd, function (error, stdout, stderr) {
+		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
 			res.writeHead(200, {'Content-Type': 'application/json'});
 			res.end(stdout);
 		});
