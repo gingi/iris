@@ -8,6 +8,12 @@
 #include <iomanip>	// std::setprecision
 #include <algorithm>
 double fudge = 1.0;
+const char* fmt_int = "%1.0f";
+const char* fmt_float = "%f";
+const char* f1;
+const char* f2;
+ibis::table* tbl=0;
+
 
 // printout the usage string
 static void usage(const char* name) {
@@ -28,7 +34,7 @@ static void usage(const char* name) {
 } // usage
 
 // function to parse the command line arguments
-static void parse_args(int argc, char** argv, ibis::table*& tbl,
+static void parse_args(int argc, char** argv,
 	int* nbins1, int* nbins2, const char*& col1, const char*& col2, const char*& qcnd,
  	int* minbins, double* umin1, double* umax1, double* umin2, double* umax2) {
 
@@ -133,101 +139,6 @@ static void parse_args(int argc, char** argv, ibis::table*& tbl,
    }
 } // parse_args
 
-int first = 1;
-
-static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, int nb1, int iter1,
- 	const char *col2, double min2, double max2, int nb2, int iter2, const char *qcnd, uint32_t cutoff) {
-
-	char combined_cond[200]="";
-	if (qcnd == 0 || *qcnd == 0)
-		sprintf(combined_cond, "1=1");
-	else
-		sprintf(combined_cond, "%s", qcnd);
-
-//	printf("\n\nget2DDist(%s, %s, %f, %f, %d, %d, %s, %f, %f, %d, %d, %s, %d)\n\n", part->name(), col1, min1, max1, nb1, iter1, col2, min2, max2, nb2, iter2, qcnd, cutoff);
-
-	double stride1 = ibis::util::incrDouble((max1-min1)/nb1);
-	double stride2 = ibis::util::incrDouble((max2-min2)/nb2);
-   std::vector<uint32_t> cnts;
-	long ierr = part->get2DDistribution(combined_cond,
-		col1, min1, max1, stride1,
-		col2, min2, max2, stride2,
-		cnts);
-   if (ierr < 0) {
-		std::cerr << "Warning -- part[" << part->name()
-			       << "].get2DDistribution returned with ierr = " << ierr << std::endl
-					<< "cnts.size() = " << cnts.size() << std::endl;
-		exit(-1);
-	}
-//	printf("min1 %f, max1 %f, stride1 %f\n",min1,max1,stride1);
-//	printf("min2 %f, max2 %f, stride2 %f\n",min2,max2,stride2);
-//	printf("nb1 %d, nb2 %d, cnts.size() %d\n",nb1,nb2,cnts.size());
-	// success
-
-	const char* fmt_int = "%1.0f";
-	const char* fmt_float = "%f";
-	const char* f1;
-	const char* f2;
-
-	// lookup type of col1 and type of col2
-	switch (part->getColumn(col1)->type()) {
-		case ibis::FLOAT:
-		case ibis::DOUBLE: {
-			f1 = fmt_float;
-			break;
-		}
-		default: {
-			f1 = fmt_int;
-			break;
-		}
-	} 
-	switch (part->getColumn(col2)->type()) {
-		case ibis::FLOAT:
-		case ibis::DOUBLE: {
-			f2 = fmt_float;
-			break;
-		}
-		default: {
-			f2 = fmt_int;
-			break;
-		}
-	}
-	
-	for (uint32_t i = 0; i < cnts.size(); ++ i) {
-		if (cnts[i] > 0) {
-			
-			// i == nb2 * i1 + i2
-			
-			uint32_t i1 = i / nb2;
-			uint32_t i2 = i % nb2;
-			double bmin1 = i1*stride1 + min1;
-			double bmax1 = bmin1 + stride1;
-			double bmin2 = i2*stride2 + min2;
-			double bmax2 = bmin2 + stride2;
-			if (cnts[i] < cutoff && (iter1 > 0 || iter2 > 0)) {
-				// call it again with modified min1,max1,min2,max2
-				int next_nb1 = (iter1 > 0) ? nb1 : 1;
-				int next_nb2 = (iter2 > 0) ? nb2 : 1;
-				int newcutoff = ceil(cutoff/(next_nb1*next_nb2));
-				get2DDist(part,col1,bmin1,bmax1,next_nb1,iter1-1,
-								   col2,bmin2,bmax2,next_nb2,iter2-1,qcnd,newcutoff);
-			} else {
-				if (!first){
-					printf(",");
-				} else {
-					first = 0;
-				}
-				printf("[");//%d,%d,%d,",i,i1,i2);
-				printf(f1,bmin1);printf(",");
-				printf(f1,bmax1);printf(",");
-				printf(f2,bmin2);printf(",");
-				printf(f2,bmax2);
-				printf(",%d,%d]\n",cnts[i],iter1+iter2);
-			}
-		}
-	}
-}
-
 double get_val(ibis::table::cursor*& cur, uint32_t offset, ibis::table::typeList tps) {
 	double one = 1.0;
 	uint32_t ierr;
@@ -304,8 +215,114 @@ void get_data(ibis::table* tbl, uint32_t *tally, double *area, double *min1, dou
 	delete cur;
 }
 
+int first = 1;
+
+static void fake2DDist(const char *col1, double min1, double max1, const char *col2, double min2, double max2, const char *qcnd) {
+
+	char combined_qcond[200] = "";
+	if (qcnd == 0 || *qcnd == 0)
+		sprintf(combined_qcond,"%f <= %s < %f and %f <= %s < %f",min1,col1,max1,min2,col2,max2);
+	else
+		sprintf(combined_qcond,"%s and %f <= %s < %f and %f <= %s < %f",qcnd,min1,col1,max1,min2,col2,max2);
+
+	char selstr[200]="";
+	sprintf(selstr,"%s,%s",col1,col2);
+	ibis::table *res = tbl->select(selstr,combined_qcond);
+	ibis::table::cursor *cur = res->createCursor();
+	if (cur == 0) return;
+	uint32_t ierr;
+	uint64_t nr = res->nRows();
+	ibis::table::typeList tps = res->columnTypes();
+  	for (size_t i = 0; i < nr; ++ i) {
+		ierr = cur->fetch(); // make the next row ready	ierr = cur->fetch();
+		double c1 = get_val(cur,0,tps);
+		double c2 = get_val(cur,1,tps);
+		if (!first){
+			printf(",");
+		} else {
+			first = 0;
+		}
+		printf("[");
+		printf(f1,c1);printf(",");
+		printf(f1,c1);printf(",");
+		printf(f2,c2);printf(",");
+		printf(f2,c2);
+		printf(",1,0]\n");
+	}
+	delete cur;
+	delete res;
+}
+
+static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, uint32_t nb1, int iter1,
+ 	const char *col2, double min2, double max2, uint32_t nb2, int iter2, const char *qcnd, uint32_t cutoff) {
+
+	char combined_cond[200]="";
+	if (qcnd == 0 || *qcnd == 0)
+		sprintf(combined_cond, "1=1");
+	else
+		sprintf(combined_cond, "%s", qcnd);
+
+//	printf("\n\nget2DDist(%s, %s, %f, %f, %d, %d, %s, %f, %f, %d, %d, %s, %d)\n\n", part->name(), col1, min1, max1, nb1, iter1, col2, min2, max2, nb2, iter2, qcnd, cutoff);
+
+	double stride1 = ibis::util::incrDouble((max1-min1)/nb1);
+	double stride2 = ibis::util::incrDouble((max2-min2)/nb2);
+   std::vector<uint32_t> cnts;
+	long ierr = part->get2DDistribution(combined_cond,
+		col1, min1, max1, stride1,
+		col2, min2, max2, stride2,
+		cnts);
+   if (ierr < 0) {
+		std::cerr << "Warning -- part[" << part->name()
+			       << "].get2DDistribution returned with ierr = " << ierr << std::endl
+					<< "cnts.size() = " << cnts.size() << std::endl;
+		exit(-1);
+	}
+//	printf("min1 %f, max1 %f, stride1 %f\n",min1,max1,stride1);
+//	printf("min2 %f, max2 %f, stride2 %f\n",min2,max2,stride2);
+//	printf("nb1 %d, nb2 %d, cnts.size() %d\n",nb1,nb2,cnts.size());
+	// success
+	
+	for (uint32_t i = 0; i < cnts.size(); ++ i) {
+		if (cnts[i] > 0) {
+			
+			// i == nb2 * i1 + i2
+			
+			uint32_t i1 = i / nb2;
+			uint32_t i2 = i % nb2;
+			double bmin1 = i1*stride1 + min1;
+			double bmax1 = bmin1 + stride1;
+			double bmin2 = i2*stride2 + min2;
+			double bmax2 = bmin2 + stride2;
+			if (cnts[i] < cutoff && (iter1 > 0 || iter2 > 0)) {
+				// call it again with modified min1,max1,min2,max2
+				uint32_t next_nb1 = (iter1 > 0) ? nb1 : 1;
+				uint32_t next_nb2 = (iter2 > 0) ? nb2 : 1;
+				int newcutoff = ceil(fudge*cutoff/(next_nb1*next_nb2));
+				get2DDist(part,col1,bmin1,bmax1,next_nb1,iter1-1,
+							   col2,bmin2,bmax2,next_nb2,iter2-1,qcnd,newcutoff);
+			} else {
+				if (cnts[i] < cutoff) {
+					// just dump all the points
+					fake2DDist(col1,bmin1,bmax1,col2,bmin2,bmax2,qcnd);
+				} else {
+					if (!first){
+						printf(",");
+					} else {
+						first = 0;
+					}
+					printf("[");//%d,%d,%d,",i,i1,i2);
+					printf(f1,bmin1);printf(",");
+					printf(f1,bmax1);printf(",");
+					printf(f2,bmin2);printf(",");
+					printf(f2,bmax2);
+					printf(",%d,%d]\n",cnts[i],iter1+iter2);
+				}
+			}
+		}
+	}
+}
+
 int main(int argc, char** argv) {
-	ibis::table* tbl=0;
    const char* qcnd=0;
    const char* col1;
    const char* col2;
@@ -318,7 +335,7 @@ int main(int argc, char** argv) {
 	umax1 = uninitialized;
 	umin2 = uninitialized;
 	umax2 = uninitialized;
-   parse_args(argc, argv, tbl, &nbins1, &nbins2, col1, col2, qcnd, &minbins, &umin1, &umax1, &umin2, &umax2);
+   parse_args(argc, argv, &nbins1, &nbins2, col1, col2, qcnd, &minbins, &umin1, &umax1, &umin2, &umax2);
 
 	char selstr[100];
 	sprintf(selstr,"min(%s),max(%s),min(%s),max(%s)",col1,col1,col2,col2);
@@ -345,6 +362,30 @@ int main(int argc, char** argv) {
 	
 	std::vector<const ibis::part*> parts;
 	tbl->getPartitions(parts);
+
+	// lookup type of col1 and type of col2
+	switch (parts[0]->getColumn(col1)->type()) {
+		case ibis::FLOAT:
+		case ibis::DOUBLE: {
+			f1 = fmt_float;
+			break;
+		}
+		default: {
+			f1 = fmt_int;
+			break;
+		}
+	}
+	switch (parts[0]->getColumn(col2)->type()) {
+		case ibis::FLOAT:
+		case ibis::DOUBLE: {
+			f2 = fmt_float;
+			break;
+		}
+		default: {
+			f2 = fmt_int;
+			break;
+		}
+	}
 
 	double scale1 = log(nbins1)/log(minbins);
 	int iter1 = 0;
