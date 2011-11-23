@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
 	, exec = require('child_process').exec
+	, spawn = require('child_process').spawn
 
 var app = module.exports = express.createServer();
 
@@ -48,6 +49,10 @@ var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5
 app.get('/', routes.index);
 app.get('/GWAS/:study', function(req,res) {
 	routes.gwas(req.params.study, res);
+});
+
+app.get('/GWAS/allpoints/:study', function(req,res) {
+	routes.allpoints(req.params.study, res);
 });
 
 app.get('/chromosomes', function(req,res) {
@@ -132,17 +137,27 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 			res.end(stdout);
 		});
 });
-app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2', function(req,res) {
+app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,res) {
 	var cmd = '../fastbit/scatter_new -c1 pos -c2 score -d ../fastbit/data2/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
 		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
 		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2
-		+ ' -f ' + req.params.f;
+		+ ' -f ' + req.params.f + ' -m ' + req.params.m;
 		console.log(cmd);
-		var scatter = exec(cmd, function (error, stdout, stderr) {
+		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
 			res.writeHead(200, {'Content-Type': 'application/json'});
 			res.end(stdout);
 		});
+});
+
+// scatterplot for GWAS study with no binning
+app.get('/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
+	var cmd = '../fastbit/fbsql -s "pos,score" -d ../fastbit/data2/GWAS/' + req.params.study + '/' + req.params.chr;
+	console.log(cmd);
+	var scatter = exec(cmd,{maxBuffer:10000*1024},function(error, stdout,stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});
 });
 
 app.post('/scatter', function(req,res) {
