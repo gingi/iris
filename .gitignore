@@ -3,3 +3,4 @@
 .deps
 autom4te.cache
 *.log
+*.tmproj
