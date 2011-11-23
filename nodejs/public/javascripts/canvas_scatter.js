@@ -39,7 +39,8 @@ function draw_manhattan(canvasid,study) {
 
 
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
-	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize)+"/"+Math.floor(ysize)+"/"+1.2+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/100",
+	var minbins = Math.floor(Math.max([xsize,ysize])/2);
+	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize)+"/"+Math.floor(ysize)+"/"+1.2+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/"+minbins,
 		function(json) {
 			var xrange = chr_length;
 			var yrange = global_max;
