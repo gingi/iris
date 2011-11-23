@@ -24,6 +24,8 @@ function draw_manhattan(canvasid,study) {
   // get the canvas
 	var canvas = document.getElementById(canvasid);
 	var ctx = canvas.getContext('2d');
+	ctx.canvas.width = window.innerWidth-20;
+	ctx.canvas.height = window.innerHeight - 20;
 	ctx.strokeStyle="black";
 	ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
 	var offset=0;
