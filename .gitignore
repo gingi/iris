@@ -4,3 +4,10 @@
 autom4te.cache
 *.log
 *.tmproj
+*.o
+fastbit/src/*
+!fastbit/src/*.cpp
+!fastbit/src/Makefile.*
+fastbit/data/*
+config.h
+config.status
