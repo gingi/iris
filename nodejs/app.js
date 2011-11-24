@@ -5,10 +5,11 @@
 
 var express = require('express')
   , routes = require('./routes')
-	, exec = require('child_process').exec
-	, spawn = require('child_process').spawn
+  , gzip = require('connect-gzip')
+  , exec = require('child_process').exec
+  , spawn = require('child_process').spawn;
 
-var app = module.exports = express.createServer();
+var app = module.exports = express.createServer(gzip.gzip());
 
 
 //CORS middleware
@@ -27,7 +28,7 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.bodyParser());
   app.use(express.methodOverride());
-	app.use(allowCrossDomain);
+  app.use(allowCrossDomain);
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
@@ -145,7 +146,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,
 		+ ' -f ' + req.params.f + ' -m ' + req.params.m;
 		console.log(cmd);
 		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
-			res.writeHead(200, {'Content-Type': 'application/json'});
+            res.writeHead(200, {'Content-Type': 'application/json'});
 			res.end(stdout);
 		});
 });

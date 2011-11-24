@@ -3,9 +3,7 @@ var global_max = 0;
 var chr_lengths = new Array();
 var total_len = 0;
 function manhattan_plot(canvasid,study) {
-	// fetch the list of chromosomes and their lengths
-	$.getJSON("/chromosomes/at",
-		function(json1) {
+	var callback = function(json1) {
 			for(var i=0;i<json1.length;i++) {
 				chr_lengths[i] = json1[i][1];
 				total_len += json1[i][1];
@@ -15,9 +13,19 @@ function manhattan_plot(canvasid,study) {
 			function(json2) {
 				global_max = Math.ceil(json2[0][0]);
 				draw_manhattan(canvasid,study);
+				return false;
 			}
 		);
-	});
+		return true;
+	};
+	// fetch the list of chromosomes and their lengths
+    $.getJSON("/chromosomes/at", callback);
+    // $.ajax({
+    //     url: "/chromosomes/at",
+    //     timeout: 300,
+    //     dataType: 'json',
+    //     success: callback,
+    // });
 }
 
 function draw_manhattan(canvasid,study) {
