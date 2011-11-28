@@ -32,11 +32,12 @@ sub fastbit : Local : ActionClass('REST') {
 sub fastbit_GET {
     my ($self, $c) = @_;
 
-    my $uri  = 'http://wildcat:3001/scatter/GWAS/3396/1/800/800';
+    my $uri  = 'http://wildcat.cshl.edu:3001/scatter/GWAS/3396/1/800/300';
     my $ua   = LWP::UserAgent->new;
     my $data = $ua->get($uri);
     $self->status_ok($c,
         entity => JSON::XS->new->utf8->decode($data->content));
+
 =pod
     $self->status_ok(
         $c,
@@ -50,6 +51,7 @@ sub fastbit_GET {
         }
     );
 =cut
+
 }
 
 =head1 AUTHOR
