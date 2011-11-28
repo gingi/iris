@@ -4,7 +4,7 @@ exports.index = function(req, res){
 
 exports.gwas = function(study, res) {
 	res.writeHead(200,{"Content-type":"text/html"});
-	res.end('<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>'
+	res.end('<script type="text/javascript" src="/javascripts/jquery-1.7.js"></script>'
 		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot("scatter",'+study+'))</script>'
 		+ '<div style="position: relative;">'
@@ -15,7 +15,7 @@ exports.gwas = function(study, res) {
 
 exports.allpoints = function(study,res) {
 	res.writeHead(200,{"Content-type":"text/html"});
-	res.end('<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>'
+	res.end('<script type="text/javascript" src="/javascripts/jquery-1.7.js"></script>'
 		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot_dots("scatter",'+study+'))</script>'
 		+ '<div style="position: relative;">'
