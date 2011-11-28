@@ -38,9 +38,11 @@ function draw_manhattan(canvasid,study) {
 }
 
 
+var sc = 2;
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
-	var minbins = Math.floor(Math.max([xsize,ysize])/2);
-	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize)+"/"+Math.floor(ysize)+"/"+1.2+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/"+minbins,
+	var minbins=3;
+	var fudge = 0.99;
+	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize/sc)+"/"+Math.floor(ysize/sc)+"/"+fudge+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/"+minbins,
 		function(json) {
 			var xrange = chr_length;
 			var yrange = global_max;
@@ -53,16 +55,23 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			}
 			for(var i=0; i<json.data.length; i++) {
 				var rect = json.data[i];
-				var width = xfactor*(rect[1]-rect[0]);
-				var height = yfactor*(rect[3]-rect[2]);
-				var x = xfactor*rect[0] + offset;
-				var y = ysize - height - yfactor*rect[2];
-				if (height < 1) {height=1;}
-				if (width < 1) {width = 1;}
-				if (height * width < 4) {
-					ctx.fillRect(Math.floor(x),Math.floor(y),2,2);
+				if (rect.length == 2) {
+					// not a rectangle, just a point
+					var x = xfactor*rect[0] + offset;
+					var y = ysize - sc - yfactor*rect[1];
+					ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
 				} else {
-					ctx.fillRect(Math.floor(x),Math.floor(y),Math.ceil(width),Math.ceil(height));
+					var width = xfactor*(rect[1]-rect[0]);
+					var height = sc+yfactor*(rect[3]-rect[2]);
+					var x = xfactor*rect[0] + offset;
+					var y = ysize - height - yfactor*rect[2];
+					if (height < sc) {height=sc;}
+					if (width < sc) {width = sc;}
+					if (height * width < 0) {
+						ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+					} else {
+						ctx.fillRect(Math.floor(x),Math.floor(y),Math.ceil(width),Math.ceil(height));
+					}
 				}
 			}
 		});
@@ -101,10 +110,13 @@ function draw_manhattan_dots(canvasid,study) {
 	ctxi.canvas.width = ctx.canvas.width;
 	ctxi.canvas.height = ctx.canvas.height;
 
+	tool = new drag_select();
+
 	// add event listeners
 	canvasi.addEventListener('mousedown', ev_canvas, false);
 	canvasi.addEventListener('mousemove', ev_canvas, false);
 	canvasi.addEventListener('mouseup',   ev_canvas, false);
+
 
 	var offset=0;
 	var ysize = ctx.canvas.height;
@@ -131,10 +143,11 @@ function do_scatter_dots(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			for(var i=0; i<json.length; i++) {
 				var x = xfactor*json[i][0] + offset;
 				var y = ysize - 2 - yfactor*json[i][1];
-				ctx.fillRect(Math.floor(x),Math.floor(y),2,2);
+				ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
 			}
 		});
 }
+
 function drag_select () {
 	var tool = this;
 	this.started = false;

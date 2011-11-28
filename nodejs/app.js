@@ -74,6 +74,16 @@ app.get('/maxscore/GWAS/:study', function(req,res) {
 	});
 });
 
+
+app.get('/gene2GWAS/:gene_id', function(req,res) {
+	var cmd = '../fastbit/fbsql -s "study_id,score" -d ../fastbit/data2/gene2GWAS -w "gene_id='+req.params.gene_id+'"';
+	console.log(cmd);
+	var fbsql = exec(cmd, function (error, stdout, stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});
+});
+
 // GO term histogram (all genes)
 app.get('/histogram/GO', function(req,res) {
 		var cmd = '../fastbit/fbsql -s "GO_term,count(*)" -d ../fastbit/data2/gene2GO';
