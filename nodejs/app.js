@@ -5,11 +5,19 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , gzip = require('connect-gzip')
+//  , gzip = require('connect-gzip')
   , exec = require('child_process').exec
   , spawn = require('child_process').spawn;
 
-var app = module.exports = express.createServer(gzip.gzip());
+//var app = module.exports = express.createServer(gzip.gzip());
+var app = module.exports = express.createServer();
+// For Mongo
+var Db = require('mongodb').Db, 
+Connection = require('./node_modules/mongodb/lib/mongodb/connection/connection').Connection, 
+Server = require('mongodb').Server;
+var mongoHost = "localhost";
+var mongoPort = Connection.DEFAULT_PORT;
+var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {native_parser:false});
 
 
 //CORS middleware
@@ -75,16 +83,45 @@ app.get('/maxscore/GWAS/:study', function(req,res) {
 	});
 });
 
+// Mongo fetches
 
-app.get('/gene2GWAS/:gene_id', function(req,res) {
-	var cmd = '../fastbit/fbsql -s "study_id,score" -d ../fastbit/data2/gene2GWAS -w "gene_id='+req.params.gene_id+'"';
-	console.log(cmd);
-	var fbsql = exec(cmd, function (error, stdout, stderr) {
-		res.writeHead(200, {'Content-Type': 'application/json'});
-		res.end(stdout);
-	});
+app.get ('/phenotypes/:phenotype', function(req,res){
+   db.open(function(err, db) {
+        db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {    
+          collection.find({'phenotype_name':req.params.phenotype}, {'phenotype_values':1}, function(err, cursor) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+  			cursor.each(function(err, doc) {
+  				if (doc === null) {
+  					db.close();  					
+  				}
+  				if (doc != null ){
+  				    res.end(JSON.stringify(doc["phenotype_values"]));
+			    }
+  			});   			
+          });
+        });
+   });  
 });
 
+app.get ('/phenotypes/', function(req,res){
+    var items=[];
+   db.open(function(err, db) {
+        db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {    
+          collection.find({}, {'phenotype_name':1}, function(err, cursor) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+  			cursor.each(function(err, doc) {
+  				if (doc === null) {
+  					res.end(JSON.stringify(items));
+  					db.close();  					
+  				}	
+  			    if (doc != null){
+  				    items.push(doc["phenotype_name"]);
+			    }
+  			});   			
+          });
+        });
+   });  
+});
 // GO term histogram (all genes)
 app.get('/histogram/GO', function(req,res) {
 		var cmd = '../fastbit/src/fbsql -s "GO_term,count(*)" -d ../fastbit/data/gene2GO';
