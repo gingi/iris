@@ -1,0 +1,12 @@
+Project for managing plant data and other server-side tools.
+
+FASTBIT
+=======
+In order to install FastBit and its related tools, it is necessary to run the
+following from the root directory:
+
+    git submodule update --init
+
+Then change to the fastbit/ directory and proceed with installation.
+
+Author: Shiran Pasternak <shiran@cshl.edu>
