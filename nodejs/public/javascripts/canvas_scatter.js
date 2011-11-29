@@ -55,7 +55,45 @@ function draw_manhattan(canvasid,study) {
 		offset += xsize;
 	}
 }
-
+var chr_range = new Array();
+function canvas_to_chr(a,b) {
+	chr_range = [];
+	var offset=0;
+	var a_chr=0;
+	var b_chr=0;
+	for(var i=0;i<chr_lengths.length;i++) {
+		var chr_xsize = ctxi.canvas.width*(chr_lengths[i]/total_len);
+		if (a >= offset && a <= offset + chr_xsize) {
+			a_chr = i+1;
+			a_pos = Math.floor(chr_lengths[i]*(a-offset)/chr_xsize);
+		}
+		if (b >= offset && b <= offset + chr_xsize) {
+			b_chr = i+1;
+			b_pos = Math.ceil(chr_lengths[i]*(b-offset)/chr_xsize);
+		}
+		offset += chr_xsize;
+	}
+	if (a_chr < b_chr && a_chr > 0) {
+		if (a_chr === b_chr) {
+			chr_range[0] = [a_chr,a_pos,b_pos];
+		} else if (a_chr === b_chr - 1) {
+			chr_range[0] = [a_chr,a_pos,chr_lengths[a_chr-1]];
+			chr_range[1] = [b_chr,0,b_pos];
+		} else {
+			chr_range[0] = [a_chr,a_pos,chr_lengths[a_chr-1]];
+			for(var i=1; i < b_chr - a_chr; i++) {
+				chr_range[i] = [a_chr+i,0,chr_lengths[a_chr+i-1]];				
+			}
+			chr_range[b_chr-a_chr] = [b_chr,0,b_pos];
+		}
+	}
+}
+var score_a;
+var score_b;
+function canvas_to_score(a,b) {
+	score_a = global_max*(ctxi.canvas.height - a)/ctxi.canvas.height;
+	score_b = global_max*(ctxi.canvas.height - b)/ctxi.canvas.height;
+}
 
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 	var minbins=3;
@@ -232,7 +270,10 @@ function ev_mouseup (ev) {
 			y2 = tool.y;
 		}
 		// need to convert x, y pixels to intervals on chromosomes and scores
-		alert("selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ")");
+		canvas_to_chr(x1,x2);
+		canvas_to_score(y1,y2);
+		var chr_range_string = JSON.stringify(chr_range);
+		alert("selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=["+score_b+","+score_a+"] chr_range="+chr_range_string);
 		tool.started = false;
 		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
 	}
