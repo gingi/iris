@@ -73,7 +73,7 @@ function canvas_to_chr(a,b) {
 		}
 		offset += chr_xsize;
 	}
-	if (a_chr < b_chr && a_chr > 0) {
+	if (a_chr <= b_chr && a_chr > 0) {
 		if (a_chr === b_chr) {
 			chr_range[0] = [a_chr,a_pos,b_pos];
 		} else if (a_chr === b_chr - 1) {
