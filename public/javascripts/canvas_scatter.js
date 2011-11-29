@@ -1,7 +1,12 @@
+var ctxi;
+tool = new Object();
+tool.started = false;
 var global_min = 0;
 var global_max = 0;
 var chr_lengths = new Array();
 var total_len = 0;
+var sc = 2;
+var circles = false;
 function manhattan_plot(canvasid,study) {
 	// fetch the list of chromosomes and their lengths
 	$.getJSON("/chromosomes/at",
@@ -28,6 +33,20 @@ function draw_manhattan(canvasid,study) {
 	ctx.canvas.height = window.innerHeight - 20;
 	ctx.strokeStyle="black";
 	ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
+
+	// resize the interactive layer
+	var canvasi = document.getElementById(canvasid+'i');
+	ctxi = canvasi.getContext('2d');
+	ctxi.canvas.width = ctx.canvas.width;
+	ctxi.canvas.height = ctx.canvas.height;
+	ctxi.strokeStyle="red";
+	ctxi.fillStyle = "rgba(255,0,0,0.3)";
+
+	// add event listeners
+	canvasi.addEventListener('mousedown', ev_mousedown, false);
+	canvasi.addEventListener('mousemove', ev_mousemove, false);
+	canvasi.addEventListener('mouseup',   ev_mouseup, false);
+	
 	var offset=0;
 	var ysize = ctx.canvas.height;
 	for(var i=0;i<chr_lengths.length;i++) {
@@ -38,7 +57,6 @@ function draw_manhattan(canvasid,study) {
 }
 
 
-var sc = 2;
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 	var minbins=3;
 	var fudge = 0.99;
@@ -59,7 +77,14 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 					// not a rectangle, just a point
 					var x = xfactor*rect[0] + offset;
 					var y = ysize - sc - yfactor*rect[1];
-					ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+					if (circles) {
+						ctx.beginPath();
+						ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
+						ctx.closePath();
+						ctx.fill();
+					} else {
+						ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+					}
 				} else {
 					var width = xfactor*(rect[1]-rect[0]);
 					var height = sc+yfactor*(rect[3]-rect[2]);
@@ -67,11 +92,7 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 					var y = ysize - height - yfactor*rect[2];
 					if (height < sc) {height=sc;}
 					if (width < sc) {width = sc;}
-					if (height * width < 0) {
-						ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
-					} else {
-						ctx.fillRect(Math.floor(x),Math.floor(y),Math.ceil(width),Math.ceil(height));
-					}
+					ctx.fillRect(Math.floor(x),Math.floor(y),Math.ceil(width),Math.ceil(height));
 				}
 			}
 		});
@@ -94,7 +115,7 @@ function manhattan_plot_dots(canvasid,study) {
 		);
 	});
 }
-var ctxi;
+
 function draw_manhattan_dots(canvasid,study) {
   // get the canvas
 	var canvas = document.getElementById(canvasid);
@@ -109,13 +130,13 @@ function draw_manhattan_dots(canvasid,study) {
 	ctxi = canvasi.getContext('2d');
 	ctxi.canvas.width = ctx.canvas.width;
 	ctxi.canvas.height = ctx.canvas.height;
-
-	tool = new drag_select();
+	ctxi.strokeStyle="red";
+	ctxi.fillStyle = "rgba(255,0,0,0.3)";
 
 	// add event listeners
-	canvasi.addEventListener('mousedown', ev_canvas, false);
-	canvasi.addEventListener('mousemove', ev_canvas, false);
-	canvasi.addEventListener('mouseup',   ev_canvas, false);
+	canvasi.addEventListener('mousedown', ev_mousedown, false);
+	canvasi.addEventListener('mousemove', ev_mousemove, false);
+	canvasi.addEventListener('mouseup',   ev_mouseup, false);
 
 
 	var offset=0;
@@ -143,67 +164,19 @@ function do_scatter_dots(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			for(var i=0; i<json.length; i++) {
 				var x = xfactor*json[i][0] + offset;
 				var y = ysize - 2 - yfactor*json[i][1];
-				ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+				if (circles) {
+					ctx.beginPath();
+					ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
+					ctx.closePath();
+					ctx.fill();
+				} else {
+					ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+				}
 			}
 		});
 }
 
-function drag_select () {
-	var tool = this;
-	this.started = false;
-	
-	this.mousedown = function (ev) {
-		tool.started = true;
-		tool.x = ev._x;
-		tool.y = ev._y;
-		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
-		ctxi.strokeRect(tool.x,tool.y,1,1);
-	};
-	
-	this.mousemove = function (ev) {
-		if (tool.started) {
-			var x1 = tool.x;
-			var y1 = tool.y;
-			var x2 = ev._x;
-			var y2 = ev._y;
-			if (x2 - x1 > 1) {
-				x1++;
-				x2--;
-				if (y2 - y1 > 1) {
-					y1++;
-					y2--;
-					ctxi.clearRect(x1,y1,x2,y2);
-				} else if (y1 - y2 > 1) {
-					y1--;
-					y2++;
-					ctxi.clearRect(x1,y1,x2,y2);
-				}
-			} else if (x1 - x2 > 1) {
-				x1--;
-				x2++;
-				if (y2 - y1 > 1) {
-					y1++;
-					y2--;
-					ctxi.clearRect(x1,y1,x2,y2);
-				} else if (y1 - y2 > 1) {
-					y1--;
-					y2++;
-					ctxi.clearRect(x1,y1,x2,y2);
-				}
-			}
-			ctxi.strokeRect(tool.x, tool.y, ev._x - tool.x + 1, ev._y - tool.y + 1);
-		}
-	};
-	
-	this.mouseup = function(ev) {
-		if (tool.started) {
-			alert("selected rectangle (" + tool.x + "," + tool.y + "," + ev._x + "," + ev._y + ")");
-			tool.started = false;
-		}
-	};
-}
-
-function ev_canvas (ev) {
+function ev_mousedown (ev) {
 	if (ev.layerX || ev.layerX == 0) {
 		ev._x = ev.layerX;
 		ev._y = ev.layerY;
@@ -211,8 +184,56 @@ function ev_canvas (ev) {
 		ev._x = ev.offsetX;
 		ev._y = ev.offsetY;
 	}
-	var func = drag_select[ev.type];
-	if (func) {
-		func(ev)
+	tool.started = true;
+	tool.x = ev._x;
+	tool.y = ev._y;
+	ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
+	ctxi.strokeRect(tool.x,tool.y,1,1);
+}
+	
+function ev_mousemove (ev) {
+	if (tool.started) {
+		if (ev.layerX || ev.layerX == 0) {
+			ev._x = ev.layerX;
+			ev._y = ev.layerY;
+		} else if (ev.offsetX || ev.offsetX == 0) {
+			ev._x = ev.offsetX;
+			ev._y = ev.offsetY;
+		}
+		var x = tool.x < ev._x ? tool.x : ev._x;
+		var y = tool.y < ev._y ? tool.y : ev._y;
+		var width=Math.abs(ev._x - tool.x + 1);
+		var height=Math.abs(ev._y - tool.y + 1);
+		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
+		ctxi.fillRect(x,y,width,height);
+		ctxi.strokeRect(x, y, width, height);
+	}
+}
+	
+function ev_mouseup (ev) {
+	if (tool.started) {
+		if (ev.layerX || ev.layerX == 0) {
+			ev._x = ev.layerX;
+			ev._y = ev.layerY;
+		} else if (ev.offsetX || ev.offsetX == 0) {
+			ev._x = ev.offsetX;
+			ev._y = ev.offsetY;
+		}
+		var x1 = tool.x;
+		var x2 = ev._x;
+		var y1 = tool.y;
+		var y2 = ev._y;
+		if (tool.x > ev._x) {
+			x1 = ev._x;
+			x2 = tool.x;
+		}
+		if (tool.y > ev._y) {
+			y1 = ev._y;
+			y2 = tool.y;
+		}
+		// need to convert x, y pixels to intervals on chromosomes and scores
+		alert("selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ")");
+		tool.started = false;
+		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
 	}
 }
