@@ -75,7 +75,7 @@ app.get('/chromosomes/:genome', function(req,res) {
 });
 
 app.get('/maxscore/GWAS/:study', function(req,res) {
-	var cmd = '../fastbit/src/fbsql -s "max(score)" -d ../fastbit/data/GWAS/'+req.params.study;
+	var cmd = '../fastbit/src/fbsql -s "max(score)" -d ../fastbit/data2/GWAS/'+req.params.study;
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
@@ -124,7 +124,7 @@ app.get ('/phenotypes/', function(req,res){
 });
 // GO term histogram (all genes)
 app.get('/histogram/GO', function(req,res) {
-		var cmd = '../fastbit/src/fbsql -s "GO_term,count(*)" -d ../fastbit/data/gene2GO';
+		var cmd = '../fastbit/src/fbsql -s "GO_term,count(*)" -d ../fastbit/data2/gene2GO';
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
@@ -162,7 +162,7 @@ app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
 
 // GO term histogram given a minimum association score
 app.get('/histogram/GO/phenotypes/:minscore',function(req,res) {
-	res.sned("minscore:"+req.params.minscore);
+	res.send("minscore:"+req.params.minscore);
 });
 // phenotype histogram given a list of GO terms
 
@@ -175,9 +175,17 @@ app.get('/histogram/phenotypes/:minscore', function(req,res) {
 	res.send("minscore:"+req.params.minscore);
 });
 
+app.get('/gene2GWAS/:gene_id', function(req,res) {
+	var cmd = '../fastbit/src/fbsql -d ../fastbit/data2/gene2GWAS -s "study_id,score" -w "gene_id='+req.params.gene_id+'"';
+	var fbsql = exec(cmd, function (error, stdout, stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});	
+});
+
 // scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
 app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
-	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
+	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data2/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
 		console.log(cmd);
 		var scatter = exec(cmd, function (error, stdout, stderr) {
@@ -186,7 +194,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 		});
 });
 app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,res) {
-	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
+	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data2/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
 		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
 		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2
@@ -200,7 +208,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,
 
 // scatterplot for GWAS study with no binning
 app.get('/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
-	var cmd = '../fastbit/src/fbsql -s "pos,score" -d ../fastbit/data/GWAS/' + req.params.study + '/' + req.params.chr;
+	var cmd = '../fastbit/src/fbsql -s "pos,score" -d ../fastbit/data2/GWAS/' + req.params.study + '/' + req.params.chr;
 	console.log(cmd);
 	var scatter = exec(cmd,{maxBuffer:10000*1024},function(error, stdout,stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
