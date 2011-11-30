@@ -176,7 +176,7 @@ app.get('/histogram/phenotypes/:minscore', function(req,res) {
 });
 
 app.get('/gene2GWAS', function(req,res) {
-	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "study_id,gene_id,score"';
+	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "gene_id,score,study_id"';
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(stdout);
@@ -184,7 +184,7 @@ app.get('/gene2GWAS', function(req,res) {
 });
 
 app.get('/gene2GWAS/:gene_id', function(req,res) {
-	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "study_id,score" -w "gene_id='+req.params.gene_id+'"';
+	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "score,study_id,score" -w "gene_id='+req.params.gene_id+'"';
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(stdout);
