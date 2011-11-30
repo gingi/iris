@@ -175,6 +175,14 @@ app.get('/histogram/phenotypes/:minscore', function(req,res) {
 	res.send("minscore:"+req.params.minscore);
 });
 
+app.get('/gene2GWAS', function(req,res) {
+	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "study_id,gene_id,score"';
+	var fbsql = exec(cmd, function (error, stdout, stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	});	
+});
+
 app.get('/gene2GWAS/:gene_id', function(req,res) {
 	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/gene2GWAS -s "study_id,score" -w "gene_id='+req.params.gene_id+'"';
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
@@ -193,12 +201,11 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 			res.end(stdout);
 		});
 });
-app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:f/:n1/:x1/:n2/:x2/:m', function(req,res) {
-	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
+app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
+	var cmd = '../fastbit/src/scatter_ez -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
 		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
-		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2
-		+ ' -f ' + req.params.f + ' -m ' + req.params.m;
+		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
 		console.log(cmd);
 		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
             res.writeHead(200, {'Content-Type': 'application/json'});
