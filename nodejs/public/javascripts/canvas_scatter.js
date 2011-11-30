@@ -6,7 +6,7 @@ var global_max = 0;
 var chr_lengths = new Array();
 var total_len = 0;
 var sc = 2;
-var circles = false;
+var circles = true;
 function manhattan_plot(canvasid,study) {
 	// fetch the list of chromosomes and their lengths
 	$.getJSON("/chromosomes/at",
@@ -96,9 +96,7 @@ function canvas_to_score(a,b) {
 }
 
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
-	var minbins=3;
-	var fudge = 0.99;
-	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize/sc)+"/"+Math.floor(ysize/sc)+"/"+fudge+"/"+0+"/"+chr_length+"/"+0+"/"+global_max+"/"+minbins,
+	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize/sc)+"/"+Math.floor(ysize/sc)+"/"+0+"/"+chr_length+"/"+0+"/"+global_max,
 		function(json) {
 			var xrange = chr_length;
 			var yrange = global_max;
@@ -111,10 +109,10 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			}
 			for(var i=0; i<json.data.length; i++) {
 				var rect = json.data[i];
-				if (rect.length == 2) {
+				if (rect.length == 3) {
 					// not a rectangle, just a point
 					var x = xfactor*rect[0] + offset;
-					var y = ysize - sc - yfactor*rect[1];
+					var y = ysize - yfactor*rect[1];
 					if (circles) {
 						ctx.beginPath();
 						ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
@@ -201,14 +199,14 @@ function do_scatter_dots(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			}
 			for(var i=0; i<json.length; i++) {
 				var x = xfactor*json[i][0] + offset;
-				var y = ysize - 2 - yfactor*json[i][1];
+				var y = ysize - yfactor*json[i][1];
 				if (circles) {
 					ctx.beginPath();
 					ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
 					ctx.closePath();
 					ctx.fill();
 				} else {
-					ctx.fillRect(Math.floor(x),Math.floor(y),sc,sc);
+					ctx.fillRect(Math.floor(x-sc/2),Math.floor(y+sc/2),sc,sc);
 				}
 			}
 		});
