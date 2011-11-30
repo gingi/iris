@@ -7,19 +7,20 @@ var chr_lengths = new Array();
 var total_len = 0;
 var sc = 2;
 var circles = true;
+var XGUTTER = 10;
 function manhattan_plot(canvasid,study) {
 	// fetch the list of chromosomes and their lengths
 	$.getJSON("/chromosomes/at",
-		function(json1) {
-			for(var i=0;i<json1.length;i++) {
-				chr_lengths[i] = json1[i][1];
-				total_len += json1[i][1];
+		function(json) {
+			for(var i=0;i<json.length;i++) {
+				chr_lengths[i] = json[i][1];
+				total_len += json[i][1];
 			}
 			// fetch the max score for this study
 			$.getJSON("/maxscore/GWAS/"+study,
-			function(json2) {
-				global_max = Math.ceil(json2[0][0]);
-				draw_manhattan(canvasid,study);
+			function(json) {
+				global_max = Math.ceil(json[0][0]);
+				draw_manhattan(canvasid, study);
 			}
 		);
 	});
@@ -47,31 +48,36 @@ function draw_manhattan(canvasid,study) {
 	canvasi.addEventListener('mousemove', ev_mousemove, false);
 	canvasi.addEventListener('mouseup',   ev_mouseup, false);
 	
-	var offset=0;
+	var offset=XGUTTER;
 	var ysize = ctx.canvas.height;
 	for(var i=0;i<chr_lengths.length;i++) {
-		var xsize = ctx.canvas.width*(chr_lengths[i]/total_len);
+		var xsize = (ctx.canvas.width - XGUTTER) *
+		    (chr_lengths[i] / total_len) - XGUTTER;
 		do_scatter(ctx,study,i+1,offset,xsize,ysize,chr_lengths[i]);
-		offset += xsize;
+		offset += xsize + XGUTTER;
 	}
 }
 var chr_range = new Array();
 function canvas_to_chr(a,b) {
 	chr_range = [];
-	var offset=0;
+	var offset=XGUTTER;
 	var a_chr=0;
 	var b_chr=0;
+	var nt2px = ctxi.canvas.width/total_len;
+	var a_pos, b_pos;
 	for(var i=0;i<chr_lengths.length;i++) {
-		var chr_xsize = ctxi.canvas.width*(chr_lengths[i]/total_len);
-		if (a >= offset && a <= offset + chr_xsize) {
+		var chr_xsize = nt2px * chr_lengths[i];
+		if (a >= offset - XGUTTER && a <= offset + chr_xsize) {
 			a_chr = i+1;
-			a_pos = Math.floor(chr_lengths[i]*(a-offset)/chr_xsize);
+			a_pos = Math.floor(chr_lengths[i] * Math.max(a-offset, 0) / 
+			    chr_xsize);
 		}
 		if (b >= offset && b <= offset + chr_xsize) {
 			b_chr = i+1;
-			b_pos = Math.ceil(chr_lengths[i]*(b-offset)/chr_xsize);
+			b_pos = Math.ceil(chr_lengths[i] * Math.max(b-offset, 0) /
+			    chr_xsize);
 		}
-		offset += chr_xsize;
+		offset += chr_xsize + XGUTTER;
 	}
 	if (a_chr <= b_chr && a_chr > 0) {
 		if (a_chr === b_chr) {
@@ -175,12 +181,13 @@ function draw_manhattan_dots(canvasid,study) {
 	canvasi.addEventListener('mouseup',   ev_mouseup, false);
 
 
-	var offset=0;
+	var offset=XGUTTER;
 	var ysize = ctx.canvas.height;
 	for(var i=0;i<chr_lengths.length;i++) {
-		var xsize = ctx.canvas.width*(chr_lengths[i]/total_len);
+		var xsize = (ctx.canvas.width - XGUTTER) *
+		    (chr_lengths[i] / total_len) - XGUTTER;
 		do_scatter_dots(ctx,study,i+1,offset,xsize,ysize,chr_lengths[i]);
-		offset += xsize;
+		offset += xsize + XGUTTER;
 	}
 }
 
@@ -271,8 +278,8 @@ function ev_mouseup (ev) {
 		canvas_to_chr(x1,x2);
 		canvas_to_score(y1,y2);
 		var chr_range_string = JSON.stringify(chr_range);
-		alert("selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=["+score_b+","+score_a+"] chr_range="+chr_range_string);
+        alert("selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=["+score_b+","+score_a+"] chr_range="+chr_range_string);
 		tool.started = false;
-		ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
+        ctxi.clearRect(0,0,ctxi.canvas.width,ctxi.canvas.height);
 	}
 }
