@@ -5,38 +5,49 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title>[% template.title or "Kbase Web" %]</title>
+<link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap.css') %]" />
 <link rel="stylesheet" href="[% c.uri_for('/static/css/kbase.css') %]" />
 </head>
-<body>    
-<div id="outer">
-<div id="header">
-    [%# Your logo could go here -%]
-    [%# Insert the page title -%]
-    <h1>[% template.title or site.title or "Kbase Web" %]</h1>
+<body>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="#">[% site.title or "Kbase Web" %]</a>
+            <ul class="nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <form action="" class="pull-right">
+              <input class="input-small" type="text" placeholder="Username">
+              <input class="input-small" type="password" placeholder="Password">
+              <button class="btn" type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
 </div>
+<div class="container">
+    <!-- <div class="page-header">
+        <span class="message">[% status_msg %]</span>
+        <span class="error">[% error_msg %]</span>
+        <h1>[% template.title or site.title or "Kbase Web" %]</h1>
+    </div> -->
 
-<div id="bodyblock">
-<div id="menu">
-    <ul>
-        <li><a href="[% c.uri_for('/') %]">Home</a></li>
-        <li><a href="[% c.uri_for('/about') %]" title="About">About</a></li>
-    </ul>
-</div><!-- end menu -->
+    <div class="content">
+        <div class="row">
+            <div class="span10">
+            [% content %]
+            </div>
+            <div class="span4">
+                <h3>Sidebar</h3>
+            </div>
+        </div>
+    </div><!-- end content -->
 
-<div id="content">
-    [%# Status and error messages %]
-    <span class="message">[% status_msg %]</span>
-    <span class="error">[% error_msg %]</span>
-    [%# This is where TT will stick all of your template's contents. -%]
-    [% content %]
-</div><!-- end content -->
-</div><!-- end bodyblock -->
-
-<div id="footer">
-    Copyright (c) 2011 Cold Spring Harbor Laboratory
+    <footer>
+        <p>&copy; Cold Spring Harbor Laboratory 2011</p>
+    </footer>
 </div>
-</div><!-- end outer -->
-
 </body>
 </html>
 [% END #no_wrapper %]
