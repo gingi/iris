@@ -127,6 +127,10 @@ static void parse_args(int argc, char** argv,
    }
 } // parse_args
 
+std::vector<uint32_t> bincounts;
+
+bool by_count (int a, int b) { return (bincounts[a] < bincounts[b]); }
+
 static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, uint32_t nb1,
  	const char *col2, double min2, double max2, uint32_t nb2, const char *qcnd) {
 
@@ -182,19 +186,28 @@ static void get2DDist(const ibis::part*& part, const char *col1, double min1, do
 	// success
 
 	// count fully loaded bins
+	std::vector<uint32_t> idx;
+	bincounts.resize(cnts.size());
 	uint32_t max_count=0;
 	for (uint32_t i = 0; i < cnts.size(); ++ i) {
+		idx.push_back(i);
+		bincounts[i] = cnts[i];
 		if (cnts[i] > max_count) {
 			max_count = cnts[i];
 		}
 	}
+
+	std::sort(idx.begin(), idx.end(), by_count);
+
+	// cluster adjacent bins with similar density
 
 	// start the JSON output
 	printf("{\"max\":\"%d\",\"data\":[\n",max_count);
 
 	// output occupied bins
 	int first=1;
-	for (uint32_t i = 0; i < cnts.size(); ++ i) {
+	for (uint32_t j = 0; j < idx.size(); ++ j) {
+		uint32_t i = idx[j];
 		if (cnts[i] > 0) {
 			uint32_t i1 = i / nb2;
 			uint32_t i2 = i % nb2;
