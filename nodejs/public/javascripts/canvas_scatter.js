@@ -6,8 +6,10 @@ var global_max = 0;
 var chr_lengths = new Array();
 var total_len = 0;
 var sc = 2;
+var radius = 2;
 var circles = true;
 var XGUTTER = 10;
+var color_by_density = true;
 function manhattan_plot(canvasid,study) {
 	// fetch the list of chromosomes and their lengths
 	$.getJSON("/chromosomes/at",
@@ -100,7 +102,8 @@ function canvas_to_score(a,b) {
 	score_a = global_max*(ctxi.canvas.height - a)/ctxi.canvas.height;
 	score_b = global_max*(ctxi.canvas.height - b)/ctxi.canvas.height;
 }
-
+var mincolor = new Array();
+var maxcolor = new Array();
 function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 	$.getJSON("/scatter/GWAS/"+study+"/"+chr+"/"+Math.floor(xsize/sc)+"/"+Math.floor(ysize/sc)+"/"+0+"/"+chr_length+"/"+0+"/"+global_max,
 		function(json) {
@@ -110,8 +113,12 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			var yfactor = ysize/yrange;
 			if (chr % 2 === 0) {
 				ctx.fillStyle="darkorange";
+				mincolor = [255,165,0];
+				maxcolor = [255,0,0];
 			} else {
 				ctx.fillStyle="black";
+				mincolor = [150,150,150];
+				maxcolor = [0,0,0];
 			}
 			for(var i=0; i<json.data.length; i++) {
 				var rect = json.data[i];
@@ -119,9 +126,19 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 					// not a rectangle, just a point
 					var x = xfactor*rect[0] + offset;
 					var y = ysize - yfactor*rect[1];
+
+					if (color_by_density) {
+						var ratio = rect[2]/json.max;
+						var r = mincolor[0] + Math.floor(ratio*(maxcolor[0]-mincolor[0]));
+						var g = mincolor[1] + Math.floor(ratio*(maxcolor[1]-mincolor[1]));
+						var b = mincolor[2] + Math.floor(ratio*(maxcolor[2]-mincolor[2]));
+
+						ctx.fillStyle="rgb(" + r + "," + g + "," + b + ")";
+					}
+					
 					if (circles) {
 						ctx.beginPath();
-						ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
+						ctx.arc(Math.floor(x),Math.floor(y),radius,0,2*Math.PI,true);
 						ctx.closePath();
 						ctx.fill();
 					} else {
@@ -207,9 +224,10 @@ function do_scatter_dots(ctx,study,chr,offset,xsize,ysize,chr_length) {
 			for(var i=0; i<json.length; i++) {
 				var x = xfactor*json[i][0] + offset;
 				var y = ysize - yfactor*json[i][1];
+
 				if (circles) {
 					ctx.beginPath();
-					ctx.arc(Math.floor(x),Math.floor(y),sc,0,2*Math.PI,true);
+					ctx.arc(Math.floor(x),Math.floor(y),radius,0,2*Math.PI,true);
 					ctx.closePath();
 					ctx.fill();
 				} else {
