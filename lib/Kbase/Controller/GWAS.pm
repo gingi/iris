@@ -2,7 +2,7 @@ package Kbase::Controller::GWAS;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller::HTML::FormFu'; }
+BEGIN { extends 'Catalyst::Controller'; }
 
 __PACKAGE__->config({ default_view => 'HTML' });
 
@@ -33,33 +33,34 @@ sub view : Local {
     my $top = $c->subrequest("/widget/scatterplot", {}, { study => $study });
     my $bottom = $c->subrequest("/widget/flotplot");
     $c->stash(
-        template  => '2widgets.tt2',
-        topwidget => $top,
+        template     => '2widgets.tt2',
+        topwidget    => $top,
         bottomwidget => $bottom,
     );
 }
 
-sub study : Local : FormConfig {
+sub study : Local {
     my ($self, $c) = @_;
 
-    my $form = $c->stash->{form};
-    if ($form->submitted_and_valid) {
-        $c->stash(study => $form->param('study'));
-        $c->detach('view');
-    } else {
-        my $select = $form->get_element({ name => 'study' });
-        $select->options(
-            [   [ 3032, 'Arabidopsis 2010 Study 3032' ],
-                [ 3034, 'Arabidopsis 2010 Study 3034' ],
-                [ 3035, 'Arabidopsis 2010 Study 3035' ],
-                [ 1,    'Arabidopsis 2010 Nonexistent Study' ],
-            ]
-        );
-        $c->stash(template => 'gwas/study.tt2');
-    }
+    $c->stash(
+        studies => [
+            [ 3032, 'Arabidopsis 2010 Study 3032' ],
+            [ 3034, 'Arabidopsis 2010 Study 3034' ],
+            [ 3035, 'Arabidopsis 2010 Study 3035' ],
+            [ 1,    'Arabidopsis 2010 Nonexistent Study' ],
+        ],
+        template => 'gwas/study.tt2'
+    );
 }
 
-sub end :ActionClass('RenderView') {}
+sub view_study : Local {
+    my ($self, $c) = @_;
+    $c->stash(study => $c->request->param('study'));
+    $c->detach('view');
+}
+
+sub end : ActionClass('RenderView') {
+}
 
 =head1 AUTHOR
 
