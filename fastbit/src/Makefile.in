@@ -32,8 +32,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = fbsql$(EXEEXT) join_once$(EXEEXT) scatter$(EXEEXT) \
-	scatter_new$(EXEEXT) scatter_ez$(EXEEXT)
+bin_PROGRAMS = fbsql$(EXEEXT) fbsql_tab$(EXEEXT) join_once$(EXEEXT) \
+	scatter$(EXEEXT) scatter_new$(EXEEXT) scatter_ez$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -49,6 +49,9 @@ PROGRAMS = $(bin_PROGRAMS)
 fbsql_SOURCES = fbsql.c
 fbsql_OBJECTS = fbsql.$(OBJEXT)
 fbsql_LDADD = $(LDADD)
+fbsql_tab_SOURCES = fbsql_tab.c
+fbsql_tab_OBJECTS = fbsql_tab.$(OBJEXT)
+fbsql_tab_LDADD = $(LDADD)
 join_once_SOURCES = join_once.c
 join_once_OBJECTS = join_once.$(OBJEXT)
 join_once_LDADD = $(LDADD)
@@ -69,8 +72,9 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = fbsql.c join_once.c scatter.c scatter_ez.c scatter_new.c
-DIST_SOURCES = fbsql.c join_once.c scatter.c scatter_ez.c \
+SOURCES = fbsql.c fbsql_tab.c join_once.c scatter.c scatter_ez.c \
+	scatter_new.c
+DIST_SOURCES = fbsql.c fbsql_tab.c join_once.c scatter.c scatter_ez.c \
 	scatter_new.c
 ETAGS = etags
 CTAGS = ctags
@@ -238,6 +242,9 @@ clean-binPROGRAMS:
 fbsql$(EXEEXT): $(fbsql_OBJECTS) $(fbsql_DEPENDENCIES) 
 	@rm -f fbsql$(EXEEXT)
 	$(LINK) $(fbsql_OBJECTS) $(fbsql_LDADD) $(LIBS)
+fbsql_tab$(EXEEXT): $(fbsql_tab_OBJECTS) $(fbsql_tab_DEPENDENCIES) 
+	@rm -f fbsql_tab$(EXEEXT)
+	$(LINK) $(fbsql_tab_OBJECTS) $(fbsql_tab_LDADD) $(LIBS)
 join_once$(EXEEXT): $(join_once_OBJECTS) $(join_once_DEPENDENCIES) 
 	@rm -f join_once$(EXEEXT)
 	$(LINK) $(join_once_OBJECTS) $(join_once_LDADD) $(LIBS)
@@ -258,6 +265,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fbsql.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fbsql_tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/join_once.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scatter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scatter_ez.Po@am__quote@

@@ -1,4 +1,4 @@
-bin_PROGRAMS = fbsql join_once scatter scatter_new scatter_ez
+bin_PROGRAMS = fbsql fbsql_tab join_once scatter scatter_new scatter_ez
 SUFFIXES = .cpp
 CC = g++
 CPPFLAGS = -I../fastbit-ibis/src
