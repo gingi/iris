@@ -1,17 +1,3 @@
-<style type="text/css" media="screen">
-    #welcome{
-        display:block;
-        margin:0 auto;
-        width:900px;
-        text-align:center;
-        position:absolute;
-        top:50%;
-        height:10em;
-        margin-top:-5em;
-    }
-    #welcome *{ font-size: 18pt;}
-</style>
-<div id="welcome">
-<p>Welcome, friends.</p>
-<p><a href="[% c.uri_for('/gwas/study') %]">Prototype</a>, anyone?</p>
-</div>
+<ul>
+<li><a href="[% c.uri_for('/gwas/study') %]">GWAS prototype</a></li>
+</ul>
