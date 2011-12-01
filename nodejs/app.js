@@ -176,7 +176,7 @@ app.get('/histogram/phenotypes/:minscore', function(req,res) {
 });
 
 app.get('/gene2GWAS', function(req,res) {
-	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/GWAS_snp_consequences -s "study_id,gene_id,max(score)"';
+	var cmd = '../fastbit/src/fbsql -d ../fastbit/data/GWAS_snp_consequences -s "study_id,gene_stable_id,max(score)"';
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(stdout);
