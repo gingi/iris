@@ -1,5 +1,5 @@
 [% META title = "Select Study" %]
-<form action="view_study" method="get" class="form-stacked" accept-charset="utf-8">
+<form action="view" method="get" class="form-stacked" accept-charset="utf-8">
     
     <fieldset id="select_study">
         <div class="clearfix">

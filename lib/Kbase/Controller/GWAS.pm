@@ -30,8 +30,8 @@ sub index : Path : Args(0) {
 sub view : Local {
     my ($self, $c) = @_;
     my $study = $c->request->param('study');
-    my $top = $c->subrequest("/widget/scatterplot", {}, { study => $study });
-    my $bottom = $c->subrequest("/widget/flotplot");
+    my $top = $c->subrequest("/widget/scatterplot_remote", {}, { study => $study });
+    my $bottom = 'Your ad here.'; # $c->subrequest("/widget/flotplot");
     $c->stash(
         template     => '2widgets.tt2',
         topwidget    => $top,
@@ -46,17 +46,11 @@ sub study : Local {
         studies => [
             [ 3032, 'Arabidopsis 2010 Study 3032' ],
             [ 3034, 'Arabidopsis 2010 Study 3034' ],
-            [ 3035, 'Arabidopsis 2010 Study 3035' ],
+            [ 3396, 'Arabidopsis 2010 Study 3396' ],
             [ 1,    'Arabidopsis 2010 Nonexistent Study' ],
         ],
         template => 'gwas/study.tt2'
     );
-}
-
-sub view_study : Local {
-    my ($self, $c) = @_;
-    $c->stash(study => $c->request->param('study'));
-    $c->detach('view');
 }
 
 sub end : ActionClass('RenderView') {
