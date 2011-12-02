@@ -1,9 +1,2 @@
 <h2>[% title %]</h2>
-<iframe name="cappuccino"
-    src="[% c.uri_for(scatterplot_view, query_params) %]"
-    scrolling="no"
-    width="100%" height="100%"
-    marginheight="0" marginwidth="0"
-    frameborder="[% frameborder %]" style="display:block">
-    <p>Dude. How old is your browser?</p>
-</iframe>
+[% subinclude("http://localhost:3001/GWAS/" + study) %]

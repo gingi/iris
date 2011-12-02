@@ -4,6 +4,9 @@ use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
+use URI;
+use LWP::UserAgent;
+
 =head1 NAME
 
 Kbase::Controller::Widget - Catalyst Controller
@@ -41,6 +44,19 @@ sub scatterplot : Local {
         title => "Study $study",
         frameborder => 0,
     );
+}
+
+sub scatterplot_remote : Local {
+    my ($self, $c) = @_;
+    my $study = $c->request->param('study');
+    my $uri  = "http://localhost:3001/GWAS/$study";
+    my $ua   = LWP::UserAgent->new;
+    my $response = $ua->get($uri);
+    my $html = $response->decoded_content;
+    for my $pattern ('<a href=\"\K([^"]+?)', 'src=\"\K([^"]+?)') {
+        $html =~ s/$pattern/@{[URI->new_abs($1, $response->base)]}/g;
+    }
+    $c->response->body($html);
 }
 
 sub flotplot : Local {
