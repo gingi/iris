@@ -1,21 +1,30 @@
-/*
- * GET home page.
- */
-
 exports.index = function(req, res){
-  res.render('index', { title: 'Kbase Web - node.js' })
+  res.render('index', { title: 'just paint on the canvas' })
 };
 
-exports.select_study = function(req, res){
-  res.render('select_study', { title: 'Kbase Web - select study' })
+exports.gwas = function(study, res) {
+	res.writeHead(200,{"Content-type":"text/html"});
+	res.end('<script type="text/javascript" src="/javascripts/jquery-1.7.js"></script>'
+		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
+		+ '<script type="text/javascript">$(document).ready(manhattan_plot("scatter",'+study+'))</script>'
+		+ '<div style="position: relative;">'
+		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
+		+ ' <canvas id="scatteri" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>'
+		+ '</div>');
 };
 
-exports.query_scores = function(req, res) {
-	res.render('query_scores', { title: 'Kbase Web - query scores' })
+exports.allpoints = function(study,res) {
+	res.writeHead(200,{"Content-type":"text/html"});
+	res.end('<script type="text/javascript" src="/javascripts/jquery-1.7.js"></script>'
+		+ '<script type="text/javascript" src="/javascripts/canvas_scatter.js"></script>'
+		+ '<script type="text/javascript">$(document).ready(manhattan_plot_dots("scatter",'+study+'))</script>'
+		+ '<div style="position: relative;">'
+		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
+		+ ' <canvas id="scatteri" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>'
+		+ '</div>');
 };
 
-exports.gwas = function(study, experiment, res) {
-	res.render('gwas', { title: 'Kbase Web - ' + experiment + '/' + study,
-	 	"study": study,
-	 	"experiment": experiment});
+exports.jquery_fastbit = function(req, res){
+	console.log("going here")
+	res.render('jquery_fastbit',  { layout:false, title: 'Routing fastbit json jQuery' })
 };

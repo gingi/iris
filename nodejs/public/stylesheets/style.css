@@ -4,25 +4,58 @@
 }
 body {
     margin:0;
-    width:100%;
-    height:100%;
-}
-#bodyblock {
-    min-height:300px;
-    height:100%;
+    background-color:#999;
 }
 #outer {
-    display:block;
-    position:absolute;
-    top:0;
-    left:0;
-    height:100%;
-    width:100%;
+    min-height:750px;
+    width:1000px;
+    margin: 0 auto;
+    background-color:#f8f8f8;
 }
 #header {
     text-align: center;
-    background-color: #666;
+    height:50px;
     color: white;
+}
+#footer {
+    text-align: center;
+    font-style: normal;
+    font-size: 8pt;
+    color: #aaa;
+    padding-top: 5px;
+    height:25px;
+    width:100%;
+    border-top:1px dotted #666;
+}
+#header,#footer{
+    background-color:#585353;
+}
+#bodyblock {
+    border: 1px solid #f8f8f8;
+}
+#content {
+    width:900px;
+}
+#menu {
+    display:block;
+    font-weight: bold;
+    float:right;
+    width: 100px;
+    background-color: #eee;
+    border-left: 1px dotted #585353;
+    height: 110%;
+    overflow: hidden;
+}
+#bodyblock{ height: 675px; overflow: scroll;}
+
+#menu ul {
+    list-style:none;
+    margin:0;
+    padding:0 0 50% 5px;
+    font-weight: normal;
+}
+#menu ul a {
+    font-weight:bold;
 }
 #header h1 {
     margin: 0;
@@ -32,45 +65,11 @@ body {
 #header img {
     float: right;
 }
-#footer {
-    text-align: center;
-    font-style: normal;
-    font-size: 8pt;
-    color: #aaa;
-    padding-top: 5px;
-    height:30px;
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
-    border-top:1px dotted #666;
-    background-color:#eee;
-}
-#content {
-    padding-left:10px;
-}
-#menu {
-    display:block;
-    font-weight: bold;
-    float:right;
-    height:100%;
-    width: 100px;
-    background-color: #eee;
-    border-left: 1px dotted #666;
-}
-#menu ul {
-    list-style:none;
-    margin:0;
-    padding:0 0 50% 5px;
-    font-weight: normal;
-}
-#menu ul a {
-    color:#BC2C2F;
+a {
+    color: #800000;
     text-decoration: none;
 }
-#content {
-    margin-right: 120px;
-}
+
 .message {
     color: #390;
 }
