@@ -2,18 +2,8 @@
 html
 	head
 		title= title
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+		<script type="text/javascript" src="/javascripts/scatter.js"></script>
 		link(rel='stylesheet', href='/stylesheets/style.css')
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.6.0/dojo/dojo.xd.js"></script>
-	body
-		div#outer
-			div#header
-				h1= title
-			div#menu
-				ul
-					li <a href="/">Home</a>
-					li <a href="/about" title="About">About</a>
-			div#bodyblock
-				div#content
-					!=body
-			div#footer
-				| Copyright (c) 2011 Cold Spring Harbor Laboratory
+		
+	body!= body
