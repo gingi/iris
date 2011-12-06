@@ -1,3 +1,0 @@
-<ul>
-<li><a href="[% c.uri_for('/gwas/study') %]">GWAS prototype</a></li>
-</ul>

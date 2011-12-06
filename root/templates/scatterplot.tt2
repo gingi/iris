@@ -1,2 +1,0 @@
-<h2>[% title %]</h2>
-[% subinclude("http://localhost:3001/GWAS/" + study) %]

@@ -1,8 +1,0 @@
-<link rel="stylesheet" href="[% c.uri_for('/static/css/widgets.css') %]" />
-
-<div id="topwidget" class="widget">
-    [% topwidget %]
-</div>
-<div id="bottomwidget" class="widget">
-    [% bottomwidget %]
-</div>
