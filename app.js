@@ -38,7 +38,7 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(allowCrossDomain);
   app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+  app.use(express.static(__dirname + '/../root/static'));
 });
 
 app.set('view options', { pretty: true })
