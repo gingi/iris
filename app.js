@@ -57,7 +57,8 @@ var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5
 
 app.get('/', routes.index);
 app.get('/GWAS/:study', function(req,res) {
-	routes.gwas(req.params.study, res);
+    console.log(req.query);
+	routes.gwas(req.params.study, req.query["width"], req.query["height"], res);
 });
 
 app.get('/GWAS/allpoints/:study', function(req,res) {
@@ -65,7 +66,6 @@ app.get('/GWAS/allpoints/:study', function(req,res) {
 });
 
 app.get('/data/chromosomes', function(req,res) {
-    console.log('Yippie!');
 	res.writeHead(200, {'Content-Type': 'application/json'});
 	res.end(chromosomes['at']);
 });
