@@ -38,7 +38,7 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(allowCrossDomain);
   app.use(app.router);
-  app.use(express.static(__dirname + '/../root/static'));
+  app.use(express.static(__dirname + '/../root'));
 });
 
 app.set('view options', { pretty: true })
@@ -64,17 +64,18 @@ app.get('/GWAS/allpoints/:study', function(req,res) {
 	routes.allpoints(req.params.study, res);
 });
 
-app.get('/chromosomes', function(req,res) {
+app.get('/data/chromosomes', function(req,res) {
+    console.log('Yippie!');
 	res.writeHead(200, {'Content-Type': 'application/json'});
 	res.end(chromosomes['at']);
 });
 
-app.get('/chromosomes/:genome', function(req,res) {
+app.get('/data/chromosomes/:genome', function(req,res) {
 	res.writeHead(200, {'Content-Type': 'application/json'});
 	res.end(chromosomes[req.params.genome]);
 });
 
-app.get('/maxscore/GWAS/:study', function(req,res) {
+app.get('/data/maxscore/GWAS/:study', function(req,res) {
 	var cmd = '../fastbit/src/fbsql -s "max(score)" -d ../fastbit/data/GWAS/'+req.params.study;
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
@@ -192,7 +193,7 @@ app.get('/gene2GWAS/:gene_id', function(req,res) {
 });
 
 // scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
-app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
+app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 	var cmd = '../fastbit/src/scatter_new -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
 		console.log(cmd);
@@ -201,7 +202,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 			res.end(stdout);
 		});
 });
-app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
+app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
 	var cmd = '../fastbit/src/scatter_ez -c1 pos -c2 score -d ../fastbit/data/GWAS/' + req.params.study
 		+ '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
 		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
@@ -214,7 +215,7 @@ app.get('/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
 });
 
 // scatterplot for GWAS study with no binning
-app.get('/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
+app.get('/data/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
 	var cmd = '../fastbit/src/fbsql -s "pos,score" -d ../fastbit/data/GWAS/' + req.params.study + '/' + req.params.chr;
 	console.log(cmd);
 	var scatter = exec(cmd,{maxBuffer:10000*1024},function(error, stdout,stderr) {
@@ -223,12 +224,12 @@ app.get('/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
 	});
 });
 
-app.post('/scatter', function(req,res) {
+app.post('/data/scatter', function(req,res) {
 	res.send(req.body);
 });
 
 // scatterplot for any partition comparing c1 to c2 with additional args taken from etc
-app.get('/scatter/:partition/:c1/:c2/:etc', function(req,res) {
+app.get('/data/scatter/:partition/:c1/:c2/:etc', function(req,res) {
 	var cmd = '../fastbit/src/scatter_new -d ../fastbit/data/' + req.params.partition
 		+ ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2
 		+ ' ' + req.params.etc;

@@ -4,8 +4,8 @@ exports.index = function(req, res){
 
 exports.gwas = function(study, res) {
 	res.writeHead(200,{"Content-type":"text/html"});
-	res.end('<script type="text/javascript" src="/javascript/jquery.js"></script>'
-		+ '<script type="text/javascript" src="/javascript/canvas_scatter.js"></script>'
+	res.end('<script type="text/javascript" src="/static/javascript/jquery.js"></script>'
+		+ '<script type="text/javascript" src="/static/javascript/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot("scatter",'+study+'))</script>'
 		+ '<div style="position: relative;">'
 		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
@@ -15,8 +15,8 @@ exports.gwas = function(study, res) {
 
 exports.allpoints = function(study,res) {
 	res.writeHead(200,{"Content-type":"text/html"});
-	res.end('<script type="text/javascript" src="/javascript/jquery-1.7.js"></script>'
-		+ '<script type="text/javascript" src="/javascript/canvas_scatter.js"></script>'
+	res.end('<script type="text/javascript" src="/static/javascript/jquery-1.7.js"></script>'
+		+ '<script type="text/javascript" src="/static/javascript/canvas_scatter.js"></script>'
 		+ '<script type="text/javascript">$(document).ready(manhattan_plot_dots("scatter",'+study+'))</script>'
 		+ '<div style="position: relative;">'
 		+ ' <canvas id="scatter" width="1100" height="500" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>'
