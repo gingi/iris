@@ -57,7 +57,6 @@ var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5
 
 app.get('/', routes.index);
 app.get('/GWAS/:study', function(req,res) {
-    console.log(req.query);
 	routes.gwas(req.params.study, req.query["width"], req.query["height"], res);
 });
 
