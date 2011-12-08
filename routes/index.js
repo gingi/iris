@@ -33,3 +33,9 @@ exports.jquery_fastbit = function(req, res){
 	console.log("going here")
 	res.render('jquery_fastbit',  { layout:false, title: 'Routing fastbit json jQuery' })
 };
+
+exports.kbase_index = function (req,res){
+    console.log("kbase_index")
+    res.render('kbase_index',  { layout:false})
+    
+};
