@@ -56,6 +56,10 @@ var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5
 // Routes
 
 app.get('/', routes.index);
+app.get('/pcoords/:table', function(req,res) {
+	routes.pcoords(req.params.table, res);
+});
+
 app.get('/GWAS/:study', function(req,res) {
 	routes.gwas(req.params.study, req.query["width"], req.query["height"], res);
 });
@@ -211,6 +215,28 @@ app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,r
             res.writeHead(200, {'Content-Type': 'application/json'});
 			res.end(stdout);
 		});
+});
+
+app.get('/data/pcoords/:d/:c1/:c2/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
+	var cmd = '../fastbit/src/scatter_ez -a 1 -d ../fastbit/data/' + req.params.d
+		+ ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2
+		+ ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2
+		+ ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2
+		+ ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
+		console.log(cmd);
+		var scatter = exec(cmd, {maxBuffer:10000*1024},function (error, stdout, stderr) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+			res.end(stdout);
+		});
+});
+
+app.get('/data/ranges/:d', function(req,res) {
+	var cmd = "../fastbit/src/ranges -d ../fastbit/data/" + req.params.d;
+	console.log(cmd);
+	var ranges = exec(cmd, function(error,stdout,stderr) {
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end(stdout);
+	})
 });
 
 // scatterplot for GWAS study with no binning
