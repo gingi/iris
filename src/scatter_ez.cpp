@@ -23,6 +23,7 @@ static void usage(const char* name) {
 			<< "[-x1 max for c1]\n"
 			<< "[-x2 max for c2]\n"
 	      << "[-w where-clause]\n"
+			<< "[-a adaptive binning]\n"
 			<< "[-v verboseness]\n"
 	      << std::endl;
 } // usage
@@ -30,7 +31,7 @@ static void usage(const char* name) {
 // function to parse the command line arguments
 static void parse_args(int argc, char** argv,
 	int* nbins1, int* nbins2, const char*& col1, const char*& col2, const char*& qcnd,
- 	double* umin1, double* umax1, double* umin2, double* umax2) {
+ 	double* umin1, double* umax1, double* umin2, double* umax2, int* adaptive) {
 
    std::vector<const char*> dirs;
 
@@ -53,6 +54,12 @@ static void parse_args(int argc, char** argv,
 					if (i+1 < argc) {
 						++ i;
 						debug = 1;
+					}
+					break;
+				case 'a':
+					if (i+1 < argc) {
+						++ i;
+						*adaptive = 1;
 					}
 					break;
 	    		case 'b':
@@ -131,7 +138,7 @@ std::vector<uint32_t> bincounts;
 
 bool by_count (int a, int b) { return (bincounts[a] < bincounts[b]); }
 
-static void get2DDist(const ibis::part*& part, const char *col1, double min1, double max1, uint32_t nb1,
+static void uniform2DDist(const ibis::part*& part, const char *col1, double min1, double max1, uint32_t nb1,
  	const char *col2, double min2, double max2, uint32_t nb2, const char *qcnd) {
 
 	// lookup type of col1 and type of col2
@@ -224,6 +231,97 @@ static void get2DDist(const ibis::part*& part, const char *col1, double min1, do
 	printf("]}\n");
 }
 
+static void adaptive2DDist(const ibis::part*& part, const char *col1, double min1, double max1, uint32_t nb1,
+ 	const char *col2, double min2, double max2, uint32_t nb2, const char *qcnd) {
+
+	// lookup type of col1 and type of col2
+	const char* fmt_int = "%1.0f";
+	const char* fmt_float = "%f";
+	const char* f1;
+	const char* f2;
+	char format1[20];
+	char format[20];
+	switch (part->getColumn(col1)->type()) {
+		case ibis::FLOAT:
+		case ibis::DOUBLE: {
+			f1 = fmt_float;
+			break;
+		}
+		default: {
+			f1 = fmt_int;
+			break;
+		}
+	}
+	switch (part->getColumn(col2)->type()) {
+		case ibis::FLOAT:
+		case ibis::DOUBLE: {
+			f2 = fmt_float;
+			break;
+		}
+		default: {
+			f2 = fmt_int;
+			break;
+		}
+	}
+	sprintf(format1,"[%s,%s,%s,%s,%s]\n",f1,f1,f2,f2,"%d");
+	sprintf(format,",[%s,%s,%s,%s,%s]\n",f1,f1,f2,f2,"%d");
+
+	std::vector<double> bds1, bds2;
+   std::vector<uint32_t> cnts;
+
+	long ierr;
+	if (qcnd == 0 || *qcnd == 0) {
+		ierr = part->get2DDistribution(col1, col2, nb1, nb2, bds1, bds2, cnts);
+	} else {
+		ierr = part->get2DDistribution(qcnd, col1, col2, nb1, nb2, bds1, bds2, cnts);
+	}
+   if (ierr < 0) {
+		std::cerr << "ERROR -- part[" << part->name()
+			       << "].get2DDistribution returned with ierr = " << ierr << std::endl
+					<< "cnts.size() = " << cnts.size() << std::endl;
+		exit(-1);
+	}
+
+	// success
+	const uint32_t nbin2 = bds2.size() - 1;
+	
+	// count fully loaded bins
+	std::vector<uint32_t> idx;
+	bincounts.resize(cnts.size());
+	uint32_t max_count=0;
+	for (uint32_t i = 0; i < cnts.size(); ++ i) {
+		idx.push_back(i);
+		bincounts[i] = cnts[i];
+		if (cnts[i] > max_count) {
+			max_count = cnts[i];
+		}
+	}
+
+	std::sort(idx.begin(), idx.end(), by_count);
+
+	// cluster adjacent bins with similar density
+
+	// start the JSON output
+	printf("{\"max\":\"%d\",\"data\":[\n",max_count);
+
+	// output occupied bins
+	int first=1;
+	for (uint32_t j = 0; j < idx.size(); ++ j) {
+		uint32_t i = idx[j];
+		if (cnts[i] > 0) {
+			uint32_t i1 = i / nbin2;
+			uint32_t i2 = i % nbin2;
+			if (first == 1) {
+				first = 0;
+				printf(format1,bds1[i1],bds1[i1+1],bds2[i2],bds2[i2+1],cnts[i]);
+			} else {
+				printf(format,bds1[i1],bds1[i1+1],bds2[i2],bds2[i2+1],cnts[i]);
+			}
+		}
+	}
+	printf("]}\n");
+}
+
 int main(int argc, char** argv) {
    const char* qcnd=0;
    const char* col1;
@@ -231,10 +329,14 @@ int main(int argc, char** argv) {
    int nbins1=25;
 	int nbins2=25;
 	double min1,max1,min2,max2;
-   parse_args(argc, argv, &nbins1, &nbins2, col1, col2, qcnd, &min1, &max1, &min2, &max2);
+	int adaptive = 0;
+   parse_args(argc, argv, &nbins1, &nbins2, col1, col2, qcnd, &min1, &max1, &min2, &max2, &adaptive);
 	std::vector<const ibis::part*> parts;
 	tbl->getPartitions(parts);
-	get2DDist(parts[0],col1,min1,max1,nbins1,col2,min2,max2,nbins2,qcnd);
+	if (adaptive == 1)
+		adaptive2DDist(parts[0],col1,min1,max1,nbins1,col2,min2,max2,nbins2,qcnd);
+	else
+		uniform2DDist(parts[0],col1,min1,max1,nbins1,col2,min2,max2,nbins2,qcnd);
 	delete tbl;
    return 0;
 } // main
