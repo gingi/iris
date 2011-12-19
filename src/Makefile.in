@@ -31,7 +31,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = fbsql$(EXEEXT) fbsql_tab$(EXEEXT) join_once$(EXEEXT) \
-	scatter$(EXEEXT) scatter_new$(EXEEXT) scatter_ez$(EXEEXT)
+	scatter$(EXEEXT) scatter_new$(EXEEXT) scatter_ez$(EXEEXT) \
+	gwas2go$(EXEEXT) ranges$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -50,9 +51,15 @@ fbsql_LDADD = $(LDADD)
 fbsql_tab_SOURCES = fbsql_tab.c
 fbsql_tab_OBJECTS = fbsql_tab.$(OBJEXT)
 fbsql_tab_LDADD = $(LDADD)
+gwas2go_SOURCES = gwas2go.c
+gwas2go_OBJECTS = gwas2go.$(OBJEXT)
+gwas2go_LDADD = $(LDADD)
 join_once_SOURCES = join_once.c
 join_once_OBJECTS = join_once.$(OBJEXT)
 join_once_LDADD = $(LDADD)
+ranges_SOURCES = ranges.c
+ranges_OBJECTS = ranges.$(OBJEXT)
+ranges_LDADD = $(LDADD)
 scatter_SOURCES = scatter.c
 scatter_OBJECTS = scatter.$(OBJEXT)
 scatter_LDADD = $(LDADD)
@@ -69,10 +76,10 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = fbsql.c fbsql_tab.c join_once.c scatter.c scatter_ez.c \
-	scatter_new.c
-DIST_SOURCES = fbsql.c fbsql_tab.c join_once.c scatter.c scatter_ez.c \
-	scatter_new.c
+SOURCES = fbsql.c fbsql_tab.c gwas2go.c join_once.c ranges.c scatter.c \
+	scatter_ez.c scatter_new.c
+DIST_SOURCES = fbsql.c fbsql_tab.c gwas2go.c join_once.c ranges.c \
+	scatter.c scatter_ez.c scatter_new.c
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -85,7 +92,7 @@ AWK = @AWK@
 CC = g++
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPPFLAGS = -I../fastbit-ibis/src
+CPPFLAGS = 
 CXX = @CXX@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
@@ -101,7 +108,7 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-LDFLAGS = -L../fastbit-ibis/src/.libs -lfastbit -lm --all-static
+LDFLAGS = -lfastbit -lm
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -225,9 +232,15 @@ fbsql$(EXEEXT): $(fbsql_OBJECTS) $(fbsql_DEPENDENCIES)
 fbsql_tab$(EXEEXT): $(fbsql_tab_OBJECTS) $(fbsql_tab_DEPENDENCIES) 
 	@rm -f fbsql_tab$(EXEEXT)
 	$(LINK) $(fbsql_tab_OBJECTS) $(fbsql_tab_LDADD) $(LIBS)
+gwas2go$(EXEEXT): $(gwas2go_OBJECTS) $(gwas2go_DEPENDENCIES) 
+	@rm -f gwas2go$(EXEEXT)
+	$(LINK) $(gwas2go_OBJECTS) $(gwas2go_LDADD) $(LIBS)
 join_once$(EXEEXT): $(join_once_OBJECTS) $(join_once_DEPENDENCIES) 
 	@rm -f join_once$(EXEEXT)
 	$(LINK) $(join_once_OBJECTS) $(join_once_LDADD) $(LIBS)
+ranges$(EXEEXT): $(ranges_OBJECTS) $(ranges_DEPENDENCIES) 
+	@rm -f ranges$(EXEEXT)
+	$(LINK) $(ranges_OBJECTS) $(ranges_LDADD) $(LIBS)
 scatter$(EXEEXT): $(scatter_OBJECTS) $(scatter_DEPENDENCIES) 
 	@rm -f scatter$(EXEEXT)
 	$(LINK) $(scatter_OBJECTS) $(scatter_LDADD) $(LIBS)
@@ -246,7 +259,9 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fbsql.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fbsql_tab.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gwas2go.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/join_once.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ranges.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scatter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scatter_ez.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scatter_new.Po@am__quote@
