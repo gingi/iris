@@ -1,0 +1,3 @@
+[submodule "fastbit/fastbit-ibis"]
+	path = fastbit/fastbit-ibis
+	url = git@git.warelab.org:fastbit
