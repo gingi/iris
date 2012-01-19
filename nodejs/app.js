@@ -1,3 +1,4 @@
+
 /**
  * Module dependencies.
  */
@@ -10,11 +11,21 @@ var express = require('express')
 
 var app = module.exports = express.createServer(gzip.gzip());
 
+// For Mongo
+var Db = require('mongodb').Db, 
+Connection = require('./node_modules/mongodb/lib/mongodb/connection/connection').Connection, 
+Server = require('mongodb').Server;
+var mongoHost = "localhost";
+var mongoPort = Connection.DEFAULT_PORT;
+var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {native_parser:false});
+
+
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 	res.header('Access-Control-Allow-Headers', 'Content-Type');
+
 	next();
 }
 
@@ -39,6 +50,9 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
+// chromosome lengths for each species
+var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]' };
+
 // Routes
 
 app.get('/', routes.index);
@@ -47,7 +61,7 @@ app.get('/pcoords/:table', function(req,res) {
 });
 
 app.get('/GWAS/:study', function(req,res) {
-	routes.gwas(req.params.study, res);
+	routes.gwas(req.params.study, req.query["width"], req.query["height"], res);
 });
 
 app.get('/GWAS/allpoints/:study', function(req,res) {
