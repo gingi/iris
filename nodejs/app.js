@@ -1,3 +1,5 @@
+var IRIS_PORT = 4747;
+
 /**
  * Module dependencies.
  */
@@ -15,6 +17,7 @@ var allowCrossDomain = function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 	res.header('Access-Control-Allow-Headers', 'Content-Type');
+
 	next();
 }
 
@@ -39,15 +42,18 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
-// Routes
+// chromosome lengths for each species
+var chromosomes = { at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]' };
 
+// Routes
 app.get('/', routes.index);
 app.get('/pcoords/:table', function(req,res) {
 	routes.pcoords(req.params.table, res);
 });
 
+// app.get('/widgets/:widget', function(req,res) {
 app.get('/GWAS/:study', function(req,res) {
-	routes.gwas(req.params.study, res);
+	routes.gwas(req.params.study);
 });
 
 app.get('/GWAS/allpoints/:study', function(req,res) {
@@ -257,5 +263,5 @@ app.get('/jquery/fastbit',routes.jquery_fastbit);
 // 
 app.get('/node/',routes.kbase_index);
 
-app.listen(3001);
+app.listen(IRIS_PORT);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
