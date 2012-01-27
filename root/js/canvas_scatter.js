@@ -11,9 +11,22 @@ var circles = true;
 var XGUTTER = 10;
 var color_by_density = true;
 var containerNode;
-function manhattan_plot(canvasid,study) {
+
+// TODO: Place in iris.js?
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&;]" + name + "=([^&;#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.href);
+    if (results == null) return "";
+    else return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function manhattan_plot(canvasid) {
+    var study = getParameterByName('study');
+    var species = getParameterByName('species');
 	// fetch the list of chromosomes and their lengths
-	$.getJSON("/data/chromosomes/at",
+	$.getJSON("/data/chrlen/" + species,
 		function(json) {
 			for(var i=0;i<json.length;i++) {
 				chr_lengths[i] = json[i][1];
