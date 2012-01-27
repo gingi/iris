@@ -1,9 +1,61 @@
-!!!
-html
-	head
-		title= title
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-		<script type="text/javascript" src="/javascript/scatter.js"></script>
-		link(rel='stylesheet', href='/stylesheets/style.css')
-		
-	body!= body
+!!! 5
+html(lang="en")
+head
+    title Iris - #{title}
+    link(rel="stylesheet", href="/css/bootstrap.css")
+    style
+        html, body { background-color: #eee; }
+        body { padding-top: 40px; }
+        .container { width: 820px; }
+        .content {
+            background-color: white;
+            padding: 20px; margin: 0 -20px;
+            -webkit-border-radius: 0 0 6px 6px;
+               -moz-border-radius: 0 0 6px 6px;
+                    border-radius: 0 0 6px 6px;
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+               -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+        }
+        .page-header {
+            background-color: #f5f5f5;
+            padding: 20px 20px 10px;
+            margin: -20px -20px 20px;
+        }
+        .content .span10,
+        .content .span4 {
+            min-height: 300px;
+        }
+        /* Give a quick and non-cross-browser friendly divider */
+        .content .span4 {
+            margin-left: 0;
+            padding-left: 19px;
+            border-left: 1px solid #eee;
+        }
+body
+    .topbar
+        .fill
+            .container
+                a(class="brand", href="#") Iris
+                ul(class="nav")
+                    li(class="active")
+                        a(href="#") Home
+                    li
+                        a(href="#about") About
+                    li
+                        a(href="#contact") Contact
+                form(action="", class="pull-right")
+                    input(class="input-small", type="text", placeholder="Username")
+                    input(class="input-small", type="password", placeholder="Password")
+                    button(class="btn", type="submit") Sign in
+    
+    .container
+        .content
+            .page-header
+                h1 #{title}
+            .row
+                .span10
+                    body!= body
+                .span4
+                    h3 Sidebar
+        footer() <p> &copy; 2012 Cold Spring Harbor Laboratory </p>

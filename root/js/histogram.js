@@ -10,4 +10,4 @@ var Histogram = {
         });
     }
 };
-// $.widget('kbase.go_histogram', Histogram);
+// $.widget('iris.go_histogram', Histogram);
