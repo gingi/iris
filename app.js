@@ -260,8 +260,5 @@ app.get('/data/scatter/:partition/:c1/:c2/:etc', function(req,res) {
 // testing jquery-fastbit
 app.get('/jquery/fastbit',routes.jquery_fastbit);
 
-// 
-app.get('/node/',routes.kbase_index);
-
 app.listen(IRIS_PORT);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

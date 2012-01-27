@@ -1,5 +1,5 @@
 exports.index = function(req, res){
-  res.render('index', { title: 'Iris' })
+  res.render('index', { title: 'Welcome' })
 };
 
 exports.pcoords = function(table, res) {
