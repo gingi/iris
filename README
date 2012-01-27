@@ -1,4 +1,33 @@
 Iris
+====
 Visual exploration of omics data
 
+
+
+INSTALLATION
+------------
+TODO: Make installation a lot more streamlined....
+
+# Fetch external modules
+$ git submodule init
+$ git submodule update
+
+# Install FastBit
+$ cd fastbit
+$ ./configure --prefix ../
+$ make
+# Take a [long] coffee break
+$ make check
+$ make install
+
+# Install Node.js dependencies
+$ cd ../nodejs
+$ npm install
+
+RUNNING IRIS
+------------
+$ cd nodejs
+$ node app.js
+
+~~~
 Copyright (c) 2012 Ware Lab, Cold Spring Harbor Laboratory
