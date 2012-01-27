@@ -1,9 +1,11 @@
 {
-    "name": "application-name"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.0"
-    , "jade": ">= 0.0.1"
+    "name"         : "iris"
+  , "version"      : "0.0.1"
+  , "private"      : true
+  , "dependencies" : {
+      "express"      : "2.5.0"
+    , "jade"         : ">= 0.0.1"
+    , "connect-gzip" : ">= 0.0.1"
+    , "mongo"        : ">= 0.0.1"
   }
 }
