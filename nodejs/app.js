@@ -54,7 +54,9 @@ var chromosomes = {
 app.get('/', routes.index);
 
 app.get('/widget/:widget', function(req, res) {
-    routes.widget(req.params.widget, res);
+    // TODO: Should this be configured at a more stateful level, e.g., session?
+    var layout = req.query["layout"] != null && req.query["layout"] == 'on';
+    routes.widget(res, req.params.widget, layout);
 });
 
 app.get('/pcoords/:table', function(req, res) {
