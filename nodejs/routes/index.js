@@ -2,8 +2,8 @@ exports.index = function(req, res){
     res.render('index', { title: 'Welcome' })
 };
 
-exports.widget = function(widget, res) {
-    res.render('widget', { widget: widget, title: 'Widget' });    
+exports.widget = function(res, widget, layout) {
+    res.render('widget', { widget: widget, title: 'Widget', layout: layout });
 }
 
 // exports.pcoords = function(table, res) {
