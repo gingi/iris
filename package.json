@@ -3,9 +3,9 @@
   , "version"      : "0.0.1"
   , "private"      : true
   , "dependencies" : {
-      "express"      : "2.5.0"
-    , "jade"         : ">= 0.0.1"
-    , "connect-gzip" : ">= 0.0.1"
-    , "mongo"        : ">= 0.0.1"
+      "express"      : ">= 2.5.0"
+    , "jade"         : ">= 0.20.1"
+    , "connect-gzip" : ">= 0.1.5"
+    , "mongo"        : ">= 0.1.0"
   }
 }
