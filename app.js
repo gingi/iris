@@ -50,13 +50,26 @@ var chromosomes = {
     at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
 };
 
+var widgets = {
+    manhattan: 'canvas_scatter.js'
+};
+
 // Routes
 app.get('/', routes.index);
+
+app.get('/404', function(req, res) {
+    res.render('error', { title: 'Page not found', heading: 'Page not found', message: 'Now go back to where ya came from.'});
+});
 
 app.get('/widget/:widget', function(req, res) {
     // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query["layout"] != null && req.query["layout"] == 'on';
-    routes.widget(res, req.params.widget, layout);
+    var widget_js = widgets[req.params.widget];
+    if (widget_js == null) {
+        res.redirect('/404');
+    } else {
+        routes.widget(req, res, widget_js, layout);
+    }
 });
 
 app.get('/pcoords/:table', function(req, res) {
