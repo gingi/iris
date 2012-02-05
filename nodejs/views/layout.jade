@@ -6,7 +6,6 @@ head
     style
         html, body { background-color: #eee; }
         body { padding-top: 40px; }
-        .container { width: 820px; }
         .content {
             background-color: white;
             padding: 20px; margin: 0 -20px;
@@ -22,7 +21,7 @@ head
             padding: 20px 20px 10px;
             margin: -20px -20px 20px;
         }
-        .content .span10,
+        .content .span8,
         .content .span4 {
             min-height: 300px;
         }
@@ -33,8 +32,8 @@ head
             border-left: 1px solid #eee;
         }
 body
-    .topbar
-        .fill
+    .navbar.navbar-fixed-top
+        .navbar-inner
             .container
                 a(class="brand", href="#") Iris
                 ul(class="nav")
@@ -44,17 +43,15 @@ body
                         a(href="#about") About
                     li
                         a(href="#contact") Contact
-                form(action="", class="pull-right")
+                form(action="", class="navbar-form pull-right")
                     input(class="input-small", type="text", placeholder="Username")
                     input(class="input-small", type="password", placeholder="Password")
                     button(class="btn", type="submit") Sign in
     
     .container
         .content
-            .page-header
-                h1 #{title}
             .row
-                .span10
+                .span8
                     body!= body
                 .span4
                     h3 Sidebar
