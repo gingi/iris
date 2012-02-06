@@ -3,9 +3,10 @@
 
 block scripts
     script(type="text/javascript", src="/js/jquery.js")
-    script(type="text/javascript", src="/js/#{widget_js}")
+    script(type="text/javascript", src="/js/iris.js")
+    script(type="text/javascript", src="/js/widgets/#{widget_js}")
     script(type="text/javascript")
-        $(document).ready(manhattan_plot("cvx"))
+        $(document).ready(render_widget("cvx"))
     
 div(style="position: relative; min-width:500px")
     canvas#cvx(width= width, height= height,

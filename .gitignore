@@ -1,2 +1,10 @@
-nodejs/node_modules
+/nodejs/node_modules
+autom4te.cache
 *~
+/bin
+/share
+/fastbit/config.h
+/fastbit/data
+/include
+/lib
+/share
