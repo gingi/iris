@@ -12,21 +12,15 @@ var XGUTTER = 10;
 var color_by_density = true;
 var containerNode;
 
-// TODO: Place in iris.js?
-function getParameterByName(name) {
-    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-    var regexS = "[\\?&;]" + name + "=([^&;#]*)";
-    var regex = new RegExp(regexS);
-    var results = regex.exec(window.location.href);
-    if (results == null) return "";
-    else return decodeURIComponent(results[1].replace(/\+/g, " "));
-}
-
-function manhattan_plot(canvasid) {
-    var study = getParameterByName('study');
+// Implements widget_prototype.render
+function render_widget(canvasId) {
+    
+    var study   = getParameterByName('study');
     var species = getParameterByName('species');
+    
 	// fetch the list of chromosomes and their lengths
-	$.getJSON("/data/chrlen/" + species,
+	$.getJSON("/data/chrlen", 
+        { "species": species },
 		function(json) {
 			for(var i=0;i<json.length;i++) {
 				chr_lengths[i] = json[i][1];
@@ -36,15 +30,15 @@ function manhattan_plot(canvasid) {
 			$.getJSON("/data/maxscore/GWAS/"+study,
 			function(json) {
 				global_max = Math.ceil(json[0][0]);
-				draw_manhattan(canvasid, study);
+				draw_manhattan(canvasId, study);
 			}
 		);
 	});
 }
 
-function draw_manhattan(canvasid,study) {
+function draw_manhattan(canvasId,study) {
   // get the canvas
-	var canvas = document.getElementById(canvasid);
+	var canvas = document.getElementById(canvasId);
 	var ctx = canvas.getContext('2d');
 	containerNode = canvas.parentNode.parentNode;
 	var canvasHeight = Math.max(containerNode.clientHeight, 250);
@@ -55,7 +49,7 @@ function draw_manhattan(canvasid,study) {
     // ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
 
 	// resize the interactive layer
-	var canvasi = document.getElementById(canvasid+'i');
+	var canvasi = document.getElementById(canvasId+'i');
 	ctxi = canvasi.getContext('2d');
 	ctxi.canvas.width = ctx.canvas.width;
 	ctxi.canvas.height = ctx.canvas.height;
@@ -175,7 +169,7 @@ function do_scatter(ctx,study,chr,offset,xsize,ysize,chr_length) {
 		});
 }
 
-function manhattan_plot_dots(canvasid,study) {
+function manhattan_plot_dots(canvasId,study) {
 	// fetch the list of chromosomes and their lengths
 	$.getJSON("/data/chromosomes/at",
 		function(json1) {
@@ -187,15 +181,15 @@ function manhattan_plot_dots(canvasid,study) {
 			$.getJSON("/data/maxscore/GWAS/"+study,
 			function(json2) {
 				global_max = Math.ceil(json2[0][0]);
-				draw_manhattan_dots(canvasid,study);
+				draw_manhattan_dots(canvasId,study);
 			}
 		);
 	});
 }
 
-function draw_manhattan_dots(canvasid,study) {
+function draw_manhattan_dots(canvasId,study) {
   // get the canvas
-	var canvas = document.getElementById(canvasid);
+	var canvas = document.getElementById(canvasId);
 	var ctx = canvas.getContext('2d');
 	var containerNode = canvas.parentNode.parentNode;
 	var canvasHeight = Math.max(containerNode.clientHeight, 250);
@@ -204,7 +198,7 @@ function draw_manhattan_dots(canvasid,study) {
 	ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
 
 	// resize the interactive layer
-	var canvasi = document.getElementById(canvasid+'i');
+	var canvasi = document.getElementById(canvasId+'i');
 	ctxi = canvasi.getContext('2d');
 	ctxi.canvas.width = ctx.canvas.width;
 	ctxi.canvas.height = ctx.canvas.height;
