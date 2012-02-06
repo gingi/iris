@@ -50,15 +50,25 @@ var chromosomes = {
     at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
 };
 
+/* Widget configuration
+ *
+ * Associate widget name (key) with renderer (value)
+ * Rendering JavaScript is assumed to be in DOCSROOT/js/widgets
+ *
+ * TODO: Move to MetaContainer?
+ */
 var widgets = {
-    manhattan: 'canvas_scatter.js'
+    manhattan: 'manhattan.js',
+    pcoord:    'canvas_pcoord.js',
 };
 
 // Routes
 app.get('/', routes.index);
 
 app.get('/404', function(req, res) {
-    res.render('error', { title: 'Page not found', heading: 'Page not found', message: 'Now go back to where ya came from.'});
+    res.render('error', { title: 'Page not found',
+                          heading: 'Page not found',
+                          message: 'Now go back to where ya came from.'});
 });
 
 app.get('/widget/:widget', function(req, res) {
@@ -85,11 +95,11 @@ app.get('/GWAS/allpoints/:study', function(req, res) {
     routes.allpoints(req.params.study, res);
 });
 
-app.get('/data/chrlen/:species', function(req, res) {
+app.get('/data/chrlen', function(req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
-    res.end(chromosomes[req.params.species]);
+    res.end(chromosomes[req.query["species"]]);
 });
 
 app.get('/data/maxscore/GWAS/:study', function(req, res) {
