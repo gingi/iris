@@ -8,7 +8,7 @@ var IRIS_DATA = IRIS_HOME + '/fastbit/data';
  */
 
 var express = require('express'), // web server
-	  Resource = require('express-resource'), // for resourceful routing
+	Resource = require('express-resource'), // for resourceful routing
     routes = require('./routes'), // main page, info page, workspace, etc
     gzip = require('connect-gzip'), // sends gzipped responses 
     exec = require('child_process').exec, // for launching fastbit executables

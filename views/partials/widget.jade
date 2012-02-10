@@ -1,16 +1,16 @@
 - var width = 1100
 - var height = 500
 
-block scripts
-    script(type="text/javascript", src="/js/jquery.js")
-    script(type="text/javascript", src="/js/iris.js")
+block append scripts
     script(type="text/javascript", src="/js/widgets/#{widget_js}")
     script(type="text/javascript")
-        $(document).ready(render_widget("cvx"))
+        $(document).ready(function() {
+            var widget = new Manhattan();
+            widget.render("cvx");
+        });
     
 div(style="position: relative; min-width:500px")
     canvas#cvx(width= width, height= height,
         style="position:absolute;left:0;top:0;z-index:0;")
     canvas#cvxi(width= width, height= height,
          style="position:absolute;left:0;top:0;z-index:1;")
-    &nbsp;
