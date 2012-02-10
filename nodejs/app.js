@@ -16,13 +16,13 @@ var express = require('express'),
 
 var app = module.exports = express.createServer(gzip.gzip());
 
-// For Mongo
+// Mongo
 var Db = require('mongodb').Db, 
 Connection = require('./node_modules/mongodb/lib/mongodb/connection/connection').Connection, 
 Server = require('mongodb').Server;
-var mongoHost = "localhost";
+var mongoHost = Connection.DEFAULT_HOST;
 var mongoPort = Connection.DEFAULT_PORT;
-var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {native_parser:false});
+var db = new Db('iris', new Server(mongoHost, mongoPort, {}), {native_parser:false});
 
 
 //CORS middleware
@@ -125,7 +125,7 @@ app.get('/data/maxscore/GWAS/:study', function(req,res) {
 });
 
 // Mongo fetches
-app.get ('/phenotypes/:phenotype', function(req,res){
+app.get ('/data/phenotypes/:phenotype', function(req,res){
    db.open(function(err, db) {
         db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {    
             collection.find({
@@ -149,7 +149,7 @@ app.get ('/phenotypes/:phenotype', function(req,res){
    });  
 });
 
-app.get ('/phenotypes/', function(req,res){
+app.get ('/data/phenotypes', function(req,res){
     var items=[];
    db.open(function(err, db) {
         db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {    

@@ -20,7 +20,7 @@ TODO: Make installation a lot more streamlined....
 
     # Install FastBit
     cd fastbit
-    ./configure --prefix ../
+    ./configure --prefix $(cd .. && pwd -P)
     make        # Now take a [long] coffee break
     make check
     make install

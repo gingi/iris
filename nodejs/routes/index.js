@@ -3,12 +3,13 @@ exports.index = function(req, res){
 };
 
 exports.widget = function(req, res, widget_js, layout) {
-    res.render('widget', { widget_js: widget_js, title: 'Widget', layout: layout });
+    res.render('widgets', { widget_js: widget_js, title: 'Widget', layout: layout });
 }
 
-exports.error = function(req, res, message) {
+exports.about = function(req, res, message) {
     res.render('index', { title: message });
 }
+
 
 // exports.pcoords = function(table, res) {
 //     // if (width == null)  
