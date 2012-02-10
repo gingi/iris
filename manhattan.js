@@ -63,15 +63,14 @@ Manhattan.prototype.draw_manhattan = function(canvasId, study) {
     this.ctxi.fillStyle = "rgba(255,0,0,0.3)";
 
     // add event listeners
-    // canvasi.addEventListener('mousedown', this.ev_mousedown, false);
-    // canvasi.addEventListener('mousemove', this.ev_mousemove, false);
-    // canvasi.addEventListener('mouseup',   this.ev_mouseup,   false);
+    canvasi.addEventListener('mousedown', this.ev_mousedown(), false);
+    canvasi.addEventListener('mousemove', this.ev_mousemove(), false);
+    canvasi.addEventListener('mouseup',   this.ev_mouseup(),   false);
 
     var offset = this.XGUTTER;
     var ysize = ctx.canvas.height;
     for (var i = 0; i < this.chr_lengths.length; i++) {
-        var xsize = (ctx.canvas.width - this.XGUTTER) *
-                    (this.chr_lengths[i] / this.total_len) - this.XGUTTER;
+        var xsize = (ctx.canvas.width - this.XGUTTER) * (this.chr_lengths[i] / this.total_len) - this.XGUTTER;
         this.do_scatter(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
         offset += xsize + this.XGUTTER;
     }
@@ -120,14 +119,7 @@ Manhattan.prototype.canvas_to_score = function(a, b) {
 
 Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
     var widget = this;
-    $.getJSON("/data/scatter/GWAS/" + study
-            + "/" + chr
-            + "/" + Math.floor(xsize / widget.sc)
-            + "/" + Math.floor(ysize / widget.sc)
-            + "/" + 0
-            + "/" + chr_length
-            + "/" + 0
-            + "/" + widget.global_max, function(json) {
+    $.getJSON("/data/scatter/GWAS/" + study + "/" + chr + "/" + Math.floor(xsize / widget.sc) + "/" + Math.floor(ysize / widget.sc) + "/" + 0 + "/" + chr_length + "/" + 0 + "/" + widget.global_max, function(json) {
         var xrange = chr_length;
         var yrange = widget.global_max;
         var xfactor = xsize / xrange;
@@ -150,12 +142,9 @@ Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize,
 
                 if (widget.color_by_density) {
                     var ratio = rect[2] / json.max;
-                    var r = widget.mincolor[0] + 
-                            Math.floor(ratio * (widget.maxcolor[0] - widget.mincolor[0]));
-                    var g = widget.mincolor[1] + 
-                            Math.floor(ratio * (widget.maxcolor[1] - widget.mincolor[1]));
-                    var b = widget.mincolor[2] + 
-                            Math.floor(ratio * (widget.maxcolor[2] - widget.mincolor[2]));
+                    var r = widget.mincolor[0] + Math.floor(ratio * (widget.maxcolor[0] - widget.mincolor[0]));
+                    var g = widget.mincolor[1] + Math.floor(ratio * (widget.maxcolor[1] - widget.mincolor[1]));
+                    var b = widget.mincolor[2] + Math.floor(ratio * (widget.maxcolor[2] - widget.mincolor[2]));
 
                     ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
                 }
@@ -220,10 +209,9 @@ Manhattan.prototype.draw_manhattan_dots = function(canvasId, study) {
     this.ctxi.fillStyle = "rgba(255,0,0,0.3)";
 
     // add event listeners
-    // canvasi.addEventListener('mousedown', this.ev_mousedown, false);
-    // canvasi.addEventListener('mousemove', this.ev_mousemove, false);
-    // canvasi.addEventListener('mouseup',   this.ev_mouseup,   false);
-
+    canvasi.addEventListener('mousedown', this.ev_mousedown(), false);
+    canvasi.addEventListener('mousemove', this.ev_mousemove(), false);
+    canvasi.addEventListener('mouseup',   this.ev_mouseup(),   false);
 
     var offset = this.XGUTTER;
     var ysize = ctx.canvas.height;
@@ -263,23 +251,9 @@ Manhattan.prototype.do_scatter_dots = function(ctx, study, chr, offset, xsize, y
     });
 };
 
-Manhattan.prototype.ev_mousedown = function(ev) {
-    if (ev.layerX || ev.layerX == 0) {
-        ev._x = ev.layerX;
-        ev._y = ev.layerY;
-    } else if (ev.offsetX || ev.offsetX == 0) {
-        ev._x = ev.offsetX;
-        ev._y = ev.offsetY;
-    }
-    this.tool.started = true;
-    this.tool.x = ev._x;
-    this.tool.y = ev._y;
-    this.ctxi.clearRect(0, 0, this.ctxi.canvas.width, this.ctxi.canvas.height);
-    this.ctxi.strokeRect(this.tool.x, this.tool.y, 1, 1);
-};
-
-Manhattan.prototype.ev_mousemove = function(ev) {
-    if (this.tool.started) {
+Manhattan.prototype.ev_mousedown = function() {
+    var widget = this;
+    return function(ev) {
         if (ev.layerX || ev.layerX == 0) {
             ev._x = ev.layerX;
             ev._y = ev.layerY;
@@ -287,44 +261,67 @@ Manhattan.prototype.ev_mousemove = function(ev) {
             ev._x = ev.offsetX;
             ev._y = ev.offsetY;
         }
-        var x = this.tool.x < ev._x ? widget.tool.x : ev._x;
-        var y = this.tool.y < ev._y ? widget.tool.y : ev._y;
-        var width = Math.abs(ev._x - this.tool.x + 1);
-        var height = Math.abs(ev._y - this.tool.y + 1);
-        this.ctxi.clearRect(0, 0, this.ctxi.canvas.width, this.ctxi.canvas.height);
-        this.ctxi.fillRect(x, y, width, height);
-        this.ctxi.strokeRect(x, y, width, height);
-    }
+        widget.tool.started = true;
+        widget.tool.x = ev._x;
+        widget.tool.y = ev._y;
+        widget.ctxi.clearRect(0, 0, widget.ctxi.canvas.width, widget.ctxi.canvas.height);
+        widget.ctxi.strokeRect(widget.tool.x, widget.tool.y, 1, 1);
+    };
 };
 
-Manhattan.prototype.ev_mouseup = function(ev) {
-    if (this.tool.started) {
-        if (ev.layerX || ev.layerX == 0) {
-            ev._x = ev.layerX;
-            ev._y = ev.layerY;
-        } else if (ev.offsetX || ev.offsetX == 0) {
-            ev._x = ev.offsetX;
-            ev._y = ev.offsetY;
+Manhattan.prototype.ev_mousemove = function() {
+    var widget = this;
+    return function(ev) {
+        if (widget.tool.started) {
+            if (ev.layerX || ev.layerX == 0) {
+                ev._x = ev.layerX;
+                ev._y = ev.layerY;
+            } else if (ev.offsetX || ev.offsetX == 0) {
+                ev._x = ev.offsetX;
+                ev._y = ev.offsetY;
+            }
+            var x = widget.tool.x < ev._x ? widget.tool.x : ev._x;
+            var y = widget.tool.y < ev._y ? widget.tool.y : ev._y;
+            var width = Math.abs(ev._x - widget.tool.x + 1);
+            var height = Math.abs(ev._y - widget.tool.y + 1);
+            widget.ctxi.clearRect(0, 0, widget.ctxi.canvas.width, widget.ctxi.canvas.height);
+            widget.ctxi.fillRect(x, y, width, height);
+            widget.ctxi.strokeRect(x, y, width, height);
         }
-        var x1 = this.tool.x;
-        var x2 = ev._x;
-        var y1 = this.tool.y;
-        var y2 = ev._y;
-        if (this.tool.x > ev._x) {
-            x1 = ev._x;
-            x2 = this.tool.x;
+    };
+};
+
+Manhattan.prototype.ev_mouseup = function() {
+    var widget = this;
+    return function(ev) {
+        if (widget.tool.started) {
+            if (ev.layerX || ev.layerX == 0) {
+                ev._x = ev.layerX;
+                ev._y = ev.layerY;
+            } else if (ev.offsetX || ev.offsetX == 0) {
+                ev._x = ev.offsetX;
+                ev._y = ev.offsetY;
+            }
+            var x1 = widget.tool.x;
+            var x2 = ev._x;
+            var y1 = widget.tool.y;
+            var y2 = ev._y;
+            if (widget.tool.x > ev._x) {
+                x1 = ev._x;
+                x2 = widget.tool.x;
+            }
+            if (widget.tool.y > ev._y) {
+                y1 = ev._y;
+                y2 = widget.tool.y;
+            }
+            // need to convert x, y pixels to intervals on chromosomes and scores
+            widget.canvas_to_chr(x1, x2);
+            widget.canvas_to_score(y1, y2);
+            var chr_range_string = JSON.stringify(widget.chr_range);
+            var msg = "selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=[" + widget.score_b + "," + widget.score_a + "] widget.chr_range=" + chr_range_string;
+            widget.tool.started = false;
+            widget.ctxi.clearRect(0, 0, widget.ctxi.canvas.width, widget.ctxi.canvas.height);
+            manager.notify(widget.containerNode.id, [widget.score_b, widget.score_a, chr_range_string]);
         }
-        if (this.tool.y > ev._y) {
-            y1 = ev._y;
-            y2 = this.tool.y;
-        }
-        // need to convert x, y pixels to intervals on chromosomes and scores
-        canvas_to_chr(x1, x2);
-        canvas_to_score(y1, y2);
-        var chr_range_string = JSON.stringify(this.chr_range);
-        var msg = "selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=[" + this.score_b + "," + this.score_a + "] this.chr_range=" + chr_range_string;
-        manager.notify(this.containerNode.id, [this.score_b, this.score_a, chr_range_string]);
-        this.tool.started = false;
-        this.ctxi.clearRect(0, 0, this.ctxi.canvas.width, this.ctxi.canvas.height);
-    }
+    };
 };
