@@ -2,8 +2,9 @@ exports.index = function(req, res){
     res.render('index', { title: 'Welcome' })
 };
 
-exports.widget = function(req, res, widget_js, layout) {
-    res.render('widgets', { widget_js: widget_js, title: 'Widget', layout: layout });
+exports.widget = function(req, res, args) {
+    args['title'] = args['widget'];
+    res.render('widgets', args);
 }
 
 exports.about = function(req, res, message) {
