@@ -325,3 +325,5 @@ Manhattan.prototype.ev_mouseup = function() {
         }
     };
 };
+
+Widget.registerWidget('manhattan', Manhattan);
