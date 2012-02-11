@@ -2,10 +2,10 @@
 - var height = 500
 
 block append scripts
-    script(type="text/javascript", src="/js/widgets/#{widget_js}")
+    script(type="text/javascript", src="/js/widgets/#{js}")
     script(type="text/javascript")
         $(document).ready(function() {
-            var widget = new Manhattan();
+            var widget = Widget.createWidget("#{widget}");
             widget.render("cvx");
         });
     

@@ -89,7 +89,7 @@ app.get('/widget/:widget', function(req, res) {
     if (widget_js == null) {
         res.redirect('/404');
     } else {
-        routes.widget(req, res, widget_js, layout);
+        routes.widget(req, res, { widget: req.params.widget, js: widget_js, layout: layout });
     }
 });
 
