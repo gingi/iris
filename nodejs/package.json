@@ -4,7 +4,6 @@
   , "private"      : true
   , "dependencies" : {
       "express"          : ">= 2.5.0"
-    , "express-resource" : ">= 0.2.4"
     , "jade"             : ">= 0.20.1"
     , "connect-gzip"     : ">= 0.1.5"
     , "mongo"            : ">= 0.1.0"
