@@ -28,6 +28,11 @@ TODO: Make installation a lot more streamlined....
     # Install Node.js dependencies
     cd ../nodejs
     npm install
+    
+    # Compile jQuery library
+    cd external/jquery
+    git submodule init && git submodule update
+    make
 
 RUNNING IRIS
 ------------
