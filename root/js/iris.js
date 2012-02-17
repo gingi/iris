@@ -5,6 +5,9 @@
  *
  * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
  */
+
+var DataServiceAPI = "http://localhost:4747";
+
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
     var regexS = "[\\?&;]" + name + "=([^&;#]*)";
