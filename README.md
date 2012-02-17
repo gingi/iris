@@ -1,6 +1,6 @@
 Iris
 ====
-Visual exploration of omics data.
+A web application for exploration of biological data
 
 DEPENDENCIES
 ------------
@@ -12,7 +12,7 @@ DEPENDENCIES
 
 INSTALLATION
 ------------
-TODO: Make installation a lot more streamlined....
+TODO: Make installation more streamlined....
 
     # Fetch git-managed modules
     git submodule init
@@ -53,6 +53,4 @@ NOTES
 All the conventions above are so far tentative and up for discussion.
 
 ---
-This document is formatted as Markdown.
-
 Copyright (c) 2012 Ware Lab, Cold Spring Harbor Laboratory
