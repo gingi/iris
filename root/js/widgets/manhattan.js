@@ -317,10 +317,9 @@ Manhattan.prototype.ev_mouseup = function() {
             widget.canvas_to_chr(x1, x2);
             widget.canvas_to_score(y1, y2);
             var chr_range_string = JSON.stringify(widget.chr_range);
-            var msg = "selected rectangle (" + x1 + "," + y1 + "," + x2 + "," + y2 + ") - score range=[" + widget.score_b + "," + widget.score_a + "] widget.chr_range=" + chr_range_string;
             widget.tool.started = false;
             widget.ctxi.clearRect(0, 0, widget.ctxi.canvas.width, widget.ctxi.canvas.height);
-            manager.notify(widget.containerNode.id, [widget.score_b, widget.score_a, chr_range_string]);
+            widget.getManager().notify(widget.containerNode.id, [widget.score_b, widget.score_a, chr_range_string]);
         }
     };
 };
