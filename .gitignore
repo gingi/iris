@@ -1,10 +1,7 @@
-/nodejs/node_modules
-autom4te.cache
 *~
+/nodejs/node_modules
 /bin
 /share
-/fastbit/config.h
-/fastbit/data
 /include
 /lib
 /share
