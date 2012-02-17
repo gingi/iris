@@ -9,5 +9,5 @@ AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 ])
-AC_CONFIG_SUBDIRS([fastbit-ibis])
+AC_CONFIG_SUBDIRS([src/fastbit])
 AC_OUTPUT

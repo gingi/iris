@@ -676,7 +676,7 @@ CPPFLAGS
 CXX
 CXXFLAGS
 CCC'
-ac_subdirs_all='fastbit-ibis'
+ac_subdirs_all='src/fastbit'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -3746,7 +3746,7 @@ ac_config_headers="$ac_config_headers config.h"
 
 ac_config_files="$ac_config_files Makefile src/Makefile"
 
-subdirs="$subdirs fastbit-ibis"
+subdirs="$subdirs src/fastbit"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
