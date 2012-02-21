@@ -36,8 +36,7 @@ TODO: Make installation more streamlined....
 
 RUNNING IRIS
 ------------
-    $ cd nodejs
-    $ node app.js
+    $ ./script/iris start
 
 PROJECT STRUCTURE
 -----------------
