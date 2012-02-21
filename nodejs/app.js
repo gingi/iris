@@ -1,8 +1,3 @@
-var IRIS_PORT = 4747;
-var IRIS_HOME = __dirname + '/..';
-var IRIS_BIN  = IRIS_HOME + '/bin';
-var IRIS_DATA = IRIS_HOME + '/fastbit/data';
-
 /**
  * Module dependencies.
  */
@@ -14,7 +9,7 @@ var express = require('express'),
     spawn = require('child_process').spawn,
     app = module.exports = express.createServer(gzip.gzip());
 
-var app = module.exports = express.createServer(gzip.gzip());
+var config = require('./config.js').Config;
 
 // Mongo
 var Db = require('mongodb').Db, 
@@ -114,7 +109,7 @@ app.get('/data/chrlen', function(req, res) {
 });
 
 app.get('/data/maxscore/GWAS/:study', function(req,res) {
-    var cmd = IRIS_BIN + '/fbsql -s "max(score)" -d ' + IRIS_DATA + '/GWAS/' + req.params.study;
+    var cmd = config.binDir + '/fbsql -s "max(score)" -d ' + config.dataDir + '/GWAS/' + req.params.study;
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
         res.writeHead(200, {
@@ -174,7 +169,7 @@ app.get ('/data/phenotypes', function(req,res){
 });
 // GO term histogram (all genes)
 app.get('/histogram/GO', function(req,res) {
-    var cmd = IRIS_BIN + '/fbsql -s "GO_term,count(*)" -d ' + IRIS_DATA + '/gene2GO';
+    var cmd = config.binDir + '/fbsql -s "GO_term,count(*)" -d ' + config.dataDir + '/gene2GO';
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
         res.writeHead(200, {
@@ -191,7 +186,7 @@ app.post('/histogram/GO', function(req,res) {
 
 // GO term histogram for a GWAS study (all snps)
 app.get('/histogram/GO/GWAS/:study', function(req,res) {
-    var cmd = IRIS_BIN + '/gwas2go -d ' + IRIS_DATA + ' -s ' + req.params.study;
+    var cmd = config.binDir + '/gwas2go -d ' + config.dataDir + ' -s ' + req.params.study;
 	console.log(cmd);
 	var join = exec(cmd, function(err,stdout,stderr) {
         res.writeHead(200, {
@@ -203,7 +198,7 @@ app.get('/histogram/GO/GWAS/:study', function(req,res) {
 
 // GO term histogram for a GWAS study where snps are filtered by pos or score
 app.get('/histogram/GO/GWAS/:study/:where', function(req,res) {
-    var cmd = IRIS_BIN + '/gwas2go -d ' + IRIS_DATA + ' -s ' + req.params.study + ' -w "' + req.params.where + '"';
+    var cmd = config.binDir + '/gwas2go -d ' + config.dataDir + ' -s ' + req.params.study + ' -w "' + req.params.where + '"';
 	console.log(cmd);
 	var join = exec(cmd, function(err,stdout,stderr) {
         res.writeHead(200, {
@@ -228,7 +223,7 @@ app.get('/histogram/phenotypes/:minscore', function(req,res) {
 });
 
 app.get('/gene2GWAS', function(req,res) {
-    var cmd = IRIS_BIN + '/fbsql -d ' + IRIS_DATA + '/GWAS_snp_consequences -s "study_id,gene_stable_id,max(score)"';
+    var cmd = config.binDir + '/fbsql -d ' + config.dataDir + '/GWAS_snp_consequences -s "study_id,gene_stable_id,max(score)"';
     var fbsql = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -240,7 +235,7 @@ app.get('/gene2GWAS', function(req,res) {
 });
 
 app.get('/gene2GWAS/:gene_id', function(req,res) {
-    var cmd = IRIS_BIN + '/fbsql -d ' + IRIS_DATA + '/GWAS_snp_consequences -s "study_id,max(score)" -w "gene_id=' + req.params.gene_id + '"';
+    var cmd = config.binDir + '/fbsql -d ' + config.dataDir + '/GWAS_snp_consequences -s "study_id,max(score)" -w "gene_id=' + req.params.gene_id + '"';
     var fbsql = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -253,7 +248,7 @@ app.get('/gene2GWAS/:gene_id', function(req,res) {
 
 // scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
 app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
-    var cmd = IRIS_BIN + '/scatter_new -c1 pos -c2 score -d ' + IRIS_DATA + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
+    var cmd = config.binDir + '/scatter_new -c1 pos -c2 score -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2;
 		console.log(cmd);
 		var scatter = exec(cmd, function (error, stdout, stderr) {
         res.writeHead(200, {
@@ -263,7 +258,7 @@ app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 		});
 });
 app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = IRIS_BIN + '/scatter_ez -c1 pos -c2 score -d ' + IRIS_DATA + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
+    var cmd = config.binDir + '/scatter_ez -c1 pos -c2 score -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
 		console.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
@@ -276,7 +271,7 @@ app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,r
 });
 
 app.get('/data/pcoords/:d/:c1/:c2/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = IRIS_BIN + '/scatter_ez -a 1 -d ' + IRIS_DATA + '/' + req.params.d + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
+    var cmd = config.binDir + '/scatter_ez -a 1 -d ' + config.dataDir + '/' + req.params.d + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
 		console.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
@@ -289,7 +284,7 @@ app.get('/data/pcoords/:d/:c1/:c2/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
 });
 
 app.get('/data/ranges/:d', function(req,res) {
-    var cmd = "../fastbit/src/ranges -d ' + IRIS_DATA + '/" + req.params.d;
+    var cmd = "../fastbit/src/ranges -d ' + config.dataDir + '/" + req.params.d;
 	console.log(cmd);
 	var ranges = exec(cmd, function(error,stdout,stderr) {
         res.writeHead(200, {
@@ -301,7 +296,7 @@ app.get('/data/ranges/:d', function(req,res) {
 
 // scatterplot for GWAS study with no binning
 app.get('/data/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
-    var cmd = IRIS_BIN + '/fbsql -s "pos,score" -d ' + IRIS_DATA + '/GWAS/' + req.params.study + '/' + req.params.chr;
+    var cmd = config.binDir + '/fbsql -s "pos,score" -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr;
 	console.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
@@ -319,7 +314,7 @@ app.post('/data/scatter', function(req,res) {
 
 // scatterplot for any partition comparing c1 to c2 with additional args taken from etc
 app.get('/data/scatter/:partition/:c1/:c2/:etc', function(req,res) {
-    var cmd = IRIS_BIN + '/scatter_new -d ' + IRIS_DATA + '/' + req.params.partition + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' ' + req.params.etc;
+    var cmd = config.binDir + '/scatter_new -d ' + config.dataDir + '/' + req.params.partition + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' ' + req.params.etc;
 		console.log(cmd);
 		var scatter = exec(cmd, function (error, stdout, stderr) {
         res.writeHead(200, {
@@ -332,5 +327,5 @@ app.get('/data/scatter/:partition/:c1/:c2/:etc', function(req,res) {
 // testing jquery-fastbit
 app.get('/jquery/fastbit',routes.jquery_fastbit);
 
-app.listen(IRIS_PORT);
+app.listen(config.appPort);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
