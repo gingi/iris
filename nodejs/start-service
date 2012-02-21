@@ -3,4 +3,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP=$DIR/app.js
 PIDFILE=$DIR/service.pid
 exec node $APP &
-echo `ps aux | grep -F "$APP' | grep -v -F 'grep' | awk '{ print $2 }'` > $PIDFILE 
+echo `ps aux | grep -F "$APP" | grep -v -F 'grep' | awk '{ print $2 }'` > $PIDFILE 
