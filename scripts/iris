@@ -1,0 +1,37 @@
+#!/bin/sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+IRIS_HOME=${IRIS_HOME:-`cd $DIR/.. && pwd -P`}
+NODEDIR=$IRIS_HOME/nodejs
+LOGDIR=$IRIS_HOME/logs
+PIDFILE=$LOGDIR/service.pid
+
+# TODO: Handle main script options
+cmd=$1
+case $cmd in
+    start)
+        if [ -e "$PIDFILE" ]; then
+            echo "Iris is already running (pid `cat $PIDFILE`)"
+        else
+            mkdir -p $LOGDIR
+            APPJS=$NODEDIR/app.js
+            exec node $APPJS >& $LOGDIR/iris.log &
+            echo `ps aux | grep -F "$APPJS" | grep -v -F 'grep' | awk '{ print $2 }'` > $PIDFILE    
+        fi
+        ;;
+    stop)
+        if [ -e "$PIDFILE" ]; then
+            cat $PIDFILE | xargs kill
+            rm $PIDFILE
+        else
+            echo "Iris is not running. Nothing to stop."
+        fi
+        ;;
+    status)
+        if [ ! -e "$PIDFILE" ]; then
+            echo "Iris is not running."
+        else
+            echo "Iris is running as process "`cat $PIDFILE | xargs`
+        fi
+        ;;
+esac
