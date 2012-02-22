@@ -2,7 +2,13 @@ Makefile
 autom4te.cache
 stamp-h1
 config.h
-/data
-.deps/
 config.log
 config.status
+*.o
+*.lo
+/data
+.deps/
+.libs/
+libtool
+src/fastbit/src/fastbit-config.h
+src/fastbit/tests/scripts/fastbit-config
