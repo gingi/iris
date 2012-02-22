@@ -65,7 +65,7 @@ var chromosomes = {
  */
 var widgets = {
     manhattan: 'manhattan.js',
-    pcoord:    'canvas_pcoord.js',
+    pcoords:    'pcoords.js',
 };
 
 // Routes
