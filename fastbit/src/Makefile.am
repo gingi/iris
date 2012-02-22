@@ -1,5 +1,5 @@
 SUBDIRS = fastbit
-bin_PROGRAMS = fbsql fbsql_tab join_once scatter scatter_new scatter_ez gwas2go ranges
+bin_PROGRAMS = fbsql fbsql_tab join_once scatter gwas2go ranges
 SUFFIXES = .cpp
 CC = g++
 CPPFLAGS = -Ifastbit/src
