@@ -80,21 +80,40 @@ int main(int argc, char** argv) {
 	for (size_t i = 0; i < nms.size(); ++ i) {
 		ibis::column* col = parts[0]->getColumn(i);
 		switch (tps[i]) {
+			case ibis::DOUBLE:
 			case ibis::FLOAT: {
 	//			std::cerr << "nms[" << i << "] = " << nms[i] << std::endl;
 				double min = col->getActualMin();
 				double max = col->getActualMax();
 				if (first == 1) {
-					printf("[\"%s\",%f,%f]",nms[i],min,max);
+					printf("[\"%s\",%f,%f]\n",nms[i],min,max);
 					first = 0;
 				} else {
-					printf(",[\"%s\",%f,%f]",nms[i],min,max);
+					printf(",[\"%s\",%f,%f]\n",nms[i],min,max);
+				}
+			}
+			break;
+			case ibis::BYTE:
+			case ibis::UBYTE:
+			case ibis::SHORT:
+			case ibis::USHORT:
+			case ibis::INT:
+			case ibis::UINT:
+			case ibis::LONG:
+			case ibis::ULONG: {
+				double min = col->getActualMin();
+				double max = col->getActualMax();
+				if (first == 1) {
+					printf("[\"%s\",%1.0f,%1.0f]\n",nms[i],min,max);
+					first = 0;
+				} else {
+					printf(",[\"%s\",%1.0f,%1.0f]\n",nms[i],min,max);
 				}
 			}
 			default: break;
 		}
 	}
-	printf("]");
+	printf("]\n");
    delete tbl;
    return 0;
 } // main
