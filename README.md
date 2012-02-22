@@ -30,13 +30,13 @@ TODO: Make installation more streamlined....
     npm install
     
     # Compile jQuery library
-    cd external/jquery
+    cd ../external/jquery
     git submodule init && git submodule update
     make
 
 RUNNING IRIS
 ------------
-    $ ./script/iris start
+    $ ./scripts/iris start
 
 PROJECT STRUCTURE
 -----------------
