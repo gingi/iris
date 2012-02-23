@@ -261,7 +261,7 @@ app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2', function(req,res) {
 		});
 });
 app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = config.binDir + '/scatter_ez -c1 pos -c2 score -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
+    var cmd = config.binDir + '/scatter -c1 pos -c2 score -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
 		console.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
@@ -274,7 +274,7 @@ app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,r
 });
 
 app.get('/data/pcoords/:d/:c1/:c2/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = config.binDir + '/scatter_ez -a 1 -d ' + config.dataDir + '/' + req.params.d + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
+    var cmd = config.binDir + '/scatter -a 1 -d ' + config.dataDir + '/' + req.params.d + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
 		console.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
