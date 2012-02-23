@@ -30,4 +30,4 @@ libtool
 /src/fastbit/examples/ibis
 /src/fastbit/examples/rara
 # fastbit tests tmp files 
-/src/fastbit/test/tmp/*
+/src/fastbit/tests/tmp/*
