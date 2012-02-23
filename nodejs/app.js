@@ -23,7 +23,8 @@ var db = new Db('iris', new Server(mongoHost, mongoPort, {}), {native_parser:fal
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+	res.header('Access-Control-Allow-Credentials', true);
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type');
 	next();
 };
@@ -66,7 +67,8 @@ var chromosomes = {
 var widgets = {
     manhattan: 'manhattan.js',
     pcoords:    'pcoords.js',
-    chord:       'chord.js'
+    chord:       'chord.js',
+		data: 'data.js'
 };
 
 // Routes
