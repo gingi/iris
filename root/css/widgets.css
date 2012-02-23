@@ -1,3 +1,10 @@
+pre {}
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }
+
 .widget {
     height:40%;
     min-height:250px;

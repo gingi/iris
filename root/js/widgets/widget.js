@@ -6,8 +6,8 @@
  */
 function Widget(name) {
     this.name = name;
-    Widget._widgets = {};
 }
+Widget._widgets = {};
 
 Widget.prototype.render = function(canvasId, args) {
     alert("Dude, this needs to be implemented, and shit.");
