@@ -15,9 +15,9 @@ var config = require('./config.js').Config;
 var Db = require('mongodb').Db, 
 Connection = require('./node_modules/mongodb/lib/mongodb/connection/connection').Connection, 
 Server = require('mongodb').Server;
-var mongoHost = Connection.DEFAULT_HOST;
-var mongoPort = Connection.DEFAULT_PORT;
-var db = new Db('iris', new Server(mongoHost, mongoPort, {}), {native_parser:false});
+var mongoHost = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MONGO_NODE_DRIVER_HOST'] : 'localhost';
+var mongoPort = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
+var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {native_parser:false});
 
 
 //CORS middleware
