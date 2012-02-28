@@ -1,6 +1,6 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-APP=$DIR/app.js
-PIDFILE=$DIR/service.pid
+APP=$DIR/$1.js
+PIDFILE=$DIR/$1.service.pid
 exec node $APP &
 echo `ps aux | grep -F "$APP" | grep -v -F 'grep' | awk '{ print $2 }'` > $PIDFILE 

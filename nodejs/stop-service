@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use Cwd qw(abs_path);
 my $cwd = abs_path(getcwd());
-my $pidfile = "$cwd/service.pid";
+my $script = shift @ARGV;
+my $pidfile = "$cwd/$script.service.pid";
 open(my $fh, "<", $pidfile) || die("Could not open file: $pidfile $!");
 while(<$fh>) {
     chomp $_;
