@@ -78,4 +78,5 @@ app.get('/widget/:widget', function(req, res) {
 });
 
 app.listen(config.appPort);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("service-address http://localhost:%d", app.address().port)
+console.log("service-mode %s", app.settings.env);

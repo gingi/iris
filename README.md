@@ -5,7 +5,6 @@ A web application for exploration of biological data
 DEPENDENCIES
 ------------
 * node (nodejs.org)
-* npm (npmjs.org)
 * git (git-scm.com)
 * gcc
 * mongodb (mongodb.org)
@@ -36,7 +35,8 @@ TODO: Make installation more streamlined....
 
 RUNNING IRIS
 ------------
-    $ ./scripts/iris start
+    $ source user.env
+    $ iris start
 
 PROJECT STRUCTURE
 -----------------
