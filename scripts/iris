@@ -6,32 +6,83 @@ NODEDIR=$IRIS_HOME/nodejs
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/service.pid
 
+function iris_start {
+    if [ -e "$PIDFILE" ]; then
+        echo "Iris is already running (pid `cat $PIDFILE`)"
+    else
+        mkdir -p $LOGDIR
+        APPJS=$NODEDIR/app.js
+        exec node $APPJS > $LOGDIR/iris.log &
+        pid=`ps aux | grep -F "$APPJS" | grep -v -F 'grep' | awk '{ print $2 }'`
+        if [ -n "$pid" ]; then
+            echo $pid > $PIDFILE
+            echo "Server started as process $pid"
+        else
+            echo "Error launching Iris"
+        fi
+    fi
+}
+
+function iris_pid {
+    pid=''
+    if [ -e "$PIDFILE" ]; then
+        pid=$(xargs ps u -p < $PIDFILE | awk '!/PID/ {print $2}')
+    fi
+    echo $pid
+}
+
+function iris_stop {
+    pid=`iris_pid`
+    if [ -n "$pid" ]; then
+        kill $pid
+        rm $PIDFILE
+        echo "Server successfully stopped."
+    else
+        echo "Iris is not running. Nothing to stop."
+    fi
+}
+
+function usage {
+    echo 'iris [options] <command> [<arguments>]
+    
+Available commands:
+    help        This command
+    open        Open up an Iris session (Mac only, for now)
+    start       Start Iris
+    stop        Stop Iris
+    restart     Restart Iris
+    status      Check whether or not Iris is running
+'
+}
+
 # TODO: Handle main script options
 cmd=$1
 case $cmd in
     start)
-        if [ -e "$PIDFILE" ]; then
-            echo "Iris is already running (pid `cat $PIDFILE`)"
-        else
-            mkdir -p $LOGDIR
-            APPJS=$NODEDIR/app.js
-            exec node $APPJS >& $LOGDIR/iris.log &
-            echo `ps aux | grep -F "$APPJS" | grep -v -F 'grep' | awk '{ print $2 }'` > $PIDFILE    
-        fi
+        iris_start
         ;;
     stop)
-        if [ -e "$PIDFILE" ]; then
-            cat $PIDFILE | xargs kill
-            rm $PIDFILE
-        else
-            echo "Iris is not running. Nothing to stop."
-        fi
+        iris_stop > /dev/null
+        ;;
+    restart)
+        iris_stop
+        iris_start
         ;;
     status)
-        if [ ! -e "$PIDFILE" ]; then
+        pid=`iris_pid`
+        if [ -z "$pid" ]; then
             echo "Iris is not running."
         else
-            echo "Iris is running as process "`cat $PIDFILE | xargs`
+            echo "Iris is running as process $pid."
         fi
+        ;;
+    help)
+        usage
+        ;;
+    open)
+        open http://localhost:4747
+        ;;
+    *)
+        echo "Unrecognized command. Try 'iris help'"
         ;;
 esac
