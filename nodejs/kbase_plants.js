@@ -65,7 +65,20 @@ app.get('/data/chrlen', function(req, res) {
     res.end(chromosomes[req.query["species"]]);
 });
 
-app.get('/data/maxscore/GWAS/:study', function(req,res) {
+// GWAS routes
+/*
+	/data/GWAS/:study	- list all study ids
+	/data/GWAS/:study/maxscore
+	/data/GWAS/:study/scatter
+	/data/GWAS/:study/scatter_nobinning
+*/
+
+app.get('/data/GWAS/:study', function(req,res) {
+	res.writeHead(200, { 'Content-Type': 'application/json'});
+	res.send("[3396]");	
+});
+
+app.get('/data/GWAS/:study/maxscore', function(req,res) {
     var cmd = config.binDir + '/fbsql -s "max(score)" -d ' + config.dataDir + '/GWAS/' + req.params.study;
 	console.log(cmd);
 	var fbsql = exec(cmd, function (error, stdout, stderr) {
@@ -75,6 +88,41 @@ app.get('/data/maxscore/GWAS/:study', function(req,res) {
 		res.end(stdout);
 	});
 });
+
+// scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
+app.get('/data/GWAS/:study/scatter', function(req,res) {
+	var cmd = config.binDir + '/scatter -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"]
+	+ ' -c1 pos -c2 score'
+	+ ' -n1 0 -n2 0'
+	+ ' -b1 ' + req.query["b1"]
+	+ ' -b2 ' + req.query["b2"]
+	+ ' -x1 ' + req.query["x1"]
+	+ ' -x2 ' + req.query["x2"];
+	console.log(cmd);
+  var scatter = exec(cmd, {
+    maxBuffer: 10000 * 1024
+  }, function(error, stdout, stderr) {
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    });
+		res.end(stdout);
+	});
+});
+
+// scatterplot for GWAS study with no binning
+app.get('/data/GWAS/:study/scatter_nobinning', function(req,res) {
+    var cmd = config.binDir + '/fbsql -s "pos,score" -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"];
+	console.log(cmd);
+    var scatter = exec(cmd, {
+        maxBuffer: 10000 * 1024
+    }, function(error, stdout, stderr) {
+        res.writeHead(200, {
+            'Content-Type': 'application/json'
+        });
+		res.end(stdout);
+	});
+});
+
 
 // Mongo fetches
 app.get ('/data/phenotypes/:phenotype', function(req,res){
@@ -185,51 +233,27 @@ app.get('/gene2GWAS/:gene_id', function(req,res) {
 	});	
 });
 
-// scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
-app.get('/data/scatter/GWAS/:study/:chr/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = config.binDir + '/scatter -c1 pos -c2 score -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
-		console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function(error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-			res.end(stdout);
-		});
+app.get('/data/:d/pcoords', function(req,res) {
+	var cmd = config.binDir + '/scatter -a 1 -d ' + config.dataDir + '/' + req.params.d
+	+ ' -b1 ' + req.query["b1"]
+	+ ' -b2 ' + req.query["b2"]
+	+ ' -c1 ' + req.query["c1"]
+	+ ' -c2 ' + req.query["c2"]
+	+ ' -n1 ' + req.query["n1"]
+	+ ' -n2 ' + req.query["n2"]
+	+ ' -x1 ' + req.query["x1"]
+	+ ' -x2 ' + req.query["x2"];
+	console.log(cmd);
+  var scatter = exec(cmd, { maxBuffer: 10000 * 1024 }, function(error, stdout, stderr) {
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(stdout);
+	});
 });
 
-app.get('/data/pcoords/:d/:c1/:c2/:b1/:b2/:n1/:x1/:n2/:x2', function(req,res) {
-    var cmd = config.binDir + '/scatter -a 1 -d ' + config.dataDir + '/' + req.params.d + ' -b1 ' + req.params.b1 + ' -b2 ' + req.params.b2 + ' -c1 ' + req.params.c1 + ' -c2 ' + req.params.c2 + ' -n1 ' + req.params.n1 + ' -n2 ' + req.params.n2 + ' -x1 ' + req.params.x1 + ' -x2 ' + req.params.x2;
-		console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function(error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-			res.end(stdout);
-		});
-});
-
-app.get('/data/ranges/:d', function(req,res) {
+app.get('/data/:d/ranges', function(req,res) {
     var cmd = "../fastbit/src/ranges -d ' + config.dataDir + '/" + req.params.d;
 	console.log(cmd);
 	var ranges = exec(cmd, function(error,stdout,stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-		res.end(stdout);
-	})
-});
-
-// scatterplot for GWAS study with no binning
-app.get('/data/scatter/GWAS/nobinning/:study/:chr', function(req,res) {
-    var cmd = config.binDir + '/fbsql -s "pos,score" -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.params.chr;
-	console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function(error, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'
         });

@@ -1,6 +1,8 @@
 function Manhattan() {
     Widget.call(this);
+		this.ctx;
     this.ctxi;
+		this.canvasi;
     this.tool = new Object();
     this.tool.started = false;
     this.global_min = 0;
@@ -23,45 +25,64 @@ function Manhattan() {
 Manhattan.prototype = new Widget();
 
 // Implements widget_prototype.render
-Manhattan.prototype.render = function(canvasId, args) {
-    var widget = this;
+Manhattan.prototype.render = function(divId, args) {
+    var div = $("#"+divId);
+		this.containerNode = div;
+    var canvasHeight = Math.max(div.parent().height(), 250);
+    var canvasWidth = Math.max(div.parent().width(), 400);
+		div.append('<canvas id="'+divId+'_canvas", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
+		div.append('<canvas id="'+divId+'_canvasi", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
+		
+		/*
+		,
+					width: canvasWidth,
+					height: canvasHeight,
+					style: 'position:absolute;left:0;top:0;z-index:0;'
+				});*/
+		
+/*
+	 	div.append(document.createElement('canvas'))
+		.attr({
+			id: divId+"_canvasi",
+			width: canvasWidth,
+			height: canvasHeight,
+			style: 'position:absolute;left:0;top:0;z-index:0;'
+		});
+*/
+
+		var canvas = document.getElementById(divId+"_canvas");
+		var canvasi = document.getElementById(divId+"_canvasi");
+		this.canvasi = canvasi;
+		this.ctx = canvas.getContext('2d');
+		this.ctxi = canvasi.getContext('2d');
+
     var study = getParameterByName('study');
     var species = getParameterByName('species');
     // fetch the list of chromosomes and their lengths
+    var widget = this;
     this.getJSON("/data/chrlen?species=" + species, function(json) {
-        console.log("Got " + json.length + " chromsomes");
         for (var i = 0; i < json.length; i++) {
             widget.chr_lengths[i] = json[i][1];
             widget.total_len += json[i][1];
         }
         // fetch the max score for this study
-        widget.getJSON("/data/maxscore/GWAS/" + study, function(json) {
+        widget.getJSON("/data/GWAS/" + study + "/maxscore", function(json) {
             widget.global_max = Math.ceil(json[0][0]);
-            widget.draw_manhattan(canvasId, study);
+            widget.draw_manhattan(study);
         });
     });
 };
 
-Manhattan.prototype.draw_manhattan = function(canvasId, study) {
+Manhattan.prototype.draw_manhattan = function(study, cvs) {
     // get the canvas
-    var canvas = document.getElementById(canvasId);
-    var ctx = canvas.getContext('2d');
-    this.containerNode = canvas.parentNode.parentNode;
-    var canvasHeight = Math.max(this.containerNode.clientHeight, 250);
-    var canvasWidth = Math.max(this.containerNode.clientWidth, 400);
-    ctx.canvas.width = canvasWidth;
-    ctx.canvas.height = canvasHeight;
+    var ctx = this.ctx;
     ctx.strokeStyle = "black";
-    // ctx.strokeRect(0,0,ctx.canvas.width,ctx.canvas.height);
-    // resize the interactive layer
-    var canvasi = document.getElementById(canvasId + 'i');
-    this.ctxi = canvasi.getContext('2d');
-    this.ctxi.canvas.width = ctx.canvas.width;
-    this.ctxi.canvas.height = ctx.canvas.height;
+
     this.ctxi.strokeStyle = "red";
     this.ctxi.fillStyle = "rgba(255,0,0,0.3)";
 
     // add event listeners
+		canvasi = this.canvasi;
     canvasi.addEventListener('mousedown', this.ev_mousedown(), false);
     canvasi.addEventListener('mousemove', this.ev_mousemove(), false);
     canvasi.addEventListener('mouseup',   this.ev_mouseup(),   false);
@@ -71,6 +92,7 @@ Manhattan.prototype.draw_manhattan = function(canvasId, study) {
     for (var i = 0; i < this.chr_lengths.length; i++) {
         var xsize = (ctx.canvas.width - this.XGUTTER) * (this.chr_lengths[i] / this.total_len) - this.XGUTTER;
         this.do_scatter(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
+        // this.do_scatter_dots(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
         offset += xsize + this.XGUTTER;
     }
 };
@@ -118,7 +140,13 @@ Manhattan.prototype.canvas_to_score = function(a, b) {
 
 Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
     var widget = this;
-    this.getJSON("/data/scatter/GWAS/" + study + "/" + chr + "/" + Math.floor(xsize / widget.sc) + "/" + Math.floor(ysize / widget.sc) + "/" + 0 + "/" + chr_length + "/" + 0 + "/" + widget.global_max, function(json) {
+		var url = "/data/GWAS/" + study + "/scatter"
+			+ "?chr=" + chr
+			+ "&b1=" + Math.floor(xsize / widget.sc)
+			+ "&b2=" + Math.floor(ysize / widget.sc)
+			+ "&x1=" + chr_length
+			+ "&x2=" + widget.global_max;
+    this.getJSON(url, function(json) {
         var xrange = chr_length;
         var yrange = widget.global_max;
         var xfactor = xsize / xrange;
@@ -173,58 +201,10 @@ Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize,
     });
 };
 
-Manhattan.prototype.manhattan_plot_dots = function(canvasId, study) {
-    var widget = this;
-    // fetch the list of chromosomes and their lengths
-    this.getJSON("/data/chromosomes/at", function(json1) {
-        for (var i = 0; i < json1.length; i++) {
-            widget.chr_lengths[i] = json1[i][1];
-            widget.total_len += json1[i][1];
-        }
-        // fetch the max score for this study
-        widget.getJSON("/data/maxscore/GWAS/" + study, function(json2) {
-            widget.global_max = Math.ceil(json2[0][0]);
-            widget.draw_manhattan_dots(canvasId, study);
-        });
-    });
-};
-
-Manhattan.prototype.draw_manhattan_dots = function(canvasId, study) {
-    // get the canvas
-    var canvas = document.getElementById(canvasId);
-    var ctx = canvas.getContext('2d');
-    this.containerNode = canvas.parentNode.parentNode;
-    var canvasHeight = Math.max(this.containerNode.clientHeight, 250);
-    var canvasWidth = Math.max(this.containerNode.clientWidth, 400);
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    // resize the interactive layer
-    var canvasi = document.getElementById(canvasId + 'i');
-    this.ctxi = canvasi.getContext('2d');
-    this.ctxi.canvas.width = ctx.canvas.width;
-    this.ctxi.canvas.height = ctx.canvas.height;
-    this.ctxi.strokeStyle = "red";
-    this.ctxi.fillStyle = "rgba(255,0,0,0.3)";
-
-    // add event listeners
-    canvasi.addEventListener('mousedown', this.ev_mousedown(), false);
-    canvasi.addEventListener('mousemove', this.ev_mousemove(), false);
-    canvasi.addEventListener('mouseup',   this.ev_mouseup(),   false);
-
-    var offset = this.XGUTTER;
-    var ysize = ctx.canvas.height;
-    for (var i = 0; i < this.chr_lengths.length; i++) {
-        var xsize = (ctx.canvas.width - this.XGUTTER) * (this.chr_lengths[i] / this.total_len) - this.XGUTTER;
-        do_scatter_dots(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
-        offset += xsize + this.XGUTTER;
-    }
-};
-
 
 Manhattan.prototype.do_scatter_dots = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
     var widget = this;
-    this.getJSON("/data/scatter/GWAS/nobinning/" + study + "/" + chr, function(json) {
+    this.getJSON("/data/GWAS/" + study + "/scatter_nobinning?chr=" + chr, function(json) {
         var xrange = chr_length;
         var yrange = widget.global_max;
         var xfactor = xsize / xrange;
