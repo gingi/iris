@@ -23,9 +23,9 @@ function syntaxHighlight(json) {
     });
 }
 
-Data.prototype.render = function(canvasId, args) {
+Data.prototype.render = function(divId, args) {
     var widget = this;
-    var div = document.getElementById(canvasId).parentNode;		
+		var div = document.getElementById(divId);
 		var path=getParameterByName('path');
 		div.appendChild(document.createElement('pre')).innerHTML = path;
 		this.getJSON(path, function(obj) {

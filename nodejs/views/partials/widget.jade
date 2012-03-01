@@ -6,11 +6,7 @@ block append scripts
     script(type="text/javascript")
         $(document).ready(function() {
             var widget = Widget.createWidget("#{widget}");
-            widget.render("cvx");
+            widget.render("#{widget}");
         });
-    
-div(style="position: relative; min-width:500px")
-    canvas#cvx(width= width, height= height,
-        style="position:absolute;left:0;top:0;z-index:0;")
-    canvas#cvxi(width= width, height= height,
-         style="position:absolute;left:0;top:0;z-index:1;")
+
+div(id="#{widget}", style="position: relative; min-width:500px")
