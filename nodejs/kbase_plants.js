@@ -243,6 +243,9 @@ app.get('/data/:d/pcoords', function(req,res) {
 	+ ' -n2 ' + req.query["n2"]
 	+ ' -x1 ' + req.query["x1"]
 	+ ' -x2 ' + req.query["x2"];
+	if (req.query["w"]) {
+		cmd = cmd + ' -w "' + req.query["w"] + '"';
+	}
 	console.log(cmd);
   var scatter = exec(cmd, { maxBuffer: 10000 * 1024 }, function(error, stdout, stderr) {
 		res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -251,7 +254,7 @@ app.get('/data/:d/pcoords', function(req,res) {
 });
 
 app.get('/data/:d/ranges', function(req,res) {
-    var cmd = "../fastbit/src/ranges -d ' + config.dataDir + '/" + req.params.d;
+    var cmd = "../fastbit/src/ranges -d " + config.dataDir + "/" + req.params.d;
 	console.log(cmd);
 	var ranges = exec(cmd, function(error,stdout,stderr) {
         res.writeHead(200, {
