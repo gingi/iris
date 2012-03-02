@@ -54,7 +54,8 @@ var widgets = {
     manhattan: 'manhattan.js',
     pcoords:    'pcoords.js',
     chord:       'chord.js',
-		data: 'data.js'
+	data: 'data.js',
+	barChart: 'barChart.js'
 };
 
 // Routes

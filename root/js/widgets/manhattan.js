@@ -82,7 +82,7 @@ Manhattan.prototype.draw_manhattan = function(study, cvs) {
     this.ctxi.fillStyle = "rgba(255,0,0,0.3)";
 
     // add event listeners
-		canvasi = this.canvasi;
+	canvasi = this.canvasi;
     canvasi.addEventListener('mousedown', this.ev_mousedown(), false);
     canvasi.addEventListener('mousemove', this.ev_mousemove(), false);
     canvasi.addEventListener('mouseup',   this.ev_mouseup(),   false);
