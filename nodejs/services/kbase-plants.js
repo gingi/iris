@@ -255,7 +255,7 @@ app.get('/data/:d/pcoords', function(req, res) {
 });
 
 app.get('/data/:d/ranges', function(req, res) {
-    var cmd = "../fastbit/src/ranges -d " + config.dataDir + "/" + req.params.d;
+    var cmd = config.binDir + "/ranges -d " + config.dataDir + "/" + req.params.d;
     console.log(cmd);
     var ranges = exec(cmd, function(error, stdout, stderr) {
         res.writeHead(200, {
