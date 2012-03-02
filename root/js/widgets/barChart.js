@@ -57,23 +57,24 @@ BarChart.prototype.render = function(divId, args) {
         console.log("Nunber of rows: " + rowNmbr);
         console.log("Nunber of bars/row: " + rowMax);
 
-        var h = 100;
-        // setting each row to be 100px high
+        // setting each row to be 120px high
+        var h = 120;
+        
         var x = d3.scale.linear()
         .domain([0, 1])
         .range([0, w]);
 
         var y = d3.scale.linear()
-        //.domain([0, Math.max(phenotype_values)])
+        //.domain([0, h)
         .domain([0, Array.max(phenotype_values)])
-        .range([0, h]);
+        .range([0, h-20]);
 
         // define svg element
         this.svg = d3.select(document.getElementById(divId))
         .append("svg")
         .attr("class", "chart")
         .attr("width", max_width)
-        .attr("height", (h + 20) * rowNmbr);
+        .attr("height", h * rowNmbr);
 
         // draw the bars
         this.svg.selectAll("rect")
@@ -85,17 +86,16 @@ BarChart.prototype.render = function(divId, args) {
         })
         .attr("y",
         function(d, i) {
-            return (h - y(d.value) - .5 + ((h + 20) * Math.floor((i + 1) * w / max_width)));
+            return (h - y(d.value) - .5 + (h * (Math.floor(i/rowMax))));
         })
         .attr("height",
         function(d) {
+            //console.log(y(d.value));
             return y(d.value);
         })
         .attr("width", w)
         .attr("stroke", "white")
-        .attr("fill", "steelblue");
-        
-        
+        .attr("fill", "steelblue");                
 
     });
 }
