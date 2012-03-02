@@ -12,18 +12,15 @@ BarChart.prototype.render = function(divId, args) {
 
     var path = "/data/phenotypes/" + trait;
 
-
     // fetch the phenotype data
     this.getJSON(path,
     function(phenotypes) {
-
 
         var maxScore = 0;
         var data = [];
         
         for (var prop in phenotypes) {
             if (phenotypes.hasOwnProperty(prop))
-
             //notsure whatto do with NA, maybe we should ditch them completely.
             if (phenotypes[prop] != "NA") {
                 var pair = {};
@@ -41,15 +38,12 @@ BarChart.prototype.render = function(divId, args) {
         if ((data.length * w) % max_width > 0) {
             rowNmbr++;
         }
-
         var rowMax = Math.floor(max_width / w);
 /*
         console.log("Number of data points: " + data.length);
         console.log("Widths: max=" + max_width + " barW=" + w);
         console.log("Nunber of rows: " + rowNmbr);
         console.log("Nunber of bars/row: " + rowMax);*/
-
-
         // setting each row to be 120px high
         var h = 120;
         
@@ -89,7 +83,7 @@ BarChart.prototype.render = function(divId, args) {
         .attr("stroke", "white")
         .attr("fill", "steelblue");                
 
-        // draw the bars
+        // add the labels.
         this.svg.selectAll("text")
         .data(data)
         .enter().append("text")
@@ -104,7 +98,6 @@ BarChart.prototype.render = function(divId, args) {
         .attr("text-anchor", "end") // text-align: right
         .attr("transform", function(d, i) { return "rotate(90 " + (i % rowMax) * w + ","
             + (h - .5 + (h * (Math.floor(i/rowMax)))) + ")"; })
-            // + (h - y(d.value) - .5 + (h * (Math.floor(i/rowMax)))) + ")"; })
         .attr("dx", "-.35em") // padding-right
         .attr("dy", -6) // vertical-align: middle; TODO: Calculate (Half of font size)
         .attr("font-family", "\"Helvetica Neue\",Helvetica,Verdana")
