@@ -239,8 +239,8 @@ static void adaptive2DDist(const ibis::part*& part, const char *col1, double min
 	const char* fmt_float = "%f";
 	const char* f1;
 	const char* f2;
-	char format1[20];
-	char format[20];
+	char format1[40];
+	char format[40];
 	switch (part->getColumn(col1)->type()) {
 		case ibis::FLOAT:
 		case ibis::DOUBLE: {
