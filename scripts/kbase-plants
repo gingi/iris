@@ -1,0 +1,83 @@
+#!/bin/sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KBP_HOME=${KBP_HOME:-`cd $DIR/.. && pwd -P`}
+NODEDIR=$KBP_HOME/nodejs
+LOGDIR=$KBP_HOME/logs
+PIDFILE=$LOGDIR/kbp_service.pid
+mkdir -p $LOGDIR
+
+function kbp_cmd_start {
+    if [ -e "$PIDFILE" ]; then
+        echo "Kbase-plants is already running (pid `cat $PIDFILE`)"
+    else
+        APPJS=$NODEDIR/services/kbase-plants.js
+		echo $APPJS
+        exec node $APPJS > $LOGDIR/kbp.log &
+        pid=`ps aux | grep -F "$APPJS" | grep -v -F 'grep' | awk '{ print $2 }'`
+        if [ -n "$pid" ]; then
+            echo $pid > $PIDFILE
+            echo "Server started as process $pid"
+        else
+            echo "Error launching Kbase-plants"
+        fi
+    fi
+}
+
+function kbp_pid {
+    pid=''
+    if [ -e "$PIDFILE" ]; then
+        pid=$(xargs ps u -p < $PIDFILE | awk '!/PID/ {print $2}')
+    fi
+    echo $pid
+}
+
+function kbp_cmd_stop {
+    pid=`kbp_pid`
+    if [ -n "$pid" ]; then
+        kill $pid
+        rm $PIDFILE
+        echo "Server successfully stopped."
+    else
+        echo "Kbase-plants is not running. Nothing to stop."
+    fi
+}
+
+function kbp_cmd_help {
+    echo 'kbase-plants [options] <command> [<arguments>]
+    
+Available commands:
+    help        This command
+    open        Open up an Kbase-plants session (Mac only, for now)
+    start       Start Kbase-plants
+    stop        Stop Kbase-plants
+    restart     Restart Kbase-plants
+    status      Check whether or not Kbase-plants is running
+'
+}
+
+function kbp_cmd_open {
+    # TODO: Actually get the web server from configuration
+    open http://localhost:4748
+}
+
+function kbp_cmd_status {
+    pid=`kbp_pid`
+    if [ -z "$pid" ]; then
+        echo "Kbase-plants is not running."
+    else
+        echo "Kbase-plants is running as process $pid."
+    fi
+}
+
+function kbp_cmd_restart {
+    kbp_cmd_stop
+    kbp_cmd_start
+}
+
+cmd=$1
+if [ `declare -f kbp_cmd_$cmd | wc -l` -gt 1 ]; then
+    eval kbp_cmd_$cmd
+else
+    echo "Unrecognized command. Try 'kbase-plants help'"
+fi
