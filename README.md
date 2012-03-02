@@ -11,31 +11,12 @@ DEPENDENCIES
 
 INSTALLATION
 ------------
-TODO: Make installation more streamlined....
-
-    # Fetch git-managed modules
-    git submodule init
-    git submodule update
-
-    # Install FastBit
-    cd fastbit
-    ./configure --prefix $(cd .. && pwd -P)
-    make        # Now take a [long] coffee break
-    make check
-    make install
-
-    # Install Node.js dependencies
-    cd ../nodejs
-    npm install
-    
-    # Compile jQuery library
-    cd ../external/jquery
-    git submodule init && git submodule update
-    make
+    $ source iris.env
+    $ iris install
 
 RUNNING IRIS
 ------------
-    $ source user.env
+    $ source iris.env
     $ iris start
 
 PROJECT STRUCTURE

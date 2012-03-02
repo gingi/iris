@@ -5,12 +5,12 @@ IRIS_HOME=${IRIS_HOME:-`cd $DIR/.. && pwd -P`}
 NODEDIR=$IRIS_HOME/nodejs
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/service.pid
+mkdir -p $LOGDIR
 
-function iris_start {
+function iris_cmd_start {
     if [ -e "$PIDFILE" ]; then
         echo "Iris is already running (pid `cat $PIDFILE`)"
     else
-        mkdir -p $LOGDIR
         APPJS=$NODEDIR/app.js
         exec node $APPJS > $LOGDIR/iris.log &
         pid=`ps aux | grep -F "$APPJS" | grep -v -F 'grep' | awk '{ print $2 }'`
@@ -31,7 +31,7 @@ function iris_pid {
     echo $pid
 }
 
-function iris_stop {
+function iris_cmd_stop {
     pid=`iris_pid`
     if [ -n "$pid" ]; then
         kill $pid
@@ -42,11 +42,43 @@ function iris_stop {
     fi
 }
 
-function usage {
+function iris_cmd_install {
+    cd $IRIS_HOME
+    installlog=$LOGDIR/install.log
+    [ -e "$installlog" ] && rm $installlog
+    # Fetch git-managed modules
+    
+    echo "Installing Git modules..."
+    git submodule init 2>&1 >> $installlog
+    git submodule update 2>&1 >> $installlog
+
+    echo "Installing Node modules..."
+    # Install Node.js dependencies
+    cd $IRIS_HOME/nodejs
+    npm install 2>&1 >> $installlog
+    
+    echo "Compiling jQuery library..."
+    # Compile jQuery library
+    cd $IRIS_HOME/external/jquery
+    git submodule update --init 2>&1 >> $installlog
+    make 2>&1 >> $installlog
+    
+    echo "Compiling Fastbit... (Hang on. This might take a while.)"
+    # Install FastBit
+    cd $IRIS_HOME/fastbit
+    ./configure --prefix $IRIS_HOME 2>&1 >> $installlog
+    make 2>&1 >> $installlog # Now take a [long] coffee break
+    make check 2>&1 >> $installlog
+    make install 2>&1 >> $installlog
+
+}
+
+function iris_cmd_help {
     echo 'iris [options] <command> [<arguments>]
     
 Available commands:
     help        This command
+    install     Install dependencies required by Iris
     open        Open up an Iris session (Mac only, for now)
     start       Start Iris
     stop        Stop Iris
@@ -55,34 +87,28 @@ Available commands:
 '
 }
 
-# TODO: Handle main script options
+function iris_cmd_open {
+    # TODO: Actually get the web server from configuration
+    open http://localhost:4747
+}
+
+function iris_cmd_status {
+    pid=`iris_pid`
+    if [ -z "$pid" ]; then
+        echo "Iris is not running."
+    else
+        echo "Iris is running as process $pid."
+    fi
+}
+
+function iris_cmd_restart {
+    iris_cmd_stop
+    iris_cmd_start
+}
+
 cmd=$1
-case $cmd in
-    start)
-        iris_start
-        ;;
-    stop)
-        iris_stop > /dev/null
-        ;;
-    restart)
-        iris_stop
-        iris_start
-        ;;
-    status)
-        pid=`iris_pid`
-        if [ -z "$pid" ]; then
-            echo "Iris is not running."
-        else
-            echo "Iris is running as process $pid."
-        fi
-        ;;
-    help)
-        usage
-        ;;
-    open)
-        open http://localhost:4747
-        ;;
-    *)
-        echo "Unrecognized command. Try 'iris help'"
-        ;;
-esac
+if [ `declare -f iris_cmd_$cmd | wc -l` -gt 1 ]; then
+    eval iris_cmd_$cmd
+else
+    echo "Unrecognized command. Try 'iris help'"
+fi
