@@ -17,9 +17,8 @@ BarChart.prototype.render = function(divId, args) {
     this.getJSON(path,
     function(phenotypes) {
 
-        var phenotype_array = []
-        var phenotype_values = [];
-        //var labels = [];
+
+        var maxScore = 0;
         var data = [];
         
         for (var prop in phenotypes) {
@@ -27,35 +26,29 @@ BarChart.prototype.render = function(divId, args) {
 
             //notsure whatto do with NA, maybe we should ditch them completely.
             if (phenotypes[prop] != "NA") {
-                phenotype_array.push([prop, phenotypes[prop]]);
-                //labels.push(prop);
-                phenotype_values.push(phenotypes[prop]);
-
                 var pair = {};
                 pair.label = prop;
                 pair.value = phenotypes[prop];
                 data.push(pair);
+                if (pair.value > maxScore)
+                    maxScore = pair.value;
             }
         }
 
         var max_width = document.getElementById(divId).clientWidth - 20;
         var w = 22;
-        var rowNmbr = Math.floor(phenotype_values.length * w / max_width);
-        if ((phenotype_values.length * w) % max_width > 0) {
+        var rowNmbr = Math.floor(data.length * w / max_width);
+        if ((data.length * w) % max_width > 0) {
             rowNmbr++;
         }
 
-        Array.max  = function( array ){
-            return Math.max.apply( Math, array );
-        };
-        var test = Array.max(phenotype_values);
-        console.log(test);
-        
         var rowMax = Math.floor(max_width / w);
-        console.log("Number of data points: " + phenotype_values.length);
+/*
+        console.log("Number of data points: " + data.length);
         console.log("Widths: max=" + max_width + " barW=" + w);
         console.log("Nunber of rows: " + rowNmbr);
-        console.log("Nunber of bars/row: " + rowMax);
+        console.log("Nunber of bars/row: " + rowMax);*/
+
 
         // setting each row to be 120px high
         var h = 120;
@@ -66,7 +59,7 @@ BarChart.prototype.render = function(divId, args) {
 
         var y = d3.scale.linear()
         //.domain([0, h)
-        .domain([0, Array.max(phenotype_values)])
+        .domain([0, maxScore])
         .range([0, h-20]);
 
         // define svg element
@@ -90,12 +83,35 @@ BarChart.prototype.render = function(divId, args) {
         })
         .attr("height",
         function(d) {
-            //console.log(y(d.value));
             return y(d.value);
         })
         .attr("width", w)
         .attr("stroke", "white")
         .attr("fill", "steelblue");                
+
+        // draw the bars
+        this.svg.selectAll("text")
+        .data(data)
+        .enter().append("text")
+        .attr("x",
+        function(d, i) {
+            return (i % rowMax) * w;
+        })
+        .attr("y",
+        function(d, i) {
+             return (h - .5 + (h * (Math.floor(i/rowMax))));
+        })
+        .attr("text-anchor", "end") // text-align: right
+        .attr("transform", function(d, i) { return "rotate(90 " + (i % rowMax) * w + ","
+            + (h - .5 + (h * (Math.floor(i/rowMax)))) + ")"; })
+            // + (h - y(d.value) - .5 + (h * (Math.floor(i/rowMax)))) + ")"; })
+        .attr("dx", "-.35em") // padding-right
+        .attr("dy", -6) // vertical-align: middle; TODO: Calculate (Half of font size)
+        .attr("font-family", "\"Helvetica Neue\",Helvetica,Verdana")
+        .attr("font-size", "10")
+        .attr("fill", "white")
+        .text(function(d, i) { return d.label });
+        
 
     });
 }
