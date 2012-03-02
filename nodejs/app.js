@@ -1,3 +1,4 @@
+var CONF_DIR = __dirname + "/conf";
 /**
  * Module dependencies.
  */
@@ -7,7 +8,7 @@ var express = require('express'),
     gzip = require('connect-gzip'),
     app = module.exports = express.createServer(gzip.gzip());
 
-var config = require('./config.js').Config;
+var config = require(CONF_DIR + '/app-config.js').Config;
 
 
 //CORS middleware
