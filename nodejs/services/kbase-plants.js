@@ -137,14 +137,16 @@ app.get('/data/phenotypes/:phenotype', function(req, res) {
             }, {
                 'phenotype_values': 1
             }, function(err, cursor) {
-                res.writeHead(200, {
-                    'Content-Type': 'application/json'
-                });
+
                 cursor.each(function(err, doc) {
                     if (doc === null) {
                         db.close();
+                        res.end();
                     }
                     if (doc != null) {
+                        res.writeHead(200, {
+                            'Content-Type': 'application/json'
+                        });
                         res.end(JSON.stringify(doc["phenotype_values"]));
                     }
                 });
