@@ -9,8 +9,12 @@ function Widget(name) {
 }
 Widget._widgets = {};
 
-Widget.prototype.render = function(canvasId, args) {
-    alert("Dude, this needs to be implemented, and shit.");
+Widget.prototype.render = function(divId, args) {
+    alert("render() is a virtual method and needs to be implemented.");
+};
+
+Widget.prototype.about = function(args) {
+    alert("about() is a virtual method and needs to be implemented.");
 };
 
 Widget.prototype.getManager = function() {

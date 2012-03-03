@@ -1,6 +1,7 @@
 function Chord() {
+    Widget.call(this);
     this.svg = null;
-    }
+}
 
 Chord.prototype = new Widget();
 

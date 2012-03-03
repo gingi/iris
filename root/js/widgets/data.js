@@ -25,13 +25,13 @@ function syntaxHighlight(json) {
 
 Data.prototype.render = function(divId, args) {
     var widget = this;
-		var div = document.getElementById(divId);
-		var path=getParameterByName('path');
-		div.appendChild(document.createElement('pre')).innerHTML = path;
-		this.getJSON(path, function(obj) {
-			var str = JSON.stringify(obj, undefined, 4);
-			div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);			
-		});
+	var div = document.getElementById(divId);
+	var path=getParameterByName('path');
+	div.appendChild(document.createElement('pre')).innerHTML = path;
+	this.getJSON(path, function(obj) {
+		var str = JSON.stringify(obj, undefined, 4);
+		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);			
+	});
 };
 
 Widget.registerWidget('data', Data);

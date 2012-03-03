@@ -79,6 +79,8 @@ app.get('/widget/:widget', function(req, res) {
     }
 });
 
+app.get('/examples', routes.examples);
+
 app.listen(config.appPort);
 console.log("service-address http://localhost:%d", app.address().port)
 console.log("service-mode %s", app.settings.env);
