@@ -1,8 +1,8 @@
 function Manhattan() {
     Widget.call(this);
-		this.ctx;
+	this.ctx;
     this.ctxi;
-		this.canvasi;
+	this.canvasi;
     this.tool = new Object();
     this.tool.started = false;
     this.global_min = 0;
@@ -27,34 +27,18 @@ Manhattan.prototype = new Widget();
 // Implements widget_prototype.render
 Manhattan.prototype.render = function(divId, args) {
     var div = $("#"+divId);
-		this.containerNode = div;
+	this.containerNode = div;
     var canvasHeight = Math.max(div.parent().height(), 250);
     var canvasWidth = Math.max(div.parent().width(), 400);
-		div.append('<canvas id="'+divId+'_canvas", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
-		div.append('<canvas id="'+divId+'_canvasi", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
+	div.append('<canvas id="'+divId+'_canvas", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
+	div.append('<canvas id="'+divId+'_canvasi", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
 		
-		/*
-		,
-					width: canvasWidth,
-					height: canvasHeight,
-					style: 'position:absolute;left:0;top:0;z-index:0;'
-				});*/
-		
-/*
-	 	div.append(document.createElement('canvas'))
-		.attr({
-			id: divId+"_canvasi",
-			width: canvasWidth,
-			height: canvasHeight,
-			style: 'position:absolute;left:0;top:0;z-index:0;'
-		});
-*/
 
-		var canvas = document.getElementById(divId+"_canvas");
-		var canvasi = document.getElementById(divId+"_canvasi");
-		this.canvasi = canvasi;
-		this.ctx = canvas.getContext('2d');
-		this.ctxi = canvasi.getContext('2d');
+	var canvas = document.getElementById(divId+"_canvas");
+	var canvasi = document.getElementById(divId+"_canvasi");
+	this.canvasi = canvasi;
+	this.ctx = canvas.getContext('2d');
+	this.ctxi = canvasi.getContext('2d');
 
     var study = getParameterByName('study');
     var species = getParameterByName('species');
