@@ -1,3 +1,7 @@
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+<<<<<<< Local Changes
 var NODE_HOME = __dirname + "/..";
 var CONF_DIR = NODE_HOME + "/conf";
 
@@ -13,6 +17,76 @@ var express = require('express'),
     app = module.exports = express.createServer(gzip.gzip());
 
 var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+=======
+var NODE_HOME = __dirname + "/..";
+var CONF_DIR = NODE_HOME + "/conf";
+
+/**
+ * Module dependencies.
+ */
+
+
+var express = require('express'),
+    routes = require(NODE_HOME + '/routes'),
+    gzip = require('connect-gzip'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
+    app = module.exports = express.createServer(gzip.gzip());
+
+var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+>>>>>>> External Changes
+=======
+var NODE_HOME = __dirname + "/..";
+var CONF_DIR = NODE_HOME + "/conf";
+
+/**
+ * Module dependencies.
+ */
+
+
+var express = require('express'),
+    routes = require(NODE_HOME + '/routes'),
+    gzip = require('connect-gzip'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
+    app = module.exports = express.createServer(gzip.gzip());
+
+var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+>>>>>>> External Changes
+=======
+var NODE_HOME = __dirname + "/..";
+var CONF_DIR = NODE_HOME + "/conf";
+
+/**
+ * Module dependencies.
+ */
+
+var express = require('express'),
+    routes = require(NODE_HOME + '/routes'),
+    gzip = require('connect-gzip'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
+    app = module.exports = express.createServer(gzip.gzip());
+
+var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+>>>>>>> External Changes
+=======
+var NODE_HOME = __dirname + "/..";
+var CONF_DIR = NODE_HOME + "/conf";
+
+/**
+ * Module dependencies.
+ */
+
+var express = require('express'),
+    routes = require(NODE_HOME + '/routes'),
+    gzip = require('connect-gzip'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
+    app = module.exports = express.createServer(gzip.gzip());
+
+var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+>>>>>>> External Changes
 
 // Mongo
 var Db = require('mongodb').Db,
@@ -266,5 +340,4 @@ app.get('/data/:d/ranges', function(req, res) {
     });
 });
 
-app.listen(config.appPort);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+iris.startServer();

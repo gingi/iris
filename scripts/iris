@@ -18,24 +18,19 @@ function iris_pid {
     echo $pid
 }
 
-function killtree {
-    local _pid=$1
-    local _sig=${2-TERM}
-    for _child in $(ps -o pid,ppid -ax | awk "\$2==$_pid{print \$1}"); do
-        killtree ${_child} ${_sig}
-    done
-    kill -${_sig} ${_pid}
-}
-
 function start_services {
-    ( # Subshell
-        cat $SVC_CONF | sed 's/[#;].*$//' | while read line; do
+    echo "Starting services:"
+    cat $SVC_CONF | sed 's/[#;].*$//' | (while read line
+    do
             [ -z "$line" ] && continue
-            service=($line)
-            log=$LOGDIR/${service[1]}.log
-            echo ${service[1]} $log
-            echo NODE_PORT=${service[0]} node $SVC_DIR/${service[2]} $CONFDIR/${service[3]} # > $log &
-            echo "Started [${service[1]}]"
+            local service=($line)
+            local port=${service[0]}
+            local name=${service[1]}
+            local nodefile=${service[2]}
+            local conffile=${service[3]}
+            local log=$LOGDIR/$name.log
+            NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile > $log &
+            printf "%-12s http://localhost:%s\n" "[$name]" $port
         done
         wait
     ) &
@@ -61,7 +56,7 @@ function iris_cmd_stop {
     pid=`iris_pid`
     if [ -n "$pid" ]; then
         # Kill children
-        killtree $pid
+        ps -o pid,ppid -ax | awk "\$2==$pid{print \$1}" | xargs kill
         echo "Iris successfully stopped."
     else
         echo "Iris is not running. Nothing to stop."
@@ -128,7 +123,7 @@ function iris_cmd_status {
     if [ -z "$pid" ]; then
         echo "Iris is not running."
     else
-        nproc=`ps -o ppid -ax | grep -c $pid`
+        nproc=`ps -o ppid -ax | grep -c "^$pid\$"`
         echo "Iris is running as process $pid with $nproc services."
     fi
 }

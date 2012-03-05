@@ -10,6 +10,7 @@ var gzip = require('connect-gzip');
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
 var app = express.createServer(gzip.gzip());
+var config = null;
 
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
@@ -64,9 +65,15 @@ exports.loadConfiguration = function() {
         console.log("Usage: node " + process.argv[1] + " <config_file.js>");
         return;
     }
-    var config = require(confFile).Config;
+    config = require(confFile).Config;
     if (global.process.env.NODE_PORT != null) {
         config.appPort = global.process.env.NODE_PORT;
     }
     return config;
 };
+
+exports.startServer = function() {
+    app.listen(config.appPort);
+    console.log("service-address http://localhost:%d", app.address().port)
+    console.log("service-mode %s", app.settings.env);
+}
