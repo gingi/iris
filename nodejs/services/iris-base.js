@@ -71,7 +71,6 @@ exports.loadConfiguration = function() {
     }
     return config;
 };
-
 exports.startServer = function() {
     app.listen(config.appPort);
     console.log("service-address http://localhost:%d", app.address().port)
