@@ -37,7 +37,7 @@ app.configure('production', function(){
     app.use(express.errorHandler()); 
 });
 
-exports.app    = app;
+exports.app = app;
 exports.routes = routes;
 
 exports.configureViews = function(app) {
@@ -69,7 +69,6 @@ exports.loadConfiguration = function() {
     }
     return config;
 };
-
 exports.startService = function() {
     app.listen(config.appPort);
     console.log("service-address http://localhost:%d", app.address().port)
