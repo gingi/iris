@@ -61,7 +61,7 @@ function iris_cmd_stop {
     pid=`iris_pid`
     if [ -n "$pid" ]; then
         # Kill children
-        ps -o pid,ppid -ax | awk "\$2==$pid{print \$1}" | xargs kill
+        killtree $pid
         echo "Iris successfully stopped."
     else
         echo "Iris is not running. Nothing to stop."
