@@ -3,37 +3,12 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IRIS_HOME=${IRIS_HOME:-`cd $DIR/.. && pwd -P`}
 NODEDIR=$IRIS_HOME/nodejs
+CONFDIR=$IRIS_HOME/conf
 SVC_DIR=$NODEDIR/services
+SVC_CONF=$CONFDIR/services.conf
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 mkdir -p $LOGDIR
-
-function start_services {
-    ( # Subshell
-        for service in `ls $SVC_DIR/*.js`; do
-            log=$LOGDIR/`basename ${service/.js/.log}`
-            node $service > $log &
-        done
-        APPJS=$NODEDIR/app.js
-        node $APPJS > $LOGDIR/iris.log &
-        wait
-    ) &
-    irispid=$!
-}
-
-function iris_cmd_start {
-    if [ -e "$PIDFILE" ]; then
-        echo "Iris is already running (pid `cat $PIDFILE`)"
-    else
-        start_services
-        if [ -n "$irispid" ]; then
-            echo $irispid > $PIDFILE
-            echo "Server started as process $irispid"
-        else
-            echo "Error launching Iris"
-        fi
-    fi
-}
 
 function iris_pid {
     pid=''
@@ -43,15 +18,58 @@ function iris_pid {
     echo $pid
 }
 
+function killtree {
+    local _pid=$1
+    local _sig=${2-TERM}
+    for _child in $(ps -o pid,ppid -ax | awk "\$2==$_pid{print \$1}"); do
+        killtree ${_child} ${_sig}
+    done
+    kill -${_sig} ${_pid}
+}
+
+function start_services {
+    ( # Subshell
+        cat $SVC_CONF | sed 's/[#;].*$//' | while read line; do
+            [ -z "$line" ] && continue
+            service=($line)
+            log=$LOGDIR/${service[1]}.log
+            echo ${service[1]} $log
+            echo NODE_PORT=${service[0]} node $SVC_DIR/${service[2]} $CONFDIR/${service[3]} # > $log &
+            echo "Started [${service[1]}]"
+        done
+        wait
+    ) &
+    irispid=$!
+}
+
+function iris_cmd_start {
+    pid=`iris_pid`
+    if [ -n "$pid" ]; then
+        echo "Iris is already running (pid `cat $PIDFILE`)"
+    else
+        start_services
+        if [ -n "$irispid" ]; then
+            echo $irispid > $PIDFILE
+            iris_cmd_status
+        else
+            echo "Error launching Iris"
+        fi
+    fi
+}
+
 function iris_cmd_stop {
     pid=`iris_pid`
     if [ -n "$pid" ]; then
         # Kill children
-        ps -o pid,ppid -ax | awk "\$2==$pid{print $1}" | xargs kill
-        rm $PIDFILE
+        killtree $pid
         echo "Iris successfully stopped."
     else
         echo "Iris is not running. Nothing to stop."
+    fi
+    # Handle both standard shutdown and when Iris is not running but the
+    # pid file still exists.
+    if [ -e "$PIDFILE" ]; then
+        rm $PIDFILE
     fi
 }
 
