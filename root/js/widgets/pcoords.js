@@ -32,7 +32,7 @@ Pcoords.prototype.render = function(divId, args) {
     var ctxf = canvasf.getContext('2d');
     var ctxi = canvasi.getContext('2d');
     ctx.strokeStyle = "black";
-    ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+//    ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctxf.strokeStyle = "black";
     ctxf.fillStyle = "black";
     ctxi.strokeStyle = "black";
@@ -121,10 +121,6 @@ Pcoords.prototype.do_pcoords = function(ctx, table, c1_arr, c2_arr, xmin, xmax, 
             widget.maxcolor = [220, 140, 0];
             widget.mincolor = [255, 180, 0];
         } else {
-            // gray
-            widget.maxcolor = [10, 10, 10];
-            widget.mincolor = [100, 100, 100];
-
             // brown
             widget.maxcolor = [120, 50, 0];
             widget.mincolor = [139, 69, 19];
@@ -132,6 +128,10 @@ Pcoords.prototype.do_pcoords = function(ctx, table, c1_arr, c2_arr, xmin, xmax, 
             // blue
             widget.maxcolor = [0, 50, 100];
             widget.mincolor = [0, 50, 200];
+
+            // gray
+            widget.maxcolor = [10, 10, 10];
+            widget.mincolor = [100, 100, 100];
         }
         var rank = new Array();
         rank[0] = 1;
