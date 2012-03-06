@@ -1,7 +1,9 @@
-var iris = require('./iris-base.js');
+var iris   = require('./iris-base.js');
 var config = iris.loadConfiguration();
-var app = iris.app;
+var app    = iris.app;
 var routes = iris.routes;
+var exec   = require('child_process').exec;
+var spawn  = require('child_process').spawn;
 
 // Mongo
 var Db = require('mongodb').Db,
@@ -11,41 +13,6 @@ var mongoHost = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MON
 var mongoPort = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
 var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {
     native_parser: false
-});
-
-
-//CORS middleware
-var allowCrossDomain = function(req, res, next) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type');
-        next();
-    };
-
-// Configuration
-app.configure(function() {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(allowCrossDomain);
-    app.use(app.router);
-    app.use(express.static(__dirname + '/../root'));
-});
-
-app.set('view options', {
-    pretty: true
-});
-app.configure('development', function() {
-    app.use(express.errorHandler({
-        dumpExceptions: true,
-        showStack: true
-    }));
-});
-
-app.configure('production', function() {
-    app.use(express.errorHandler());
 });
 
 // chromosome lengths for each species
