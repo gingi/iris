@@ -6,7 +6,7 @@ block append scripts
     script(type="text/javascript")
         $(document).ready(function() {
             var widget = Widget.createWidget("#{widget}");
-            widget.render("#{widget}");
+            widget.render("#{widget}",{});
         });
 
 div(id="#{widget}", style="position: relative; min-width:500px")
