@@ -222,4 +222,4 @@ app.get('/data/:d/ranges', function(req, res) {
     });
 });
 
-iris.startServer();
+iris.startService();

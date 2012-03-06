@@ -31,4 +31,4 @@ app.get('/ranges', function(req, res) {
     run_command('ranges', res, req.params.q);
 });
 
-iris.startServer();
+iris.startService();

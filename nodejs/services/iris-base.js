@@ -69,7 +69,8 @@ exports.loadConfiguration = function() {
     }
     return config;
 };
-exports.startServer = function() {
+
+exports.startService = function() {
     app.listen(config.appPort);
     console.log("service-address http://localhost:%d", app.address().port)
     console.log("service-mode %s", app.settings.env);
