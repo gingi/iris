@@ -19,9 +19,14 @@ function iris_pid {
 }
 
 function start_services {
+    if [ ! -e "$SVC_CONF" ]; then
+        echo "Service configuration [$SVC_CONF] cannot be found!"
+        iris_cmd_help
+        exit 1
+    fi
     echo "Starting services:"
     cat $SVC_CONF | sed 's/[#;].*$//' | (while read line
-    do
+        do
             [ -z "$line" ] && continue
             local service=($line)
             local port=${service[0]}
