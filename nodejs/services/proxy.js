@@ -11,7 +11,7 @@ var routes = iris.routes;
  *
  * TODO: Move to MetaContainer?
  */
-var widget_list = [
+var widgetList = [
 	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
 	{ id: 'data', name: 'Data browser', js: 'data.js' },
 	{ id: 'pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
@@ -19,10 +19,10 @@ var widget_list = [
 	{ id: 'barChart', name: 'Bar Chart', js: 'barchart.js' }
 ];
 
-function find_widget(key, val) {
-	for(var i in widget_list) {
-		if (widget_list[i][key] === val) {
-			return widget_list[i];
+function findWidget(key, val) {
+	for(var i in widgetList) {
+		if (widgetList[i][key] === val) {
+			return widgetList[i];
 		}
 	}
 	return null;
@@ -40,7 +40,7 @@ app.get('/404', function(req, res) {
 app.get('/widget/:widget', function(req, res) {
     // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query["layout"] != null && req.query["layout"] == 'on';
-	var widget = find_widget("id",req.params.widget);
+	var widget = findWidget("id",req.params.widget);
     if (widget == null) {
         res.redirect('/404');
     } else {
@@ -48,9 +48,11 @@ app.get('/widget/:widget', function(req, res) {
     }
 });
 
-app.get('/examples', routes.examples);
-app.get('/workspace', function(req,res) {
-	routes.workspace( req, res, widget_list );
+app.get('/workspace-demo', function(req, res) {
+    routes.workspace(req, res, widgetList);
+});
+app.get('/workspace', function(req, res) {
+	routes.workspace(req, res, widgetList);
 });
 
 iris.startService();
