@@ -16,7 +16,7 @@ var widgets = {
     pcoords:   'pcoords.js',
     chord:     'chord.js',
 	data:      'data.js',
-	barChart:  'barChart.js'
+	barchart:  'barchart.js'
 };
 var widget_list = [
 	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
@@ -51,4 +51,4 @@ app.get('/workspace', function(req,res) {
 	routes.workspace( req, res, widget_list );
 });
 
-iris.startServer();
+iris.startService();

@@ -35,7 +35,7 @@ function start_services {
             local conffile=${service[3]}
             local log=$LOGDIR/$name.log
             NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile > $log &
-            printf "%-12s http://localhost:%s\n" "[$name]" $port
+            printf "%-20s http://localhost:%s\n" "[$name]" $port
         done
         wait
     ) &
@@ -128,7 +128,7 @@ function iris_cmd_status {
     if [ -z "$pid" ]; then
         echo "Iris is not running."
     else
-        nproc=`ps -o ppid -ax | grep -c "^$pid\$"`
+        nproc=`ps -o ppid -ax | grep -c "\b$pid\b"`
         echo "Iris is running as process $pid with $nproc services."
     fi
 }

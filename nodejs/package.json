@@ -6,6 +6,7 @@
       "express"          : ">= 2.5.0"
     , "jade"             : ">= 0.20.1"
     , "connect-gzip"     : ">= 0.1.5"
-    , "mongodb"            : ">= 0.9.9"
+    , "mongodb"          : ">= 0.9.9"
+    , "restler"          : ">= 2.0.0" 
   }
 }
