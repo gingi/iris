@@ -52,12 +52,19 @@ app.configure('production', function(){
  * TODO: Move to MetaContainer?
  */
 var widgets = {
-    manhattan: 'manhattan.js',
-    pcoords:    'pcoords.js',
-    chord:       'chord.js',
-	data: 'data.js',
-	barChart: 'barChart.js'
+	  manhattan: 'manhattan.js'
+	, pcoords: 'pcoords.js'
+	, chord: 'chord.js'
+	, data: 'data.js'
+	, barChart: 'barchart.js'
 };
+var widget_list = [
+	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
+	{ id: 'data', name: 'Data browser', js: 'data.js' },
+	{ id: 'pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
+	{ id: 'chord', name: 'Chord', js: 'chord.js' },
+	{ id: 'barChart', name: 'Bar Chart', js: 'barchart.js' }
+];
 
 // Routes
 app.get('/', routes.index);
@@ -80,6 +87,9 @@ app.get('/widget/:widget', function(req, res) {
 });
 
 app.get('/examples', routes.examples);
+app.get('/workspace', function(req,res) {
+	routes.workspace( req, res, widget_list );
+});
 
 app.listen(config.appPort);
 console.log("service-address http://localhost:%d", app.address().port)

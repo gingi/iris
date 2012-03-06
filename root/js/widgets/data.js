@@ -1,5 +1,6 @@
 function Data() {
   Widget.call(this);
+  this.DataServiceAPI = DataServiceAPI;
 }
 
 Data.prototype = new Widget();
@@ -26,12 +27,20 @@ function syntaxHighlight(json) {
 Data.prototype.render = function(divId, args) {
     var widget = this;
 	var div = document.getElementById(divId);
-	var path=getParameterByName('path');
+	div.innerHTML = '';
+	var path=args.hasOwnProperty('path') ? args['path'] : '/data/chrlen?species=at';
+	if (args.hasOwnProperty('API')) {
+		this.DataServiceAPI = args['API'];
+	}
 	div.appendChild(document.createElement('pre')).innerHTML = path;
 	this.getJSON(path, function(obj) {
 		var str = JSON.stringify(obj, undefined, 4);
-		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);			
+		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);
 	});
+};
+
+Data.prototype.getJSON = function(path, callback) {
+    $.getJSON(this.DataServiceAPI + path, callback);
 };
 
 Widget.registerWidget('data', Data);

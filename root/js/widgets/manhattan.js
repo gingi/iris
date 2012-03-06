@@ -27,12 +27,15 @@ Manhattan.prototype = new Widget();
 // Implements widget_prototype.render
 Manhattan.prototype.render = function(divId, args) {
     var div = $("#"+divId);
+	div.text('');
 	this.containerNode = div;
     var canvasHeight = Math.max(div.parent().height(), 250);
     var canvasWidth = Math.max(div.parent().width(), 400);
 	div.append('<canvas id="'+divId+'_canvas", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
 	div.append('<canvas id="'+divId+'_canvasi", width='+canvasWidth+' height='+canvasHeight+' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
-		
+	
+	div.parent.height=canvasHeight;
+	div.parent.width=canvasWidth;
 
 	var canvas = document.getElementById(divId+"_canvas");
 	var canvasi = document.getElementById(divId+"_canvasi");
@@ -40,8 +43,9 @@ Manhattan.prototype.render = function(divId, args) {
 	this.ctx = canvas.getContext('2d');
 	this.ctxi = canvasi.getContext('2d');
 
-    var study = getParameterByName('study');
-    var species = getParameterByName('species');
+    var study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
+    var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
+
     // fetch the list of chromosomes and their lengths
     var widget = this;
     this.getJSON("/data/chrlen?species=" + species, function(json) {

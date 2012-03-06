@@ -17,6 +17,7 @@ Pcoords.prototype = new Widget();
 // Implements widget_prototype.render
 Pcoords.prototype.render = function(divId, args) {
     var div = $("#" + divId);
+	div.text('');
     this.containerNode = div;
     var canvasHeight = Math.max(div.parent().height(), 250);
     var canvasWidth = Math.max(div.parent().width(), 400);
@@ -39,8 +40,8 @@ Pcoords.prototype.render = function(divId, args) {
 
     // fetch the list of columns in the table
     // and their min and max values
-    var table = getParameterByName('table');
-		var widget = this;
+    var table = (args.hasOwnProperty('table')) ? args['table'] : 'sbi_vs_avec';
+	var widget = this;
     this.getJSON("/data/" + table + "/ranges",
     function(json) {
         // TODO: add event handlers

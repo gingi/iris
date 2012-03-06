@@ -5,8 +5,9 @@ function Chord() {
 
 Chord.prototype = new Widget();
 
-Chord.prototype.render = function(canvasId, args) {
-    var div = document.getElementById(canvasId).parentNode;
+Chord.prototype.render = function(divId, args) {
+    var div = document.getElementById(divId);
+	div.innerHTML = '';
     var chord = d3.layout.chord()
     .padding(.05)
     .sortSubgroups(d3.descending)
@@ -111,7 +112,6 @@ Chord.prototype.groupTicks = function(d) {
 
 /** Returns an event handler for fading a given chord group. */
 Chord.prototype.fade = function(opacity) {
-    console.log("called fade");
     var widget = this;
     return function(g, i) {
 
