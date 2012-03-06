@@ -15,8 +15,8 @@ exports.examples = function(req, res) {
     res.render('examples', { title: "Examples" });
 };
 
-exports.workspace = function(req, res, widget_list) {
-    res.render('workspace', { title: "workspace", layout: "workspace_layout", list: widget_list});
+exports.workspace = function(req, res, widgetList) {
+    res.render('workspace', { title: "workspace", layout: "workspace_layout", list: widgetList});
 };
 
 
