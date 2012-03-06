@@ -1,18 +1,8 @@
-var NODE_HOME = __dirname + "/..";
-var CONF_DIR = NODE_HOME + "/conf";
-
-/**
- * Module dependencies.
- */
-
-var express = require('express'),
-    routes = require(NODE_HOME + '/routes'),
-    gzip = require('connect-gzip'),
-    exec = require('child_process').exec,
-    spawn = require('child_process').spawn,
-    app = module.exports = express.createServer(gzip.gzip());
-
-var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
+var iris   = require('./iris-base.js');
+var config = iris.loadConfiguration();
+var app    = iris.app;
+var routes = iris.routes;
+var exec   = require('child_process').exec;
 
 // Mongo
 var Db = require('mongodb').Db,
@@ -24,70 +14,27 @@ var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {
     native_parser: false
 });
 
-
-//CORS middleware
-var allowCrossDomain = function(req, res, next) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type');
-        next();
-    };
-
-// Configuration
-app.configure(function() {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(allowCrossDomain);
-    app.use(app.router);
-    app.use(express.static(__dirname + '/../root'));
-});
-
-app.set('view options', {
-    pretty: true
-});
-app.configure('development', function() {
-    app.use(express.errorHandler({
-        dumpExceptions: true,
-        showStack: true
-    }));
-});
-
-app.configure('production', function() {
-    app.use(express.errorHandler());
-});
-
 // chromosome lengths for each species
 var chromosomes = {
     at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
 };
 
 // Routes
-app.get('/data/chrlen', function(req, res) {
+app.get('/:species/chrlen', function(req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
     res.end(chromosomes[req.query["species"]]);
 });
 
-// GWAS routes
-/*
-	/data/GWAS/:study	- list all study ids
-	/data/GWAS/:study/maxscore
-	/data/GWAS/:study/scatter
-	/data/GWAS/:study/scatter_nobinning
-*/
-
-app.get('/data/GWAS/:study', function(req, res) {
+app.get('/GWAS/:study', function(req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
     res.send("[3396]");
 });
 
-app.get('/data/GWAS/:study/maxscore', function(req, res) {
+app.get('/GWAS/:study/maxscore', function(req, res) {
     var cmd = config.binDir + '/fbsql -s "max(score)" -d ' + config.dataDir + '/GWAS/' + req.params.study;
     console.log(cmd);
     var fbsql = exec(cmd, function(error, stdout, stderr) {
@@ -266,5 +213,4 @@ app.get('/data/:d/ranges', function(req, res) {
     });
 });
 
-app.listen(config.appPort);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+iris.startServer();
