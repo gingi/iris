@@ -1,9 +1,18 @@
-var iris   = require('./iris-base.js');
-var config = iris.loadConfiguration();
-var app    = iris.app;
-var routes = iris.routes;
-var exec   = require('child_process').exec;
-var spawn  = require('child_process').spawn;
+var NODE_HOME = __dirname + "/..";
+var CONF_DIR = NODE_HOME + "/conf";
+
+/**
+ * Module dependencies.
+ */
+
+var express = require('express'),
+    routes = require(NODE_HOME + '/routes'),
+    gzip = require('connect-gzip'),
+    exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
+    app = module.exports = express.createServer(gzip.gzip());
+
+var config = require(CONF_DIR + '/kbase-plants-config.js').Config;
 
 // Mongo
 var Db = require('mongodb').Db,
@@ -13,6 +22,41 @@ var mongoHost = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MON
 var mongoPort = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
 var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {
     native_parser: false
+});
+
+
+//CORS middleware
+var allowCrossDomain = function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+        next();
+    };
+
+// Configuration
+app.configure(function() {
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'jade');
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(allowCrossDomain);
+    app.use(app.router);
+    app.use(express.static(__dirname + '/../root'));
+});
+
+app.set('view options', {
+    pretty: true
+});
+app.configure('development', function() {
+    app.use(express.errorHandler({
+        dumpExceptions: true,
+        showStack: true
+    }));
+});
+
+app.configure('production', function() {
+    app.use(express.errorHandler());
 });
 
 // chromosome lengths for each species
@@ -222,4 +266,5 @@ app.get('/data/:d/ranges', function(req, res) {
     });
 });
 
-iris.startServer();
+app.listen(config.appPort);
+console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
