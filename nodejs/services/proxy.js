@@ -11,13 +11,6 @@ var routes = iris.routes;
  *
  * TODO: Move to MetaContainer?
  */
-var widgets = {
-    manhattan: 'manhattan.js',
-    pcoords:   'pcoords.js',
-    chord:     'chord.js',
-	data:      'data.js',
-	barchart:  'barchart.js'
-};
 var widget_list = [
 	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
 	{ id: 'data', name: 'Data browser', js: 'data.js' },
@@ -25,6 +18,15 @@ var widget_list = [
 	{ id: 'chord', name: 'Chord', js: 'chord.js' },
 	{ id: 'barChart', name: 'Bar Chart', js: 'barchart.js' }
 ];
+
+function find_widget(key, val) {
+	for(var i in widget_list) {
+		if (widget_list[i][key] === val) {
+			return widget_list[i];
+		}
+	}
+	return null;
+}
 
 // Routes
 app.get('/', routes.index);
@@ -38,11 +40,11 @@ app.get('/404', function(req, res) {
 app.get('/widget/:widget', function(req, res) {
     // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query["layout"] != null && req.query["layout"] == 'on';
-    var widget_js = widgets[req.params.widget];
-    if (widget_js == null) {
+	var widget = find_widget("id",req.params.widget);
+    if (widget == null) {
         res.redirect('/404');
     } else {
-        routes.widget(req, res, { widget: req.params.widget, js: widget_js, layout: layout });
+        routes.widget(req, res, { widget: widget.id, js: widget.js, layout: layout });
     }
 });
 
