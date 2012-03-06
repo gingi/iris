@@ -1,0 +1,11 @@
+{
+    "services": [
+        { "name": "iris",             "port": 4747, "nodefile": "proxy.js", "config": "app-config.js" },
+        { "name": "examples",         "port": 4748, "nodefile": "examples.js", "config": "examples-config.js" },
+        { "name": "examples-fastbit", "port": 4749, "nodefile": "fastbit.js", "config": "examples-config.js" },
+        { "name": "examples-mongo",   "port": 4750, "nodefile": "mongo.js", "config": "examples-config.js" },
+        { "name": "kbase",            "port": 4751, "nodefile": "kbase-plants.js", "config": "kbase-plants-config.js" }
+    ],
+    "endpoints": [
+    ]
+}

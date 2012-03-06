@@ -16,9 +16,9 @@ INSTALLATION
     
 CONFIGURATION
 -------------
-Iris services are configured in a simple configuration file in `conf/services.conf` listing an HTTP port, the name of the service, the Node.js control file, and a configuration file. A sample services configuration is available at `conf/services.conf.sample`. To get started:
+Iris services are configured in a simple configuration file in `conf/services.json` listing an HTTP port, the name of the service, the Node.js control file, and a configuration file. A sample services configuration is available at `conf/services-sample.json`. To get started:
 
-    $ cp conf/services.conf.sample conf/services.conf
+    $ cp conf/services-sample.json conf/services.json
 
 RUNNING IRIS
 ------------
