@@ -5,7 +5,7 @@ IRIS_HOME=${IRIS_HOME:-`cd $DIR/.. && pwd -P`}
 NODEDIR=$IRIS_HOME/nodejs
 CONFDIR=$IRIS_HOME/conf
 SVC_DIR=$NODEDIR/services
-SVC_CONF=$CONFDIR/services.conf
+SVC_CONF=$CONFDIR/services.json
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 mkdir -p $LOGDIR
@@ -25,7 +25,8 @@ function start_services {
         exit 1
     fi
     echo "Starting services:"
-    cat $SVC_CONF | sed 's/[#;].*$//' | (while read line
+    _json_flatten $SVC_CONF "services" "port name nodefile config" \
+        | (while read line
         do
             [ -z "$line" ] && continue
             local service=($line)
@@ -50,6 +51,7 @@ function iris_cmd_start {
         start_services
         if [ -n "$irispid" ]; then
             echo $irispid > $PIDFILE
+            sleep 1
             iris_cmd_status
         else
             echo "Error launching Iris"
@@ -136,6 +138,22 @@ function iris_cmd_status {
 function iris_cmd_restart {
     iris_cmd_stop
     iris_cmd_start
+}
+
+function _json_flatten {
+    jsonfile=$1
+    key=$2
+    fields=$3
+    perl -MJSON -e "
+        my \$d = decode_json(join '',<STDIN>)->{$key};
+        print
+            join(\"\n\",
+                map {
+                    my \$j=\$_; join(\"\t\",
+                        map { \$j->{\$_} } qw/$fields/
+                    )
+                } @\$d), \"\n\"
+    " < $SVC_CONF
 }
 
 cmd=$1
