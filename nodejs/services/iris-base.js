@@ -7,8 +7,6 @@ var NODE_HOME = __dirname + '/..';
 var express = require('express');
 var routes = require(NODE_HOME + '/routes');
 var gzip = require('connect-gzip');
-var exec = require('child_process').exec;
-var spawn = require('child_process').spawn;
 var app = express.createServer(gzip.gzip());
 var config = null;
 
@@ -39,7 +37,7 @@ app.configure('production', function(){
     app.use(express.errorHandler()); 
 });
 
-exports.app = app;
+exports.app    = app;
 exports.routes = routes;
 
 exports.configureViews = function(app) {
