@@ -1,0 +1,18 @@
+link(rel="stylesheet", href="/css/widgets.css")
+
+block scripts
+	script(type="text/javascript", src="/js/jquery.js")
+	script(type="text/javascript", src="/js/d3.js")
+	script(type="text/javascript", src="/js/widgets/widget.js")
+	script(type="text/javascript", src="/js/iris.js")
+	- each widget in list
+		script(type="text/javascript", src="/js/widgets/"+widget.js)
+
+.span8
+	h3 Workspace
+	div(id="workspace", style="position: relative; min-width:500px")
+.span4
+	h3 Widgets
+	- each w in list
+		a(class="btn", onclick="var widget = Widget.createWidget('"+w.id+"');widget.render('workspace',{});") #{w.name}
+		br
