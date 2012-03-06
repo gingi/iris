@@ -1,5 +1,5 @@
 # PORT   NAME               COMMAND          CONF
-4747     iris               proxy.js           app-config.js
+4747     iris               proxy.js         app-config.js
 4748     examples           examples.js      examples-config.js
 4749     examples-fastbit   fastbit.js    examples-config.js
 4750     examples-mongodb   mongo.js         examples-config.js
