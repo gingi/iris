@@ -19,8 +19,8 @@ Pcoords.prototype.render = function(divId, args) {
     var div = $("#" + divId);
 	div.text('');
     this.containerNode = div;
-    var canvasHeight = Math.max(div.parent().height(), 250);
-    var canvasWidth = Math.max(div.parent().width(), 400);
+    var canvasHeight = Math.max(div.height(), 250);
+    var canvasWidth = Math.max(div.width(), 400);
     div.append('<canvas id="' + divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
     div.append('<canvas id="' + divId + '_canvasf", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
     div.append('<canvas id="' + divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:2;"></canvas>');
