@@ -7,6 +7,7 @@
     , "jade"             : ">= 0.20.1"
     , "connect-gzip"     : ">= 0.1.5"
     , "mongodb"          : ">= 0.9.9"
-    , "restler"          : ">= 2.0.0" 
+    , "restler"          : ">= 2.0.0"
+	, "revalidator"      : ">= 0.1.0" 
   }
 }
