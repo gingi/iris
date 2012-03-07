@@ -32,15 +32,38 @@ Data.prototype.render = function(divId, args) {
 	if (args.hasOwnProperty('API')) {
 		this.DataServiceAPI = args['API'];
 	}
-	div.appendChild(document.createElement('pre')).innerHTML = path;
-	this.getJSON(path, function(obj) {
-		var str = JSON.stringify(obj, undefined, 4);
-		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);
+	$.getJSON('/services', function (services) {
+//		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(services, undefined, 4));
+		var sel = document.createElement('select');
+		for (var i in services) {
+			var srv = services[i];
+			var opt = document.createElement('option');
+			var host = (srv.hasOwnProperty('host'))? srv.host : 'http://localhost';
+			opt.value = host + ':' + srv.port;
+			opt.text = srv.name;
+			if (opt.value === widget.DataServiceAPI) {
+				opt.selected = true;
+			}
+			sel.add(opt, null);
+		}
+		div.appendChild(sel);
+		var input = document.createElement('input');
+		input.value = path;
+		div.appendChild(input);
+		var button = document.createElement('input');
+		button.setAttribute("type", "button");
+		button.setAttribute('value', 'load');
+		button.onclick = function(){widget.render(divId, {API: sel.value, path: input.value})};
+		div.appendChild(button);
+		widget.getJSON(path, function(obj) {
+			var str = JSON.stringify(obj, undefined, 4);
+			div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);
+		});
 	});
-};
+}
 
 Data.prototype.getJSON = function(path, callback) {
     $.getJSON(this.DataServiceAPI + path, callback);
-};
+}
 
 Widget.registerWidget('data', Data);
