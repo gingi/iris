@@ -1,1 +1,1 @@
-jquery-ui-1.8.16.custom.min.js
+../../external/jquery-ui-1.8.18.custom.min.js
