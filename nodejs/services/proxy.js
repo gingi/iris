@@ -48,9 +48,6 @@ app.get('/widget/:widget', function(req, res) {
     }
 });
 
-app.get('/workspace-demo', function(req, res) {
-    routes.workspace(req, res, widgetList);
-});
 app.get('/workspace', function(req, res) {
 	routes.workspace(req, res, widgetList);
 });
