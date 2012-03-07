@@ -172,6 +172,7 @@ app.get('/histogram/GO/GWAS/:study/:where', function(req, res) {
 
 app.get('/gene2GWAS', function(req, res) {
     var cmd = config.binDir + '/fbsql -d ' + config.dataDir + '/GWAS_snp_consequences -s "study_id,gene_stable_id,max(score)"';
+	console.log(cmd);
     var fbsql = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {

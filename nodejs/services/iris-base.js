@@ -37,9 +37,11 @@ app.configure('production', function(){
     app.use(express.errorHandler()); 
 });
 
+var services = require(NODE_HOME + '/../conf/services.json');
+
 exports.app    = app;
 exports.routes = routes;
-
+exports.services = services;
 exports.configureViews = function(app) {
     if (!app) {
         app = this.app;

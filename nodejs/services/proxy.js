@@ -55,4 +55,8 @@ app.get('/workspace', function(req, res) {
 	routes.workspace(req, res, widgetList);
 });
 
+app.get('/services', function(req,res){
+	res.json(iris.services['services']);
+});
+
 iris.startService();
