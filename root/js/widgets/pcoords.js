@@ -21,13 +21,30 @@ Pcoords.prototype.render = function(divId, args) {
     this.containerNode = div;
     var canvasHeight = Math.max(div.height(), 250);
     var canvasWidth = Math.max(div.width(), 400);
-    div.append('<canvas id="' + divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
-    div.append('<canvas id="' + divId + '_canvasf", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
-    div.append('<canvas id="' + divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:2;"></canvas>');
+    div.height(canvasHeight);
+    div.width(canvasWidth);
+    var createCanvas = function(args) {
+        var canvasId = divId + '_canvas' + args['suffix'];
+        var style = [
+            "position:absolute",
+            "left:0",
+            "top:0",
+            "z-index:" + args['z'],
+            "width:" + canvasWidth + 'px',
+            "height:" + canvasHeight + 'px'
+        ].join(';');
+        div.append(
+            '<canvas id="' + canvasId + '"'
+            + ' width="' + canvasWidth + '"'
+            + ' height="' + canvasHeight + '"'
+            + ' style="' + style + '"></canvas>'
+        );
+        return document.getElementById(canvasId);
+    };
 
-    var canvas = document.getElementById(divId + "_canvas");
-    var canvasf = document.getElementById(divId + "_canvasf");
-    var canvasi = document.getElementById(divId + "_canvasi");
+    var canvas  = createCanvas({ z: 0, suffix: '' });
+    var canvasf = createCanvas({ z: 1, suffix: 'f' });
+    var canvasi = createCanvas({ z: 2, suffix: 'i' });
     var ctx = canvas.getContext('2d');
     var ctxf = canvasf.getContext('2d');
     var ctxi = canvasi.getContext('2d');
