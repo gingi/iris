@@ -3,76 +3,63 @@ var config = iris.loadConfiguration();
 var app    = iris.app;
 var routes = iris.routes;
 var exec   = require('child_process').exec;
+var http   = require('http');
 
-// Mongo
-var Db = require('mongodb').Db,
-    Connection = require('mongodb/lib/mongodb/connection/connection').Connection,
-    Server = require('mongodb').Server;
-var mongoHost = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MONGO_NODE_DRIVER_HOST'] : 'localhost';
-var mongoPort = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
-var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {
-    native_parser: false
-});
+console.log(iris.services);
 
-// chromosome lengths for each species
-var chromosomes = {
-    at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
-};
+var servicePorts = null;
+function servicePortFor(serviceName) {
+    if (servicePorts == null) {
+        servicePorts = [];
+        for (var key in iris.services) {
+            var service = iris.services[key];
+            servicePorts[service['name']] = service['port'];
+        }
+    }
+    return servicePorts[serviceName];
+}
 
 // Routes
-app.get('/:species/chrlen', function(req, res) {
+app.get('/', function(req, res) {
+    // TODO: Provide routes? Description?
+    res.end();
+});
+
+app.get('/:species/chromosomes', function(req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
-    res.end(chromosomes[req.query["species"]]);
+    res.end(iris.chromosomes[req.query["species"]]);
 });
 
-app.get('/GWAS/:study', function(req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/json'
-    });
-    res.send("[3396]");
+function httpGET(response, service, path) {
+    http.get({
+        port: servicePortFor(service),
+        path: path
+    }, function(proxyResponse) {
+        proxyResponse.on('data', function(chunk) {
+            response.end(chunk);
+        })
+    });    
+}
+
+app.get('/gwas/:study/maxscore', function(req, res) {
+    httpGET(res, 'examples-fastbit', '/fbsql?d=GWAS/' + req.params.study + '&s=max(score)')
 });
 
-app.get('/GWAS/:study/maxscore', function(req, res) {
-    var cmd = config.binDir + '/fbsql -s "max(score)" -d ' + config.dataDir + '/GWAS/' + req.params.study;
-    console.log(cmd);
-    var fbsql = exec(cmd, function(error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        res.end(stdout);
-    });
+app.get('/gwas/:study/scatter', function(req, res) {
+    httpGET(res, 'examples-fastbit', '/scatter?' + [ 
+            'd=GWAS/' + req.params.study + '/' + req.query["chr"],
+            'c1=pos',
+            'c2=score',
+            'n1=0',
+            'n2=0',
+            'b1='+req.query["b1"],
+            'b2='+req.query["b2"],
+            'x1='+req.query["x1"],
+            'x2='+req.query["x2"]
+        ].join('&'));
 });
-
-// scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
-app.get('/data/GWAS/:study/scatter', function(req, res) {
-    var cmd = config.binDir + '/scatter -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"] + ' -c1 pos -c2 score' + ' -n1 0 -n2 0' + ' -b1 ' + req.query["b1"] + ' -b2 ' + req.query["b2"] + ' -x1 ' + req.query["x1"] + ' -x2 ' + req.query["x2"];
-    console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function(error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        res.end(stdout);
-    });
-});
-
-// scatterplot for GWAS study with no binning
-app.get('/data/GWAS/:study/scatter_nobinning', function(req, res) {
-    var cmd = config.binDir + '/fbsql -s "pos,score" -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"];
-    console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function(error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        res.end(stdout);
-    });
-});
-
 
 // Mongo fetches
 app.get('/data/phenotypes/:phenotype', function(req, res) {
