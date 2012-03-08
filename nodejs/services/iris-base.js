@@ -37,11 +37,18 @@ app.configure('production', function(){
     app.use(express.errorHandler()); 
 });
 
-var services = require(NODE_HOME + '/../conf/services.json');
+// chromosome lengths for each species
+var chromosomes = {
+    at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
+};
 
-exports.app    = app;
-exports.routes = routes;
-exports.services = services;
+var serviceConf = require(NODE_HOME + '/../conf/services.json');
+
+exports.app         = app;
+exports.routes      = routes;
+exports.services    = serviceConf['services'];
+exports.chromosomes = chromosomes;
+
 exports.configureViews = function(app) {
     if (!app) {
         app = this.app;

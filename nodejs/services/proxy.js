@@ -48,12 +48,16 @@ app.get('/widget/:widget', function(req, res) {
     }
 });
 
+app.get('/rawdata', function(req, res) {
+    // GET fastbit/fbsql?s=req.query[select]&w=req.query[where]
+});
+
 app.get('/workspace', function(req, res) {
 	routes.workspace(req, res, widgetList);
 });
 
 app.get('/services', function(req,res){
-	res.json(iris.services['services']);
+	res.json(iris.services);
 });
 
 iris.startService();

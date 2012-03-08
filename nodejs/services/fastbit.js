@@ -20,7 +20,8 @@ var field = {
 	},
 	number: {
 		description: 'a numerical value',
-		type: 'number'
+		type: 'string',
+        pattern: '^[0-9]+(\.[0-9]+)?$'
 	}
 };
 
@@ -67,12 +68,11 @@ var schema = {
 	}
 }
 
-
 function run_command(executable, response, args) {
-    var cmd = config.BIN_DIR + '/' + executable;
-	args['d'] = config.FASTBIT_DATA_DIR + '/' + args['d'];
+    var cmd = config.BINDIR + '/' + executable;
+	args['d'] = config.FASTBIT_DATADIR + '/' + args['d'];
 	for (var k in args) {
-		cmd += ' -'+k+' '+args[k];
+		cmd += ' -'+k+' '+args[k] + '';
 	}
     console.log(cmd);
     exec(cmd, { maxBuffer: 10000 * 1024}, function(error, stdout, stderr) {
