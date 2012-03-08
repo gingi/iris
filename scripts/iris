@@ -8,42 +8,63 @@ SVC_DIR=$NODEDIR/services
 SVC_CONF=$CONFDIR/services.json
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
+SVCPIDFILE=$LOGDIR/service.%%.pid
 mkdir -p $LOGDIR
 
-function iris_pid {
-    pid=''
-    if [ -e "$PIDFILE" ]; then
-        pid=$(xargs ps u -p < $PIDFILE | awk '!/PID/ {print $2}')
+function running_pid {
+    pidfile=$1
+    if [ -e "$pidfile" ]; then
+        xargs ps u -p < $pidfile | awk '!/PID/ {print $2}'
     fi
-    echo $pid
+}
+
+function iris_pid {
+    running_pid $PIDFILE
+}
+
+function svc_pidfile {
+    svc=$1
+    echo $SVCPIDFILE | sed "s/%%/$svc/"
 }
 
 function start_services {
+    svc=$1
     if [ ! -e "$SVC_CONF" ]; then
         echo "Service configuration [$SVC_CONF] cannot be found!"
         iris_cmd_help
         exit 1
     fi
     echo "Starting services:"
-    _json_flatten $SVC_CONF "services" "port name nodefile config" \
-        | (while read line
+    if [ -n "$svc" ]; then
+        list_services="iris_cmd_services | awk '\$2==\"$svc\"{print}'"
+    else
+        list_services='iris_cmd_services'
+    fi
+    eval $list_services | (while read line
         do
-            [ -z "$line" ] && continue
             local service=($line)
             local port=${service[0]}
             local name=${service[1]}
             local nodefile=${service[2]}
             local conffile=${service[3]}
             local log=$LOGDIR/$name.log
+            pidfile=`svc_pidfile $name`
+            pid=`running_pid $pidfile`
+            if [ -n "$pid" ]; then
+                echo "Service $name is already running as process $pid"
+                continue
+            fi
             NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile > $log &
+            echo $! > $pidfile
             printf "%-20s http://localhost:%s\n" "[$name]" $port
         done
         wait
     ) &
+    sleep 1
     irispid=$!
 }
 
-function iris_cmd_start {
+function start_all_iris {
     pid=`iris_pid`
     if [ -n "$pid" ]; then
         echo "Iris is already running (pid `cat $PIDFILE`)"
@@ -51,7 +72,6 @@ function iris_cmd_start {
         start_services
         if [ -n "$irispid" ]; then
             echo $irispid > $PIDFILE
-            sleep 1
             iris_cmd_status
         else
             echo "Error launching Iris"
@@ -59,20 +79,62 @@ function iris_cmd_start {
     fi
 }
 
-function iris_cmd_stop {
-    pid=`iris_pid`
-    if [ -n "$pid" ]; then
-        # Kill children
-        ps -o pid,ppid -ax | awk "\$2==$pid{print \$1}" | xargs kill
-        echo "Iris successfully stopped."
+function iris_cmd_start {
+    svc=$1
+    if [ -n "$svc" ]; then
+        if [ `iris_cmd_services | cut -f2 | grep -c "\b$svc\b"` -eq 0 ]; then
+            echo "Service $svc is not a valid service!"
+            exit 1
+        fi
+        pidfile=`svc_pidfile $svc`
+        pid=`running_pid $pidfile`
+        if [ -n "$pid" ]; then
+            echo "Service $svc is already running!"
+            return
+        fi
+        start_services $svc
     else
-        echo "Iris is not running. Nothing to stop."
+        start_all_iris
     fi
-    # Handle both standard shutdown and when Iris is not running but the
-    # pid file still exists.
-    if [ -e "$PIDFILE" ]; then
-        rm $PIDFILE
-    fi
+}
+
+function iris_cmd_stop {
+    svc=$1
+    if [ -n "$svc" ]; then
+        if [ `iris_cmd_services | cut -f2 | grep -c "\b$svc\b"` -eq 0 ]; then
+            echo "Service $svc is not a valid service!"
+            exit 1
+        else
+            pidfile=`svc_pidfile $svc`
+            if [ ! -e "$pidfile" ]; then
+                echo "Service $svc is not running!"
+                return
+            fi
+            kill `running_pid $pidfile`
+            rm -f $pidfile
+            echo "Stopped service $svc."
+        fi
+    else
+        pid=`iris_pid`
+        if [ -n "$pid" ]; then
+            # Kill children
+            ps -o pid,ppid -ax | awk "\$2==$pid{print \$1}" | xargs kill
+            # In case services are started separately
+            for pidfile in `svc_pidfile '*'`; do
+                pid=`running_pid $pidfile`
+                # Kill standalone service process
+                if [ -n "$pid" ]; then
+                    kill $pid
+                fi
+            done
+            echo "Iris successfully stopped."
+        else
+            echo "Iris is not running. Nothing to stop."
+        fi
+        # Handle both standard shutdown and when Iris is not running but the
+        # pid file still exists.
+        rm -f $PIDFILE `svc_pidfile '*'`
+    fi 
 }
 
 function iris_cmd_install {
@@ -116,6 +178,7 @@ Available commands:
     start       Start Iris
     stop        Stop Iris
     restart     Restart Iris
+    services    Lists available services
     status      Check whether or not Iris is running
 '
 }
@@ -135,9 +198,13 @@ function iris_cmd_status {
     fi
 }
 
+function iris_cmd_services {
+    _json_flatten $SVC_CONF "services" "port name nodefile config"
+}
+
 function iris_cmd_restart {
-    iris_cmd_stop
-    iris_cmd_start
+    iris_cmd_stop "$@"
+    iris_cmd_start "$@"
 }
 
 function _json_flatten {
@@ -158,7 +225,8 @@ function _json_flatten {
 
 cmd=$1
 if [ `declare -f iris_cmd_$cmd | wc -l` -gt 1 ]; then
-    eval iris_cmd_$cmd
+    shift
+    eval "iris_cmd_$cmd \"$@\""
 else
     echo "Unrecognized command. Try 'iris help'"
 fi
