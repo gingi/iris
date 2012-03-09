@@ -9,7 +9,16 @@ SVC_CONF=$CONFDIR/services.json
 LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 SVCPIDFILE=$LOGDIR/service.%%.pid
+INSTALL_LOG=$LOGDIR/install.log
+
 mkdir -p $LOGDIR
+
+function help {
+    if [ "$help_mode" -eq 1 ]; then
+        echo $1
+        exit 0
+    fi
+}
 
 function running_pid {
     pidfile=$1
@@ -79,6 +88,10 @@ function start_all_iris {
     fi
 }
 
+_help_start="iris start [<service>]
+
+Starts Iris services. With no arguments, starts all services.
+    <service>   Start a specific service"
 function iris_cmd_start {
     svc=$1
     if [ -n "$svc" ]; then
@@ -98,6 +111,10 @@ function iris_cmd_start {
     fi
 }
 
+_help_start="iris stop [<service>]
+
+Stops Iris services. With no arguments, stops all of Iris.
+    <service>   Stop a specific service"
 function iris_cmd_stop {
     svc=$1
     if [ -n "$svc" ]; then
@@ -137,39 +154,109 @@ function iris_cmd_stop {
     fi 
 }
 
+_help_install="iris install [-q] [<component>]
+
+Installs various components and dependencies required by Iris. If <component> 
+is specified, only that component is installed. All output from the various 
+installations is redirected to
+    $INSTALL_LOG
+    
+Options:
+    -q          Suppress friendly messages to the shell
+
+The following components are available:
+
+    node        Various modules required by Node.js
+    jquery      Compiles the jQuery library
+    fastbit     Compiles the Fastbit library and Iris extensions for Fastbit"
 function iris_cmd_install {
+    local verbose=1
+    while getopts "q" opt; do
+        case $opt in
+            q) verbose=0;;
+            *)
+                echo "'iris install' does not support the -$opt option!"
+                iris_cmd_help install
+                ;;
+        esac
+        shift
+    done
+
+    component=$1
+    if [ -n "$component" ]; then
+        if [ "$component" != 'fastbit' -a \
+             "$component" != 'jquery' -a \
+             "$component" != 'node' ]; then
+            echo "Install component '$component' is not recognized!"
+            iris_cmd_help install
+        fi
+    else
+        component="all"
+    fi
+    
     cd $IRIS_HOME
-    installlog=$LOGDIR/install.log
-    [ -e "$installlog" ] && rm $installlog
+    cat <<LOG_HEADER >> $INSTALL_LOG
+=======================================
+Installation - $component - `date`
+
+LOG_HEADER
     # Fetch git-managed modules
     
-    echo "Installing Git modules..."
-    git submodule init 2>&1 >> $installlog
-    git submodule update 2>&1 >> $installlog
+    [ "$verbose" -eq 1 ] && echo "Installing Git modules..."
+    git submodule update --init 2>&1 >> $INSTALL_LOG
 
-    echo "Installing Node modules..."
-    # Install Node.js dependencies
-    cd $IRIS_HOME/nodejs
-    npm install 2>&1 >> $installlog
+    if [ "$component" == "all" -o "$component" == "node" ]; then
+        [ "$verbose" -eq 1 ] && echo "Installing Node modules..."
+        # Install Node.js dependencies
+        cd $IRIS_HOME/nodejs
+        npm install 2>&1 >> $INSTALL_LOG
+    fi
     
-    echo "Compiling jQuery library..."
-    # Compile jQuery library
-    cd $IRIS_HOME/external/jquery
-    git submodule update --init 2>&1 >> $installlog
-    make 2>&1 >> $installlog
+    if [ "$component" == "all" -o "$component" == "jquery" ]; then
+        [ "$verbose" -eq 1 ] && echo "Compiling jQuery library..."
+        # Compile jQuery library
+        cd $IRIS_HOME/external/jquery
+        git submodule update --init 2>&1 >> $INSTALL_LOG
+        make 2>&1 >> $INSTALL_LOG
+    fi
     
-    echo "Compiling Fastbit... (Hang on. This might take a while.)"
-    # Install FastBit
-    cd $IRIS_HOME/fastbit
-    ./configure --prefix $IRIS_HOME 2>&1 >> $installlog
-    make 2>&1 >> $installlog # Now take a [long] coffee break
-    make check 2>&1 >> $installlog
-    make install 2>&1 >> $installlog
-
+    if [ "$component" == "all" -o "$component" == "fastbit" ]; then
+        [ "$verbose" -eq 1 ] &&
+            echo "Compiling Fastbit... (Hang on. This might take a while.)"
+        # Install FastBit
+        cd $IRIS_HOME/fastbit
+        ./configure --prefix $IRIS_HOME 2>&1 >> $INSTALL_LOG
+        make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break
+        make check 2>&1 >> $INSTALL_LOG
+        make install 2>&1 >> $INSTALL_LOG
+    fi
 }
 
+_help_help="iris help [<command>]
+
+Provides help for commands. With no arguments, shows brief help for each 
+command.
+
+    <command>   Specific command to get help for"
 function iris_cmd_help {
-    echo 'iris [options] <command> [<arguments>]
+    cmd=$1
+    if [ -n "$cmd" ]; then
+        if [ -z "$(declare -f iris_cmd_$cmd)" ]; then
+            echo "There's no command called '$cmd'"
+        else
+            eval "help_message=\$_help_$cmd"
+            if [ -z "$help_message" ]; then
+                echo "No help currently available for 'iris $cmd'"
+            else
+                cat <<HELP
+$help_message
+HELP
+            fi
+        fi
+        exit 0
+    fi
+    cat <<HELP
+iris [options] <command> [<arguments>]
     
 Available commands:
     help        This command
@@ -180,31 +267,90 @@ Available commands:
     restart     Restart Iris
     services    Lists available services
     status      Check whether or not Iris is running
-'
+    
+"iris help <command>" shows help on specific commands.
+HELP
 }
 
+_help_open="iris open
+
+Opens a browser window with the Iris website. This option is currently only 
+supported by Mac (Srsly, why would you use anything else?)."
 function iris_cmd_open {
     # TODO: Actually get the web server from configuration
     open http://localhost:4747
 }
 
+function _status_line {
+    printf "%-20s %-10s %s\n" $1 $2 $3
+}
+
+function _find_service {
+    local svc=$1
+    local service=(`iris_cmd_services | awk "\\\$2==\"\$svc\"{print}"`)
+    echo "${service[*]}"
+}
+
+function _service_status {
+    local service=($@)
+    local name=${service[1]}
+    local pidfile=`svc_pidfile $name`
+    if [ ! -e "$pidfile" ]; then
+        echo "Service '$name' is not running."
+        return
+    fi
+    local port=${service[0]}
+    _status_line $name `running_pid $pidfile` "http://localhost:$port"
+}
+
+_help_status="iris status [<service>]
+
+Shows the status of running services.
+
+    <service>   Show status only for this service
+    
+See also:
+    iris services"
 function iris_cmd_status {
-    pid=`iris_pid`
-    if [ -z "$pid" ]; then
-        echo "Iris is not running."
+    svc=$1
+    if [ -n "$svc" ]; then
+        local service=(`_find_service $svc`)
+        if [ "${#service[@]}" -eq 0 ]; then
+            echo "Service '$svc' is not a valid service!"
+            iris_cmd_help status 
+        fi
+        _status_line "SERVICE" "PID" "URL"
+        _service_status ${service[@]}
     else
-        nproc=`ps -o ppid -ax | grep -c "\b$pid\b"`
-        echo "Iris is running as process $pid with $nproc services."
+        pid=`iris_pid`
+        if [ -z "$pid" ]; then
+            echo "Iris is not running."
+        else
+            echo "Iris is running as process $pid with the following services:"
+            _status_line "SERVICE" "PID" "URL"
+            iris_cmd_services | while read line; do
+                _service_status $line
+            done
+        fi
     fi
 }
 
+_help_services="iris services
+
+Lists available service currently configured with Iris (not *running* services).
+
+See also: 'iris status'"
 function iris_cmd_services {
     _json_flatten $SVC_CONF "services" "port name nodefile config"
 }
 
+_help_restart="iris restart [<service>]
+
+Restarts Iris services. With no arguments, restarts all services.
+    <service>   Restart a specific service"
 function iris_cmd_restart {
-    iris_cmd_stop "$@"
-    iris_cmd_start "$@"
+    iris_cmd_stop $@
+    iris_cmd_start $@
 }
 
 function _json_flatten {
@@ -226,7 +372,7 @@ function _json_flatten {
 cmd=$1
 if [ `declare -f iris_cmd_$cmd | wc -l` -gt 1 ]; then
     shift
-    eval "iris_cmd_$cmd \"$@\""
+    eval "iris_cmd_$cmd \$@"
 else
     echo "Unrecognized command. Try 'iris help'"
 fi
