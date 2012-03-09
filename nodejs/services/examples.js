@@ -39,7 +39,7 @@ function httpGET(response, service, path) {
     }, function(proxyResponse) {
         proxyResponse.on('data', function(chunk) {
             response.end(chunk);
-        })
+        });
     });    
 }
 

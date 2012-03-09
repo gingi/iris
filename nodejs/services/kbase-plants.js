@@ -9,9 +9,9 @@ var spawn  = require('child_process').spawn;
 var Db = require('mongodb').Db,
     Connection = require('mongodb/lib/mongodb/connection/connection').Connection,
     Server = require('mongodb').Server;
-var mongoHost = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MONGO_NODE_DRIVER_HOST'] : 'localhost';
-var mongoPort = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
-var db = new Db('kbase_plants', new Server(mongoHost, mongoPort, {}), {
+var mongoHost = config.MONGO_HOST != null ? config.MONGO_HOST : 'localhost';
+var mongoPort = config.MONGO_PORT != null ? config.MONGO_PORT : Connection.DEFAULT_PORT;
+var db = new Db('phenotypes', new Server(mongoHost, mongoPort, {}), {
     native_parser: false
 });
 
@@ -86,7 +86,7 @@ app.get('/data/GWAS/:study/scatter_nobinning', function(req, res) {
 // Mongo fetches
 app.get('/data/phenotypes/:phenotype', function(req, res) {
     db.open(function(err, db) {
-        db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {
+        db.collection('phenotypes', function(err, collection) {
             collection.find({
                 'phenotype_name': req.params.phenotype
             }, {
@@ -113,7 +113,7 @@ app.get('/data/phenotypes/:phenotype', function(req, res) {
 app.get('/data/phenotypes', function(req, res) {
     var items = [];
     db.open(function(err, db) {
-        db.collection('arabidopsis2010_sample_phenotype', function(err, collection) {
+        db.collection('phenotypes', function(err, collection) {
             collection.find({}, {
                 'phenotype_name': 1
             }, function(err, cursor) {

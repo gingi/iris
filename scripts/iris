@@ -44,7 +44,7 @@ function start_services {
         iris_cmd_help
         exit 1
     fi
-    echo "Starting services:"
+    echo "Starting services..."
     if [ -n "$svc" ]; then
         list_services="iris_cmd_services | awk '\$2==\"$svc\"{print}'"
     else
@@ -66,7 +66,6 @@ function start_services {
             fi
             NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile > $log &
             echo $! > $pidfile
-            printf "%-20s $HOSTNAME:%s\n" "[$name]" $port
         done
         wait
     ) &
