@@ -10,6 +10,7 @@ LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
+HOSTNAME=http://localhost
 
 mkdir -p $LOGDIR
 
@@ -65,7 +66,7 @@ function start_services {
             fi
             NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile > $log &
             echo $! > $pidfile
-            printf "%-20s http://localhost:%s\n" "[$name]" $port
+            printf "%-20s $HOSTNAME:%s\n" "[$name]" $port
         done
         wait
     ) &
@@ -277,8 +278,9 @@ _help_open="iris open
 Opens a browser window with the Iris website. This option is currently only 
 supported by Mac (Srsly, why would you use anything else?)."
 function iris_cmd_open {
-    # TODO: Actually get the web server from configuration
-    open http://localhost:4747
+    proxy_service='iris' # TODO: Name it something else?
+    port=`_find_service $proxy_service | awk '{print $1}'`
+    open $HOSTNAME:$port
 }
 
 function _status_line {
@@ -300,7 +302,7 @@ function _service_status {
         return
     fi
     local port=${service[0]}
-    _status_line $name `running_pid $pidfile` "http://localhost:$port"
+    _status_line $name `running_pid $pidfile` "$HOSTNAME:$port"
 }
 
 _help_status="iris status [<service>]
