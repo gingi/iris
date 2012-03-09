@@ -72,7 +72,7 @@ function run_command(executable, response, args) {
     var cmd = config.BINDIR + '/' + executable;
 	args['d'] = config.FASTBIT_DATADIR + '/' + args['d'];
 	for (var k in args) {
-		cmd += ' -'+k+' '+args[k] + '';
+		cmd += ' -' + k +' "'+args[k] + '"';
 	}
     console.log(cmd);
     exec(cmd, { maxBuffer: 10000 * 1024}, function(error, stdout, stderr) {
