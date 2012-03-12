@@ -1,12 +1,11 @@
 {
     "endpoints": {
         "iris" : {
-            "/gwas" : { "service": "examples" },
-            "/data" : { "service": "examples" }
+            "examples" : { "paths" : [ "/gwas", "/data" ] }
         },
         "examples" : {
-            "/gwas" : { "service" : "examples-fastbit" },
-            "/phenotypes" : { "service" : "examples-mongo" }
+            "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas" ] },
+            "examples-mongo" : { "type": "mongo", "paths" : [ "/phenotypes" ] }
         }
     }, 
     "services": [

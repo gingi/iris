@@ -5,7 +5,8 @@ var routes = iris.routes;
 var exec   = require('child_process').exec;
 var http   = require('http');
 
-console.log(iris.services);
+var GwasFastbitService = iris.findService({ path: "/gwas", type: "fastbit" });
+var PhenoMongoService  = iris.findService({ path: "/phenotypes", type: "mongo" });
 
 var servicePorts = null;
 function servicePortFor(serviceName) {
@@ -22,7 +23,13 @@ function servicePortFor(serviceName) {
 // Routes
 app.get('/', function(req, res) {
     // TODO: Provide routes? Description?
-    res.end();
+    res.writeHead(200, {
+        'Content-Type': 'application/json'
+    });
+    res.end(JSON.stringify({
+        name: config.serviceName,
+        description: "The examples service",
+    }));
 });
 
 app.get('/:species/chromosomes', function(req, res) {
