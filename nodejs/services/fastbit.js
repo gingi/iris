@@ -21,7 +21,7 @@ var field = {
 	number: {
 		description: 'a numerical value',
 		type: 'string',
-        pattern: '^[0-9]+(\.[0-9]+)?$'
+        pattern: '^\-?[0-9]+(\.[0-9]+)?$'
 	}
 };
 
@@ -57,9 +57,8 @@ var schema = {
 			x2: field['number'],
 			a: {
 				description: 'flag to use adaptive mode',
-				type: 'number',
-				minimum: 1,
-				maximum: 1
+				type: 'string',
+                pattern: '^1$'
 			}
 		}
 	},
