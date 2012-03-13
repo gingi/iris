@@ -59,10 +59,9 @@ Pcoords.prototype.render = function(divId, args) {
     // and their min and max values
     var table = (args.hasOwnProperty('table')) ? args['table'] : 'sbi_vs_avec';
 	var widget = this;
-    this.getJSON("/data/" + table + "/ranges",
+    this.getJSON("/pcoords/" + table + "/ranges",
     function(json) {
         // TODO: add event handlers
-				console.log(ctx.canvas.height, widget.PADDING_TOP, widget.PADDING_BOTTOM);
         var ysize = ctx.canvas.height - widget.PADDING_TOP - widget.PADDING_BOTTOM;
         var xsize = (ctx.canvas.width - 2 * widget.PADDING_SIDES - json.length * widget.AXIS_WIDTH) / (json.length - 1);
 
@@ -117,7 +116,7 @@ Pcoords.prototype.draw_axis = function(ctx, column, offset, ysize) {
 
 Pcoords.prototype.do_pcoords = function(ctx, table, c1_arr, c2_arr, xmin, xmax, ysize, layer) {
     var nbins = Math.floor(ysize / 1);
-    var url = "/data/" + table + "/pcoords"
+    var url = "/pcoords/" + table + "/scatter"
     + "?c1=" + c1_arr[0]
     + "&c2=" + c2_arr[0]
     + "&b1=" + nbins

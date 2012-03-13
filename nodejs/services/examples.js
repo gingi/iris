@@ -3,8 +3,10 @@ var config = iris.loadConfiguration();
 var app    = iris.app;
 var routes = iris.routes;
 var exec   = require('child_process').exec;
+var querystr  = require('querystring');
 
 var GwasFastbitService = iris.findService({ path: "/gwas", type: "fastbit" });
+var PcoordFastbitService = iris.findService({ path: "/pcoords", type: "fastbit" });
 var PhenoMongoService  = iris.findService({ path: "/phenotypes", type: "mongo" });
 
 // Routes
@@ -37,10 +39,6 @@ app.get('/gwas/:study', function (req, res) {
    });
 });
 
-app.get('/test', function (req, res) {
-    res.end("IT WORKED!");
-});
-
 app.get('/gwas/:study/maxscore', function (req, res) {
     iris.httpGET(res, GwasFastbitService, '/fbsql?d=GWAS/' + req.params.study + '&s=max(score)')
 });
@@ -57,6 +55,18 @@ app.get('/gwas/:study/scatter', function (req, res) {
             'x1='+req.query["x1"],
             'x2='+req.query["x2"]
         ].join('&'));
+});
+
+app.get('/pcoords/:table/scatter', function (req, res) {
+    req.query.d = req.params.table;
+    req.query.a = 1
+    iris.httpGET(res, PcoordFastbitService, '/scatter?' + 
+        querystr.stringify(req.query)
+    );
+});
+
+app.get('/pcoords/:table/ranges', function (req, res) {
+    iris.httpGET(res, PcoordFastbitService, '/ranges?d=' + req.params.table);
 });
 
 // Mongo fetches
@@ -171,32 +181,5 @@ app.get('/gene2GWAS/:gene_id', function (req, res) {
     });
 });
 
-app.get('/data/:d/pcoords', function (req, res) {
-    var cmd = config.binDir + '/scatter -a 1 -d ' + config.dataDir + '/' + req.params.d + ' -b1 ' + req.query["b1"] + ' -b2 ' + req.query["b2"] + ' -c1 ' + req.query["c1"] + ' -c2 ' + req.query["c2"] + ' -n1 ' + req.query["n1"] + ' -n2 ' + req.query["n2"] + ' -x1 ' + req.query["x1"] + ' -x2 ' + req.query["x2"];
-    if (req.query["w"]) {
-        cmd = cmd + ' -w "' + req.query["w"] + '"';
-    }
-
-    console.log(cmd);
-    var scatter = exec(cmd, {
-        maxBuffer: 10000 * 1024
-    }, function (error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        res.end(stdout);
-    });
-});
-
-app.get('/data/:d/ranges', function (req, res) {
-    var cmd = config.binDir + "/ranges -d " + config.dataDir + "/" + req.params.d;
-    console.log(cmd);
-    var ranges = exec(cmd, function (error, stdout, stderr) {
-        res.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        res.end(stdout);
-    });
-});
 
 iris.startService();

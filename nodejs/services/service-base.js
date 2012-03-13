@@ -197,6 +197,7 @@ IRIS.app.get('/service/list', function (req, res) {
         var paths = endpoint.paths;
         for (var i = 0; i < paths.length; i++) {
             var service = {
+                name: serviceName,
                 path: paths[i],
                 uri: 'http://0.0.0.0:' + endpoint.port
             };
