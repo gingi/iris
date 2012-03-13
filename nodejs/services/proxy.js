@@ -1,8 +1,10 @@
-var iris = require('./iris-base.js');
+var iris = require('./service-base.js');
 var config = iris.loadConfiguration();
 var app = iris.app;
 iris.configureViews(app);
 var routes = iris.routes;
+var url = require('url');
+var httpProxy = require('http-proxy');
 
 /* Widget configuration
  *
@@ -13,10 +15,10 @@ var routes = iris.routes;
  */
 var widgetList = [
 	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
-	{ id: 'data', name: 'Data browser', js: 'data.js' },
+	{ id: 'data', name: 'JSON Viewer', js: 'data.js' },
 	{ id: 'pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
-	{ id: 'chord', name: 'Chord', js: 'chord.js' },
-	{ id: 'barChart', name: 'Bar Chart', js: 'barchart.js' }
+	{ id: 'chord', name: 'Comparative Map', js: 'chord.js' },
+	{ id: 'barChart', name: 'Phenotype Distribution', js: 'barchart.js' }
 ];
 
 function findWidget(key, val) {
@@ -31,13 +33,13 @@ function findWidget(key, val) {
 // Routes
 app.get('/', routes.index);
 
-app.get('/404', function(req, res) {
+app.get('/404', function (req, res) {
     res.render('error', { title: 'Page not found',
                           heading: 'Page not found',
                           message: 'Now go back to where ya came from.'});
 });
 
-app.get('/widget/:widget', function(req, res) {
+app.get('/widget/:widget', function (req, res) {
     // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query["layout"] != null && req.query["layout"] == 'on';
 	var widget = findWidget("id",req.params.widget);
@@ -48,16 +50,19 @@ app.get('/widget/:widget', function(req, res) {
     }
 });
 
-app.get('/rawdata', function(req, res) {
-    // GET fastbit/fbsql?s=req.query[select]&w=req.query[where]
-});
-
-app.get('/workspace', function(req, res) {
+app.get('/workspace', function (req, res) {
 	routes.workspace(req, res, widgetList);
 });
 
-app.get('/services', function(req,res){
-	res.json(iris.services);
-});
+// Proxy endpoints
+for (var serviceName in iris.endpoints) {
+    var endpoint = iris.endpoints[serviceName];
+    for (var p = 0; p < endpoint.paths.length; p++) {
+        var path = endpoint.paths[p];
+        app.get(path + "*", function (req, res) {
+            iris.httpGET(res, serviceName, req.url)
+        })
+    }
+}
 
 iris.startService();

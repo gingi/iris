@@ -1,6 +1,6 @@
 function Data() {
   Widget.call(this);
-  this.DataServiceAPI = DataServiceAPI;
+  this.DataServiceURI = Iris.dataURI();
 }
 
 Data.prototype = new Widget();
@@ -28,23 +28,22 @@ Data.prototype.render = function(divId, args) {
     var widget = this;
 	var div = document.getElementById(divId);
 	div.innerHTML = '';
-	var path=args.hasOwnProperty('path') ? args['path'] : '/data/chrlen?species=at';
+	var path=args.hasOwnProperty('path') ? args['path'] : '/species/at/chrlen';
 	if (args.hasOwnProperty('API')) {
-		this.DataServiceAPI = args['API'];
+		this.DataServiceURI = args['API'];
 	}else{
-		this.DataServiceAPI = '';
+		this.DataServiceURI = '';
 	}
 	
-	$.getJSON('/services', function (services) {
+	$.getJSON('/service/list', function (services) {
 //		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(services, undefined, 4));
 		var sel = document.createElement('select');
 		for (var i in services) {
 			var srv = services[i];
 			var opt = document.createElement('option');
-			var host = (srv.hasOwnProperty('host'))? srv.host : 'http://localhost';
-			opt.value = host + ':' + srv.port;
+			opt.value = srv.uri;
 			opt.text = srv.name;
-			if (opt.value === widget.DataServiceAPI) {
+			if (opt.value === widget.DataServiceURI) {
 				opt.selected = true;
 			}
 			sel.add(opt, null);
@@ -71,7 +70,7 @@ Data.prototype.render = function(divId, args) {
 }
 
 Data.prototype.getJSON = function(path, callback) {
-    $.getJSON(this.DataServiceAPI + path, callback);
+    $.getJSON(this.DataServiceURI + path, callback);
 }
 
 Widget.registerWidget('data', Data);

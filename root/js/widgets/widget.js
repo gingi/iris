@@ -26,7 +26,7 @@ Widget.prototype.setManager = function(manager) {
 };
 
 Widget.prototype.getJSON = function(path, callback) {
-    $.getJSON(DataServiceAPI + path, callback);
+    $.getJSON(Iris.dataURI(path), callback);
 };
 
 Widget.createWidget = function(name) {
