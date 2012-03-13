@@ -141,7 +141,7 @@ exports.findService = function (args) {
     if (args["path"]) {
         comparators.push(["paths", function (paths) {
             for (path in paths) {
-                if (path === args["path"]) return true;
+                if (paths[path] === args["path"]) return true;
             }
             return false;
         }]);
