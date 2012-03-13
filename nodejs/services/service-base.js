@@ -178,6 +178,10 @@ exports.httpGET = function (response, service, path) {
     });    
 }
 
+IRIS.uri = function () {
+    return 'http://' + IRIS.app.address().address + ':' + IRIS.app.address().port;
+}
+
 /* SERVICE API
  *
  * Every service provides this REST API for service discovery
@@ -185,13 +189,16 @@ exports.httpGET = function (response, service, path) {
 IRIS.app.get('/service', function (req, res) {
 	res.json({
         name: IRIS.serviceName,
-        dataServiceURI: 'http://' + IRIS.app.address().address + ':' + IRIS.app.address().port,
+        dataServiceURI: IRIS.uri(),
 	    next: { "list" : "/service/list" },
 	});
 });
 
 IRIS.app.get('/service/list', function (req, res) {
-    var services = [];
+    var services = [{
+        name: IRIS.serviceName,
+        uri: IRIS.uri()
+    }];
     for (serviceName in IRIS.endpoints) {
         var endpoint = IRIS.endpoints[serviceName];
         var paths = endpoint.paths;

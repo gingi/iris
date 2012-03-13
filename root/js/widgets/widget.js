@@ -26,7 +26,17 @@ Widget.prototype.setManager = function(manager) {
 };
 
 Widget.prototype.getJSON = function(path, callback) {
-    $.getJSON(Iris.dataURI(path), callback);
+    var url = Iris.dataURI(path);
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        data: [],
+        success: callback,
+        error: function (event, request, settings) {
+            console.warn("AJAX error! ", event, request, settings);
+        }
+    });
+    // $.getJSON(url, function(data) { console.log("Hello???"); callback(data); });
 };
 
 Widget.createWidget = function(name) {

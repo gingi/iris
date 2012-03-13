@@ -10,15 +10,16 @@ BarChart.prototype.render = function(divId, args) {
     var trait = (args.hasOwnProperty('trait')) ? args['trait'] : 'B11';
     var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
-    var path = "/data/phenotypes/" + trait;
+    var path = "/phenotypes/" + trait;
     // fetch the phenotype data
 
     widget.divId = divId;
     this.getJSON(path,
-    function(phenotypes) {
-        widget.phenotypes=phenotypes;
-        widget.draw_barChart(20);        
-    });
+        function(phenotypes) {
+            widget.phenotypes=phenotypes;
+            widget.draw_barChart(20);        
+        }
+    );
 //    this.divId = divId;
 
     d3.select(document.getElementById(divId))
@@ -55,7 +56,7 @@ BarChart.prototype.draw_barChart = function(width){
     var maxScore = 0;
     var data = [];
     
-    console.log("Drawing barchart" + phenotypes);
+    console.log("Drawing barchart", phenotypes);
     
     for (var prop in phenotypes) {
         if (phenotypes.hasOwnProperty(prop))
@@ -150,4 +151,4 @@ BarChart.prototype.draw_barChart = function(width){
     
 }
 
-Widget.registerWidget('barChart', BarChart);
+Widget.registerWidget('barchart', BarChart);

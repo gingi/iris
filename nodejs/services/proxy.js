@@ -18,7 +18,7 @@ var widgetList = [
 	{ id: 'data', name: 'JSON Viewer', js: 'data.js' },
 	{ id: 'pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
 	{ id: 'chord', name: 'Comparative Map', js: 'chord.js' },
-	{ id: 'barChart', name: 'Phenotype Distribution', js: 'barchart.js' }
+	{ id: 'barchart', name: 'Phenotype Distribution', js: 'barchart.js' }
 ];
 
 function findWidget(key, val) {
