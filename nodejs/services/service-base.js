@@ -42,6 +42,7 @@ IRIS.app = IRIS.express.createServer(IRIS.gzip.gzip());
 IRIS.config = null;
 IRIS.serviceConfig = envRequire(process.env.IRIS_SERVICE_CONF, IRIS.DEFAULT_SERVICE_CONF);
 IRIS.http = require('http');
+IRIS.util = require('util');
 
 IRIS.setEndpoints = function () {
     IRIS.endpoints = IRIS.serviceConfig.endpoints[IRIS.serviceName];
@@ -60,7 +61,7 @@ IRIS.setEndpoints();
 var allowCrossDomain = function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Credentials', true);
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,HEAD');
 	res.header('Access-Control-Allow-Headers', 'Content-Type');
 	next();
 };
@@ -172,9 +173,7 @@ exports.httpGET = function (response, service, path) {
         port: IRIS.endpoints[service].port,
         path: path
     }, function (proxyResponse) {
-        proxyResponse.on('data', function (chunk) {
-            response.end(chunk);
-        });
+        proxyResponse.pipe(response);
     });    
 }
 
