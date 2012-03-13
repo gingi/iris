@@ -44,17 +44,11 @@ app.get('/gwas/:study/maxscore', function (req, res) {
 });
 
 app.get('/gwas/:study/scatter', function (req, res) {
-    iris.httpGET(res, GwasFastbitService, '/scatter?' + [ 
-            'd=GWAS/' + req.params.study + '/' + req.query["chr"],
-            'c1=pos',
-            'c2=score',
-            'n1=0',
-            'n2=0',
-            'b1='+req.query["b1"],
-            'b2='+req.query["b2"],
-            'x1='+req.query["x1"],
-            'x2='+req.query["x2"]
-        ].join('&'));
+    req.query.d = 'GWAS/' + req.params.study + '/' + req.query.chr;
+    req.query.c1 = 'pos';
+    req.query.c2 = 'score';
+    req.query.n1 = req.query.n2 = 0;
+    iris.httpGET(res, GwasFastbitService, '/scatter?' + querystr.stringify(req.query));
 });
 
 app.get('/pcoords/:table/scatter', function (req, res) {

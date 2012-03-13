@@ -9,62 +9,84 @@ var routes = iris.routes;
 var Db = require('mongodb').Db,
     Connection = require('mongodb/lib/mongodb/connection/connection').Connection,
     Server = require('mongodb').Server;
-var mongoHost = config.MONGO_HOST != null ? config.MONGO_HOST : 'localhost';
-var mongoPort = config.MONGO_PORT != null ? config.MONGO_PORT : Connection.DEFAULT_PORT;
-var db = new Db('phenotypes', new Server(mongoHost, mongoPort, {}), {
-    native_parser: false
-});
+
+if (!config.MONGO_DB) {
+    console.log("config.MONGO_DB needs to be configured");
+    return;
+}
+
+var store = new Db(
+    config.MONGO_DB.name,
+    new Server(
+        config.MONGO_HOST || 'localhost',
+        config.MONGO_PORT || Connection.DEFAULT_PORT, {}
+    ),
+    { native_parser: false }
+);
 
 // Mongo fetches
-app.get('/data/phenotypes/:phenotype', function(req, res) {
-    db.open(function(err, db) {
-        db.collection('phenotypes', function(err, collection) {
-            collection.find({
-                'phenotype_name': req.params.phenotype
-            }, {
-                'phenotype_values': 1
-            }, function(err, cursor) {
 
+app.get('/collection/:collection/list', function (req, res) {
+    store.open(function(err, db) {
+        store.collection(req.params.collection, function(err, collection) {
+            collection.find().toArray(function (err, items) {
+                res.json(items);
+                store.close();
+            });
+        });
+    });    
+});
+
+app.get('/collection/:collection/keys', function(req, res) {
+    var primaryKey = null;
+    try {
+        primaryKey = config.MONGO_DB.collections[req.params.collection].key;
+    } catch (err) {
+        res.json({ error: "Cannot find primary key for collection " + req.params.collection });
+        return;
+    }
+    store.open(function(err, db) {
+        store.collection(req.params.collection, function(err, collection) {
+            collection.find({}, {}, function (err, cursor) {
+                var items = [];
+                cursor.each(function (err, doc) {
+                    if (doc) {
+                        items.push(doc[primaryKey]);
+                    } else {
+                        res.json(items);
+                        store.close();
+                    }
+                });
+            });
+        });
+    });
+});
+
+app.get('/collection/:collection/:identifier', function(req, res) {
+    var field = req.params.field;
+    var primaryKey = null;
+    try {
+        primaryKey = config.MONGO_DB.collections[req.params.collection].key;
+    } catch (err) {
+        res.json({ error: "Cannot find primary key for collection " + req.params.collection });
+        return;
+    }
+    store.open(function(err, db) {
+        store.collection(req.params.collection, function(err, collection) {
+            var query = {};
+            query[primaryKey] = req.params.identifier;
+            collection.find(query, {}, function(err, cursor) {
                 cursor.each(function(err, doc) {
                     if (doc === null) {
-                        db.close();
+                        store.close();
                         res.end();
-                    }
-                    if (doc != null) {
-                        res.writeHead(200, {
-                            'Content-Type': 'application/json'
-                        });
-                        res.end(JSON.stringify(doc["phenotype_values"]));
+                    } else {
+                        res.json(field ? doc[field] : doc);
                     }
                 });
             });
         });
     });
 });
-
-app.get('/data/phenotypes', function(req, res) {
-    var items = [];
-    db.open(function(err, db) {
-        db.collection('phenotypes', function(err, collection) {
-            collection.find({}, {
-                'phenotype_name': 1
-            }, function(err, cursor) {
-                res.writeHead(200, {
-                    'Content-Type': 'application/json'
-                });
-                cursor.each(function(err, doc) {
-                    if (doc === null) {
-                        res.end(JSON.stringify(items));
-                        db.close();
-                    }
-                    if (doc != null) {
-                        items.push(doc["phenotype_name"]);
-                    }
-                });
-            });
-        });
-    });
-});
-
 
 iris.startService();
