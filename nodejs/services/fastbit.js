@@ -67,30 +67,32 @@ var schema = {
 	}
 }
 
-function run_command(executable, response, args) {
+function runCommand(executable, response, args) {
     var cmd = config.BINDIR + '/' + executable;
 	args['d'] = config.FASTBIT_DATADIR + '/' + args['d'];
 	for (var k in args) {
 		cmd += ' -' + k +' "'+args[k] + '"';
 	}
     console.log(cmd);
-    exec(cmd, { maxBuffer: 10000 * 1024}, function(error, stdout, stderr) {
-        response.writeHead(200, {
-            'Content-Type': 'application/json'
-        });
-        response.end(stdout);
+    exec(cmd, { maxDataServiceURI: 10000 * 1024 }, function (error, stdout, stderr) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.write(stdout);
+        response.end();
+        if (stderr) {
+            console.log("Fastbit error (" + executable + "): ", stderr);
+        }
     });
 }
 
-app.get('/', function(req,res) {
+app.get('/', function (req, res) {
 	res.json(schema);
 });
 
-app.get('/:command', function(req,res) {
+app.get('/:command', function (req, res) {
 	var command = req.params.command;
 	var check = revalidator.validate(req.query, schema[command]);
 	if (check['valid']) {
-		run_command(command, res, req.query);
+		runCommand(command, res, req.query);
 	} else {
 		res.json(check['errors']);
 	}
