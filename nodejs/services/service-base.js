@@ -148,12 +148,12 @@ exports.findService = function (args) {
     }
     for (service in IRIS.endpoints) {
         endpoint = IRIS.endpoints[service];
-        var found = false;
+        var found = true;
         for (i in comparators) {
             var comparator = comparators[i];
             var key = comparator[0];
             var func = comparator[1];
-            found = func(endpoint[key]) || found;
+            found = func(endpoint[key]) && found;
         }
         if (found) {
             return service;
