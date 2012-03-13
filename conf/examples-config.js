@@ -7,4 +7,12 @@ exports.Config = {
     SOCKET_HOST:     '127.0.0.1',
     BINDIR:          IRIS_BIN,
     FASTBIT_DATADIR: IRIS_DATA + "/fastbit",
+    MONGO_DB: {
+        name: 'phenotypes',
+        collections: {
+            'phenotypes': {
+                key: 'phenotype_name'
+            }
+        }
+    }
 };
