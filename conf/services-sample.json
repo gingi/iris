@@ -1,7 +1,7 @@
 {
     "endpoints": {
         "iris" : {
-            "examples" : { "paths" : [ "/gwas", "/data" ] }
+            "examples" : { "paths" : [ "/gwas", "/phenotypes", "/species" ] }
         },
         "examples" : {
             "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas" ] },

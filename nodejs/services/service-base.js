@@ -41,6 +41,20 @@ IRIS.gzip = require('connect-gzip');
 IRIS.app = IRIS.express.createServer(IRIS.gzip.gzip());
 IRIS.config = null;
 IRIS.serviceConfig = envRequire(process.env.IRIS_SERVICE_CONF, IRIS.DEFAULT_SERVICE_CONF);
+IRIS.http = require('http');
+
+IRIS.setEndpoints = function () {
+    IRIS.endpoints = IRIS.serviceConfig.endpoints[IRIS.serviceName];
+    if (IRIS.endpoints != null) {
+        for (var i = 0; i < IRIS.serviceConfig.services.length; i++) {
+            var service = IRIS.serviceConfig.services[i];
+            if (IRIS.endpoints[service.name] != null) {
+                IRIS.endpoints[service.name].port = service.port;
+            }
+        }
+    }
+}
+IRIS.setEndpoints();
 
 // CORS middleware
 var allowCrossDomain = function (req, res, next) {
@@ -71,7 +85,7 @@ IRIS.app.configure('production', function (){
 
 // chromosome lengths for each species
 IRIS.chromosomes = {
-    at: '[[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]'
+    at: [[1,30427671],[2,19698289],[3,23459830],[4,18585056],[5,26975502]]
 };
 
 // Public fields
@@ -79,12 +93,14 @@ exports.app         = IRIS.app;
 exports.routes      = IRIS.routes;
 exports.services    = IRIS.serviceConfig['services'];
 exports.chromosomes = IRIS.chromosomes;
+exports.endpoints   = IRIS.endpoints;
 
 // Public functions
 exports.serviceName = function (name) {
     if (name != null) {
         IRIS.serviceName = name;
     }
+    IRIS.setEndpoints();
     return IRIS.serviceName;
 }
 exports.configureViews = function (app) {
@@ -117,8 +133,6 @@ exports.loadConfiguration = function (confFile) {
 
 // Finds a configured service endpoint based on a set of criteria
 exports.findService = function (args) {
-    // Configured endpoints available for the service
-    var endpoints = IRIS.serviceConfig['endpoints'][IRIS.serviceName];
     var comparators = [];
     if (args["type"]) {
         comparators.push(["type", function (type) { return args["type"] === type }]);
@@ -131,8 +145,8 @@ exports.findService = function (args) {
             return false;
         }]);
     }
-    for (service in endpoints) {
-        endpoint = endpoints[service];
+    for (service in IRIS.endpoints) {
+        endpoint = IRIS.endpoints[service];
         var found = false;
         for (i in comparators) {
             var comparator = comparators[i];
@@ -152,3 +166,42 @@ exports.startService = function () {
     console.log("service-address http://localhost:%d", IRIS.app.address().port)
     console.log("service-mode %s", IRIS.app.settings.env);
 }
+
+exports.httpGET = function (response, service, path) {
+    IRIS.http.get({
+        port: IRIS.endpoints[service].port,
+        path: path
+    }, function (proxyResponse) {
+        proxyResponse.on('data', function (chunk) {
+            response.end(chunk);
+        });
+    });    
+}
+
+/* SERVICE API
+ *
+ * Every service provides this REST API for service discovery
+ */
+IRIS.app.get('/service', function (req, res) {
+	res.json({
+        name: IRIS.serviceName,
+        dataServiceURI: 'http://' + IRIS.app.address().address + ':' + IRIS.app.address().port,
+	    next: { "list" : "/service/list" },
+	});
+});
+
+IRIS.app.get('/service/list', function (req, res) {
+    var services = [];
+    for (serviceName in IRIS.endpoints) {
+        var endpoint = IRIS.endpoints[serviceName];
+        var paths = endpoint.paths;
+        for (var i = 0; i < paths.length; i++) {
+            var service = {
+                path: paths[i],
+                uri: 'http://0.0.0.0:' + endpoint.port
+            };
+            services.push(service);            
+        }
+    }
+    res.json(services);
+});

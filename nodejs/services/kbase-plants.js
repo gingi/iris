@@ -1,4 +1,4 @@
-var iris   = require('./iris-base.js');
+var iris   = require('./service-base.js');
 var config = iris.loadConfiguration();
 var app    = iris.app;
 var routes = iris.routes;

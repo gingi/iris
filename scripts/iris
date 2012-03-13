@@ -10,7 +10,7 @@ LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
-HOSTNAME=http://localhost
+HOSTNAME=http://0.0.0.0
 
 IRIS_USAGE='iris [options] <command> [<arguments>]
     

@@ -49,13 +49,13 @@ Manhattan.prototype.render = function(divId, args) {
 
     // fetch the list of chromosomes and their lengths
     var widget = this;
-    this.getJSON("/data/chrlen?species=" + species, function(json) {
+    this.getJSON("/species/" + species + "/chromosomes", function(json) {
         for (var i = 0; i < json.length; i++) {
             widget.chr_lengths[i] = json[i][1];
             widget.total_len += json[i][1];
         }
         // fetch the max score for this study
-        widget.getJSON("/data/GWAS/" + study + "/maxscore", function(json) {
+        widget.getJSON("/gwas/" + study + "/maxscore", function(json) {
             widget.global_max = Math.ceil(json[0][0]);
             widget.draw_manhattan(study);
         });
@@ -129,7 +129,7 @@ Manhattan.prototype.canvas_to_score = function(a, b) {
 
 Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
     var widget = this;
-		var url = "/data/GWAS/" + study + "/scatter"
+	var url = "/gwas/" + study + "/scatter"
 			+ "?chr=" + chr
 			+ "&b1=" + Math.floor(xsize / widget.sc)
 			+ "&b2=" + Math.floor(ysize / widget.sc)
