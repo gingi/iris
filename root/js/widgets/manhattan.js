@@ -81,7 +81,6 @@ Manhattan.prototype.draw_manhattan = function(study, cvs) {
     for (var i = 0; i < this.chr_lengths.length; i++) {
         var xsize = (ctx.canvas.width - this.XGUTTER) * (this.chr_lengths[i] / this.total_len) - this.XGUTTER;
         this.do_scatter(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
-        // this.do_scatter_dots(ctx, study, i + 1, offset, xsize, ysize, this.chr_lengths[i]);
         offset += xsize + this.XGUTTER;
     }
 };
@@ -128,14 +127,16 @@ Manhattan.prototype.canvas_to_score = function(a, b) {
 };
 
 Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
+    console.log("Doing scatter");
     var widget = this;
-	var url = "/gwas/" + study + "/scatter"
+	var path = "/gwas/" + study + "/scatter"
 			+ "?chr=" + chr
 			+ "&b1=" + Math.floor(xsize / widget.sc)
 			+ "&b2=" + Math.floor(ysize / widget.sc)
 			+ "&x1=" + chr_length
 			+ "&x2=" + widget.global_max;
-    this.getJSON(url, function(json) {
+    this.getJSON(path, function(json) {
+        console.log("Manhattan: Chromosome " + chr);
         var xrange = chr_length;
         var yrange = widget.global_max;
         var xfactor = xsize / xrange;
@@ -190,34 +191,6 @@ Manhattan.prototype.do_scatter = function(ctx, study, chr, offset, xsize, ysize,
     });
 };
 
-
-Manhattan.prototype.do_scatter_dots = function(ctx, study, chr, offset, xsize, ysize, chr_length) {
-    var widget = this;
-    this.getJSON("/data/GWAS/" + study + "/scatter_nobinning?chr=" + chr, function(json) {
-        var xrange = chr_length;
-        var yrange = widget.global_max;
-        var xfactor = xsize / xrange;
-        var yfactor = ysize / yrange;
-        if (chr % 2 === 0) {
-            ctx.fillStyle = "darkorange";
-        } else {
-            ctx.fillStyle = "black";
-        }
-        for (var i = 0; i < json.length; i++) {
-            var x = xfactor * json[i][0] + offset;
-            var y = ysize - yfactor * json[i][1];
-
-            if (widget.circles) {
-                ctx.beginPath();
-                ctx.arc(Math.floor(x), Math.floor(y), widget.radius, 0, 2 * Math.PI, true);
-                ctx.closePath();
-                ctx.fill();
-            } else {
-                ctx.fillRect(Math.floor(x - widget.sc / 2), Math.floor(y + widget.sc / 2), widget.sc, widget.sc);
-            }
-        }
-    });
-};
 
 Manhattan.prototype.ev_mousedown = function() {
     var widget = this;

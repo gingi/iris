@@ -47,7 +47,9 @@ app.get('/collection/:collection/keys', function(req, res) {
     }
     store.open(function(err, db) {
         store.collection(req.params.collection, function(err, collection) {
-            collection.find({}, {}, function (err, cursor) {
+            var fetchFields = {};
+            fetchFields[primaryKey] = 1;
+            collection.find({}, fetchFields, function (err, cursor) {
                 var items = [];
                 cursor.each(function (err, doc) {
                     if (doc) {
@@ -63,7 +65,15 @@ app.get('/collection/:collection/keys', function(req, res) {
 });
 
 app.get('/collection/:collection/:identifier', function(req, res) {
-    var field = req.params.field;
+    var field = req.query.field;
+    var slice;
+    if (field) {
+        slice = function (data) {
+            return data[field];
+        };
+    } else {
+        slice = function (data) { return data; };
+    }
     var primaryKey = null;
     try {
         primaryKey = config.MONGO_DB.collections[req.params.collection].key;
@@ -71,17 +81,17 @@ app.get('/collection/:collection/:identifier', function(req, res) {
         res.json({ error: "Cannot find primary key for collection " + req.params.collection });
         return;
     }
-    store.open(function(err, db) {
-        store.collection(req.params.collection, function(err, collection) {
-            var query = {};
-            query[primaryKey] = req.params.identifier;
-            collection.find(query, {}, function(err, cursor) {
-                cursor.each(function(err, doc) {
+    store.open(function (err, db) {
+        store.collection(req.params.collection, function (err, collection) {
+            var query = {};        query[primaryKey] = req.params.identifier;
+            var fetchFields = {};  fetchFields[field] = 1;
+            collection.find(query, fetchFields, function (err, cursor) {
+                cursor.each(function (err, doc) {
                     if (doc === null) {
                         store.close();
                         res.end();
                     } else {
-                        res.json(field ? doc[field] : doc);
+                        res.json(slice(doc));
                     }
                 });
             });

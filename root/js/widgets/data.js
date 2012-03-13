@@ -28,7 +28,7 @@ Data.prototype.render = function(divId, args) {
     var widget = this;
 	var div = document.getElementById(divId);
 	div.innerHTML = '';
-	var path=args.hasOwnProperty('path') ? args['path'] : '/species/at/chrlen';
+	var path=args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
 	if (args.hasOwnProperty('API')) {
 		this.DataServiceURI = args['API'];
 	}else{
@@ -38,8 +38,12 @@ Data.prototype.render = function(divId, args) {
 	$.getJSON('/service/list', function (services) {
 //		div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(services, undefined, 4));
 		var sel = document.createElement('select');
+        var seen = {};
 		for (var i in services) {
 			var srv = services[i];
+            if (seen[srv.name]) {
+                continue;
+            }
 			var opt = document.createElement('option');
 			opt.value = srv.uri;
 			opt.text = srv.name;
@@ -47,6 +51,7 @@ Data.prototype.render = function(divId, args) {
 				opt.selected = true;
 			}
 			sel.add(opt, null);
+            seen[srv.name] = 1;
 		}
 		var opt = document.createElement('option');
 		opt.text="custom";
