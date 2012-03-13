@@ -4,7 +4,7 @@
             "examples" : { "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ] }
         },
         "examples" : {
-            "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas" ] },
+            "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas", "/pcoords" ] },
             "examples-mongo" : { "type": "mongo", "paths" : [ "/phenotypes" ] }
         }
     }, 
