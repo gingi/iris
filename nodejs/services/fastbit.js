@@ -2,7 +2,7 @@ var iris   = require('./service-base.js');
 var config = iris.loadConfiguration();
 var app    = iris.app;
 var routes = iris.routes;
-var exec   = require('child_process').exec;
+var child  = require('child_process');
 
 var revalidator = require('revalidator');
 
@@ -74,7 +74,7 @@ function runCommand(executable, response, args) {
 		cmd += ' -' + k +' "'+args[k] + '"';
 	}
     console.log(cmd);
-    exec(cmd, { maxDataServiceURI: 10000 * 1024 }, function (error, stdout, stderr) {
+    child.exec(cmd, { maxBuffer: 10000 * 1024 }, function (error, stdout, stderr) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.write(stdout);
         response.end();
