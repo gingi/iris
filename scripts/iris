@@ -46,7 +46,7 @@ function _json_flatten {
                         map { \$j->{\$_} } qw/$fields/
                     )
                 } @\$d), \"\n\"
-    " < $SVC_CONF
+    " < $jsonfile
 }
 
 function _running_pid {
@@ -416,7 +416,39 @@ function iris_cmd_restart {
 _help_check="iris check
 
 Checks to ensure the Iris installation is complete and ready to go"
-function iris_cmd_check {
+function iris_cmd_check {    
+    local errnum=0
+    declare -a errors=()
+    function add_error {
+        errors[$errnum]="$1"
+        errnum=$(($errnum+1))
+    }
+    # Required files
+    for f in $SVC_CONF bin/fbsql bin/scatter bin/ranges lib/libfastbit.a; do
+        if [ ! -e "$f" ]; then
+            add_error "Required file '$f' is missing."
+        fi
+    done
+    if [ -e "$SVC_CONF" ]; then
+        if [ -n "$( (/usr/bin/python -mjson.tool < $SVC_CONF > /dev/null) 2>&1)" ]; then
+            add_error "Service configuration '${SVC_CONF##$IRIS_HOME/}' is not valid JSON."
+        fi
+    fi
+    if [ -e "$LOGDIR" -a ! -w "$LOGDIR" ]; then
+        add_error "Log directory '${LOGDIR##$IRIS_HOME/}' exists but is not writable."
+    fi
+    if [ "$errnum" -gt 0 ]; then
+        tput bold
+        echo "Errors:"
+        tput sgr0
+        for ((i = 0; i < ${#errors[@]}; i++)); do
+            echo ${errors[$i]}
+        done
+        exit 0;
+    else
+        echo "No file errors. All systems go."
+    fi
+    
     # NODEUNIT
     cd $NODEDIR
     nodetest=./nodetest
