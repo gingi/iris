@@ -410,12 +410,44 @@ function iris_cmd_restart {
     iris_cmd_start $@
 }
 
+
+# ---------------------------------------------------------------------------
+# IRIS EXAMPLES
+# ---------------------------------------------------------------------------
+_help_check="iris examples
+
+Install example data."
+function iris_cmd_examples {
+    local overwrite=$1
+    EXAMPLEDIR=./examples
+    cd $IRIS_HOME
+    git submodule update --init -- $EXAMPLEDIR > /dev/null
+    cd $EXAMPLEDIR
+    if [ -z "$(which mongorestore 2> /dev/null)" ]; then
+        tput bold; echo "Error!"; tput sgr0
+        echo "Cannot find the command 'mongorestore', required for loading
+              the example data"
+        exit 1
+    fi
+    dbs=$(echo 'show dbs' | mongo --quiet | cut -f1 | grep -v '^bye$')
+    for f in ./mongo/*; do
+        db=$(basename $f)
+        if [ "$(echo $dbs | grep -c "$db")" -eq 1 -a \
+            "$overwrite" != "-f" ]; then
+            echo "Database '$db' already exists. Use '-f' to overwrite."
+        else
+            echo "Loading database '$db'"
+            mongorestore --drop $f
+        fi
+    done
+}
+
 # ---------------------------------------------------------------------------
 # IRIS CHECK
 # ---------------------------------------------------------------------------
 _help_check="iris check
 
-Checks to ensure the Iris installation is complete and ready to go"
+Checks to ensure the Iris installation is complete and ready to go."
 function iris_cmd_check {    
     local errnum=0
     declare -a errors=()
@@ -423,20 +455,35 @@ function iris_cmd_check {
         errors[$errnum]="$1"
         errnum=$(($errnum+1))
     }
-    # Required files
+
+    # Ensure required files exist
     for f in $SVC_CONF bin/fbsql bin/scatter bin/ranges lib/libfastbit.a; do
         if [ ! -e "$f" ]; then
             add_error "Required file '$f' is missing."
         fi
     done
-    if [ -e "$SVC_CONF" ]; then
-        if [ -n "$( (/usr/bin/python -mjson.tool < $SVC_CONF > /dev/null) 2>&1)" ]; then
-            add_error "Service configuration '${SVC_CONF##$IRIS_HOME/}' is not valid JSON."
-        fi
+    
+    # Ensure services.json is valid JSON
+    if [ -e "$SVC_CONF" -a \
+        -n "$( (/usr/bin/python -mjson.tool < $SVC_CONF > /dev/null) 2>&1)" ]
+    then
+        add_error "Service configuration '${SVC_CONF##$IRIS_HOME/}' is
+                   not valid JSON."
     fi
+    
+    # Ensure 'logs' is writable
     if [ -e "$LOGDIR" -a ! -w "$LOGDIR" ]; then
-        add_error "Log directory '${LOGDIR##$IRIS_HOME/}' exists but is not writable."
+        add_error "Log directory '${LOGDIR##$IRIS_HOME/}' 
+                   exists but is not writable."
     fi
+    
+    # Check for required executables
+    for executable in node npm mongo; do
+        if [ -z "$(which $executable 2> /dev/null)" ]; then
+            add_error "Command '$executable' was not found in your path."
+        fi
+    done
+    
     if [ "$errnum" -gt 0 ]; then
         tput bold
         echo "Errors:"
@@ -446,7 +493,7 @@ function iris_cmd_check {
         done
         exit 0;
     else
-        echo "No file errors. All systems go."
+        echo "Files lookin' good."
     fi
     
     # NODEUNIT
