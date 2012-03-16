@@ -22,8 +22,6 @@ function Manhattan() {
     this.maxcolor = new Array();
 };
 
-Manhattan.prototype = new Widget();
-
 // Implements widget_prototype.render
 Manhattan.prototype.render = function(divId, args) {
     var div = $("#"+divId);
