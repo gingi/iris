@@ -14,11 +14,11 @@ var httpProxy = require('http-proxy');
  * TODO: Move to MetaContainer?
  */
 var widgetList = [
-	{ id: 'manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
-	{ id: 'data', name: 'JSON Viewer', js: 'data.js' },
-	{ id: 'pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
-	{ id: 'chord', name: 'Comparative Map', js: 'chord.js' },
-	{ id: 'barchart', name: 'Phenotype Distribution', js: 'barchart.js' }
+	{ id: 'manhattan', module: 'Manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
+	{ id: 'data',      module: 'Data', name: 'JSON Viewer', js: 'data.js' },
+	{ id: 'pcoords',   module: 'Pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
+	{ id: 'chord',     module: 'Chord', name: 'Comparative Map', js: 'chord.js' },
+	{ id: 'barchart',  module: 'BarChart', name: 'Phenotype Distribution', js: 'barchart.js' }
 ];
 
 function findWidget(key, val) {
@@ -46,7 +46,7 @@ app.get('/widget/:widget', function (req, res) {
     if (widget == null) {
         res.redirect('/404');
     } else {
-        routes.widget(req, res, { widget: widget.id, js: widget.js, layout: layout });
+        routes.widget(req, res, { widget: widget.module, js: widget.js, layout: layout });
     }
 });
 

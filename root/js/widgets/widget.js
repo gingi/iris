@@ -2,8 +2,8 @@
 
 if (!Iris) {
     var Iris = {};
-    Iris.Widget = Widget();
 }
+Iris.Widget = Widget();
 
 function Widget() {
     var widget = function (spec) {
@@ -17,7 +17,7 @@ function Widget() {
             } else {
                 return function () {
                     throw "Function " + f + "() must be implemented";
-                }
+                };
             }
         };
         return {
@@ -37,11 +37,19 @@ function Widget() {
             }
         };
     };
-    var that = {
-        create: function (spec) {
-            return widget(spec);
+    var WidgetSingleton = {};
+    
+    WidgetSingleton.create = function (spec) {
+        var newWidget = widget(spec);
+        if (spec && spec.name) {
+            if (WidgetSingleton[spec.name]) {
+                console.log("Warning: Overwriting existing widget [" +
+                     spec.name + "]!");
+            }
+            WidgetSingleton[spec.name] = newWidget;
         }
+        return newWidget;
     };
 
-    return that;
+    return WidgetSingleton;
 }
