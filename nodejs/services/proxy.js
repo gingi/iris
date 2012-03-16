@@ -14,15 +14,40 @@ var httpProxy = require('http-proxy');
  * TODO: Move to MetaContainer?
  */
 var widgetList = [
-	{ id: 'manhattan', module: 'Manhattan', name: 'Manhattan Plot', js: 'manhattan.js' },
-	{ id: 'data',      module: 'Data', name: 'JSON Viewer', js: 'data.js' },
-	{ id: 'pcoords',   module: 'Pcoords', name: 'Parallel Coordinates Plot', js: 'pcoords.js' },
-	{ id: 'chord',     module: 'Chord', name: 'Comparative Map', js: 'chord.js' },
-	{ id: 'barchart',  module: 'BarChart', name: 'Phenotype Distribution', js: 'barchart.js' }
+    {
+        id: 'manhattan',
+        module: 'Manhattan',
+        name: 'Manhattan Plot',
+        js: 'manhattan.js'
+    },
+    {
+        id: 'data',
+        module: 'Data',
+        name: 'JSON Viewer',
+        js: 'data.js'
+    },
+    {
+        id: 'pcoords',
+        module: 'Pcoords',
+        name: 'Parallel Coordinates Plot',
+        js: 'pcoords.js'
+    },
+    {
+        id: 'chord',
+        module: 'Chord',
+        name: 'Comparative Map',
+        js: 'chord.js'
+    },
+    {
+        id: 'barchart',
+        module: 'BarChart',
+        name: 'Phenotype Distribution',
+        js: 'barchart.js'
+    }
 ];
 
 function findWidget(key, val) {
-	for(var i in widgetList) {
+	for (var i in widgetList) {
 		if (widgetList[i][key] === val) {
 			return widgetList[i];
 		}
@@ -42,7 +67,7 @@ app.get('/404', function (req, res) {
 app.get('/widget/:widget', function (req, res) {
     // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query["layout"] != null && req.query["layout"] == 'on';
-	var widget = findWidget("id",req.params.widget);
+	var widget = findWidget("id", req.params.widget);
     if (widget == null) {
         res.redirect('/404');
     } else {
