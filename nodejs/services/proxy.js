@@ -22,7 +22,7 @@ var widgetList = [
     },
     {
         id: 'data',
-        module: 'Data',
+        module: 'DataBrowser',
         name: 'JSON Viewer',
         js: 'data.js'
     },

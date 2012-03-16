@@ -6,13 +6,15 @@ if (!Iris) {
 Iris.Widget = Widget();
 
 function Widget() {
-    var widget = function (spec) {
+    function createWidget(spec) {
+        var widgetDiv;
         var defaultFunction = function (f) {
             if (spec && spec[f]) {
                 if (typeof spec[f] === 'function') {
                     return spec[f];
                 } else {
-                    throw "Parameter " + f + " must be a function!";
+                    throw "Parameter " + f + " must be a function, not a " +
+                         typeof spec[f] + "!";
                 }
             } else {
                 return function () {
@@ -20,34 +22,51 @@ function Widget() {
                 };
             }
         };
-        return {
-            render: defaultFunction("render"),
-            about: defaultFunction("about"),
-            getJSON: function (path, callback) {
-                var url = Iris.dataURI(path);
-                $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    data: [],
-                    success: callback,
-                    error: function (event, request, settings) {
-                        console.warn("AJAX error! ", event, request, settings);
-                    }
-                });
-            }
+        var widget = {};
+        widget.display = defaultFunction("display");
+        widget.div = function (divId) {
+            widget.divId = divId;
+            return widget;
         };
-    };
+        widget.divElement = function () {
+            if (!widget.divId) {
+                throw "Widget's div is not defined!";
+            }
+            return document.getElementById(widget.divId);
+        };
+        widget.getJSON = function (path, callback) {
+            var url = Iris.dataURI(path);
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: [],
+                success: callback,
+                error: function (event, request, settings) {
+                    console.warn("AJAX error! ", event, request, settings);
+                }
+            });
+            return widget;
+        };
+        return widget;
+    }
+    
     var WidgetSingleton = {};
     
     WidgetSingleton.create = function (spec) {
-        var newWidget = widget(spec);
-        if (spec && spec.name) {
-            if (WidgetSingleton[spec.name]) {
-                console.log("Warning: Overwriting existing widget [" +
-                     spec.name + "]!");
-            }
-            WidgetSingleton[spec.name] = newWidget;
+        if (!spec || !spec.about) {
+            throw "'about' callback is missing";
         }
+        var widgetName = spec.about()["name"];
+        if (!widgetName) {
+            throw "Widget name ('name') is a " +
+                "required return parameter of 'about'";
+        }
+        var newWidget = createWidget(spec);
+        if (WidgetSingleton[spec.name]) {
+            console.log("Warning: Overwriting existing widget [" +
+                 widgetName + "]!");
+        }
+        WidgetSingleton[widgetName] = newWidget;
         return newWidget;
     };
 

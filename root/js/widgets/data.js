@@ -1,13 +1,23 @@
 (function() {
     var uriPrefix = Iris.dataURI();
     var widget = Iris.Widget.create({
-        name: "Data"
+        about: function () {
+            return {
+                name: "DataBrowser",
+                author: "Andrew Olson",
+                requires: [ "jquery.js" ],
+                renderers: {
+                    default: "syntax.js"
+                },
+            }
+        }
     });
 
-    widget.render = function(divId, args) {
-        var div = document.getElementById(divId);
+    widget.display = function (args) {
+        var div = widget.divElement();
         div.innerHTML = '';
-        var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
+        var path = args.hasOwnProperty('path') ?
+            args['path'] : '/species/at/chromosomes';
         if (args.hasOwnProperty('API')) {
             uriPrefix = args['API'];
         } else {
@@ -45,7 +55,7 @@
             button.setAttribute("type", "button");
             button.setAttribute('value', 'load');
             button.onclick = function() {
-                widget.render(divId, {
+                widget.display({
                     API: sel.value,
                     path: input.value
                 })

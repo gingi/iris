@@ -1,6 +1,15 @@
 (function() {
     var widget = Iris.Widget.create({
-        name: "Manhattan"
+        about: function () {
+            return {
+                name: "Manhattan",
+                author: "Andrew Olson",
+                requires: [],
+                renderers: {
+                    default: "scatterplot.js"
+                },
+            }
+        }
     });
 
     var ctx;
@@ -24,21 +33,21 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
-    widget.render = function(divId, args) {
-        var div = $("#" + divId);
+    widget.display = function(args) {
+        var div = $("#" + widget.divId);
         div.text('');
         containerNode = div;
         var canvasHeight = Math.max(div.height(), 250);
         var canvasWidth = Math.max(div.width(), 100);
-        div.append('<canvas id="' + divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
-        div.append('<canvas id="' + divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
+        div.append('<canvas id="' + widget.divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
+        div.append('<canvas id="' + widget.divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
         div.parent.height = canvasHeight;
         div.parent.width = canvasWidth;
 
-        var canvas = document.getElementById(divId + "_canvas");
-        canvasi = document.getElementById(divId + "_canvasi");
+        var canvas = document.getElementById(widget.divId + "_canvas");
+        canvasi = document.getElementById(widget.divId + "_canvasi");
         ctx = canvas.getContext('2d');
         ctxi = canvasi.getContext('2d');
 
