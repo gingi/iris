@@ -2,11 +2,12 @@
 - var height = 500
 
 block append scripts
+    script(type="text/javascript", src="/js/iris.js")
+    script(type="text/javascript", src="/js/widgets/widget.js")
     script(type="text/javascript", src="/js/widgets/#{js}")
     script(type="text/javascript")
         $(document).ready(function() {
-            var widget = Widget.createWidget("#{widget}");
-            widget.render("#{widget}",{});
+            Iris.Widget["#{widget}"].render("#{widget}", {});
         });
 
 div(id="#{widget}", style="position: relative; min-width:500px")
