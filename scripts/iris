@@ -456,6 +456,7 @@ function iris_cmd_check {
         errnum=$(($errnum+1))
     }
 
+    cd $IRIS_HOME
     # Ensure required files exist
     for f in $SVC_CONF bin/fbsql bin/scatter bin/ranges lib/libfastbit.a; do
         if [ ! -e "$f" ]; then
