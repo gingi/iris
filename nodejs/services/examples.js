@@ -51,6 +51,11 @@ app.get('/gwas/:study/scatter', function (req, res) {
     iris.httpGET(res, GwasFastbitService, '/scatter?' + querystr.stringify(req.query));
 });
 
+app.get('/gwas/:study/GO', function(req, res) {
+	req.query.s = req.params.study;
+	iris.httpGET(res, GwasFastbitService, '/gwas2go?' + querystr.stringify(req.query));
+});
+
 app.get('/pcoords/:table/scatter', function (req, res) {
     req.query.d = req.params.table;
     req.query.a = 1
@@ -71,6 +76,10 @@ app.get('/phenotypes/:trait', function (req, res) {
 
 app.get('/phenotypes', function (req, res) {
     iris.httpGET(res, PhenoMongoService, '/collection/phenotypes/keys');
+});
+
+app.get('/phenotypes/values', function (req, res) {
+	iris.httpGET(res, PhenoMongoService, '/collection/phenotypes/select?field=phenotype_values');
 });
 
 iris.startService();
