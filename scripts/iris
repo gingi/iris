@@ -498,10 +498,9 @@ function iris_cmd_check {
     fi
     
     # NODEUNIT
-    cd $NODEDIR
-    nodetest=./nodetest
-    $nodetest
-    cd $IRIS_HOME
+    export NODE_PATH=$NODEDIR/node_modules
+    cd ./test/
+    ./testjs
 }
 
 # 'MAIN'

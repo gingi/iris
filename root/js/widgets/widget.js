@@ -1,49 +1,55 @@
-/*
- * widget_prototype.js
- *
- * For now, just for documentation purposes, function prototypes that should
- * be implemented by widgets.
- */
-function Widget(name) {
-    this.name = name;
+// widget.js
+
+if (!Iris) {
+    var Iris = {};
 }
-Widget._widgets = {};
+Iris.Widget = Widget();
 
-Widget.prototype.render = function(divId, args) {
-    alert("render() is a virtual method and needs to be implemented.");
-};
-
-Widget.prototype.about = function(args) {
-    alert("about() is a virtual method and needs to be implemented.");
-};
-
-Widget.prototype.getManager = function() {
-    return this.manager;
-};
-
-Widget.prototype.setManager = function(manager) {
-    this.manager = manager;
-};
-
-Widget.prototype.getJSON = function(path, callback) {
-    var url = Iris.dataURI(path);
-    $.ajax({
-        url: url,
-        dataType: 'json',
-        data: [],
-        success: callback,
-        error: function (event, request, settings) {
-            console.warn("AJAX error! ", event, request, settings);
+function Widget() {
+    var widget = function (spec) {
+        var defaultFunction = function (f) {
+            if (spec && spec[f]) {
+                if (typeof spec[f] === 'function') {
+                    return spec[f];
+                } else {
+                    throw "Parameter " + f + " must be a function!";
+                }
+            } else {
+                return function () {
+                    throw "Function " + f + "() must be implemented";
+                };
+            }
+        };
+        return {
+            render: defaultFunction("render"),
+            about: defaultFunction("about"),
+            getJSON: function (path, callback) {
+                var url = Iris.dataURI(path);
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    data: [],
+                    success: callback,
+                    error: function (event, request, settings) {
+                        console.warn("AJAX error! ", event, request, settings);
+                    }
+                });
+            }
+        };
+    };
+    var WidgetSingleton = {};
+    
+    WidgetSingleton.create = function (spec) {
+        var newWidget = widget(spec);
+        if (spec && spec.name) {
+            if (WidgetSingleton[spec.name]) {
+                console.log("Warning: Overwriting existing widget [" +
+                     spec.name + "]!");
+            }
+            WidgetSingleton[spec.name] = newWidget;
         }
-    });
-    // $.getJSON(url, function(data) { console.log("Hello???"); callback(data); });
-};
+        return newWidget;
+    };
 
-Widget.createWidget = function(name) {
-    return new(Widget._widgets[name]);
-};
-
-Widget.registerWidget = function(name, widgetClass) {
-    Widget._widgets[name] = widgetClass;
-};
-
+    return WidgetSingleton;
+}
