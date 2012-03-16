@@ -1,6 +1,15 @@
 (function() {
     var widget = Iris.Widget.create({
-        name: "Pcoords"
+        about: function () {
+            return {
+                name: "Pcoords",
+                author: "Andrew Olson",
+                requires: [],
+                renderers: {
+                    // default: "syntax.js"
+                },
+            }
+        }
     });
 
     var tool = new Object();
@@ -15,8 +24,8 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
-    widget.render = function(divId, args) {
-        var div = $("#" + divId);
+    widget.display = function (args) {
+        var div = $("#" + widget.divId);
         div.text('');
         containerNode = div;
         var canvasHeight = Math.max(div.height(), 250);
@@ -24,9 +33,19 @@
         div.height(canvasHeight);
         div.width(canvasWidth);
         var createCanvas = function(args) {
-                var canvasId = divId + '_canvas' + args['suffix'];
-                var style = ["position:absolute", "left:0", "top:0", "z-index:" + args['z'], "width:" + canvasWidth + 'px', "height:" + canvasHeight + 'px'].join(';');
-                div.append('<canvas id="' + canvasId + '"' + ' width="' + canvasWidth + '"' + ' height="' + canvasHeight + '"' + ' style="' + style + '"></canvas>');
+                var canvasId = widget.divId + '_canvas' + args['suffix'];
+                var style = [
+                    "position:absolute",
+                    "left:0",
+                    "top:0",
+                    "z-index:" + args['z'],
+                    "width:" + canvasWidth + 'px',
+                    "height:" + canvasHeight + 'px'
+                ].join(';');
+                    div.append('<canvas id="' + canvasId + '"' +
+                        ' width="' + canvasWidth + '"' +
+                        ' height="' + canvasHeight + '"' +
+                        ' style="' + style + '"></canvas>');
                 return document.getElementById(canvasId);
             };
 
@@ -54,20 +73,24 @@
 
         // fetch the list of columns in the table
         // and their min and max values
-        var table = (args.hasOwnProperty('table')) ? args['table'] : 'sbi_vs_avec';
+        var table =
+            args.hasOwnProperty('table') ? args['table'] : 'sbi_vs_avec';
         widget.getJSON("/pcoords/" + table + "/ranges", function(json) {
             // TODO: add event handlers
             var ysize = ctx.canvas.height - PADDING_TOP - PADDING_BOTTOM;
-            var xsize = (ctx.canvas.width - 2 * PADDING_SIDES - json.length * AXIS_WIDTH) / (json.length - 1);
+            var xsize = (ctx.canvas.width - 2 * PADDING_SIDES -
+                json.length * AXIS_WIDTH) / (json.length - 1);
 
             var offset = PADDING_SIDES;
-            draw_axis(ctxi, json[0], offset, ysize);
+            drawAxis(ctxi, json[0], offset, ysize);
             for (var i = 1; i < json.length; i++) {
                 offset += AXIS_WIDTH;
-                do_pcoords(ctx, table, json[i - 1], json[i], offset, offset + xsize, ysize, "context");
-                do_pcoords(ctxf, table, json[i - 1], json[i], offset, offset + xsize, ysize, "focus");
+                doPcoords(ctx, table, json[i-1], json[i],
+                    offset, offset + xsize, ysize, "context");
+                doPcoords(ctxf, table, json[i-1], json[i],
+                    offset, offset + xsize, ysize, "focus");
                 offset += xsize;
-                draw_axis(ctxi, json[i], offset, ysize);
+                drawAxis(ctxi, json[i], offset, ysize);
             }
         });
     };
@@ -76,7 +99,7 @@
         return "total > 3.0";
     };
 
-    function draw_axis(ctx, column, offset, ysize) {
+    function drawAxis(ctx, column, offset, ysize) {
         var center = offset + Math.floor(AXIS_WIDTH / 2);
         var top = PADDING_TOP - 10;
         var bottom = top + ysize + 20;
@@ -109,7 +132,7 @@
         ctx.fillText(column[0], center - text.width / 2, bottom + 10);
     };
 
-    function do_pcoords(ctx, table, c1_arr, c2_arr, xmin, xmax, ysize, layer) {
+    function doPcoords(ctx, table, c1_arr, c2_arr, xmin, xmax, ysize, layer) {
         var nbins = Math.floor(ysize / 1);
         var url = "/pcoords/" + table + "/scatter" + "?c1=" + c1_arr[0] + "&c2=" + c2_arr[0] + "&b1=" + nbins + "&b2=" + nbins + "&n1=" + c1_arr[1] + "&n2=" + c2_arr[1] + "&x1=" + c1_arr[2] + "&x2=" + c2_arr[2];
         if (layer === "focus") {
@@ -151,11 +174,15 @@
                 if (colorByDensity) {
                     var ratio = rect[4] / json.max;
                     ratio = rank[i] / max_rank;
-                    var r = mincolor[0] + Math.floor(ratio * (maxcolor[0] - mincolor[0]));
-                    var g = mincolor[1] + Math.floor(ratio * (maxcolor[1] - mincolor[1]));
-                    var b = mincolor[2] + Math.floor(ratio * (maxcolor[2] - mincolor[2]));
+                    var r = mincolor[0] +
+                        Math.floor(ratio * (maxcolor[0] - mincolor[0]));
+                    var g = mincolor[1] +
+                        Math.floor(ratio * (maxcolor[1] - mincolor[1]));
+                    var b = mincolor[2] +
+                        Math.floor(ratio * (maxcolor[2] - mincolor[2]));
 
-                    ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + "0.1)";
+                    ctx.fillStyle =
+                        "rgba(" + r + "," + g + "," + b + "," + "0.1)";
                 }
                 ctx.beginPath();
                 ctx.moveTo(xmin, PADDING_TOP + ysize - f1 * (rect[0] - c1_arr[1]));
@@ -167,5 +194,4 @@
             }
         });
     };
-
 })();

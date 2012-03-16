@@ -7,7 +7,7 @@ block append scripts
     script(type="text/javascript", src="/js/widgets/#{js}")
     script(type="text/javascript")
         $(document).ready(function() {
-            Iris.Widget["#{widget}"].render("#{widget}", {});
+            Iris.Widget["#{widget}"].div("#{widget}").display("#{widget}", {});
         });
 
 div(id="#{widget}", style="position: relative; min-width:500px")

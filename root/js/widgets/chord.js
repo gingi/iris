@@ -1,52 +1,89 @@
 (function() {
     var widget = Iris.Widget.create({
-        name: "Chord"
+        about: function () {
+            return {
+                name: "Chord",
+                author: "Jer-Ming Chia",
+                requires: [ "d3.js" ],
+                renderers: {
+                    // default: "syntax.js"
+                },
+            }
+        }
     });
     var svg;
-    widget.render = function(divId, args) {
-        var div = document.getElementById(divId);
+    widget.display = function (args) {
+        var div = document.getElementById(widget.divId);
         div.innerHTML = '';
-        var chord = d3.layout.chord().padding(.05).sortSubgroups(d3.descending).matrix([
-            [11975, 5871, 8916, 2868],
-            [1951, 10048, 2060, 6171],
-            [8010, 16145, 8090, 8045],
-            [1013, 990, 940, 6907]
-        ]);
+        var chord = d3.layout.chord()
+            .padding(.05)
+            .sortSubgroups(d3.descending)
+            .matrix([
+                [11975, 5871, 8916, 2868],
+                [1951, 10048, 2060, 6171],
+                [8010, 16145, 8090, 8045],
+                [1013, 990, 940, 6907]
+            ]);
 
         var w = 600,
             h = 600,
             r0 = Math.min(w, h) * .41,
             r1 = r0 * 1.1;
 
-        var fill = d3.scale.ordinal().domain(d3.range(4)).range(["#000000", "#FFDD89", "#957244", "#F26223"]);
+        var fill = d3.scale.ordinal()
+            .domain(d3.range(4))
+            .range(["#000000", "#FFDD89", "#957244", "#F26223"]);
 
 
-        svg = d3.select(div).append("svg").attr("width", w).attr("height", h).append("g").attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
+        svg = d3.select(div)
+            .append("svg")
+                .attr("width", w)
+                .attr("height", h)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + w / 2 + "," + h / 2 + ")");
+        svg.append("g").selectAll("path").data(chord.groups).enter()
+            .append("path").style("fill", function(d) {
+                return fill(d.index);
+            }).style("stroke", function(d) {
+                return fill(d.index);
+            }).attr("d", d3.svg.arc()
+                            .innerRadius(r0)
+                            .outerRadius(r1))
+                            .on("mouseover", fade(.1))
+                            .on("mouseout", fade(1));
 
-        svg.append("g").selectAll("path").data(chord.groups).enter().append("path").style("fill", function(d) {
-            return fill(d.index);
-        }).style("stroke", function(d) {
-            return fill(d.index);
-        }).attr("d", d3.svg.arc().innerRadius(r0).outerRadius(r1)).on("mouseover", fade(.1)).on("mouseout", fade(1));
+        var ticks = svg
+            .append("g").selectAll("g").data(chord.groups).enter()
+            .append("g").selectAll("g").data(groupTicks).enter()
+            .append("g").attr("transform", function(d) {
+                return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+                     "translate(" + r1 + ",0)";
+            });
 
-        var ticks = svg.append("g").selectAll("g").data(chord.groups).enter().append("g").selectAll("g").data(groupTicks).enter().append("g").attr("transform", function(d) {
-            return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" + "translate(" + r1 + ",0)";
-        });
+        ticks.append("line")
+            .attr("x1", 1)
+            .attr("y1", 0)
+            .attr("x2", 5)
+            .attr("y2", 0)
+            .style("stroke", "#000");
 
-        ticks.append("line").attr("x1", 1).attr("y1", 0).attr("x2", 5).attr("y2", 0).style("stroke", "#000");
+        ticks.append("text")
+            .attr("x", 8)
+            .attr("dy", ".35em")
+            .attr("text-anchor", function(d) {
+                return d.angle > Math.PI ? "end" : null;
+            }).attr("transform", function(d) {
+                return d.angle > Math.PI ? "rotate(180)translate(-16)" : null;
+            }).text(function(d) {
+                return d.label;
+            });
 
-        ticks.append("text").attr("x", 8).attr("dy", ".35em").attr("text-anchor", function(d) {
-            return d.angle > Math.PI ? "end" : null;
-        }).attr("transform", function(d) {
-            return d.angle > Math.PI ? "rotate(180)translate(-16)" : null;
-        }).text(function(d) {
-            return d.label;
-        });
-
-        svg.append("g").attr("class", "chord").selectAll("path").data(chord.chords).enter().append("path").style("fill", function(d) {
+        svg.append("g").attr("class", "chord")
+        .selectAll("path").data(chord.chords).enter()
+        .append("path").style("fill", function(d) {
             return fill(d.target.index);
         }).attr("d", d3.svg.chord().radius(r0)).style("opacity", 1);
-
     };
 
     /** Returns an array of tick angles and labels, given a group. */
@@ -65,7 +102,6 @@
 
     function fade(opacity) {
         return function(g, i) {
-
             svg.selectAll("g.chord path").filter(function(d) {
                 return d.source.index != i && d.target.index != i;
             }).transition().style("opacity", opacity);

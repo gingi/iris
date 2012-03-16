@@ -34,7 +34,7 @@ block scripts
 				if (!widget) {
 					throw "Cannot find widget named " + widgetId + "!";
 				}
-				widget.render(divId, {});
+				widget.div(divId).display({});
 				$(elem).addClass('active');
 				widgets[widgetId] = divId;
 			}
