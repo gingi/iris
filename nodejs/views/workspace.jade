@@ -7,8 +7,8 @@ block scripts
 	script(type="text/javascript", src="/js/jquery.js")
 	script(type="text/javascript", src="/js/jquery-ui.js")
 	script(type="text/javascript", src="/js/d3.js")
-	script(type="text/javascript", src="/js/widgets/widget.js")
 	script(type="text/javascript", src="/js/iris.js")
+	script(type="text/javascript", src="/js/widgets/widget.js")
 	- each widget in list
 		script(type="text/javascript", src="/js/widgets/"+widget.js)
 	script
@@ -30,7 +30,7 @@ block scripts
 				$(elem).removeClass('active');
 			} else {
 				var divId = addWidgetDiv();
-				var widget = Widget.createWidget(widgetId);
+				var widget = Iris.Widget[widgetId];
 				widget.render(divId, {});
 				$(elem).addClass('active');
 				widgets[widgetId] = divId;
