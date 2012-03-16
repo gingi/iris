@@ -64,12 +64,16 @@ var schema = {
 	},
 	ranges: {
 		d: field['partition']
+	},
+	gwas2go: {
+		s: { description: 'study id', type: 'number', required: true },
+		w: { description: 'where clause', type: 'string' }
 	}
 }
 
 function runCommand(executable, response, args) {
     var cmd = config.BINDIR + '/' + executable;
-	args['d'] = config.FASTBIT_DATADIR + '/' + args['d'];
+	args['d'] = (args.hasOwnProperty('d')) ? config.FASTBIT_DATADIR + '/' + args['d'] : config.FASTBIT_DATADIR;
 	for (var k in args) {
 		cmd += ' -' + k +' "'+args[k] + '"';
 	}
