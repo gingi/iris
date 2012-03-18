@@ -1,38 +1,33 @@
 // widget.js
 
-if (!Iris) {
-    var Iris = {};
-}
+if (!Iris) { var Iris = {}; }
 Iris.Widget = Widget();
 
 function Widget() {
-    function createWidget(spec) {
+    function createWidget(spec, my) {
         var widget = {};
         
         // Private members
         var widgetDiv;
-        
-        function defaultFunction(fn) {
-            if (spec && spec[fn]) {
-                if (typeof spec[fn] === 'function') {
-                    return spec[fn];
-                } else {
-                    throw "Parameter " + fn + " must be a function, not a " +
-                         typeof spec[fn] + "!";
-                }
-            } else {
-                return function () {
-                    throw "Function " + fn + "() must be implemented";
-                };
-            }
-        }
-        
+                
         function setWidgetDiv() {
             widgetDiv = document.getElementById(widget.divId);
         }
 
         // Protected members
-        widget.display = defaultFunction("display");
+        if (spec.display == null) {
+            widget.display = function (args) {
+                var renderer = Iris.Renderer[my.renderer];
+                renderer.render(args);
+            };
+        } else {
+            if (typeof spec.display !== 'function') {
+                throw "Parameter 'display:' must be a function, not a " +
+                     typeof spec.display + "!";
+            }
+            widget.display = spec.display;
+        }
+
         widget.div = function (divId) {
             widget.divId = divId;
             setWidgetDiv();
@@ -85,7 +80,13 @@ function Widget() {
             throw "Widget name ('name') is a " +
                 "required return parameter of 'about'";
         }
-        var newWidget = createWidget(spec);
+        var renderers = widgetSetting("renderers");
+        var my = {};
+        if (renderers) {
+            my.renderer = renderers["default"];
+        }
+        var newWidget = createWidget(spec, my);
+
         if (WidgetSingleton[spec.name]) {
             console.log("Warning: Overwriting existing widget [" +
                  widgetName + "]!");
