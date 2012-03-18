@@ -1,22 +1,15 @@
 (function() {
     var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "BarChart",
-                author: "Jer-Ming Chia",
-                requires: [ "d3.js" ],
-                renderers: {
-                    // default: "syntax.js"
-                },
-            }
+        about: {
+            name: "BarChart",
+            author: "Jer-Ming Chia",
+            requires: [ "d3.js" ]
         }
     });
     var svg;
-    var div;
     var phenotypes;
 
     widget.display = function (args) {
-        div = widget.divElement();
         var trait = (args.hasOwnProperty('trait')) ? args['trait'] : 'B11';
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
@@ -25,8 +18,8 @@
         widget.getJSON(path, function(json) {
             phenotypes = json;
             drawBarChart(20);
-        })
-        d3.select(div)
+        });
+        d3.select(widget.divElement())
             .append("input")
                 .attr("type", "range")
                 .attr("id", "width-range")
@@ -79,7 +72,7 @@
         var xpad = 20;
 
         var max_width =
-            div.clientWidth - sidePad - xpad;
+            widget.divElement().clientWidth - sidePad - xpad;
 
         var rowNmbr = Math.floor(data.length * w / max_width);
         if ((data.length * w) % max_width > 0) {
@@ -96,10 +89,11 @@
         // define svg element
         d3.select("#" + widget.divId + " .chart").remove();
 
-        svg = d3.select(div)
+        svg = d3.select(widget.divElement())
             .append("svg")
                 .attr("class", "chart")
-                .attr("width", div.clientWidth - sidePad)
+                .attr("width",
+                    widget.divElement().clientWidth - sidePad)
                 .attr("height", h * rowNmbr)
                 .append("g")
                     .attr("transform", "translate(0,20)");

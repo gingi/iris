@@ -23,7 +23,7 @@ block scripts
 			$("#" + newDivId).draggable({containment:"#container", delay:1000, scroll:false});
 			return newDivId;
 		}
-		function renderWidget(elem, widgetId) {
+		function displayWidget(elem, widgetId) {
 			if ($(elem).hasClass('active')) {
 				var widgetDiv = widgets[widgetId];
 				$("#" + widgetDiv).remove();
@@ -53,4 +53,4 @@ block scripts
 			li(class="nav-header") Widgets
 			- each widget in list
 				li
-					a(href="#", onclick="renderWidget(this.parentNode, '#{widget.module}')") #{widget.name}
+					a(href="#", onclick="displayWidget(this.parentNode, '#{widget.module}')") #{widget.name}
