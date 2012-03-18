@@ -1,15 +1,13 @@
 (function() {
     var uriPrefix = Iris.dataURI();
     var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "DataBrowser",
-                author: "Andrew Olson",
-                requires: [ "jquery.js" ],
-                renderers: {
-                    default: "syntax.js"
-                },
-            }
+        about: {
+            name: "DataBrowser",
+            author: "Andrew Olson",
+            requires: [ "jquery.js" ],
+            renderers: {
+                default: "syntax.js"
+            },
         }
     });
 

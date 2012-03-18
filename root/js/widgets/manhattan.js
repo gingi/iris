@@ -1,14 +1,12 @@
 (function() {
     var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "Manhattan",
-                author: "Andrew Olson",
-                requires: [],
-                renderers: {
-                    default: "scatterplot.js"
-                },
-            }
+        about: {
+            name: "Manhattan",
+            author: "Andrew Olson",
+            requires: [],
+            renderers: {
+                default: "scatterplot.js"
+            },
         }
     });
 

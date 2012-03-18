@@ -1,14 +1,12 @@
 (function() {
     var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "Pcoords",
-                author: "Andrew Olson",
-                requires: [],
-                renderers: {
-                    // default: "syntax.js"
-                },
-            }
+        about: {
+            name: "Pcoords",
+            author: "Andrew Olson",
+            requires: [],
+            renderers: {
+                default: "syntax.js"
+            },
         }
     });
 

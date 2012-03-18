@@ -7,33 +7,45 @@ Iris.Widget = Widget();
 
 function Widget() {
     function createWidget(spec) {
+        var widget = {};
+        
+        // Private members
         var widgetDiv;
-        var defaultFunction = function (f) {
-            if (spec && spec[f]) {
-                if (typeof spec[f] === 'function') {
-                    return spec[f];
+        
+        function defaultFunction(fn) {
+            if (spec && spec[fn]) {
+                if (typeof spec[fn] === 'function') {
+                    return spec[fn];
                 } else {
-                    throw "Parameter " + f + " must be a function, not a " +
-                         typeof spec[f] + "!";
+                    throw "Parameter " + fn + " must be a function, not a " +
+                         typeof spec[fn] + "!";
                 }
             } else {
                 return function () {
-                    throw "Function " + f + "() must be implemented";
+                    throw "Function " + fn + "() must be implemented";
                 };
             }
-        };
-        var widget = {};
+        }
+        
+        function setWidgetDiv() {
+            widgetDiv = document.getElementById(widget.divId);
+        }
+
+        // Protected members
         widget.display = defaultFunction("display");
         widget.div = function (divId) {
             widget.divId = divId;
+            setWidgetDiv();
             return widget;
         };
+        
         widget.divElement = function () {
-            if (!widget.divId) {
+            if (!widgetDiv) {
                 throw "Widget's div is not defined!";
             }
-            return document.getElementById(widget.divId);
+            return widgetDiv;
         };
+        
         widget.getJSON = function (path, callback) {
             var url = Iris.dataURI(path);
             $.ajax({
@@ -54,9 +66,21 @@ function Widget() {
     
     WidgetSingleton.create = function (spec) {
         if (!spec || !spec.about) {
-            throw "'about' callback is missing";
+            throw "'about' parameter is missing";
         }
-        var widgetName = spec.about()["name"];
+        var widgetSetting;
+        if (typeof spec.about === 'function') {
+            widgetSetting = function (key) {
+                return spec.about()[key];
+            };
+        } else if (typeof spec.about === 'object') {
+            widgetSetting = function (key) {
+                return spec.about[key];
+            };
+        } else {
+            throw "about: Must be either a function or an associative array";
+        }
+        var widgetName = widgetSetting("name");
         if (!widgetName) {
             throw "Widget name ('name') is a " +
                 "required return parameter of 'about'";
