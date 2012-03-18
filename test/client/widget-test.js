@@ -4,7 +4,7 @@ var sandbox = require('nodeunit').utils.sandbox;
 var context = sandbox(target, { console: console, document: documentStub });
 var Iris    = context.Iris;
 
-exports.createWithNoParamsThrowsOnRender = function (test) {
+exports.createWithNoParamsThrowsOnDisplay = function (test) {
     var widget = Iris.Widget.create({
         about: { name: "SomeWidget" }
     });
@@ -81,7 +81,7 @@ exports.cascadingMethods = function (test) {
     test.equals(widget, widget.div("div1").div("div2"));
     test.equals("div2", widget.divId);
     test.done();
-}
+};
 
 exports.divElement = function (test) {
     var widget = Iris.Widget.create({
@@ -91,4 +91,28 @@ exports.divElement = function (test) {
         widget.divElement()
     }, null, "Should throw an error when no divId defined.");
     test.done();
-}
+};
+
+exports.getDefaultRenderer = function (test) {
+    var calledRenderer = false;
+    // Create stub
+    Iris.Renderer = {
+    };
+    Iris.Renderer.MyRenderer = {
+        render: function () {
+            calledRenderer = true;
+        }
+    };
+    var widget = Iris.Widget.create({
+        about: {
+            name: "SomeWidget",
+            renderers: {
+                default: "MyRenderer"
+            }
+        }
+    });
+    widget.display();
+    test.ok(calledRenderer,
+        "display() should have called the default renderer");
+    test.done();
+};
