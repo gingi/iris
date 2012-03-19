@@ -1,21 +1,58 @@
-(function() {
+(function () {
     var uriPrefix = Iris.dataURI();
     var widget = Iris.Widget.create({
         about: {
             name: "DataBrowser",
             author: "Andrew Olson",
-            requires: [ "jquery.js" ],
+            requires: [],
             renderers: {
                 default: "syntax.js"
             },
+            css: {},
         }
     });
+    
+    widget.layout = function (layout) {
+        layout.append({
+            path: '/service/list',
+            render: function (list) {
+                var sel = document.createElement('select');
+                var seen = {};
+                for (var key in list) {
+                    var value = list[key];
+                    if (seen[key.name]) {
+                        continue;
+                    }
+                    var opt = document.createElement('option');
+                    opt.value = srv.uri;
+                    opt.text = srv.name;
+                    if (opt.value == uriPrefix) {
+                        opt.selected = true;
+                    }
+                    sel.add(opt, null);
+                    seen[srv.name] = 1;
+                }
+                var opt = document.createElement('option');
+                opt.text = "custom";
+                opt.value = "";
+                sel.add(opt, null);
+
+                div.appendChild(sel);
+                var input = document.createElement('input');
+                input.value = path;
+                div.appendChild(input);
+                var button = document.createElement('input');
+                button.setAttribute("type", "button");
+                button.setAttribute('value', 'load');                
+            }
+        });
+        return widget;
+    };
 
     widget.display = function (args) {
         var div = widget.divElement();
         div.innerHTML = '';
-        var path = args.hasOwnProperty('path') ?
-            args['path'] : '/species/at/chromosomes';
+        var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
         if (args.hasOwnProperty('API')) {
             uriPrefix = args['API'];
         } else {
@@ -34,7 +71,7 @@
                 var opt = document.createElement('option');
                 opt.value = srv.uri;
                 opt.text = srv.name;
-                if (opt.value === uriPrefix) {
+                if (opt.value == uriPrefix) {
                     opt.selected = true;
                 }
                 sel.add(opt, null);
@@ -53,7 +90,7 @@
             button.setAttribute("type", "button");
             button.setAttribute('value', 'load');
             button.onclick = function() {
-                widget.display({
+                widget.render(divId, {
                     API: sel.value,
                     path: input.value
                 })

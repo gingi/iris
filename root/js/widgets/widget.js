@@ -1,9 +1,7 @@
 // widget.js
 
 if (!Iris) { var Iris = {}; }
-Iris.Widget = Widget();
-
-function Widget() {
+Iris.Widget = (function () {
     function createWidget(spec, my) {
         var widget = {};
         
@@ -14,14 +12,47 @@ function Widget() {
             widgetDiv = document.getElementById(widget.divId);
         }
 
+        function buildDisplayFromLayout() {
+            var renderElements = [];
+            var widgetLayout = (function () {
+                return {
+                    append: function (element) {
+                        if (element.dataPath == null) {
+                            throw "'dataPath:' is required to render layout."
+                        }
+                        if (element.render == null) {
+                            throw "'render:' is required to render layout."
+                        }
+                        if (typeof element.render != 'function') {
+                            throw "'render:' must be a function."
+                        }
+                        renderElements.push(element);
+                    }
+                };
+            })();
+            spec.layout(widgetLayout);
+            widget.display = function (args) {
+                for (var i = 0; i < renderElements.length; i++) {
+                    var element = renderElements[i];
+                    widget.getJSON(element.dataPath, function (json) {
+                        element.render(json);
+                    });
+                }
+            };
+        }
+
         // Protected members
         if (spec.display == null) {
-            widget.display = function (args) {
-                var renderer = Iris.Renderer[my.renderer];
-                renderer.render(args);
-            };
+            if (spec.layout != null && typeof spec.layout == 'function') {
+                buildDisplayFromLayout();
+            } else {
+                widget.display = function (args) {
+                    var renderer = Iris.Renderer[my.renderer];
+                    renderer.render(args);
+                };
+            }
         } else {
-            if (typeof spec.display !== 'function') {
+            if (typeof spec.display != 'function') {
                 throw "Parameter 'display:' must be a function, not a " +
                      typeof spec.display + "!";
             }
@@ -88,12 +119,12 @@ function Widget() {
         var newWidget = createWidget(spec, my);
 
         if (WidgetSingleton[spec.name]) {
-            console.log("Warning: Overwriting existing widget [" +
-                 widgetName + "]!");
+            console.log(
+                "Warning: Overwriting existing widget [" + widgetName + "]!");
         }
         WidgetSingleton[widgetName] = newWidget;
         return newWidget;
     };
 
     return WidgetSingleton;
-}
+})();

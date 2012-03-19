@@ -8,7 +8,7 @@ exports.createWithNoParamsThrowsOnDisplay = function (test) {
     var widget = Iris.Widget.create({
         about: { name: "SomeWidget" }
     });
-    test["throws"](function () { widget.display(); }, null,
+    test.throws(function () { widget.display(); }, null,
         "No display defined, should throw an exception");
     test.done();
 };
@@ -24,7 +24,7 @@ exports.createWithRenderFunction = function (test) {
 };
 
 exports.createWithNonFunctionRender = function (test) {
-    test["throws"](function () {
+    test.throws(function () {
         Iris.Widget.create({
             about: { name: "HelloWidget" },
             display: "A String"
@@ -67,7 +67,7 @@ exports.aboutAsAssociativeArray = function (test) {
 };
 
 exports.aboutAsOtherObjectThrowsError = function (test) {
-    test["throws"](function () {
+    test.throws(function () {
         Iris.Widget.create({ about: "AboutString" })
     }, null, "about: as a String should throw error");
     test.done();
@@ -87,7 +87,7 @@ exports.divElement = function (test) {
     var widget = Iris.Widget.create({
         about: function () { return { name: "W" }; }
     });
-    test["throws"](function () {
+    test.throws(function () {
         widget.divElement()
     }, null, "Should throw an error when no divId defined.");
     test.done();
@@ -114,5 +114,82 @@ exports.getDefaultRenderer = function (test) {
     widget.display();
     test.ok(calledRenderer,
         "display() should have called the default renderer");
+    test.done();
+};
+
+exports.renderLayout = function (test) {
+    var calledRender = 0;
+    var times = 5;
+    var widget = Iris.Widget.create({
+        about: { name: "SomeWidget" },
+        layout: function (layout) {
+            for (var i = 0; i < times; i++) {
+                layout.append({
+                    render: function (data) {
+                        calledRender++;
+                    },
+                    dataPath: ""
+                });
+            }
+        }
+    });
+    test.equals(0, calledRender,
+        "render() should be called 0 times before display() " +
+             "(called " + calledRender + " times)"
+    );
+    
+    // Stub getJSON to avoid network communication
+    widget.getJSON = function (path, fn) {
+        fn();
+    };
+    widget.display();
+    test.equals(times, calledRender,
+        "render() should be called " + times + " times after display() " +
+             "(called " + calledRender + " times)"
+    );
+    test.done();
+};
+
+exports.malformedLayoutThrowsError = function (test) {    
+    // No render function
+    test.throws(function () {
+        Iris.Widget.create({
+            about: { name: "SomeWidget" },
+            layout: function (layout) { layout.append({ dataPath: "" }); }
+        });
+    }, null, "layout.append with empty object should throw error");
+
+    // 'render:' is not a function
+    test.throws(function () {
+        Iris.Widget.create({
+            about: { name: "SomeWidget" },
+            layout: function (layout) {
+                layout.append({
+                    dataPath: "",
+                    render: {}
+                });
+            }
+        });
+    }, null, "layout.append should throw error on non-function render:");
+
+    // No dataPath
+    test.throws(function () {
+        Iris.Widget.create({
+            about: { name: "SomeWidget" },
+            layout: function (layout) {
+                layout.append({ render: function () {} });
+            }
+        });
+    }, null, "layout.append with no dataPath should throw error");
+
+    // No error
+    test.doesNotThrow(function () {
+        Iris.Widget.create({
+            about: { name: "SomeWidget" },
+            layout: function (layout) {
+                layout.append({ render: function () {}, dataPath: "/" });
+            }
+        });
+    }, null, "Should be valid layout.append() usage");
     test.done();
 };
