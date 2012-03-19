@@ -1,4 +1,4 @@
-(function() {
+(function () {
     var widget = Iris.Widget.create({
         about: {
             name: "BarChart",
