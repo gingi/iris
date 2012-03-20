@@ -37,9 +37,6 @@ function createWidget(spec, my) {
 
     function processElementRenderer(element) {
         var renderer = element.renderer;
-        if (element.dataPath == null) {
-            throw "'dataPath:' is required to render layout.";
-        }
         
         // If no renderer, wrap one around the 'render:' callback
         if (renderer == null) {
@@ -72,34 +69,41 @@ function createWidget(spec, my) {
             if (typeof element.transform != 'function') {
                 throw "transform: must be a function.";
             }
-            element.render = function (data) {
+            element.render = function (divId, data) {
                 var transformed = element.transform(data);
-                return renderer.render(transformed);
+                return renderer.render(divId, transformed);
             };
         } else {
             element.render = renderer.render;
         }
+        return element;
     }
 
     function buildDisplayFromLayout() {
-        var renderElements = [];
         var widgetLayout = (function () {
+            var renderElements = [];
             return {
                 append: function (element) {
-                    processElementRenderer(element);
-                    renderElements.push(element);
-                }
+                    renderElements.push(processElementRenderer(element));
+                },
+                elements: function () { return renderElements; }
             };
         })();
         spec.layout(widgetLayout);
         widget.display = function (args) {
-            for (var i = 0; i < renderElements.length; i++) {
-                var element = renderElements[i];
-                element.renderer.div(widget.divId);
-                widget.getJSON(element.dataPath, function (json) {
-                    element.render(json);
-                });
+            jQuery.ajaxSetup({ async: false });
+            var elements = widgetLayout.elements();
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                if (element.dataPath) {
+                    Iris.getJSON(element.dataPath, function (json) {
+                        element.render(widget.divId, json);
+                    });
+                } else {
+                    element.render(widget.divId);
+                }
             }
+            jQuery.ajaxSetup({ async: true });
         };
     }
 
@@ -135,16 +139,7 @@ function createWidget(spec, my) {
     };
         
     widget.getJSON = function (path, callback) {
-        var url = Iris.dataURI(path);
-        $.ajax({
-            url: url,
-            dataType: 'json',
-            data: [],
-            success: callback,
-            error: function (event, request, settings) {
-                console.warn("AJAX error! ", event, request, settings);
-            }
-        });
+        Iris.getJSON(path, callback);
         return widget;
     };
     return widget;

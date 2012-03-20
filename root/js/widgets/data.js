@@ -6,15 +6,52 @@
             name: "DataBrowser",
             author: "Andrew Olson",
             requires: [],
-            renderers: {
-                default: "syntax.js"
-            },
-            css: {},
         },
         layout: function (layout) {
             layout.append({
                 dataPath: '/service/list',
-                renderer: "DropDown"
+                renderer: "DropDown",
+                transform: function (data) {
+                    var list = [];
+                    for (var i in data) {
+                        var service = data[i];
+                        var name = service.name;
+                        var value = service.uri;
+                        if (service.path) {
+                            value += service.path;
+                            name += service.path;
+                        }
+                        list.push({
+                            name: name,
+                            value: value,
+                        });
+                    }
+                    list.push({ name: "[ Custom ]", value: "" });
+                    return list;                    
+                }
+            });
+            layout.append({
+                render: function (divId) {
+                    var div = document.getElementById(divId);
+                    var input = document.createElement('input');
+                    // input.value = path;
+                    div.appendChild(input);
+                    var button = document.createElement('input');
+                    button.setAttribute("type", "button");
+                    button.setAttribute('value', 'load');
+                    button.onclick = function () {
+                        console.log("Button clicked", event);
+                    };
+                    div.appendChild(button);
+                    // getJSON(path, function (json) {
+                    //     var str = JSON.stringify(obj, undefined, 4);
+                    //     div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);
+                    // });
+                }
+            });
+            layout.append({
+                dataPath: '/service',
+                renderer: "Syntax"
             });
             return widget;
         }

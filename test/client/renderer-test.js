@@ -30,21 +30,7 @@ module.exports = {
     createRendererWithoutAbout: function (test) {
         test.doesNotThrow(function () {
             Iris.Renderer.create({ render: function () {} });
-        }, "Should be able to create a non-registered Renderer");
-        test.done();
-    },
-    divCascades: function (test) {
-        var element;
-        var renderer = Iris.Renderer.create({
-            about: { name: "MyRenderer" },
-            render: function (data) {
-                element = this.divElement();
-            }
-        });
-        renderer.div("someDiv").render();
-        
-        // Ensure that the div set on the renderer is found by the document.
-        test.equals(element, documentStub.getElementById("someDiv"));
+        }, null, "Should be able to create a non-registered Renderer");
         test.done();
     },
     dropDownRenderer: function (test) {
@@ -52,15 +38,18 @@ module.exports = {
         var children;
 
         documentStub.clearElements();
-        renderer.div("someDiv").render();
+        renderer.render(documentStub.createElement('someDiv'));
         test.equal(0, documentStub.findElement('select').children.length);
         
         documentStub.clearElements();
-        renderer.div("someDiv").render({ a: 'x', b: 'y' });
+        renderer.render(documentStub.createElement('someDiv'), [
+            { name: 'a', value: 'x' },
+            { name: 'b', value: 'y' }
+        ]);
         children = documentStub.findElement('select').children;
         test.equal(2, children.length);
-        test.equal('a', children[0].value); test.equal('x', children[0].text);
-        test.equal('b', children[1].value); test.equal('y', children[1].text);
+        test.equal('a', children[0].text); test.equal('x', children[0].value);
+        test.equal('b', children[1].text); test.equal('y', children[1].value);
         test.done();
     }
 };

@@ -34,3 +34,6 @@ exports.documentStub = (function () {
     };
 })();
 
+exports.jQueryStub = {
+    ajaxSetup: function () {}
+};
