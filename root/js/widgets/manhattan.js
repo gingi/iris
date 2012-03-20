@@ -41,8 +41,8 @@
         div.append('<canvas id="' + widget.divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
-        div.parent.height = canvasHeight;
-        div.parent.width = canvasWidth;
+        // div.parent.height = canvasHeight;
+        // div.parent.width = canvasWidth;
 
         var canvas = document.getElementById(widget.divId + "_canvas");
         canvasi = document.getElementById(widget.divId + "_canvasi");
@@ -53,6 +53,7 @@
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
         // fetch the list of chromosomes and their lengths
+		totalLen = 0;
         widget.getJSON("/species/" + species + "/chromosomes", function(json) {
             for (var i = 0; i < json.length; i++) {
                 chrLengths[i] = json[i][1];
