@@ -1,4 +1,20 @@
-// renderer.js
+/* renderer.js
+ * 
+ * Author: Shiran Pasternak
+ *
+ * Creation:
+ *
+ *     Iris.Renderer.create({
+ *         about: { name: "Histogram" },
+ *         render: function (data) { ... }
+ *     });
+ *
+ * Usage:
+ *
+ *     Iris.Renderer.Histogram.div('divId').render(data);
+ *
+ * Copyright (c) 2012 Ware Lab, Cold Spring Harbor Laboratory
+ */
 
 if (!Iris) { var Iris = {}; }
 Iris.Renderer = (function () {
@@ -75,16 +91,10 @@ Iris.Renderer.create(function () {
         about: { name: "DropDown" },
         render: function (list) {
             var select = document.createElement('select');
-            var seen = {};
             for (var key in list) {
                 var value = list[key];
-                if (seen[key.name]) {
-                    continue;
-                }
-                select.add(option(value.uri, value.name), null);
-                seen[value.name] = 1;
+                select.add(option(key, value), null);
             }
-            select.add(option("custom", ""), null);
             this.divElement().appendChild(select);
         }
     }
