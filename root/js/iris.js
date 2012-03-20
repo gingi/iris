@@ -29,10 +29,24 @@ if (!Iris) {
                 services[service.path] = service.uri;
             }
         });
+        
+        function getJSON(path, callback) {
+            var url = Iris.dataURI(path);
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: [],
+                success: callback,
+                error: function (event, request, settings) {
+                    console.warn("AJAX error! ", event, request, settings);
+                }
+            });
+        };
 
         return {
             dataURI: function (path) { return dataServiceURI + path; },
-            services: services
+            services: services,
+            getJSON: getJSON,
         };
     })();
 }

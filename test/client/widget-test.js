@@ -1,5 +1,6 @@
 var target = __dirname + '/../../root/js/widgets/widget.js';
 var documentStub = require(__dirname + '/stubs.js').documentStub;
+var jQueryStub = require(__dirname + '/stubs.js').jQueryStub;
 var Iris;
 
 module.exports = {
@@ -7,7 +8,8 @@ module.exports = {
         var sandbox = require('nodeunit').utils.sandbox;
         var context = sandbox(target, {
             console: console,
-            document: documentStub
+            document: documentStub,
+            jQuery: jQueryStub
         });
         Iris = context.Iris;
         Iris.Renderer = {
@@ -16,6 +18,9 @@ module.exports = {
                 that.div = function () {};
                 return that;
             }
+        };
+        Iris.getJSON = function (path, func) {
+            func();
         };
         callback();
     },
@@ -218,20 +223,6 @@ module.exports = {
             });
         }, null, "layout.append should throw error on non-function render:");
 
-        // No dataPath
-        test.throws(function () {
-            Iris.Widget.create({
-                about: {
-                    name: "SomeWidget"
-                },
-                layout: function (layout) {
-                    layout.append({
-                        render: function () {}
-                    });
-                }
-            });
-        }, null, "layout.append with no dataPath should throw error");
-
         // No error
         test.doesNotThrow(function () {
             Iris.Widget.create({
@@ -314,4 +305,32 @@ module.exports = {
             "widget.display() should trigger render(), then transform()");
         test.done();
     },
+    
+    multipleRenderers: function (test) {
+        var calls = [];
+        var widget = Iris.Widget.create({
+            about: { name: "MultipleRendererWidget" },
+            layout: function (layout) {
+                layout.append({
+                    dataPath: "/dataPath1",
+                    render: function () {
+                        calls.push("Renderer1");
+                    }
+                });
+                layout.append({
+                    dataPath: "/dataPath2",
+                    render: function () {
+                        calls.push("Renderer2");
+                    }
+                });
+            }
+        });
+        widget.getJSON = function (path, fn) {
+            fn();
+        };
+        test.deepEqual([], calls);
+        widget.display();
+        test.deepEqual(["Renderer1", "Renderer2"], calls);
+        test.done();
+    }
 };

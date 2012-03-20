@@ -192,6 +192,7 @@ IRIS.uri = function () {
  * Every service provides this REST API for service discovery
  */
 IRIS.app.get('/service', function (req, res) {
+    // res.header("Expires", new Date(Date.now() + 900000));
 	res.json({
         name: IRIS.serviceName,
         dataServiceURI: IRIS.uri(),
@@ -216,5 +217,6 @@ IRIS.app.get('/service/list', function (req, res) {
             services.push(service);            
         }
     }
+    // res.header("Expires", new Date(Date.now() + 900000));
     res.json(services);
 });

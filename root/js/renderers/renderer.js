@@ -11,7 +11,7 @@
  *
  * Usage:
  *
- *     Iris.Renderer.Histogram.div('divId').render(data);
+ *     Iris.Renderer.Histogram.render('divId', data);
  *
  * Copyright (c) 2012 Ware Lab, Cold Spring Harbor Laboratory
  */
@@ -20,21 +20,8 @@ if (!Iris) { var Iris = {}; }
 Iris.Renderer = (function () {
     function createRenderer(spec, my) {
         var renderer = {};
-        
-        var divId;
-        var div;
-
         if (spec.render != null && typeof spec.render == 'function') {
             renderer.render = spec.render;
-        }
-        renderer.div = function (aDivId) {
-            divId = aDivId;
-            div = document.getElementById(divId);
-            return renderer;
-        };
-        
-        renderer.divElement = function () {
-            return div;
         }
         return renderer;
     }
@@ -77,24 +64,59 @@ Iris.Renderer = (function () {
 })();
 
 Iris.Renderer.create(function () {
-    function option (value, text, selected) {
+    function option (args) {
         var opt = document.createElement('option');
-        opt.value = value;
-        opt.text = text;
-        if (selected) {
+        opt.value = args.value;
+        opt.text = args.name;
+        if (args.selected) {
             opt.selected = true;
         }
         return opt;
     }
     return {
         about: { name: "DropDown" },
-        render: function (list) {
+        render: function (divId, list) {
             var select = document.createElement('select');
-            for (var key in list) {
-                var value = list[key];
-                select.add(option(key, value), null);
+            if (list != null) {
+                for (var i = 0; i < list.length; i++) {
+                    var item = list[i];
+                    select.add(option(item), null);
+                }
             }
-            this.divElement().appendChild(select);
+            document.getElementById(divId).appendChild(select);
         }
+    };
+}());
+
+Iris.Renderer.create(function () {
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;')
+                   .replace(/</g, '&lt;')
+                   .replace(/>/g, '&gt;');
+        return json
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
     }
+    return {
+        about: { name: "Syntax" },
+        render: function (divId, json) {
+            var str = JSON.stringify(json, undefined, 4);
+            document.getElementById(divId)
+                .appendChild(document.createElement('pre')).innerHTML =
+                     syntaxHighlight(str);
+        }
+    };
 }());
