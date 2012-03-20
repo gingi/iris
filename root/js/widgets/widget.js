@@ -20,7 +20,22 @@ Iris.Widget = (function () {
                         if (element.dataPath == null) {
                             throw "'dataPath:' is required to render layout."
                         }
-                        if (element.render == null) {
+                        if (element.renderer) {
+                            var renderer = Iris.Renderer[element.renderer];
+                            if (!renderer) {
+                                throw "Renderer " + element.renderer +
+                                    " is not registered.";
+                            }
+                            if (!renderer.render) {
+                                throw "Renderer " + element.renderer +
+                                    " does not have a render() callback.";
+                            }
+                            if (typeof renderer.render != 'function') {
+                                throw "Object " + element.renderer +
+                                    ".render is not a function.";
+                            }
+                            element.render = renderer.render;
+                        } else if (element.render == null) {
                             throw "'render:' is required to render layout."
                         }
                         if (typeof element.render != 'function') {
