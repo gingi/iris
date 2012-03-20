@@ -1,4 +1,4 @@
-(function () {
+(function() {
     var uriPrefix = Iris.dataURI();
     var widget = {};
     widget = Iris.Widget.create({
@@ -24,7 +24,7 @@
                         list.push({
                             name: name,
                             value: value,
-                        });
+    });
                     }
                     list.push({ name: "[ Custom ]", value: "" });
                     return list;                    
@@ -56,7 +56,7 @@
             return widget;
         }
     });
-    
+
     widget.display = function (args) {
         var div = widget.divElement();
         div.innerHTML = '';
