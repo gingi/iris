@@ -1,4 +1,26 @@
-// widget.js
+/* widget.js
+ * 
+ * Author: Shiran Pasternak
+ *
+ * Creation:
+ *
+ *     Iris.Widget.create({
+ *         about: { name: "GeneGODistribution" },
+ *         layout: function (theLayout) {
+ *              theLayout.append({
+ *                  div: 'someDivID',
+ *                  renderer: Iris.Renderer.Histogram,
+ *                  dataPath: '/some/path'
+ *              });
+ *         }
+ *     });
+ *
+ * Usage:
+ *
+ *     Iris.Widget.GeneGODistribution.div('divId').display();
+ *
+ * Copyright (c) 2012 Ware Lab, Cold Spring Harbor Laboratory
+ */
 
 if (!Iris) { var Iris = {}; }
 Iris.Widget = (function () {
@@ -18,7 +40,7 @@ Iris.Widget = (function () {
                 return {
                     append: function (element) {
                         if (element.dataPath == null) {
-                            throw "'dataPath:' is required to render layout."
+                            throw "'dataPath:' is required to render layout.";
                         }
                         if (element.renderer) {
                             var renderer = Iris.Renderer[element.renderer];
@@ -36,10 +58,20 @@ Iris.Widget = (function () {
                             }
                             element.render = renderer.render;
                         } else if (element.render == null) {
-                            throw "'render:' is required to render layout."
+                            throw "'render:' is required to render layout.";
                         }
                         if (typeof element.render != 'function') {
-                            throw "'render:' must be a function."
+                            throw "'render:' must be a function.";
+                        }
+                        if (element.transform) {
+                            if (typeof element.transform != 'function') {
+                                throw "transform: must be a function.";
+                            }
+                            var actuallyRender = element.render;
+                            element.render = function (data) {
+                                var transformed = element.transform(data);
+                                return actuallyRender(transformed);
+                            };
                         }
                         renderElements.push(element);
                     }

@@ -250,7 +250,7 @@ module.exports = {
     layoutRenderer: function (test) {
         var calledRender = false;
         Iris.Renderer = {
-            "MyRenderer": {
+            MyRenderer: {
                 render: function () {
                     calledRender = true;
                 }
@@ -266,7 +266,7 @@ module.exports = {
                     dataPath: "/"
                 });
             }
-        })
+        });
 
         // Stub getJSON to avoid network communication
         widget.getJSON = function (path, fn) {
@@ -278,6 +278,38 @@ module.exports = {
         widget.display();
         test.ok(calledRender,
             "Should have called render() after widget.display()");
+        test.done();
+    },
+    
+    transformDataForRenderer: function (test) {
+        var calls = [];
+        Iris.Renderer = {
+            MyRenderer: {
+                render: function (data) {
+                    calls.push("render");
+                }
+            }
+        };
+        var widget = Iris.Widget.create({
+            about: { name: "MyWidget" },
+            layout: function (layout) {
+                layout.append({
+                    renderer: "MyRenderer",
+                    dataPath: "",
+                    transform: function (data) {
+                        calls.push("transform");
+                    },
+                });
+            }
+        });
+        widget.getJSON = function (path, fn) {
+            fn();
+        };
+        test.deepEqual([], calls,
+            "transform: should not be called before widget.display()");
+        widget.display();
+        test.deepEqual(["transform", "render"], calls,
+            "widget.display() should trigger render(), then transform()");
         test.done();
     },
 };
