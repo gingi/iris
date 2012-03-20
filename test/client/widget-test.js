@@ -1,11 +1,11 @@
-var target = __dirname + '/../../root/js/widgets/widget.js';
+var target  = __dirname + '/../../root/js/widgets/widget.js';
 var documentStub = require(__dirname + '/stubs.js').documentStub;
 var jQueryStub = require(__dirname + '/stubs.js').jQueryStub;
 var Iris;
 
 module.exports = {
     setUp: function (callback) {
-        var sandbox = require('nodeunit').utils.sandbox;
+var sandbox = require('nodeunit').utils.sandbox;
         var context = sandbox(target, {
             console: console,
             document: documentStub,
@@ -29,7 +29,7 @@ module.exports = {
         delete Iris;
         callback();
     },
-    
+
     createWithNoParamsThrowsOnDisplay: function (test) {
         var widget = Iris.Widget.create({
             about: {
@@ -39,32 +39,32 @@ module.exports = {
         test.throws(function () {
             widget.display();
         }, null, "No display defined, should throw an exception");
-        test.done();
+    test.done();
     },
 
     createWithRenderFunction: function (test) {
-        var widget = Iris.Widget.create({
+    var widget = Iris.Widget.create({
             about: {
                 name: "SomeWidget"
             },
             display: function () {}
-        });
+    });
         test.doesNotThrow(function () {
             widget.display();
         }, null, "display() is defined. Should not complain.");
-        test.done();
+    test.done();
     },
 
     createWithNonFunctionRender: function (test) {
         test.throws(function () {
-            Iris.Widget.create({
+        Iris.Widget.create({
                 about: {
                     name: "HelloWidget"
                 },
                 display: "A String"
-            });
+        });
         }, null, "'display:' param to create() should not be a String");
-        test.done();
+    test.done();
     },
 
     findCreatedWidget: function (test) {
@@ -74,12 +74,12 @@ module.exports = {
                     name: "MyAwesomeWidget"
                 };
             }
-        });
-
-        test.ok(Iris.Widget.MyAwesomeWidget != null,
-            "Should be able to reference a created widget");
+    });
+    
+    test.ok(Iris.Widget.MyAwesomeWidget != null,
+        "Should be able to reference a created widget");
         test.equals(widget, Iris.Widget.MyAwesomeWidget);
-        test.done();
+    test.done();
     },
 
     aboutAsFunction: function (test) {
@@ -87,7 +87,7 @@ module.exports = {
             about: function () {
                 return {
                     name: "FunctionAboutWidget"
-                };
+};
             }
         });
         test.equals(widget, Iris.Widget.FunctionAboutWidget);

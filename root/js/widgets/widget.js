@@ -33,7 +33,7 @@ function createWidget(spec, my) {
                 
     function setWidgetDiv() {
         widgetDiv = document.getElementById(widget.divId);
-    }
+}
 
     function processElementRenderer(element) {
         var renderer = element.renderer;
@@ -73,9 +73,9 @@ function createWidget(spec, my) {
                 var transformed = element.transform(data);
                 return renderer.render(divId, transformed);
             };
-        } else {
+                } else {
             element.render = renderer.render;
-        }
+                }
         return element;
     }
 
@@ -99,13 +99,13 @@ function createWidget(spec, my) {
                     Iris.getJSON(element.dataPath, function (json) {
                         element.render(widget.divId, json);
                     });
-                } else {
+            } else {
                     element.render(widget.divId);
                 }
             }
             jQuery.ajaxSetup({ async: true });
-        };
-    }
+                };
+            }
 
     // Protected members
     if (spec.display == null) {
@@ -115,13 +115,13 @@ function createWidget(spec, my) {
             widget.display = function (args) {
                 var renderer = Iris.Renderer[my.renderer];
                 renderer.render(args);
-            };
-        }
+        };
+                }
     } else {
         if (typeof spec.display != 'function') {
             throw "Parameter 'display:' must be a function, not a " +
                  typeof spec.display + "!";
-        }
+    }
         widget.display = spec.display;
     }
 
@@ -145,9 +145,9 @@ function createWidget(spec, my) {
     return widget;
 }
     
-var WidgetSingleton = {};
+    var WidgetSingleton = {};
     
-WidgetSingleton.create = function (spec) {
+    WidgetSingleton.create = function (spec) {
     if (!spec || !spec.about) {
         throw "'about' parameter is missing";
     }
@@ -175,14 +175,14 @@ WidgetSingleton.create = function (spec) {
     }
     var newWidget = createWidget(spec, my);
 
-    if (WidgetSingleton[spec.name]) {
+        if (WidgetSingleton[spec.name]) {
         console.log(
             "Warning: Overwriting existing widget [" + widgetName + "]!");
-    }
+        }
     WidgetSingleton[widgetName] = newWidget;
-    return newWidget;
-};
+        return newWidget;
+    };
 
-return WidgetSingleton;
+    return WidgetSingleton;
 
 })();
