@@ -27,6 +27,12 @@ module.exports = {
         test.equals(renderer, Iris.Renderer.MyRenderer);
         test.done();
     },
+    createRendererWithoutAbout: function (test) {
+        test.doesNotThrow(function () {
+            Iris.Renderer.create({ render: function () {} });
+        }, "Should be able to create a non-registered Renderer");
+        test.done();
+    },
     divCascades: function (test) {
         var element;
         var renderer = Iris.Renderer.create({
