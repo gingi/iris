@@ -2,7 +2,6 @@ var target = __dirname + '/../../root/js/widgets/widget.js';
 var documentStub = require(__dirname + '/stubs.js').documentStub;
 var Iris;
 
-
 module.exports = {
     setUp: function (callback) {
         var sandbox = require('nodeunit').utils.sandbox;

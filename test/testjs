@@ -2,4 +2,7 @@
 
 var nodeunit = require('nodeunit');
 var reporter = nodeunit.reporters.default;
-reporter.run(['server/service-base-test.js', 'client/widget-test.js']);
+reporter.run([
+    'server/service-base-test.js',
+    'client/widget-test.js',
+    'client/renderer-test.js']);
