@@ -44,34 +44,33 @@ Iris.Renderer = (function () {
      */
     var RendererSingleton = {};
     RendererSingleton.create = function (spec) {
-        if (!spec || !spec.about) {
-            throw "'about' parameter is missing";
-        }
-        var setting;
-        if (typeof spec.about == 'function') {
-            setting = function (key) {
-                return spec.about()[key];
-            };
-        } else if (typeof spec.about == 'object') {
-            setting = function (key) {
-                return spec.about[key];
-            };
-        } else {
-            throw "about: Must be either a function or an associative array";
-        }
-        var rendererName = setting("name");
-        if (!rendererName) {
-            throw "Renderer name ('name') is a " +
-                "required return parameter of 'about'";
-        }
         var newRenderer = createRenderer(spec, {});
+        if (spec && spec.about) {
+            var setting;
+            if (typeof spec.about == 'function') {
+                setting = function (key) {
+                    return spec.about()[key];
+                };
+            } else if (typeof spec.about == 'object') {
+                setting = function (key) {
+                    return spec.about[key];
+                };
+            } else {
+                throw "about: Must be a function or an associative array";
+            }
+            var rendererName = setting("name");
+            if (!rendererName) {
+                throw "Renderer name ('name') is a " +
+                    "required return parameter of 'about'";
+            }
 
-        if (RendererSingleton[spec.name]) {
-            console.log(
-                "Warning: Overwriting existing renderer [" +
-                rendererName + "]!");
+            if (RendererSingleton[spec.name]) {
+                console.log(
+                    "Warning: Overwriting existing renderer [" +
+                    rendererName + "]!");
+            }
+            RendererSingleton[rendererName] = newRenderer;
         }
-        RendererSingleton[rendererName] = newRenderer;
         return newRenderer;
     };
     return RendererSingleton;

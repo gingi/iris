@@ -10,6 +10,13 @@ module.exports = {
             document: documentStub
         });
         Iris = context.Iris;
+        Iris.Renderer = {
+            create: function (args) {
+                var that = args;
+                that.div = function () {};
+                return that;
+            }
+        };
         callback();
     },
     tearDown: function (callback) {
@@ -131,8 +138,6 @@ module.exports = {
 
     getDefaultRenderer: function (test) {
         var calledRenderer = false;
-        // Create stub
-        Iris.Renderer = {};
         Iris.Renderer.MyRenderer = {
             render: function () {
                 calledRenderer = true;
@@ -141,10 +146,7 @@ module.exports = {
         var widget = Iris.Widget.create({
             about: {
                 name: "SomeWidget",
-                renderers: {
-                default:
-                    "MyRenderer"
-                }
+                renderers: { default: "MyRenderer" }
             }
         });
         widget.display();
@@ -253,7 +255,8 @@ module.exports = {
             MyRenderer: {
                 render: function () {
                     calledRender = true;
-                }
+                },
+                div: function () {}
             }
         };
         var widget = Iris.Widget.create({
@@ -285,9 +288,8 @@ module.exports = {
         var calls = [];
         Iris.Renderer = {
             MyRenderer: {
-                render: function (data) {
-                    calls.push("render");
-                }
+                render: function (data) { calls.push("render"); },
+                div: function () {}
             }
         };
         var widget = Iris.Widget.create({
