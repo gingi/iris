@@ -110,11 +110,11 @@ Iris.Widget = (function () {
             throw "'about' parameter is missing";
         }
         var widgetSetting;
-        if (typeof spec.about === 'function') {
+        if (typeof spec.about == 'function') {
             widgetSetting = function (key) {
                 return spec.about()[key];
             };
-        } else if (typeof spec.about === 'object') {
+        } else if (typeof spec.about == 'object') {
             widgetSetting = function (key) {
                 return spec.about[key];
             };
