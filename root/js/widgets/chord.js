@@ -1,14 +1,9 @@
 (function () {
     var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "Chord",
-                author: "Jer-Ming Chia",
-                requires: [ "d3.js" ],
-                renderers: {
-                    // default: "syntax.js"
-                },
-            }
+        about: {
+            name: "Chord",
+            author: "Jer-Ming Chia",
+            requires: [ "d3.js" ],
         }
     });
     var svg;
