@@ -4,15 +4,13 @@
  *
  * Creation:
  *
- *     Iris.Widget.create({
- *         about: { name: "GeneGODistribution" },
- *         layout: function (theLayout) {
- *              theLayout.append({
- *                  div: 'someDivID',
- *                  renderer: Iris.Renderer.Histogram,
- *                  dataPath: '/some/path'
- *              });
- *         }
+ *     var widget = Iris.Widget.create({
+ *         about: { name: "GeneGODistribution" }
+ *     });
+ *     widget.append({
+ *         div: 'someDivID',
+ *         renderer: Iris.Renderer.Histogram,
+ *         dataPath: '/some/path'
  *     });
  *
  * Usage:
@@ -27,13 +25,14 @@ Iris.Widget = (function () {
     
 function createWidget(spec, my) {
     var widget = {};
+    var layout = [];
         
     // Private members
-    var widgetDiv;
+    var widgetDiv = null;
                 
     function setWidgetDiv() {
         widgetDiv = document.getElementById(widget.divId);
-}
+    }
 
     function processElementRenderer(element) {
         var renderer = element.renderer;
@@ -60,7 +59,6 @@ function createWidget(spec, my) {
         if (renderer.render == null) {
             throw "Renderer " + renderer +
                 " does not have a render() callback.";
-            
         }
         if (typeof renderer.render != 'function') {
             throw "Object " + element.renderer + ".render is not a function.";
@@ -73,66 +71,58 @@ function createWidget(spec, my) {
                 var transformed = element.transform(data);
                 return renderer.render(divId, transformed);
             };
-                } else {
+        } else {
             element.render = renderer.render;
-                }
+        }
         return element;
     }
 
-    function buildDisplayFromLayout() {
-        var widgetLayout = (function () {
-            var renderElements = [];
-            return {
-                append: function (element) {
-                    renderElements.push(processElementRenderer(element));
-                },
-                elements: function () { return renderElements; }
-            };
-        })();
-        spec.layout(widgetLayout);
-        widget.display = function (args) {
-            jQuery.ajaxSetup({ async: false });
-            var elements = widgetLayout.elements();
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-                if (element.dataPath) {
-                    Iris.getJSON(element.dataPath, function (json) {
-                        element.render(widget.divId, json);
-                    });
-            } else {
-                    element.render(widget.divId);
-                }
-            }
-            jQuery.ajaxSetup({ async: true });
-                };
-            }
-
     // Protected members
-    if (spec.display == null) {
-        if (spec.layout != null && typeof spec.layout == 'function') {
-            buildDisplayFromLayout();
-        } else {
-            widget.display = function (args) {
-                var renderer = Iris.Renderer[my.renderer];
-                renderer.render(args);
-        };
-                }
-    } else {
+    if (spec.display != null) {
         if (typeof spec.display != 'function') {
             throw "Parameter 'display:' must be a function, not a " +
                  typeof spec.display + "!";
-    }
+        }
         widget.display = spec.display;
+    } else {
+        widget.display = function () {
+            throw "display() is not implemented!";
+        };
     }
-
+    
     widget.div = function (divId) {
         widget.divId = divId;
         setWidgetDiv();
         return widget;
     };
+    
+    var componentDisplayAdded = 0;
+    widget.append = function (element) {
+        layout.push(processElementRenderer(element));
+        
+        // Dynamically switch to component-based display
+        if (componentDisplayAdded == 0) {
+            widget.display = function (args) {
+                jQuery.ajaxSetup({ async: false });
+                for (var i = 0; i < layout.length; i++) {
+                    var element = layout[i];
+                    if (element.dataPath) {
+                        Iris.getJSON(element.dataPath, function (json) {
+                            element.render(widget.divId, json);
+                        });
+                    } else {
+                        element.render(widget.divId);
+                    }
+                }
+                jQuery.ajaxSetup({ async: true });
+            };
+            componentDisplayAdded = 1;
+        }
+        return widget;
+    };
         
     widget.divElement = function () {
-        if (!widgetDiv) {
+        if (widgetDiv == null) {
             throw "Widget's div is not defined!";
         }
         return widgetDiv;
@@ -168,21 +158,19 @@ function createWidget(spec, my) {
         throw "Widget name ('name') is a " +
             "required return parameter of 'about'";
     }
-    var renderers = widgetSetting("renderers");
+
     var my = {};
-    if (renderers) {
-        my.renderer = renderers["default"];
-    }
     var newWidget = createWidget(spec, my);
 
-        if (WidgetSingleton[spec.name]) {
+    if (WidgetSingleton[spec.name]) {
         console.log(
             "Warning: Overwriting existing widget [" + widgetName + "]!");
-        }
-    WidgetSingleton[widgetName] = newWidget;
-        return newWidget;
-    };
+    }
 
-    return WidgetSingleton;
+    WidgetSingleton[widgetName] = newWidget;
+    return newWidget;
+};
+
+return WidgetSingleton;
 
 })();
