@@ -33,7 +33,6 @@
         render: function (divId) {
             var div = document.getElementById(divId);
             var input = document.createElement('input');
-            // input.value = path;
             div.appendChild(input);
             var button = document.createElement('input');
             button.setAttribute("type", "button");
@@ -42,10 +41,6 @@
                 console.log("Button clicked", event);
             };
             div.appendChild(button);
-            // getJSON(path, function (json) {
-            //     var str = JSON.stringify(obj, undefined, 4);
-            //     div.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(str);
-            // });
         }
     }).append({
         dataPath: '/service',

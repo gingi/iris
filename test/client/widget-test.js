@@ -62,23 +62,11 @@ module.exports = {
         test.done();
     },
 
-    findCreatedWidget: function (test) {
-        var widget = Iris.Widget.create({
-            about: function () {
-                return {
-                    name: "MyAwesomeWidget"
-                };
-            }
-        });
-        test.ok(Iris.Widget.MyAwesomeWidget != null,
-            "Should be able to reference a created widget");
-        test.equals(widget, Iris.Widget.MyAwesomeWidget);
-        test.done();
-    },
-
     aboutAsFunction: function (test) {
         var widget = Iris.Widget.create({
-            about: function () { return { name: "FunctionAboutWidget" }; }
+            about: function () {
+                return { name: "FunctionAboutWidget" };
+            }
         });
         test.equals(widget, Iris.Widget.FunctionAboutWidget);
         test.done();
@@ -86,9 +74,7 @@ module.exports = {
 
     aboutAsAssociativeArray: function (test) {
         var widget = Iris.Widget.create({
-            about: {
-                name: "ArrayAboutWidget"
-            }
+            about: { name: "ArrayAboutWidget" }
         });
         test.equals(widget, Iris.Widget.ArrayAboutWidget);
         test.done();

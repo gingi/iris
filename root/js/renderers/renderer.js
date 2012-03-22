@@ -64,7 +64,7 @@ Iris.Renderer = (function () {
 })();
 
 Iris.Renderer.create(function () {
-    function option (args) {
+    function option(args) {
         var opt = document.createElement('option');
         opt.value = args.value;
         opt.text = args.name;
