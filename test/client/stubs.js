@@ -1,36 +1,55 @@
 // Set of client-side stubs to replicate behavior of client resources.
 
 exports.documentStub = (function () {
-    function Element() {
+    var elements = {};
+    var createdElements = [];
+    var stub = {};
+    stub.setElement = function (id, elem) {
+        elements[id] = elem;
+    };
+    stub.clearElements = function () {
+        for (var elt in elements) {
+            delete elements[elt];
+        }
+        elements = {};
+    };
+    stub.findElement = function (id) {
+        return elements[id]; 
+    };
+    stub.Element = function Element() {
         var that = { children: [] };
+            
         that.appendChild = function (child) {
             that.children.push(child);
         };
+            
+        that.removeChild = function (child) { };
+            
         that.add = that.appendChild;
         return that;
     };
-    
-    var elements = {};
+    stub.lastCreatedElement = function () {
+        return createdElements[createdElements.length - 1];
+    };
+    stub.clearDocument = function () {
+        stub.clearElements();
+        createdElements = [];
+    };
     return {
-        findElement: function (id) {
-            return elements[id]; 
-        },
+        Stub: stub,
+        
+        // Stubbed methods
         getElementById: function (id) {
             if (elements[id] == null) {
-                elements[id] = Element();
+                elements[id] = stub.Element();
             }
             return elements[id];
         },
-        createElement: function (id) {
-            elements[id] = Element();
-            return elements[id];
+        createElement: function (tag) {
+            var node = stub.Element();
+            createdElements.push(node);
+            return node;
         },
-        clearElements: function () {
-            for (var elt in elements) {
-                delete elements[elt];
-            }
-            elements = {};
-        }
     };
 })();
 

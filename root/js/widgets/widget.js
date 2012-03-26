@@ -33,6 +33,21 @@ function createWidget(spec, my) {
     function setWidgetDiv() {
         widgetDiv = document.getElementById(widget.divId);
     }
+    
+    // Private utility functions
+    function clearNode(node) {
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+    }
+    
+    function setContents(node, content) {
+        if (typeof content === 'string') {
+            node.innerHTML = content;
+        } else if (content != null) {
+            node.appendChild(content);
+        }
+    }
 
     function processElementRenderer(element) {
         var renderer = element.renderer;
@@ -96,27 +111,32 @@ function createWidget(spec, my) {
         return widget;
     };
     
-    var componentDisplayAdded = 0;
+    var componentDisplayAdded = false;
     widget.append = function (element) {
         layout.push(processElementRenderer(element));
         
         // Dynamically switch to component-based display
-        if (componentDisplayAdded == 0) {
+        if (componentDisplayAdded == false) {
             widget.display = function (args) {
+                var div = widget.divElement();
+                clearNode(div);
                 jQuery.ajaxSetup({ async: false });
                 for (var i = 0; i < layout.length; i++) {
                     var element = layout[i];
+                    var node = document.createElement('div');
+                    node.id = widget.divId + '-child' + (i+1);
+                    div.appendChild(node);
                     if (element.dataPath) {
                         Iris.getJSON(element.dataPath, function (json) {
-                            element.render(widget.divId, json);
+                           setContents(node, element.render(json));
                         });
                     } else {
-                        element.render(widget.divId);
+                        setContents(node, element.render());
                     }
                 }
                 jQuery.ajaxSetup({ async: true });
             };
-            componentDisplayAdded = 1;
+            componentDisplayAdded = true;
         }
         return widget;
     };

@@ -6,7 +6,7 @@ module.exports = {
     setUp: function (callback) {
         var sandbox = require('nodeunit').utils.sandbox;
         documentStub = require(__dirname + '/stubs.js').documentStub;
-        documentStub.clearElements();
+        documentStub.Stub.clearElements();
         var context = sandbox(target, {
             console: console,
             document: documentStub
@@ -35,18 +35,18 @@ module.exports = {
     },
     dropDownRenderer: function (test) {
         var renderer = Iris.Renderer.DropDown;
-        var children;
+        var elem;
 
-        documentStub.clearElements();
-        renderer.render(documentStub.createElement('someDiv'));
-        test.equal(0, documentStub.findElement('select').children.length);
+        documentStub.Stub.clearElements();
+        elem = renderer.render();
+        test.equal(0, elem.children.length);
         
-        documentStub.clearElements();
-        renderer.render(documentStub.createElement('someDiv'), [
+        documentStub.Stub.clearElements();
+        elem = renderer.render([
             { name: 'a', value: 'x' },
             { name: 'b', value: 'y' }
         ]);
-        children = documentStub.findElement('select').children;
+        var children = elem.children;
         test.equal(2, children.length);
         test.equal('a', children[0].text); test.equal('x', children[0].value);
         test.equal('b', children[1].text); test.equal('y', children[1].value);

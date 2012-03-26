@@ -75,7 +75,7 @@ Iris.Renderer.create(function () {
     }
     return {
         about: { name: "DropDown" },
-        render: function (divId, list) {
+        render: function (list) {
             var select = document.createElement('select');
             if (list != null) {
                 for (var i = 0; i < list.length; i++) {
@@ -83,7 +83,7 @@ Iris.Renderer.create(function () {
                     select.add(option(item), null);
                 }
             }
-            document.getElementById(divId).appendChild(select);
+            return select;
         }
     };
 }());
@@ -112,11 +112,11 @@ Iris.Renderer.create(function () {
     }
     return {
         about: { name: "Syntax" },
-        render: function (divId, json) {
+        render: function (json) {
             var str = JSON.stringify(json, undefined, 4);
-            document.getElementById(divId)
-                .appendChild(document.createElement('pre')).innerHTML =
-                     syntaxHighlight(str);
+            var elem = document.createElement('pre');
+            elem.innerHTML = syntaxHighlight(str);
+            return elem;
         }
     };
 }());
