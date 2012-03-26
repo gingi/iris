@@ -30,8 +30,8 @@
             return list;                    
         }
     }).append({
-        render: function (divId) {
-            var div = document.getElementById(divId);
+        render: function () {
+            var div = document.createElement('div');
             var input = document.createElement('input');
             div.appendChild(input);
             var button = document.createElement('input');
@@ -41,13 +41,14 @@
                 console.log("Button clicked", event);
             };
             div.appendChild(button);
+            return div;
         }
     }).append({
         dataPath: '/service',
         renderer: "Syntax"
     });
 
-    widget.display = function (args) {
+    widget.display2 = function (args) {
         var div = widget.divElement();
         div.innerHTML = '';
         var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';

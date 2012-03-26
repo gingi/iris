@@ -20,6 +20,7 @@ module.exports = {
             }
         };
         Iris.getJSON = function (path, func) { func(); };
+        documentStub.Stub.clearDocument();
         callback();
     },
 
@@ -36,7 +37,7 @@ module.exports = {
         test.throws(function () {
             widget.display();
         }, null, "Without renderer defined, should throw an exception");
-    test.done();
+        test.done();
     },
 
     createWithRenderFunction: function (test) {
@@ -104,7 +105,7 @@ module.exports = {
             about: { name: "W" }
         });
         test.throws(function () {
-            widget.divElement()
+            widget.divElement();
         }, null, "Should throw an error when no divId defined.");
         test.done();
     },
@@ -113,6 +114,7 @@ module.exports = {
         var calledRender = 0;
         var times = 5;
         var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        widget.div('someDiv');
         for (var i = 0; i < times; i++) {
             widget.append({
                 render: function (data) {
@@ -125,7 +127,6 @@ module.exports = {
         test.equals(0, calledRender,
             "render() should be called 0 times before display() " +
             "(called " + calledRender + " times)");
-
         widget.display();
         test.equals(times, calledRender,
             "render() should be called " + times + " times after display() " +
@@ -166,6 +167,7 @@ module.exports = {
             }
         };
         var widget = Iris.Widget.create({ about: { name: "MyWidget" } });
+        widget.div("div90210");
         widget.append({
             renderer: "MyRenderer",
             dataPath: "/"
@@ -187,14 +189,15 @@ module.exports = {
                 div: function () {}
             }
         };
-        var widget = Iris.Widget.create({ about: { name: "MyWidget" } });
-        widget.append({
-            renderer: "MyRenderer",
-            dataPath: "",
-            transform: function (data) {
-                calls.push("transform");
-            },
-        });
+        var widget = Iris.Widget.create({ about: { name: "MyWidget" } })
+            .div("someDivId")
+            .append({
+                renderer: "MyRenderer",
+                dataPath: "",
+                transform: function (data) {
+                    calls.push("transform");
+                },
+            });
         widget.getJSON = function (path, fn) {
             fn();
         };
@@ -208,8 +211,9 @@ module.exports = {
     
     multipleRenderers: function (test) {
         var calls = [];
-        var widget = Iris.Widget.create({ about: { name: "LayoutWidget" } });
-        widget.append({
+        var widget = Iris.Widget.create({ about: { name: "LayoutWidget" } })
+        .div("someOtherDiv")
+        .append({
             dataPath: "/dataPath1",
             render: function () {
                 calls.push("Renderer1");
@@ -227,6 +231,36 @@ module.exports = {
         test.deepEqual([], calls);
         widget.display();
         test.deepEqual(["Renderer1", "Renderer2"], calls);
+        test.done();
+    },
+    
+    widgetRenderReturnValueAsString: function (test) {
+        var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        widget.append({ render: function () { return "Foobar"; } });
+        widget.div('testdiv');
+        widget.display();
+        var node = documentStub.Stub.lastCreatedElement();
+        test.equals("Foobar", node.innerHTML,
+            "Expected innerHTML to be set to 'Foobar', instead got " +
+            node.innerHTML);
+        test.done();
+    },
+    
+    widgetRenderReturnValueAsNode: function (test) {
+        var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        widget.append({
+            render: function () {
+                return new String("Yomama");
+            }
+        });
+        widget.div('testdiv');
+        test.equals(null, documentStub.Stub.lastCreatedElement(),
+            "Expected contents to be null before display()");
+        widget.display();
+        var node = documentStub.Stub.lastCreatedElement();
+        test.equals(1, node.children.length,
+            "Expected 1 child node, instead got " +
+            node.children.length);
         test.done();
     }
 };
