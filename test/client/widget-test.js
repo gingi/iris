@@ -116,7 +116,7 @@ module.exports = {
         var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
         widget.div('someDiv');
         for (var i = 0; i < times; i++) {
-            widget.append({
+            widget.view({
                 render: function (data) {
                     calledRender++;
                 },
@@ -137,22 +137,22 @@ module.exports = {
     malformedLayoutThrowsError: function (test) {
         var layoutWidget = function (renderItem) {
             var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
-            widget.append(renderItem);
+            widget.view(renderItem);
         };
         // No render function
         test.throws(function () {
             layoutWidget({ dataPath: "" });
-        }, null, "layout.append with empty object should throw error");
+        }, null, "widget.view with empty object should throw error");
 
         // 'render:' is not a function
         test.throws(function () {
             layoutWidget({ dataPath: "", render: {} });
-        }, null, "layout.append should throw error on non-function render:");
+        }, null, "widget.view should throw error on non-function render:");
 
         // No error
         test.doesNotThrow(function () {
             layoutWidget({ render: function () {}, dataPath: "/" });
-        }, null, "Should be valid layout.append() usage");
+        }, null, "Should be valid layout.view() usage");
         test.done();
     },
 
@@ -168,7 +168,7 @@ module.exports = {
         };
         var widget = Iris.Widget.create({ about: { name: "MyWidget" } });
         widget.div("div90210");
-        widget.append({
+        widget.view({
             renderer: "MyRenderer",
             dataPath: "/"
         });
@@ -191,7 +191,7 @@ module.exports = {
         };
         var widget = Iris.Widget.create({ about: { name: "MyWidget" } })
             .div("someDivId")
-            .append({
+            .view({
                 renderer: "MyRenderer",
                 dataPath: "",
                 transform: function (data) {
@@ -213,13 +213,13 @@ module.exports = {
         var calls = [];
         var widget = Iris.Widget.create({ about: { name: "LayoutWidget" } })
         .div("someOtherDiv")
-        .append({
+        .view({
             dataPath: "/dataPath1",
             render: function () {
                 calls.push("Renderer1");
             }
         })
-        .append({
+        .view({
             dataPath: "/dataPath2",
             render: function () {
                 calls.push("Renderer2");
@@ -236,7 +236,7 @@ module.exports = {
     
     widgetRenderReturnValueAsString: function (test) {
         var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
-        widget.append({ render: function () { return "Foobar"; } });
+        widget.view({ render: function () { return "Foobar"; } });
         widget.div('testdiv');
         widget.display();
         var node = documentStub.Stub.lastCreatedElement();
@@ -248,7 +248,7 @@ module.exports = {
     
     widgetRenderReturnValueAsNode: function (test) {
         var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
-        widget.append({
+        widget.view({
             render: function () {
                 return new String("Yomama");
             }

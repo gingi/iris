@@ -8,7 +8,7 @@
             requires: [],
         }
     });
-    widget.append({
+    widget.view({
         dataPath: '/service/list',
         renderer: "DropDown",
         transform: function (data) {
@@ -29,7 +29,7 @@
             list.push({ name: "[ Custom ]", value: "" });
             return list;                    
         }
-    }).append({
+    }).view({
         render: function () {
             var div = document.createElement('div');
             var input = document.createElement('input');
@@ -43,7 +43,7 @@
             div.appendChild(button);
             return div;
         }
-    }).append({
+    }).view({
         dataPath: '/service',
         renderer: "Syntax"
     });

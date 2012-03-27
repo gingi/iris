@@ -7,7 +7,7 @@
  *     var widget = Iris.Widget.create({
  *         about: { name: "GeneGODistribution" }
  *     });
- *     widget.append({
+ *     widget.view({
  *         div: 'someDivID',
  *         renderer: Iris.Renderer.Histogram,
  *         dataPath: '/some/path'
@@ -112,7 +112,7 @@ function createWidget(spec, my) {
     };
     
     var componentDisplayAdded = false;
-    widget.append = function (element) {
+    widget.view = function (element) {
         layout.push(processElementRenderer(element));
         
         // Dynamically switch to component-based display
