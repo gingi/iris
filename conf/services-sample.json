@@ -3,18 +3,24 @@
         "hostname" : "0.0.0.0"
     },
     "endpoints": {
-        "iris" : {
-            "examples" : { "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ] }
+        "proxy" : {
+            "examples" : {
+                "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ]
+            }
         },
         "examples" : {
-            "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas", "/pcoords" ] },
-            "examples-mongo" : { "type": "mongo", "paths" : [ "/phenotypes" ] }
+            "examples-fastbit" : {
+                "type": "fastbit", "paths" : [ "/gwas", "/pcoords" ]
+            },
+            "examples-mongo" : {
+                "type": "mongo", "paths" : [ "/phenotypes" ]
+            }
         }
     }, 
     "services": [
         {
             "config": "app-config.js",
-            "name": "iris", 
+            "name": "proxy", 
             "nodefile": "proxy.js",
             "port": 4747
         }, 
