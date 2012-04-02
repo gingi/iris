@@ -1,4 +1,7 @@
 {
+    "settings" : {
+        "hostname" : "0.0.0.0"
+    },
     "endpoints": {
         "iris" : {
             "examples" : { "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ] }
@@ -12,7 +15,7 @@
         {
             "config": "app-config.js",
             "name": "iris", 
-            "nodefile": "proxy.js", 
+            "nodefile": "proxy.js",
             "port": 4747
         }, 
         {

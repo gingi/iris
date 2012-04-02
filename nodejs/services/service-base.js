@@ -128,13 +128,21 @@ exports.loadConfiguration = function (confFile) {
     }
     if (confFile == null) {
         console.log("Configuration file required!");
-        console.log("Usage: node " + process.argv[1] + " <config_file.js> [<service-name>]");
+        console.log("Usage: node " +
+            process.argv[1] + " <config_file.js> [<service-name>]");
         return;
     }
     IRIS.config = require(confFile).Config;
     if (global.process.env.NODE_PORT != null) {
         IRIS.config.appPort = global.process.env.NODE_PORT;
     }
+    if (!IRIS.config.settings) {
+        IRIS.config.settings = {};
+    }
+    if (!IRIS.config.settings.hostname) {
+        IRIS.config.settings.hostname = '0.0.0.0';
+    }
+    
     return IRIS.config;
 };
 
@@ -170,7 +178,7 @@ exports.findService = function (args) {
 
 exports.startService = function () {
     IRIS.app.listen(IRIS.config.appPort);
-    console.log("service-address http://localhost:%d", IRIS.app.address().port)
+    console.log("service-address %s", IRIS.uri());
     console.log("service-mode %s", IRIS.app.settings.env);
 }
 
@@ -184,7 +192,8 @@ exports.httpGET = function (response, service, path) {
 }
 
 IRIS.uri = function () {
-    return 'http://' + IRIS.app.address().address + ':' + IRIS.app.address().port;
+    return 'http://' +
+        IRIS.app.address().address + ':' + IRIS.app.address().port;
 }
 
 /* SERVICE API
@@ -211,7 +220,8 @@ IRIS.app.get('/service/list', function (req, res) {
             var service = {
                 name: serviceName,
                 path: paths[i],
-                uri: 'http://0.0.0.0:' + endpoint.port
+                uri: 'http://' + IRIS.config.settings.hostname +
+                    ':' + endpoint.port
             };
             services.push(service);            
         }
