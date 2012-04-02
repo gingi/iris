@@ -355,13 +355,20 @@ HELP
 # ---------------------------------------------------------------------------
 # IRIS OPEN
 # ---------------------------------------------------------------------------
-_help_open="iris open
+_help_open="iris open [<service>]
 
 Opens a browser window with the Iris website. This option is currently only 
-supported by Mac (Srsly, why would you use anything else?)."
+supported by Mac (Srsly, why would you use anything else?).
+
+    <service>   The web service to open in a browser (default: 'proxy')"
 function iris_cmd_open {
-    proxy_service='iris' # TODO: Name it something else?
-    local service=`iris_cmd_services $proxy_service`
+    local svc=$1
+    test -z "svc" && svc='proxy'
+    local service=`iris_cmd_services $svc`
+    if [ -z "$service" ]; then
+        echo "No such service to open ('$svc')!"
+        exit 1
+    fi
     open `_service_url $service`
 }
 
