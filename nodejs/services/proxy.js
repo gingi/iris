@@ -79,6 +79,10 @@ app.get('/workspace', function (req, res) {
 	routes.workspace(req, res, widgetList);
 });
 
+app.get('/viewport', function (req, res) {
+    routes.viewport(req, res);
+});
+
 // Proxy endpoints
 for (var serviceName in iris.endpoints) {
     var endpoint = iris.endpoints[serviceName];
