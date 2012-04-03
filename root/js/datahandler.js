@@ -1,36 +1,36 @@
 // global variables
-var DataStore;
-var TypeData;
-var CallbackList;
-var DataRepositories;
-var DataRepositoriesCount;
-var DataRepositoryDefault;
+var dh_DataStore;
+var dh_TypeData;
+var dh_CallbackList;
+var dh_DataRepositories;
+var dh_DataRepositoriesCount;
+var dh_DataRepositoryDefault;
 
 // set up / reset the DataHandler, adding initial repositories
 function initialize_data_storage (repositories) {
-  DataStore = [];
-  TypeData = [];
-  TypeData['types'] = [];
-  TypeData['type_count'] = 0;
-  CallbackList = [];
-  DataRepositories = [];
-  DataRepositoriesCount = 0;
-  DataRepositoryDefault = null;
+  dh_DataStore = [];
+  dh_TypeData = [];
+  dh_TypeData['types'] = [];
+  dh_TypeData['type_count'] = 0;
+  dh_CallbackList = [];
+  dh_DataRepositories = [];
+  dh_DataRepositoriesCount = 0;
+  dh_DataRepositoryDefault = null;
 
   if (repositories) {
     for (var i=0; i<repositories.length; i++) {
-      DataRepositories[repositories[i].id] = repositories[i];
-      DataRepositoriesCount++;
-      if (DataRepositoriesCount == 1) {
-	DataRepositoryDefault = DataRepositories[repositories[i].id];
+      dh_DataRepositories[repositories[i].id] = repositories[i];
+      dh_DataRepositoriesCount++;
+      if (dh_DataRepositoriesCount == 1) {
+	dh_DataRepositoryDefault = dh_DataRepositories[repositories[i].id];
       }
     }
   }
 }
 
 // generic data loader
-// given a DOM id, interprets the innerHTML of the element as JSON data and loads it into the DataStore
-// given a JSON data structure, loads it into the DataStore
+// given a DOM id, interprets the innerHTML of the element as JSON data and loads it into the dh_DataStore
+// given a JSON data structure, loads it into the dh_DataStore
 function load_data (id_or_data, no_clear, type) {
   var new_data;
   if (typeof(id_or_data) == 'string') {
@@ -52,44 +52,44 @@ function load_data (id_or_data, no_clear, type) {
     for (var i=0; i<new_data.length; i++) {
       if (new_data[i].type) {
 	var type = new_data[i].type;
-	if (! TypeData['types'][type]) {
-	  DataStore[type] = [];
-	  TypeData['type_count']++;
-	  TypeData['types'][type] = 0;
+	if (! dh_TypeData['types'][type]) {
+	  dh_DataStore[type] = [];
+	  dh_TypeData['type_count']++;
+	  dh_TypeData['types'][type] = 0;
 	  if (new_data[i].type_description) {
-	    TypeData['type_description'][type] = new_data[i].type_description;
+	    dh_TypeData['type_description'][type] = new_data[i].type_description;
 	  }
 	}
 	for (var h=0; h<new_data[i].data.length; h++) {
-	  if (! DataStore[type][new_data[i].data[h].id]) {
-	    TypeData['types'][type]++;
+	  if (! dh_DataStore[type][new_data[i].data[h].id]) {
+	    dh_TypeData['types'][type]++;
 	  }
-	  DataStore[type][new_data[i].data[h].id] = new_data[i].data[h];
+	  dh_DataStore[type][new_data[i].data[h].id] = new_data[i].data[h];
 	}
       }
     }
   }
 }
 
-// adds / replaces a repository in the DataRepositories list
+// adds / replaces a repository in the dh_DataRepositories list
 function add_repository (repository) {
   if (repository && repository.id) {
-    DataRepositories[repository.id] = repository;
-    DataRepositoriesCount++;
-    if (repository.default || DataRepositoryDefault == null) {
-      DataRepositoryDefault = DataRepositories[repository.id];
+    dh_DataRepositories[repository.id] = repository;
+    dh_DataRepositoriesCount++;
+    if (repository.default || dh_DataRepositoryDefault == null) {
+      dh_DataRepositoryDefault = dh_DataRepositories[repository.id];
     }
   }
 }
 
-// removes a repository from the DataRepositories list
+// removes a repository from the dh_DataRepositories list
 function remove_repository (id) {
-  if (id && DataRepositories[id]) {
-    DataRepositories[id] = null;
-    DataRepositoriesCount--;
+  if (id && dh_DataRepositories[id]) {
+    dh_DataRepositories[id] = null;
+    dh_DataRepositoriesCount--;
     if (DataRepositoryCount == 1) {
-      for (var i in DataRepositories) {
-	DataRepositoryDefault = DataRepositories[i];
+      for (var i in dh_DataRepositories) {
+	dh_DataRepositoryDefault = dh_DataRepositories[i];
       }
     }
   }
@@ -97,13 +97,13 @@ function remove_repository (id) {
 
 // sets the default repository
 function default_repository (id) {
-  if (id && DataRepositories[id]) {
-    DataRepositoryDefault = DataRepositories[id];
+  if (id && dh_DataRepositories[id]) {
+    dh_DataRepositoryDefault = dh_DataRepositories[id];
   }
 }
 
 // event handler for an input type file element, which interprets the selected file(s)
-// as JSON data and loads them into the DataStore
+// as JSON data and loads them into the dh_DataStore
 function dh_file_upload (evt, callback_function, callback_parameters) {
   var files = evt.target.files;
   
@@ -126,11 +126,19 @@ function dh_file_upload (evt, callback_function, callback_parameters) {
 // client side data requestor
 // initiates data retrieval from a resource, saving callback functions / paramters
 function get_objects (type, resource_params, callback_func, callback_params) {
-  if (! CallbackList[type]) {
-    CallbackList[type] = [ [ callback_func, callback_params ] ];
+  if (! dh_CallbackList[type]) {
+    dh_CallbackList[type] = [ [ callback_func, callback_params ] ];
     get_objects_from_repository(type, resource_params);
   } else {
-    CallbackList[type][CallbackList[type].length] = [ callback_func, callback_params ];
+    if (dh_CallbackList[type].in_progress) {
+      if (! dh_CallbackList[type]['new_params']) {
+	dh_CallbackList[type]['new_params'] = [ type, resource_params ];
+	dh_CallbackList[type]['new_list'] = [];
+      }
+      dh_CallbackList[type].new_list[dh_CallbackList[type].new_list.length] = [ callback_func, callback_params ];
+    } else {
+      dh_CallbackList[type][dh_CallbackList[type].length] = [ callback_func, callback_params ];
+    }
   }
   return 0;
 }
@@ -142,17 +150,17 @@ function get_objects (type, resource_params, callback_func, callback_params) {
 function get_objects_from_repository (type, resource_params) {
   var rest_params = "";
   var query_params = "";
-  var base_url = DataRepositoryDefault.url;
+  var base_url = dh_DataRepositoryDefault.url;
   var authentication = "";
-  if (DataRepositoryDefault.authentication) {
-    authentication = "&" + DataRepositoryDefault.authentication;
+  if (dh_DataRepositoryDefault.authentication) {
+    authentication = "&" + dh_DataRepositoryDefault.authentication;
   }
   
   if (resource_params) {
-    if (resource_params.data_repository && DataRepositories[resource_params.data_repository]) {
-      base_url = DataRepositories[resource_params.data_repository].url;
-      if (DataRepositories[resource_params.data_repository].authentication) {
-	authentication = "&" + DataRepositories[resource_params.data_repository].authentication;
+    if (resource_params.data_repository && dh_DataRepositories[resource_params.data_repository]) {
+      base_url = dh_DataRepositories[resource_params.data_repository].url;
+      if (dh_DataRepositories[resource_params.data_repository].authentication) {
+	authentication = "&" + dh_DataRepositories[resource_params.data_repository].authentication;
       } else {
 	authentication = "";
       }
@@ -181,11 +189,18 @@ function get_objects_from_repository (type, resource_params) {
   }
   xhr.onload = function() {
     load_data(JSON.parse(xhr.responseText), null, type);
-    if (CallbackList[type]) {
-      for (i=0;i<CallbackList[type].length;i++) {
-	CallbackList[type][i][0].call(null, CallbackList[type][i][1]);
+    if (dh_CallbackList[type]) {
+      dh_CallbackList[type]['in_progress'] = 1;
+      for (i=0;i<dh_CallbackList[type].length;i++) {
+	dh_CallbackList[type][i][0].call(null, dh_CallbackList[type][i][1]);
       }
-      CallbackList[type] = null;
+      if (dh_CallbackList[type].new_params) {
+	var new_params = dh_CallbackList[type].new_params;
+	dh_CallbackList[type] = dh_CallbackList[type].new_list;
+	get_objects_from_repository(new_params[0], new_params[1]);
+      } else {
+	dh_CallbackList[type] = null;
+      }
     }
   };
   
@@ -203,7 +218,7 @@ function get_objects_from_repository (type, resource_params) {
 }
 
 // called by the returned data from a get_objects_from_repository call
-// loads the returned data into the DataStore, deletes the sent data from the DOM
+// loads the returned data into the dh_DataStore, deletes the sent data from the DOM
 // and initiates all callback functions for the type
 function data_return (type, new_data) {
   type = type.toLowerCase();
@@ -221,25 +236,25 @@ function ajax_result (new_data, type) {
 // executes the callback functions for a given type
 function dh_callback (type) {
   type = type.toLowerCase();
-  for (var c=0;c<CallbackList[type].length;c++) {
-    CallbackList[type][c][0].call(null, CallbackList[type][c][1], type);
+  for (var c=0;c<dh_CallbackList[type].length;c++) {
+    dh_CallbackList[type][c][0].call(null, dh_CallbackList[type][c][1], type);
   }
-  CallbackList[type] = null;
+  dh_CallbackList[type] = null;
 }
 
-// deletes an object from the DataStore
+// deletes an object from the dh_DataStore
 function delete_object (type, id) {
   type = type.toLowerCase();
-  if (DataStore[type][id]) {
-    DataStore[type][id] = null;
-    TypeData['types'][type]--;
-    if (TypeData['types'][type] == 0) {
+  if (dh_DataStore[type][id]) {
+    dh_DataStore[type][id] = null;
+    dh_TypeData['types'][type]--;
+    if (dh_TypeData['types'][type] == 0) {
       delete_object_type(type);
     }
   }
 }
 
-// deletes a set of objects from the DataStore
+// deletes a set of objects from the dh_DataStore
 function delete_objects (type, ids) {
   type = type.toLowerCase();
   for (var i=0; i<ids.length; i++) {
@@ -247,12 +262,12 @@ function delete_objects (type, ids) {
   }
 }
 
-// deletes an entire type from the DataStore
+// deletes an entire type from the dh_DataStore
 function delete_object_type (type) {
   type = type.toLowerCase();
-  if (TypeData['types'][type]) {
-    TypeData['types'][type] = null;
-    TypeData['type_count']--;
-    DataStore[type] = null;
+  if (dh_TypeData['types'][type]) {
+    dh_TypeData['types'][type] = null;
+    dh_TypeData['type_count']--;
+    dh_DataStore[type] = null;
   }
 }
