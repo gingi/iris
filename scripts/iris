@@ -252,7 +252,7 @@ function iris_cmd_stop {
             done
             _kill $irispid
         fi
-        rm $PIDFILE `_svc_pidfile '*'`
+        rm -f $PIDFILE `_svc_pidfile '*'`
     fi 
 }
 
