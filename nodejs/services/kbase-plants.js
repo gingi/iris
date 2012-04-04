@@ -1,7 +1,6 @@
 var iris   = require('./service-base.js');
-var config = iris.loadConfiguration();
+var config = iris.config;
 var app    = iris.app;
-var routes = iris.routes;
 var exec   = require('child_process').exec;
 var spawn  = require('child_process').spawn;
 

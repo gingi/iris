@@ -1,7 +1,5 @@
 var iris   = require('./service-base.js');
-var config = iris.loadConfiguration();
 var app    = iris.app;
-var routes = iris.routes;
 var child  = require('child_process');
 
 var revalidator = require('revalidator');
@@ -72,8 +70,10 @@ var schema = {
 }
 
 function runCommand(executable, response, args) {
-    var cmd = config.BINDIR + '/' + executable;
-	args['d'] = (args.hasOwnProperty('d')) ? config.FASTBIT_DATADIR + '/' + args['d'] : config.FASTBIT_DATADIR;
+    var cmd = iris.config.BINDIR + '/' + executable;
+	args['d'] = (args.hasOwnProperty('d')) ?
+        iris.config.FASTBIT_DATADIR + '/' + args['d'] :
+        iris.config.FASTBIT_DATADIR;
 	for (var k in args) {
 		cmd += ' -' + k +' "'+args[k] + '"';
 	}
