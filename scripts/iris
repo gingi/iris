@@ -174,13 +174,15 @@ function _kill {
         kill $pid
         return
     fi
-    local owner=$(ps -o user $pid | tail -1)
-    if test $WHOAMI == $owner; then
-        kill $pid
-    else
-        _error "Process $pid is owned by $owner, not you ($WHOAMI)."
-        echo "Rerun as $owner (example: 'sudo iris stop')"
-        exit 1
+    local owner=$(ps -o user $pid | grep -v '^USER')
+    if test -n "$owner"; then
+        if test $WHOAMI == $owner; then
+            kill $pid
+        else
+            _error "Process $pid is owned by $owner, not you ($WHOAMI)."
+            echo "Rerun as $owner (example: 'sudo iris stop')"
+            exit 1
+        fi
     fi
 }
 
@@ -239,13 +241,17 @@ function iris_cmd_stop {
         fi
     else
         local irispid=`_iris_pid`
-        for pidfile in `_svc_pidfile '*'`; do
-            local pid=`_running_pid $pidfile`
-            if [ -n "$pid" ]; then
-                _kill $pid
-            fi
-        done
-        _kill $irispid
+        if [ -z "$irispid" ]; then
+            echo "Iris does not appear to be running. Nothing to stop."
+        else
+            for pidfile in `_svc_pidfile '*'`; do
+                local pid=`_running_pid $pidfile`
+                if [ -n "$pid" ]; then
+                    _kill $pid
+                fi
+            done
+            _kill $irispid
+        fi
         rm $PIDFILE `_svc_pidfile '*'`
     fi 
 }

@@ -1,230 +1,252 @@
-var IRIS = {};
+(function () {
 
-IRIS.NODE_HOME = __dirname + '/..';
-IRIS.DEFAULT_SERVICE_CONF = IRIS.NODE_HOME + '/../conf/services.json';
+    var NODE_HOME = __dirname + '/..';
+    var DEFAULT_SERVICE_CONF = NODE_HOME + '/../conf/services.json';
+    var confFile;
+    var service = null;
+    var configuration;
+    
+    // Module dependencies
+    var express = require('express')
+      , routes = require(NODE_HOME + '/routes')
+      , gzip = require('connect-gzip')
+      , app = express.createServer(gzip.gzip())
+      , http = require('http')
+      , util = require('util');
 
-// Private utility functions
-function absolutePath(filename) {
-    var path = require('path');
-    if (filename == null) {
-        return null;
+    // Private utility functions
+    function absolutePath(filename) {
+        var path = require('path');
+        if (filename == null) {
+            return null;
+        }
+        var normalized = path.normalize(filename);
+        if (!normalized.match(/^\//)) {
+            normalized = path.join(global.process.env.PWD, normalized);
+        }
+        return normalized;
     }
-    var normalized = path.normalize(filename);
-    if (!normalized.match(/^\//)) {
-        normalized = path.join(global.process.env.PWD, normalized);
-    }
-    return normalized;
-}
 
-function envRequire(envVar, defaultVar) {
-    if (envVar) {
-        return require(absolutePath(envVar));
-    } else {
-        return require(absolutePath(defaultVar));
-    }
-}
-
-// Process command-line arguments
-{
-    if (process.argv[2]) {
-        IRIS.confFile = absolutePath(process.argv[2]);
-    }
-    if (process.argv[3]) {
-        IRIS.serviceName = process.argv[3];
-    }
-}
-
-// Module dependencies
-IRIS.express = require('express');
-IRIS.routes = require(IRIS.NODE_HOME + '/routes');
-IRIS.gzip = require('connect-gzip');
-IRIS.app = IRIS.express.createServer(IRIS.gzip.gzip());
-IRIS.config = null;
-IRIS.serviceConfig = envRequire(process.env.IRIS_SERVICE_CONF, IRIS.DEFAULT_SERVICE_CONF);
-IRIS.http = require('http');
-IRIS.util = require('util');
-
-IRIS.setEndpoints = function () {
-    IRIS.endpoints = IRIS.serviceConfig.endpoints[IRIS.serviceName];
-    if (IRIS.endpoints != null) {
-        for (var i = 0; i < IRIS.serviceConfig.services.length; i++) {
-            var service = IRIS.serviceConfig.services[i];
-            if (IRIS.endpoints[service.name] != null) {
-                IRIS.endpoints[service.name].port = service.port;
-            }
+    function envRequire(envVar, defaultVar) {
+        if (envVar) {
+            return require(absolutePath(envVar));
+        } else {
+            return require(absolutePath(defaultVar));
         }
     }
-}
-IRIS.setEndpoints();
 
-// CORS middleware
-var allowCrossDomain = function (req, res, next) {
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Credentials', true);
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,HEAD');
-	res.header('Access-Control-Allow-Headers', 'Content-Type');
-	next();
-};
-
-IRIS.app.configure(function () {
-    IRIS.app.use(IRIS.express.bodyParser());
-    IRIS.app.use(IRIS.express.methodOverride());
-    IRIS.app.use(allowCrossDomain);
-    IRIS.app.use(IRIS.app.router);
-});
-
-IRIS.app.configure('development', function (){
-    IRIS.app.use(IRIS.express.errorHandler({
-        dumpExceptions: true,
-        showStack: true
-    }));
-});
-
-IRIS.app.configure('production', function (){
-    IRIS.app.use(express.errorHandler()); 
-});
-
-// chromosome lengths for each species
-IRIS.chromosomes = {
-    at: [
-        [1, 30427671],
-        [2, 19698289],
-        [3, 23459830],
-        [4, 18585056],
-        [5, 26975502]
-    ]
-};
-
-// Public fields
-exports.app         = IRIS.app;
-exports.routes      = IRIS.routes;
-exports.services    = IRIS.serviceConfig['services'];
-exports.chromosomes = IRIS.chromosomes;
-exports.endpoints   = IRIS.endpoints;
-
-// Public functions
-exports.serviceName = function (name) {
-    if (name != null) {
-        IRIS.serviceName = name;
-    }
-    IRIS.setEndpoints();
-    return IRIS.serviceName;
-}
-exports.configureViews = function (app) {
-    if (!app) {
-        app = IRIS.app;
-    }
-    app.configure(function () {
-        app.set('views', IRIS.NODE_HOME + '/views');
-        app.set('view engine', 'jade');
-        app.use(IRIS.express.static(IRIS.NODE_HOME + '/../root'));
-    });
-    app.set('view options', { pretty: true });        
-};
-
-exports.loadConfiguration = function (confFile) {
-    if (confFile == null) {
-        confFile = IRIS.confFile;
-    }
-    if (confFile == null) {
-        console.log("Configuration file required!");
-        console.log("Usage: node " +
-            process.argv[1] + " <config_file.js> [<service-name>]");
-        return;
-    }
-    IRIS.config = require(confFile).Config;
-    if (global.process.env.NODE_PORT != null) {
-        IRIS.config.appPort = global.process.env.NODE_PORT;
-    }
-    if (!IRIS.config.settings) {
-        IRIS.config.settings = {};
-    }
-    if (!IRIS.config.settings.hostname) {
-        IRIS.config.settings.hostname = '0.0.0.0';
+    function uri() {
+        return 'http://' +
+            service.hostname + ':' + app.address().port;
     }
     
-    return IRIS.config;
-};
-
-// Finds a configured service endpoint based on a set of criteria
-exports.findService = function (args) {
-    var comparators = [];
-    if (args["type"]) {
-        comparators.push(["type", function (type) { return args["type"] === type }]);
-    }
-    if (args["path"]) {
-        comparators.push(["paths", function (paths) {
-            for (path in paths) {
-                if (paths[path] === args["path"]) return true;
+    function setEndpoints() {
+        endpoints = serviceConfig.endpoints[service.name];
+        if (endpoints != null) {
+            var services = serviceConfig.services;
+            for (var i = 0; i < services.length; i++) {
+                var svc = serviceConfig.services[i];
+                if (endpoints[svc.name] != null) {
+                    var endpoint = endpoints[svc.name];
+                    endpoint.port     = svc.port;
+                    endpoint.hostname = svc.hostname
+                        ? svc.hostname
+                        : configuration.settings.hostname;
+                }
             }
-            return false;
-        }]);
-    }
-    for (service in IRIS.endpoints) {
-        endpoint = IRIS.endpoints[service];
-        var found = true;
-        for (i in comparators) {
-            var comparator = comparators[i];
-            var key = comparator[0];
-            var func = comparator[1];
-            found = func(endpoint[key]) && found;
-        }
-        if (found) {
-            return service;
         }
     }
-    return null;
-}
-
-exports.startService = function () {
-    IRIS.app.listen(IRIS.config.appPort);
-    console.log("service-address %s", IRIS.uri());
-    console.log("service-mode %s", IRIS.app.settings.env);
-}
-
-exports.httpGET = function (response, service, path) {
-    IRIS.http.get({
-        port: IRIS.endpoints[service].port,
-        path: path
-    }, function (proxyResponse) {
-        proxyResponse.pipe(response);
-    });    
-}
-
-IRIS.uri = function () {
-    return 'http://' +
-        IRIS.app.address().address + ':' + IRIS.app.address().port;
-}
-
-/* SERVICE API
- *
- * Every service provides this REST API for service discovery
- */
-IRIS.app.get('/service', function (req, res) {
-	res.json({
-        name: IRIS.serviceName,
-        dataServiceURI: IRIS.uri(),
-	    next: { "list" : "/service/list" },
-	});
-});
-
-IRIS.app.get('/service/list', function (req, res) {
-    var services = [{
-        name: IRIS.serviceName,
-        uri: IRIS.uri()
-    }];
-    for (serviceName in IRIS.endpoints) {
-        var endpoint = IRIS.endpoints[serviceName];
-        var paths = endpoint.paths;
-        for (var i = 0; i < paths.length; i++) {
-            var service = {
-                name: serviceName,
-                path: paths[i],
-                uri: 'http://' + IRIS.config.settings.hostname +
-                    ':' + endpoint.port
-            };
-            services.push(service);            
-        }
+    
+    function usage(msg) {
+        console.log(msg);
+        console.log(process.argv);
+        console.log("Usage: node " +
+            process.argv[1] + " <config_file.js> <service-name>");
+        process.exit(1);
     }
-    res.json(services);
-});
+
+    // Process command-line arguments
+    (function () {
+        confFile = absolutePath(process.argv[2]);
+        var serviceName = process.argv[3];
+        if (confFile == null) {
+            usage("Configuration file required!");
+        }
+        if (serviceName == null) {
+            usage("Service name is required!");
+        }
+
+        configuration = require(confFile).Config;
+
+        serviceConfig =
+            envRequire(process.env.IRIS_SERVICE_CONF, DEFAULT_SERVICE_CONF);
+
+        if (global.process.env.NODE_PORT != null) {
+            configuration.appPort = global.process.env.NODE_PORT;
+        }
+        configuration.settings = serviceConfig.settings;
+        if (!configuration.settings) {
+            configuration.settings = {};
+        }
+        if (!configuration.settings.hostname) {
+            configuration.settings.hostname = '0.0.0.0';
+        }
+        var i = 0;
+        var services = serviceConfig.services;
+        while (i < services.length && service == null) {
+            if (services[i].name == serviceName) {
+                service = services[i];
+            }
+            i++;
+        }
+        if (service == null) {
+            usage("Service name " + serviceName + " is not configured.");
+        }
+        if (service.hostname == null) {
+            service.hostname = configuration.settings.hostname;
+        }
+
+        setEndpoints();
+    })();
+
+    // CORS middleware
+    function allowCrossDomain(req, res, next) {
+    	res.header('Access-Control-Allow-Origin', '*');
+    	res.header('Access-Control-Allow-Credentials', true);
+    	res.header('Access-Control-Allow-Methods',
+             'GET,PUT,POST,DELETE,OPTIONS,HEAD');
+    	res.header('Access-Control-Allow-Headers', 'Content-Type');
+    	next();
+    };
+
+    app.configure(function () {
+        app.use(express.bodyParser());
+        app.use(express.methodOverride());
+        app.use(allowCrossDomain);
+        app.use(app.router);
+    });
+
+    app.configure('development', function (){
+        app.use(express.errorHandler({
+            dumpExceptions: true,
+            showStack: true
+        }));
+    });
+
+    app.configure('production', function (){
+        app.use(express.errorHandler()); 
+    });
+
+    // Public fields
+    exports.app         = app;
+    // chromosome lengths for each species
+    exports.chromosomes = {
+        at: [
+            [1, 30427671],
+            [2, 19698289],
+            [3, 23459830],
+            [4, 18585056],
+            [5, 26975502]
+        ]
+    };
+    exports.routes      = routes;
+    exports.endpoints   = endpoints;
+    exports.config      = configuration;
+
+    // Public functions
+    exports.configureViews = function (app) {
+        if (!app) {
+            app = app;
+        }
+        app.configure(function () {
+            app.set('views', NODE_HOME + '/views');
+            app.set('view engine', 'jade');
+            app.use(express.static(NODE_HOME + '/../root'));
+        });
+        app.set('view options', { pretty: true });        
+    };
+
+    // Finds a configured service endpoint based on a set of criteria
+    exports.findService = function (args) {
+        var comparators = [];
+        if (args["type"]) {
+            comparators.push(["type", function (type) {
+                return args["type"] === type
+            }]);
+        }
+        if (args["path"]) {
+            comparators.push(["paths", function (paths) {
+                for (path in paths) {
+                    if (paths[path] === args["path"]) return true;
+                }
+                return false;
+            }]);
+        }
+        for (var serviceName in endpoints) {
+            endpoint = endpoints[serviceName];
+            var found = true;
+            for (var i in comparators) {
+                var comparator = comparators[i];
+                var key = comparator[0];
+                var func = comparator[1];
+                found = func(endpoint[key]) && found;
+            }
+            if (found) {
+                return serviceName;
+            }
+        }
+        return null;
+    };
+
+    exports.startService = function () {
+        app.listen(configuration.appPort);
+        console.log("service-address %s", uri());
+        console.log("service-mode %s", app.settings.env);
+    };
+
+    exports.httpGET = function (response, serviceName, path) {
+        http.get({
+            port: endpoints[serviceName].port,
+            path: path
+        }, function (proxyResponse) {
+            proxyResponse.pipe(response);
+        });
+    };
+    
+    exports.serviceName = function () {
+        return service.name;
+    };
+
+
+    /* SERVICE API
+     *
+     * Every service provides this REST API for service discovery
+     */
+    app.get('/service', function (req, res) {
+    	res.json({
+            name: service.name,
+            dataServiceURI: uri(),
+    	    next: { "list" : "/service/list" },
+    	});
+    });
+
+    app.get('/service/list', function (req, res) {
+        var services = [{
+            name: service.name,
+            uri: uri()
+        }];
+        for (var serviceName in endpoints) {
+            var endpoint = endpoints[serviceName];
+            var paths = endpoint.paths;
+            for (var i = 0; i < paths.length; i++) {
+                var svc = {
+                    name: serviceName,
+                    path: paths[i],
+                    uri: 'http://' + endpoint.hostname + ':' + endpoint.port
+                };
+                services.push(svc);            
+            }
+        }
+        res.json(services);
+    });
+})();

@@ -1,5 +1,4 @@
 var iris = require('./service-base.js');
-var config = iris.loadConfiguration();
 var app = iris.app;
 iris.configureViews(app);
 var routes = iris.routes;
