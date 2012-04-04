@@ -437,7 +437,7 @@ See also: 'iris status'"
 function iris_cmd_services {
     local name=$1
     local hostname=$(_json_lookup $SVC_CONF "settings hostname")
-    [ -z "$hostname" ] && hostname=DEFAULT_HOSTNAME
+    [ -z "$hostname" ] && hostname=$DEFAULT_HOSTNAME
     local services
     if [ -n "$name" ]; then
          services=$(_json_flatten $SVC_CONF services \
