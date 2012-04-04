@@ -80,8 +80,8 @@ function init_framebuilder (rendererResources, dataResources, dataflowResources,
 // resource section
 //
 function query_renderer_resource (resource, list) {
-  $.get(resource, function (data) {
-      var res = JSON.parse(data);
+  jQuery.get(resource, function (data) {
+      var res = data; // JSON.parse(data);
       fb_renderer_resources[fb_renderer_resources.length] = resource;
       for (i=0; i<res.length; i++) {
 	fb_available_renderers[res[i]] = fb_renderer_resources.length - 1;
@@ -102,16 +102,20 @@ function update_renderer_list (list) {
   }
 }
 
-function query_dataflow_resource (resource, list) {
-  $.get(resource, function (data) {
-      var res = JSON.parse(data);
-      fb_dataflow_resources[fb_dataflow_resources.length] = resource;
-      for (i=0; i<res.length; i++) {
-	fb_dataflows[res[i]] = fb_dataflow_resources.length - 1;
-      }
-      if (list) {
-	update_dataflow_list(list);
-      }
+function query_dataflow_resource(resource, list) {
+    jQuery.ajax({
+        url: resource,
+        dataType: 'json',
+        success: function(data) {
+            var res = data;
+            fb_dataflow_resources[fb_dataflow_resources.length] = resource;
+            for (i = 0; i < res.length; i++) {
+                fb_dataflows[res[i]] = fb_dataflow_resources.length - 1;
+            }
+            if (list) {
+                update_dataflow_list(list);
+            }
+        }
     });
 }
 
@@ -125,13 +129,17 @@ function update_dataflow_list (list) {
   }
 }
 
-function query_data_resource (resource, list) {
-  $.get(resource, function (data) {
-      add_repository(JSON.parse(data));
-      if (list) {
-	update_datarepo_list(list);
-      }
-    });  
+function query_data_resource(resource, list) {
+    $.ajax({
+        url: resource,
+        dataType: 'json',
+        success: function(data) {
+            add_repository(data);
+            if (list) {
+                update_datarepo_list(list);
+            }
+        }
+    });
 }
 
 function update_datarepo_list (list) {
