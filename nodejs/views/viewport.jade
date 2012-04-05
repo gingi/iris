@@ -13,12 +13,13 @@ script(type="text/javascript", src="/js/framebuilder.js")
 script(type="text/javascript")
 	$(document).ready(function() {
 		init_framebuilder(
-				[ 'http://dev.metagenomics.anl.gov/api_new.cgi/renderer/' ],
-				[ 'http://dev.metagenomics.anl.gov/api_new.cgi/' ],
-				[ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ],
-				'http://dev.metagenomics.anl.gov/api_new.cgi/js/',
-				null,
-				['layout_center', 'layout_east']);
+			[ 'http://dev.metagenomics.anl.gov/api_new.cgi/renderer/' ],
+			[ 'http://dev.metagenomics.anl.gov/api_new.cgi/' ],
+			[ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ],
+			'http://dev.metagenomics.anl.gov/api_new.cgi/js/',
+			null,
+			['layout_center', 'layout_east']
+		);
 	});
 
 .row-fluid
@@ -29,8 +30,10 @@ script(type="text/javascript")
 	img(src="/img/graph.gif", style="height:48px", onload="init_dragobject(this, 'renderer.linegraph.js', 'renderer');", data-type="3d-matrix")
 	img(src="/img/table.png", style="height: 48px", onload="init_dragobject(this, 'renderer.table.js', 'renderer');", data-type="table")
 	img(src="/img/piechart.png", style="height: 48px", id="piechart_drag", onload="init_dragobject(this, 'renderer.piechart.js', 'renderer');", data-type="named_numbers")
+
 	hr(style="height:1px")
+
 	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="init_dragobject(this, test_data, 'data');", onclick="check_compatibility(this);")
 	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="init_dragobject(this, test_data2, 'data');", onclick="check_compatibility(this);")
-	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="init_dragobject(this, test_data3, 'data');", onclick="check_compatibility(this);")
+	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="init_dragobject(this, test_data3, 'data');", onclick="	(this);")
 .ui-layout-west(id="layout_west")
