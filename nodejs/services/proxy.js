@@ -1,5 +1,4 @@
 var iris = require('./service-base.js');
-var config = iris.loadConfiguration();
 var app = iris.app;
 iris.configureViews(app);
 var routes = iris.routes;
@@ -77,6 +76,10 @@ app.get('/widget/:widget', function (req, res) {
 
 app.get('/workspace', function (req, res) {
 	routes.workspace(req, res, widgetList);
+});
+
+app.get('/viewport', function (req, res) {
+    routes.viewport(req, res);
 });
 
 // Proxy endpoints

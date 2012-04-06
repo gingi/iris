@@ -1,8 +1,5 @@
-var iris   = require('./service-base.js');
-var config = iris.loadConfiguration();
-var app    = iris.app;
-var routes = iris.routes;
-var exec   = require('child_process').exec;
+var iris      = require('./service-base.js');
+var app       = iris.app;
 var querystr  = require('querystring');
 
 var GwasFastbitService   = iris.findService({ path: "/gwas", type: "fastbit" });
@@ -16,7 +13,7 @@ app.get('/', function (req, res) {
         'Content-Type': 'application/json'
     });
     res.end(JSON.stringify({
-        name: config.serviceName,
+        name: iris.serviceName(),
         description: "The examples service",
     }));
 });

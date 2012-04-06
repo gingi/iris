@@ -10,20 +10,22 @@ LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
-HOSTNAME=http://0.0.0.0
+DEFAULT_HOSTNAME=0.0.0.0
+WHOAMI=`whoami`
 
 IRIS_USAGE='iris [options] <command> [<arguments>]
     
 Available commands:
+    check       Ensure that Iris is ready to go
+    examples    Install example data
     help        This command
     install     Install dependencies required by Iris
     open        Open up an Iris session (Mac only, for now)
-    start       Start Iris
-    stop        Stop Iris
     restart     Restart Iris
     services    Lists available services
+    start       Start Iris
     status      Check whether or not Iris is running
-    check       Ensure that Iris is ready to go
+    stop        Stop Iris
     
 "iris help <command>" shows help on specific commands.'
 
@@ -36,9 +38,9 @@ mkdir -p $LOGDIR
 function _error {
     tput bold; printf "Error: "; tput sgr0
     echo $@
-    echo
 }
 
+declare -a _json_cache=[]
 function _json_flatten {
     jsonfile=$1
     key=$2
@@ -55,6 +57,16 @@ function _json_flatten {
     " < $jsonfile
 }
 
+function _json_lookup {
+    jsonfile=$1
+    fields=$2
+    perl -MJSON -e "
+         my \$d = decode_json(join '',<STDIN>);
+         for (qw/$fields/) { \$d = \$d->{\$_} };
+         print \"\$d\n\";
+    " < $jsonfile
+}
+
 function _running_pid {
     pidfile=$1
     if [ -e "$pidfile" ]; then
@@ -67,24 +79,32 @@ function _iris_pid {
 }
 
 function _svc_pidfile {
-    svc=$1
+    local svc=$1
     echo $SVCPIDFILE | sed "s/%%/$svc/"
 }
 
 function _start_services {
-    svc=$1
+    local svc=$1
     if [ ! -e "$SVC_CONF" ]; then
         echo "Service configuration [$SVC_CONF] cannot be found!"
         iris_cmd_help
         exit 1
     fi
-    echo "Starting services..."
-    if [ -n "$svc" ]; then
-        list_services="iris_cmd_services | awk '\$2==\"$svc\"{print}'"
-    else
-        list_services='iris_cmd_services'
+    local services=$(iris_cmd_services $svc)
+    local priverror=$(echo "$services" | while read line; do
+        local service=($line)
+        if [ "${service[0]}" -le 1024 -a $WHOAMI != "root" ]; then
+            echo "Service '${service[1]}' requires root privileges."
+        fi
+    done)
+    if [ -n "$priverror" ]; then
+        echo $priverror
+        _error "Please rerun 'iris start' as root!"
+        exit 1
     fi
-    eval $list_services | (while read line
+
+    echo "Starting services..."
+    echo "$services" | (while read line
         do
             local service=($line)
             local port=${service[0]}
@@ -92,13 +112,11 @@ function _start_services {
             local nodefile=${service[2]}
             local conffile=${service[3]}
             local log=$LOGDIR/$name.log
-            pidfile=`_svc_pidfile $name`
-            pid=`_running_pid $pidfile`
-            if [ -n "$pid" ]; then
-                echo "Service $name is already running as process $pid"
-                continue
-            fi
-            NODE_PORT=$port node $SVC_DIR/$nodefile $CONFDIR/$conffile $name > $log &
+            rm -f "$log"
+            local pidfile=`_svc_pidfile $name`
+            local pid=`_running_pid $pidfile`
+            NODE_PORT=$port node \
+                $SVC_DIR/$nodefile $CONFDIR/$conffile $name > "$log" &
             echo $! > $pidfile
         done
         wait
@@ -128,8 +146,13 @@ function _status_line {
 
 function _find_service {
     local svc=$1
-    local service=(`iris_cmd_services | awk "\\\$2==\"\$svc\"{print}"`)
+    local service=(`iris_cmd_services $svc`)
     echo "${service[*]}"
+}
+
+function _service_url {
+    local svc=($@)
+    echo "http://${svc[4]}:${svc[0]}"
 }
 
 function _service_status {
@@ -140,8 +163,27 @@ function _service_status {
         echo "Service '$name' is not running."
         return
     fi
-    local port=${service[0]}
-    _status_line $name `_running_pid $pidfile` "$HOSTNAME:$port"
+    _status_line $name `_running_pid $pidfile` `_service_url ${service[@]}`
+}
+
+# Ensure privileges for helpful output
+function _kill {
+    local pid=$1
+    local name=$2
+    if test $WHOAMI == "root"; then
+        kill $pid
+        return
+    fi
+    local owner=$(ps -o user $pid | grep -v '^USER')
+    if test -n "$owner"; then
+        if test $WHOAMI == $owner; then
+            kill $pid
+        else
+            _error "Process $pid is owned by $owner, not you ($WHOAMI)."
+            echo "Rerun as $owner (example: 'sudo iris stop')"
+            exit 1
+        fi
+    fi
 }
 
 # ===========================================================================
@@ -157,7 +199,7 @@ Starts Iris services. With no arguments, starts all services.
 function iris_cmd_start {
     svc=$1
     if [ -n "$svc" ]; then
-        if [ `iris_cmd_services | cut -f2 | grep -c "\b$svc\b"` -eq 0 ]; then
+        if [ -z "`iris_cmd_services $svc`" ]; then
             echo "Service $svc is not a valid service!"
             exit 1
         fi
@@ -184,7 +226,7 @@ Stops Iris services. With no arguments, stops all of Iris.
 function iris_cmd_stop {
     svc=$1
     if [ -n "$svc" ]; then
-        if [ `iris_cmd_services | cut -f2 | grep -c "\b$svc\b"` -eq 0 ]; then
+        if [ -z "`iris_cmd_services $svc`" ]; then
             echo "Service $svc is not a valid service!"
             exit 1
         else
@@ -193,34 +235,23 @@ function iris_cmd_stop {
                 echo "Service $svc is not running!"
                 return
             fi
-            kill `_running_pid $pidfile`
+            _kill `_running_pid $pidfile` 
             rm -f $pidfile
             echo "Stopped service $svc."
         fi
     else
-        irispid=`_iris_pid`
-        if [ -n "$irispid" ]; then
-            # Kill children
-            ps -o pid,ppid -ax | awk "\$2==$irispid{print \$1}" | xargs kill
-            echo "Iris successfully stopped."
+        local irispid=`_iris_pid`
+        if [ -z "$irispid" ]; then
+            echo "Iris does not appear to be running. Nothing to stop."
         else
-            echo "Iris is not running."
-        fi
-        # In case services are started separately
-        for pidfile in `_svc_pidfile '*'`; do
-            local pid=`_running_pid $pidfile`
-            # Kill standalone service process
-            if [ -n "$pid" ]; then
-                if [ -z "$irispid" ]; then
-                    echo "Killing standalone service '`
-                            basename $pidfile|sed 's/service\.\(.*\)\.pid/\1/'
-                        `'"
+            for pidfile in `_svc_pidfile '*'`; do
+                local pid=`_running_pid $pidfile`
+                if [ -n "$pid" ]; then
+                    _kill $pid
                 fi
-                kill $pid
-            fi
-        done
-        # Handle both standard shutdown and when Iris is not running but the
-        # pid file still exists.
+            done
+            _kill $irispid
+        fi
         rm -f $PIDFILE `_svc_pidfile '*'`
     fi 
 }
@@ -340,14 +371,21 @@ HELP
 # ---------------------------------------------------------------------------
 # IRIS OPEN
 # ---------------------------------------------------------------------------
-_help_open="iris open
+_help_open="iris open [<service>]
 
 Opens a browser window with the Iris website. This option is currently only 
-supported by Mac (Srsly, why would you use anything else?)."
+supported by Mac (Srsly, why would you use anything else?).
+
+    <service>   The web service to open in a browser (default: 'proxy')"
 function iris_cmd_open {
-    proxy_service='iris' # TODO: Name it something else?
-    port=`_find_service $proxy_service | awk '{print $1}'`
-    open $HOSTNAME:$port
+    local svc=$1
+    test -z "svc" && svc='proxy'
+    local service=`iris_cmd_services $svc`
+    if [ -z "$service" ]; then
+        echo "No such service to open ('$svc')!"
+        exit 1
+    fi
+    open `_service_url $service`
 }
 
 # ---------------------------------------------------------------------------
@@ -363,13 +401,13 @@ See also: 'iris services'"
 function iris_cmd_status {
     svc=$1
     if [ -n "$svc" ]; then
-        local service=(`_find_service $svc`)
-        if [ "${#service[@]}" -eq 0 ]; then
+        local service=`iris_cmd_services $svc`
+        if [ -z "$service" ]; then
             echo "Service '$svc' is not a valid service!"
             iris_cmd_help status 
         fi
         _status_line "SERVICE" "PID" "URL"
-        _service_status ${service[@]}
+        _service_status $service
     else
         pid=`_iris_pid`
         if [ -z "$pid" ]; then
@@ -377,9 +415,10 @@ function iris_cmd_status {
         else
             echo "Iris is running as process $pid with the following services:"
         fi
-        iris_cmd_services | cut -f2 | while read name; do
-            local service=(`_find_service $name`)
-            local pid=$(_running_pid $(_svc_pidfile $name))
+        iris_cmd_services | while read line
+        do
+            local service=($line)
+            local pid=$(_running_pid $(_svc_pidfile ${service[1]}))
             if [ -n "$pid" ]; then
                 if [ -z "$service_running" ]; then
                     _status_line "SERVICE" "PID" "URL"
@@ -394,13 +433,34 @@ function iris_cmd_status {
 # ---------------------------------------------------------------------------
 # IRIS SERVICES
 # ---------------------------------------------------------------------------
-_help_services="iris services
+_help_services="iris services [<service>]
 
 Lists available service currently configured with Iris (not *running* services).
 
+    <service>   Only show configuration for specified service
+
 See also: 'iris status'"
 function iris_cmd_services {
-    _json_flatten $SVC_CONF "services" "port name nodefile config"
+    local name=$1
+    local hostname=$(_json_lookup $SVC_CONF "settings hostname")
+    [ -z "$hostname" ] && hostname=$DEFAULT_HOSTNAME
+    local services
+    if [ -n "$name" ]; then
+         services=$(_json_flatten $SVC_CONF services \
+             'port name nodefile config hostname' | awk "\$2 == \"$name\"")
+    else
+         services=$(_json_flatten $SVC_CONF services \
+             'port name nodefile config hostname')
+    fi
+    
+    [ -z "$services" ] && return
+    echo "$services" | while read line; do
+        local svc=($line)
+        if [ -z "${svc[4]}" ]; then
+            svc[4]=$hostname
+        fi
+        printf "%-5d %-18s %-20s %-25s %s\n" ${svc[@]}
+    done
 }
 
 # ---------------------------------------------------------------------------
@@ -420,7 +480,7 @@ function iris_cmd_restart {
 # ---------------------------------------------------------------------------
 # IRIS EXAMPLES
 # ---------------------------------------------------------------------------
-_help_check="iris examples
+_help_examples="iris examples
 
 Install example data."
 function iris_cmd_examples {

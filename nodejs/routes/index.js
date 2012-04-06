@@ -19,3 +19,7 @@ exports.workspace = function(req, res, widgetList) {
     res.render('workspace',
         { title: "Workspace", layout: "workspace_layout", list: widgetList });
 };
+
+exports.viewport = function(req, res) {
+    res.render('viewport', { title: "Viewport Demo" });
+};

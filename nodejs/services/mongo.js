@@ -1,25 +1,24 @@
-// RESTful interface around MongoDB interactions for Iris.
+// RESTful interface around MongoDB interactions for iris.
 
 var iris   = require('./service-base.js');
-var config = iris.loadConfiguration();
 var app    = iris.app;
-var routes = iris.routes;
 
 // Mongo
 var Db = require('mongodb').Db,
-    Connection = require('mongodb/lib/mongodb/connection/connection').Connection,
+    Connection =
+         require('mongodb/lib/mongodb/connection/connection').Connection,
     Server = require('mongodb').Server;
 
-if (!config.MONGO_DB) {
-    console.log("config.MONGO_DB needs to be configured");
+if (!iris.config.MONGO_DB) {
+    console.log("iris.config.MONGO_DB needs to be configured");
     return;
 }
 
 var store = new Db(
-    config.MONGO_DB.name,
+    iris.config.MONGO_DB.name,
     new Server(
-        config.MONGO_HOST || 'localhost',
-        config.MONGO_PORT || Connection.DEFAULT_PORT, {}
+        iris.config.MONGO_HOST || 'localhost',
+        iris.config.MONGO_PORT || Connection.DEFAULT_PORT, {}
     ),
     { native_parser: false }
 );
@@ -40,9 +39,11 @@ app.get('/collection/:collection/list', function (req, res) {
 app.get('/collection/:collection/keys', function(req, res) {
     var primaryKey = null;
     try {
-        primaryKey = config.MONGO_DB.collections[req.params.collection].key;
+        primaryKey =
+             iris.config.MONGO_DB.collections[req.params.collection].key;
     } catch (err) {
-        res.json({ error: "Cannot find primary key for collection " + req.params.collection });
+        res.json({ error: "Cannot find primary key for collection " +
+             req.params.collection });
         return;
     }
     store.open(function(err, db) {
@@ -76,9 +77,13 @@ app.get('/collection/:collection/:identifier', function(req, res) {
     }
     var primaryKey = null;
     try {
-        primaryKey = config.MONGO_DB.collections[req.params.collection].key;
+        primaryKey =
+             iris.config.MONGO_DB.collections[req.params.collection].key;
     } catch (err) {
-        res.json({ error: "Cannot find primary key for collection " + req.params.collection });
+        res.json({
+            error: "Cannot find primary key for collection " +
+                 req.params.collection
+        });
         return;
     }
     store.open(function (err, db) {
