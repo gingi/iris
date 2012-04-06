@@ -1,18 +1,27 @@
 {
+    "settings" : {
+        "hostname" : "0.0.0.0"
+    },
     "endpoints": {
-        "iris" : {
-            "examples" : { "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ] }
+        "proxy" : {
+            "examples" : {
+                "paths" : [ "/gwas", "/phenotypes", "/species", "/pcoords" ]
+            }
         },
         "examples" : {
-            "examples-fastbit" : { "type": "fastbit", "paths" : [ "/gwas", "/pcoords" ] },
-            "examples-mongo" : { "type": "mongo", "paths" : [ "/phenotypes" ] }
+            "examples-fastbit" : {
+                "type": "fastbit", "paths" : [ "/gwas", "/pcoords" ]
+            },
+            "examples-mongo" : {
+                "type": "mongo", "paths" : [ "/phenotypes" ]
+            }
         }
     }, 
     "services": [
         {
             "config": "app-config.js",
-            "name": "iris", 
-            "nodefile": "proxy.js", 
+            "name": "proxy", 
+            "nodefile": "proxy.js",
             "port": 4747
         }, 
         {
@@ -32,12 +41,6 @@
             "name": "examples-mongo", 
             "nodefile": "mongo.js", 
             "port": 4750
-        }, 
-        {
-            "config": "kbase-plants-config.js", 
-            "name": "kbase", 
-            "nodefile": "kbase-plants.js", 
-            "port": 4751
         }
     ]
 }
