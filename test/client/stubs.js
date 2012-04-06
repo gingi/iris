@@ -53,6 +53,10 @@ exports.documentStub = (function () {
     };
 })();
 
-exports.jQueryStub = {
-    ajaxSetup: function () {}
-};
+exports.jQueryStub = (function () {
+    var stub       = {};
+    stub.ajaxSetup = function () { };
+    stub.ajax      = function () { };
+    stub.getJSON   = function () { };
+    return stub;
+})();
