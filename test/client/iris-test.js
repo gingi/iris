@@ -23,6 +23,7 @@ module.exports = {
     createWidget: function (test) {
         var widget = Iris.Widget.create({
         });
+        test.ok(typeof widget.display === 'function', "Should be able to call display()");
         test.done();
     }
 };

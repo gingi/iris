@@ -1,10 +1,27 @@
+link(rel="stylesheet", type="text/css", href="/css/jquery-ui.css")
+link(rel="stylesheet", type="text/css", href="/css/framebuilder.css")
 script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
-script
-    $(function () {
-        var widget = Iris.Widget.create({
-            el: $("#widget1")
-        });
-    });
-    
+script(type="text/javascript")
+	$(function () {
+		var host = 'http://dev.metagenomics.anl.gov';
+		var widget = Iris.Widget.create({
+			renderers: [ host + '/api_new.cgi/renderer/' ],
+			services:  [ host + '/api_new.cgi/' ],
+			dataflows: [ host + '/api_new.cgi/dataflow/' ],
+			libraries: host + '/api_new.cgi/js/',
+			el: 'widget1'
+		});
+	});
+	
 .well(id="widget1")
+.well
+	img(src="/img/graph.gif", style="height:48px", onload="Iris.Event.DragDrop(this, 'renderer.linegraph.js', 'renderer');", data-type="3d-matrix")
+	img(src="/img/table.png", style="height: 48px", onload="Iris.Event.DragDrop(this, 'renderer.table.js', 'renderer');", data-type="table")
+	img(src="/img/piechart.png", style="height: 48px", id="piechart_drag", onload="Iris.Event.DragDrop(this, 'renderer.piechart.js', 'renderer');", data-type="named_numbers")
+
+	hr(style="height:1px")
+
+	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="Iris.Event.DragDrop(this, Iris.TestData[0], 'data');", onclick="check_compatibility(this);")
+	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="Iris.Event.DragDrop(this, Iris.TestData[1], 'data');", onclick="check_compatibility(this);")
+	img(style="height: 48px; padding: 5px;", src="/img/genome.jpg", onload="Iris.Event.DragDrop(this, Iris.TestData[2], 'data');", onclick="check_compatibility(this);")
