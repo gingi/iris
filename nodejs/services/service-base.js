@@ -162,6 +162,7 @@
             app.set('views', NODE_HOME + '/views');
             app.set('view engine', 'jade');
             app.use(express.static(NODE_HOME + '/../root'));
+            app.register('.html', require('jade'));
         });
         app.set('view options', { pretty: true });        
     };
