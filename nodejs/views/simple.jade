@@ -12,6 +12,9 @@ script(type="text/javascript")
 			libraries:   uri + '/js/',
 			el: 'widget1'
 		});
+		var selectedData = Iris.Model.create({ name: ""  });
+		var selectedRenderer = Iris.Model.create({ name: "" });
+		
 		widget.display();
 	});
 	

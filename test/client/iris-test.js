@@ -23,7 +23,26 @@ module.exports = {
     createWidget: function (test) {
         var widget = Iris.Widget.create({
         });
-        test.ok(typeof widget.display === 'function', "Should be able to call display()");
+        test.ok(typeof widget.display === 'function',
+            "Should be able to call display()");
+        test.done();
+    },
+    
+    modelHasEvents: function (test) {
+        var model = Iris.Model.create({ foo: "bar" });
+        test.ok(typeof model.on === 'function',
+            'on() should be defined on Model');
+        test.done();
+    },
+    
+    modelEvents: function (test) {
+        var receiver;
+        var model = Iris.Model.create({ a: "x" });
+        model.on("some-event", function (msg) {
+            receiver = msg;
+        });
+        model.trigger("some-event", "Event Triggered");
+        test.equals("Event Triggered", receiver);
         test.done();
     }
 };
