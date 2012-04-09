@@ -48,7 +48,7 @@
         renderer: "Syntax"
     });
 
-    widget.display2 = function (args) {
+    widget.display = function (args) {
         var div = widget.divElement();
         div.innerHTML = '';
         var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
