@@ -50,17 +50,19 @@
     var Widget = Iris.Widget = {};
     Widget.create = function (spec) {
         var widget;
-        var renderers = spec.renderers || [],
-            services =  spec.services || [],
-            dataflows = spec.dataflows || [],
-            libraries = spec.libraries,
-            layout,
-            el;
+        if (!spec.renderers) spec.renderers = [];
+        if (!spec.services)  spec.services  = [];
+        if (!spec.dataflows) spec.dataflows = [];
         
         var widget = {
             display: function () {
                 Iris._FrameBuilder.init(
-                    renderers, services, dataflows, libraries, layout, el
+                    spec.renderers,
+                    spec.services,
+                    spec.dataflows,
+                    spec.libraries,
+                    spec.layout,
+                    [ spec.el ]
                 );
                 return widget;
             }
@@ -73,7 +75,6 @@
      */
     var Event = Iris.Event = {};
     Event.DragDrop = function (arg1, arg2, arg3) {
-        console.log("Calling init_dragobject", arg1, arg2, arg3);
         Iris._FrameBuilder.init_dragobject(arg1, arg2, arg3);
     };
 
@@ -452,12 +453,7 @@
     //
 
 
-    fb.init = function (rendererResources,
-                               dataResources,
-                               dataflowResources,
-                               libraryResource,
-                               layout,
-                               viewports) {
+    fb.init = function (rendererResources, dataResources, dataflowResources, libraryResource, layout, viewports) {
         if (layout) {
             PageLayout = $('body').layout(layout);
         }
@@ -466,17 +462,17 @@
 
         if (rendererResources) {
             for (i in rendererResources) {
-                query_renderer_resource(rendererResources[i]);
+                fb.query_renderer_resource(rendererResources[i]);
             }
         }
         if (dataResources) {
             for (i in dataResources) {
-                query_data_resource(dataResources[i]);
+                fb.query_data_resource(dataResources[i]);
             }
         }
         if (dataflowResources) {
             for (i in dataflowResources) {
-                query_dataflow_resource(dataflowResources[i]);
+                fb.query_dataflow_resource(dataflowResources[i]);
             }
         }
         if (libraryResource) {
@@ -486,7 +482,7 @@
         if (viewports) {
             for (i = 0; i < viewports.length; i++) {
                 dropZones[viewports[i]] = 1;
-                init_dropzone(document.getElementById(viewports[i]));
+                fb.init_dropzone(document.getElementById(viewports[i]));
             }
         }
     }
@@ -494,7 +490,6 @@
     //
     // resource section
     //
-
 
     fb.query_renderer_resource = function (resource, list) {
         jQuery.get(resource, function(data) {
@@ -504,7 +499,7 @@
                     renderer_resources.length - 1;
             }
             if (list) {
-                update_renderer_list(list);
+                fb.update_renderer_list(list);
             }
         });
     }
@@ -528,7 +523,7 @@
                     dataflows[res[i]] = dataflow_resources.length - 1;
                 }
                 if (list) {
-                    update_dataflow_list(list);
+                    fb.update_dataflow_list(list);
                 }
             }
         );
@@ -546,12 +541,11 @@
 
     fb.query_data_resource = function (resource, list) {
         jQuery.get(resource, function(data) {
-                add_repository(data);
-                if (list) {
-                    update_datarepo_list(list);
-                }
+            dh.add_repository(data);
+            if (list) {
+                fb.update_datarepo_list(list);
             }
-        );
+        });
     }
 
     fb.update_datarepo_list = function (list) {
@@ -577,7 +571,7 @@
             eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': params.target })");
         } else {
             params.ret = 1;
-            load_renderer(params.renderer, test_renderer, params);
+            fb.load_renderer(params.renderer, fb.test_renderer, params);
         }
     }
 
@@ -602,9 +596,9 @@
                 x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
                 eval("loaded_renderers[renderer] = $('div')." + x + "('about')");
                 for (i = 0; i < loaded_renderers[renderer].requires.length; i++) {
-                    load_library(loaded_renderers[renderer].requires[i], check_renderer_dependencies, renderer);
+                    fb.load_library(loaded_renderers[renderer].requires[i], fb.check_renderer_dependencies, renderer);
                 }
-                check_renderer_dependencies(renderer);
+                fb.check_renderer_dependencies(renderer);
             });
         }
     }
@@ -629,6 +623,8 @@
     }
 
     fb.load_library = function (library, callback, params) {
+        console.log("Loading library", library);
+        console.log("Library resource", library_resource);
         if (loaded_libraries[library]) {
             if (library_callback_list[library]) {
                 for (i = 0; i < library_callback_list[library].length; i++) {
@@ -648,7 +644,7 @@
             scriptTag.onload = scriptTag.onreadystatechange = function() {
                 if (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") {
                     loaded_libraries[library] = 1;
-                    load_library(library, callback, params);
+                    fb.load_library(library, callback, params);
                 }
             }
             document.getElementsByTagName("head")[0].appendChild(scriptTag);
@@ -884,6 +880,7 @@
     }
 
     fb.init_dropzone = function (dropZone) {
+        console.log("Dropzone", dropZone);
         dropZone.ondragenter = function(ev) {
             return false;
         }
@@ -900,7 +897,7 @@
                 tar = tar.parentNode;
             }
             if (dragType == 'renderer') {
-                test_renderer({
+                fb.test_renderer({
                     'target': tar.id,
                     'renderer': dragData
                 });
