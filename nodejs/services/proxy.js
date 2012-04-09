@@ -82,6 +82,10 @@ app.get('/viewport', function (req, res) {
     routes.viewport(req, res);
 });
 
+app.get('/simple', function (req, res) {
+    res.render('simple', { title: "Simple Browser" });
+});
+
 // Proxy endpoints
 for (var serviceName in iris.endpoints) {
     var endpoint = iris.endpoints[serviceName];

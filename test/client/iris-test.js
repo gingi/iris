@@ -21,7 +21,8 @@ module.exports = {
     },
 
     createWidget: function (test) {
-        var widget = Iris.Widget.create();
+        var widget = Iris.Widget.create({
+        });
         test.done();
     }
 };
