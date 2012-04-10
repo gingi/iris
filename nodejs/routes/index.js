@@ -7,6 +7,10 @@ exports.widget = function(req, res, args) {
     res.render('widgets', args);
 };
 
+exports.renderer = function (req, res, args) {
+    res.render('renderer', args);
+}
+
 exports.about = function(req, res, message) {
     res.render('index', { title: message });
 };

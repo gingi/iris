@@ -170,6 +170,10 @@ function _service_status {
 function _kill {
     local pid=$1
     local name=$2
+    if test -z "$pid"; then
+        echo "Nothing to kill."
+        return
+    fi
     if test $WHOAMI == "root"; then
         kill $pid
         return

@@ -2,6 +2,7 @@
 
     var NODE_HOME = __dirname + '/..';
     var DEFAULT_SERVICE_CONF = NODE_HOME + '/../conf/services.json';
+    var IRIS_HOME = NODE_HOME + '/..';
     var confFile;
     var service = null;
     var configuration;
@@ -133,11 +134,12 @@
         }));
     });
 
-    app.configure('production', function (){
+    app.configure('production', function () {
         app.use(express.errorHandler()); 
     });
 
     // Public fields
+    exports.IRIS_HOME   = IRIS_HOME;
     exports.app         = app;
     // chromosome lengths for each species
     exports.chromosomes = {
