@@ -26,7 +26,7 @@
         var div = $("#" + widget.divId);
         div.text('');
         containerNode = div;
-        var canvasHeight = Math.max(div.height(), 250);
+        var canvasHeight = Math.max(div.parent().height(), 250);
         var canvasWidth = Math.max(div.width(), 400);
         div.height(canvasHeight);
         div.width(canvasWidth);

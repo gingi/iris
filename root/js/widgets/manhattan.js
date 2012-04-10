@@ -35,7 +35,7 @@
         var div = $("#" + widget.divId);
         div.text('');
         containerNode = div;
-        var canvasHeight = Math.max(div.height(), 250);
+        var canvasHeight = Math.max(div.parent().height(), 250);
         var canvasWidth = Math.max(div.width(), 100);
         div.append('<canvas id="' + widget.divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
         div.append('<canvas id="' + widget.divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
