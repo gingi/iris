@@ -12,53 +12,43 @@
     
     // Utility fuctions
     
-    // Douglas Crockford's best practices:
-    Function.prototype.method = function (name, func) {
-        if (!this.prototype[name]) {
-            this.prototype[name] = func;
-            return this;
+    Iris.each = function (array, func) {
+        for (var i = 0; i < array.length; i++) {
+            func(array[i]);
         }
+        return array;
     };
-    
-    Array.method('each', function (func) {
-        for (var i = 0; i < this.length; i++) {
-            func(this[i]);
-        }
-        return this;
-    });
 
-    // Globally define 'extend' on all Objects.
-    Object.method('extend', function () {
-        var that = this;
-        Array.prototype.slice.apply(arguments).each(function (source) {
+    Iris.extend = function (object) {
+        Iris.each(Array.prototype.slice.apply(arguments), function (source) {
             for (var property in source) {
-                that[property] = source[property];
+                object[property] = source[property];
             }
         });
-        return this;
-    });
+        return object;
+    };
     
-    Object.method('keys', function () {
-        if (this !== Object(this)) throw new TypeError('Invalid object');
+    Iris.keys = function (object) {
+        if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
-        for (var key in this) {
-            if (this.hasOwnProperty(key)) {
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) {
                 keys[keys.length] = key;
             }
         }
         return keys;
-    });
+    };
 
     // Retrieve the values of an object's properties.
-    Object.method('values', function () {
+    Iris.values = function (object) {
         var values = [];
         for (var key in this) {
-            if (this.hasOwnProperty(key)) {
-                values[values.length] = this[key];
+            if (object.hasOwnProperty(key)) {
+                values[values.length] = object[key];
             }
         }
         return values;
-    });
+    };
     
     
     var EventCallbacks;
@@ -108,7 +98,7 @@
                 // linked list of callbacks if appropriate.
                 events = events
                     ? events.split(eventSplitter)
-                    : EventCallbacks.keys();
+                    : Iris.keys(EventCallbacks);
                 while (event = events.shift()) {
                     node = calls[event];
                     delete calls[event];
@@ -226,7 +216,7 @@
     var Model = Iris.Model = {};
     Model.create = function (spec) {
         var model = {};
-        model.extend(observable());
+        Iris.extend(model, observable());
         return model;
     };
     
@@ -414,9 +404,8 @@
     }
 
     // client side data requestor
-    // initiates data retrieval from a resource, saving callback functions / paramters
-
-
+    // initiates data retrieval from a resource, saving callback functions /
+    // paramters
     dh.get_objects = function (type, resource_params, callback_func, callback_params) {
         if (!CallbackList[type]) {
             CallbackList[type] = [
@@ -783,8 +772,6 @@
     }
 
     fb.load_library = function (library, callback, params) {
-        console.log("Loading library", library);
-        console.log("Library resource", library_resource);
         if (loaded_libraries[library]) {
             if (library_callback_list[library]) {
                 for (i = 0; i < library_callback_list[library].length; i++) {
@@ -1040,7 +1027,6 @@
     }
 
     fb.init_dropzone = function (dropZone) {
-        console.log("Dropzone", dropZone);
         dropZone.ondragenter = function(ev) {
             return false;
         }

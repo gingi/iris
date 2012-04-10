@@ -4,17 +4,22 @@ script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
 script(type="text/javascript")
 	$(function () {
+		var selectedData = Iris.Model.create({ name: ""  });
+		var selectedRenderer = Iris.Model.create({ name: "" });
 		var uri = 'http://dev.metagenomics.anl.gov/api_new.cgi';
 		var widget = Iris.Widget.create({
 			renderers: [ uri + '/renderer/' ],
 			services:  [ uri + '/' ],
 			dataflows: [ uri + '/dataflow/' ],
 			libraries:   uri + '/js/',
-			el: 'widget1'
+			el: 'widget1',
+			init: function () {
+				selectedData.on("change", this.display, this);
+				selectedRenderer.on("change", this.display, this);
+			},
+			events: {
+			}
 		});
-		var selectedData = Iris.Model.create({ name: ""  });
-		var selectedRenderer = Iris.Model.create({ name: "" });
-		
 		widget.display();
 	});
 	
