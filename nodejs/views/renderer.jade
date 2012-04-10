@@ -1,9 +1,13 @@
-block scripts
-    script(type="text/javascript", src="/js/jquery.js")
-    script(type="text/javascript", src="/js/iris.js")
-    script(type="text/javascript", src="#{js}")
-    script(type="text/javascript")
-        $(function () {
-        });
+link(rel="stylesheet", type="text/css", href="/css/framebuilder.css")
+script(type="text/javascript", src="/js/jquery.js")
+script(type="text/javascript", src="/js/iris.js")
+script(type="text/javascript", src="/js/d3.js")
+script(type="text/javascript", src="#{js}")
+script(type="text/javascript")
+    $(function () {
+        var x = "#{name}";
+        x = "Renderer" + x[0].toUpperCase() + x.slice(1);
+        eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': 'renderMe' })");
+    });
 
-div(id="#{name}", style="position: relative; min-width:500px")
+div(id="renderMe", style="position: relative; min-width:500px")
