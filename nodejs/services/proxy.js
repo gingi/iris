@@ -97,8 +97,24 @@ app.get('/widget/:widget', function (req, res) {
     }
 });
 
-app.get('/renderer', function (req, res) {
-    directoryContents(res, RENDERER_JS_DIR);
+app.get('/renderer', function (request, response) {
+    var i, f, renderers = [];
+    fs.readdir(RENDERER_JS_DIR, function (err, files) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        for (i in files) {
+            f = files[i];
+            if (f.match(/^renderer\.\w+\.js$/)) {
+                var name = files[i].split('.', 3)[1];
+                renderers[renderers.length] = {
+                    name: name,
+                    filename: files[i],
+                    example: iris.uri() + "/renderer/" + name
+                };
+            }
+        }
+        response.write(JSON.stringify(renderers));
+        response.end();
+    });
 });
 
 app.get('/renderer/:renderer', function (req, res) {
