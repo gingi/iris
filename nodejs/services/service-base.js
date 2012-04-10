@@ -219,6 +219,8 @@
     exports.serviceName = function () {
         return service.name;
     };
+    
+    exports.uri = uri;
 
 
     /* SERVICE API
