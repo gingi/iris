@@ -1,11 +1,21 @@
 (function () {
-    var widget = Iris.Widget.create({
-        about: {
+    var about = function () {
+        return {
             name: "Chord",
             author: "Jer-Ming Chia",
             requires: [ "d3.js" ],
-        }
-    });
+        };
+    };
+    if (typeof exports !== 'undefined') {
+        // On the server
+        exports.about = about();
+        widget = {};
+    } else {
+        // On the client
+        widget = Iris.Widget.create({
+            about: about()
+        });
+    }
     var svg;
     widget.display = function (args) {
         var div = document.getElementById(widget.targetElement);

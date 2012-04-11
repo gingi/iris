@@ -1,16 +1,21 @@
 (function() {
-    var widget = Iris.Widget.create({
-        about: function () {
-            return {
-                name: "BarChart",
-                author: "Jer-Ming Chia",
-                requires: [ "d3.js" ],
-                renderers: {
-                    // default: "syntax.js"
-                },
-            }
-        }
-    });
+    var about = function () {
+        return {
+            name: "BarChart",
+            author: "Jer-Ming Chia",
+            requires: [ "d3.js" ],
+        };
+    };
+    if (typeof exports !== 'undefined') {
+        // On the server
+        exports.about = about();
+        widget = {};
+    } else {
+        // On the client
+        widget = Iris.Widget.create({
+            about: about()
+        });
+    }
     var svg;
     var div;
     var phenotypes;
@@ -22,10 +27,10 @@
 
         var path = "/phenotypes/" + trait;
         // fetch the phenotype data
-        widget.getJSON(path, function(json) {
+        widget.getJSON(path, function (json) {
             phenotypes = json;
             drawBarChart(20);
-        })
+        });
         d3.select(div)
             .append("input")
                 .attr("type", "range")
