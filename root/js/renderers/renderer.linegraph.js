@@ -1,4 +1,30 @@
 (function( $ ){
+	var schema = {
+		properties: {
+			target: {type: 'string', required: true},
+			width: {type: 'integer'},
+			height: {type: 'integer'},
+			padding: {type: 'integer'},
+			ticksx: {type: 'integer'},
+			ticksy: {type: 'integer'},
+			data: {
+				description: "each series is a list of 2-tuples of numbers",
+				required: true,
+				type: 'array',
+				items: {
+					type: 'array',
+					items: {
+						type: 'array',
+						minItems: 2,
+						maxItems: 2,
+						items: {
+							type: 'number'
+						}
+					}
+				}
+			}
+		}
+	};
 
   var methods = {
   about : function() { 
@@ -18,7 +44,7 @@
 		 'color#',
 		 'rule',
 		 'axis' ],
-      data_format: "list of list of 2-tuple of float"
+      data_format: schema.properies.data.description
       }
     },
   example_data : function() {
@@ -35,6 +61,11 @@
 		       data: [] };
       $.extend (this.options, settings);
 
+	  var check = window.json.validate(this.options, schema);
+	  if (!check['valid']) {
+		  $.error( check['errors'] );
+	  }
+	  
       document.getElementById(this.options.target).innerHTML = "";
       
       var maxx = 0;
