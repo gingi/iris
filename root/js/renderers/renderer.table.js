@@ -1,5 +1,30 @@
 (function( $ ){
-
+	var schema = {
+		properties: {
+			target: {type: 'string', required: true},
+			data: {
+				type: 'object',
+				properties: {
+					data: {
+						required: true,
+						type: 'array',
+						items: {
+							type: 'array',
+							items: {
+								type: 'string'
+							}
+						}
+					},
+					header: {
+						type: 'array',
+						items: {
+							type: 'string'
+						}
+					}
+				}
+			}
+		}
+	};
   var methods = {
   about : function() { 
       return {
@@ -31,6 +56,12 @@
 		       data: {} };
       $.extend (this.options, settings);
       
+	  var check = window.json.validate(this.options, schema);
+	  if (!check['valid']) {
+		  $.error( check['errors'] );
+	  }
+	  
+	  
       var tdata = this.options.data.data;
       if (typeof(tdata) == 'string') {
 	eval("tdata = "+tdata);
