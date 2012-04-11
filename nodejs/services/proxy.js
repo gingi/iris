@@ -75,6 +75,12 @@ function fileNotFound(res) {
 
 // Routes
 app.get('/', routes.index);
+app.get('/about', function (req, res) {
+    res.render('about', { title : 'About' });
+});
+app.get('/contact', function (req, res) {
+    res.render('contact', { title : 'Contact Us'});
+});
 
 app.get('/404', function (req, res) {
     res.render('error', { title: 'Page not found',
