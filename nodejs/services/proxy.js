@@ -130,6 +130,7 @@ app.get('/renderer/:renderer', function (req, res) {
         return;
     }
     if (req.params.renderer.match(/.js$/)) {
+        // Send the file
         var filename = RENDERER_JS_DIR + '/' + req.params.renderer;
         path.exists(filename, function (exists) {
             if (!exists) {
