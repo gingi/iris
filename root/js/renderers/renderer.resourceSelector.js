@@ -1,7 +1,7 @@
 (function( jQuery ) {
 
   var methods = {
-  about : function () { 
+  about : function () {
       return {
       name: "resourceSelector",
       author: "Tobias Paczian",
@@ -23,8 +23,8 @@
       return null;
     },
   render : function ( settings ) {
-      
-      this.options = { 'id': 'resourceSelector',
+
+      var options = { 'id': 'resourceSelector',
 		       'target': 'test',
 		       'data': 'example_data()',
 		       'action_button': true,
@@ -33,13 +33,13 @@
 		       'flow_target': 'layout_east',
 		       'resource': 'metagenome',
 		       'resource_provider': 'MG-RAST' };
-      jQuery.extend (this.options, settings);
-      
-      var target = document.getElementById(this.options.target);
-      var opt = this.options;
+      jQuery.extend (options, settings);
+
+      var target = document.getElementById(options.target);
+      var opt = options;
 
       target.innerHTML = "";
-      
+
       get_objects(opt.resource, { data_repository: opt.resource_provider }, function () {
 	  var id = opt.id;
 	  var res = opt.resource;
@@ -62,10 +62,10 @@
 	}, null);
     }
   };
-  
+
   jQuery.fn.RendererResourceSelector = function( method ) {
     if ( methods[method] ) {
-      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+      return methods[method](arguments[1]);
     } else {
       jQuery.error( 'Method ' +  method + ' does not exist on jQuery.RendererResourceSelector' );
     }
