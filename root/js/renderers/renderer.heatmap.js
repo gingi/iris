@@ -5,7 +5,24 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
 
 
 (function( jQuery ) {
-
+	var schema = {
+		properties: {
+			data: {
+				required: true,
+				type: 'array',
+				items: {
+					type: 'object',
+					properties: {
+						x: {type: 'number', minimum: 0, maximum: 1, required: true},
+						y: {type: 'number', minimum: 0, maximum: 1, required: true},
+						width: {type: 'number', minimum: 0, maximum: 1, required: true},
+						height: {type: 'number', minimum: 0, maximum: 1, required: true},
+						score: {type: 'number', minimum: 0, maximum: 1, required: true}
+					}
+				}
+			}
+		}
+	}
   var methods = {
   about : function () {
       return {
@@ -2742,6 +2759,11 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
 
         var target = document.getElementById(options.target);
         var opt = options;
+		var check = window.json.validate(opt, schema);
+		if (!check['valid']) {
+			console.log(check['errors']);
+			$.error( check['errors'] );
+		}
 
         target.innerHTML = "";
         var canvas = document.createElement('canvas');
