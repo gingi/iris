@@ -23,7 +23,7 @@
     var maxcolor = new Array();
 
     widget.display = function (args) {
-        var div = $("#" + widget.divId);
+        var div = $("#" + widget.targetElement);
         div.text('');
         containerNode = div;
         var canvasHeight = Math.max(div.parent().height(), 250);
@@ -31,21 +31,21 @@
         div.height(canvasHeight);
         div.width(canvasWidth);
         var createCanvas = function(args) {
-                var canvasId = widget.divId + '_canvas' + args['suffix'];
-                var style = [
-                    "position:absolute",
-                    "left:0",
-                    "top:0",
-                    "z-index:" + args['z'],
-                    "width:" + canvasWidth + 'px',
-                    "height:" + canvasHeight + 'px'
-                ].join(';');
-                    div.append('<canvas id="' + canvasId + '"' +
-                        ' width="' + canvasWidth + '"' +
-                        ' height="' + canvasHeight + '"' +
-                        ' style="' + style + '"></canvas>');
-                return document.getElementById(canvasId);
-            };
+            var canvasId = widget.targetElement + '_canvas' + args['suffix'];
+            var style = [
+                "position:absolute",
+                "left:0",
+                "top:0",
+                "z-index:" + args['z'],
+                "width:" + canvasWidth + 'px',
+                "height:" + canvasHeight + 'px'
+            ].join(';');
+                div.append('<canvas id="' + canvasId + '"' +
+                    ' width="' + canvasWidth + '"' +
+                    ' height="' + canvasHeight + '"' +
+                    ' style="' + style + '"></canvas>');
+            return document.getElementById(canvasId);
+        };
 
         var canvas = createCanvas({
             z: 0,

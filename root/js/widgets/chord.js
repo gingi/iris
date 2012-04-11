@@ -8,7 +8,7 @@
     });
     var svg;
     widget.display = function (args) {
-        var div = document.getElementById(widget.divId);
+        var div = document.getElementById(widget.targetElement);
         div.innerHTML = '';
         var chord = d3.layout.chord()
             .padding(.05)

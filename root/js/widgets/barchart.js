@@ -16,7 +16,7 @@
     var phenotypes;
 
     widget.display = function (args) {
-        div = widget.divElement();
+        div = widget.targetElement;
         var trait = (args.hasOwnProperty('trait')) ? args['trait'] : 'B11';
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
@@ -94,7 +94,7 @@
         var yAxis = d3.svg.axis().scale(y).ticks(5).orient("left");
 
         // define svg element
-        d3.select("#" + widget.divId + " .chart").remove();
+        d3.select("#" + widget.targetElement + " .chart").remove();
 
         svg = d3.select(div)
             .append("svg")
