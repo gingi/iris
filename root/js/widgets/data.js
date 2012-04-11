@@ -49,7 +49,7 @@
     });
 
     widget.display = function (args) {
-        var div = widget.divElement();
+        var div = document.getElementById(widget.targetElement);
         div.innerHTML = '';
         var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
         if (args.hasOwnProperty('API')) {

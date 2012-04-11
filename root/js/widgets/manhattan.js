@@ -32,20 +32,20 @@
     var maxcolor = new Array();
 
     widget.display = function(args) {
-        var div = $("#" + widget.divId);
+        var div = $("#" + widget.targetElement);
         div.text('');
         containerNode = div;
         var canvasHeight = Math.max(div.parent().height(), 250);
         var canvasWidth = Math.max(div.width(), 100);
-        div.append('<canvas id="' + widget.divId + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
-        div.append('<canvas id="' + widget.divId + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
+        div.append('<canvas id="' + widget.targetElement + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
+        div.append('<canvas id="' + widget.targetElement + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
         // div.parent.height = canvasHeight;
         // div.parent.width = canvasWidth;
 
-        var canvas = document.getElementById(widget.divId + "_canvas");
-        canvasi = document.getElementById(widget.divId + "_canvasi");
+        var canvas = document.getElementById(widget.targetElement + "_canvas");
+        canvasi = document.getElementById(widget.targetElement + "_canvasi");
         ctx = canvas.getContext('2d');
         ctxi = canvasi.getContext('2d');
 

@@ -190,11 +190,16 @@
     var Widget = Iris.Widget = {};
     Widget.create = function (spec) {
         var widget;
-        if (!spec.renderers) spec.renderers = [];
-        if (!spec.services)  spec.services  = [];
-        if (!spec.dataflows) spec.dataflows = [];
+        spec = (spec || {});
+        spec.renderers = (spec.renderers || []);
+        spec.services  = (spec.services  || []);
+        spec.dataflows = (spec.dataflows || []);
         
-        var widget = {
+        widget = {
+            target: function (target) {
+                widget.targetElement = target;
+                return widget;
+            },
             display: function () {
                 Iris._FrameBuilder.init(
                     spec.renderers,
@@ -205,7 +210,11 @@
                     [ spec.el ]
                 );
                 return widget;
-            }
+            },
+            getJSON: Iris.getJSON
+        };
+        if (spec.about && spec.about.name) {
+            Widget[spec.about.name] = widget;
         }
         return widget;
     };

@@ -34,6 +34,21 @@ module.exports = {
             'on() should be defined on Model');
         test.done();
     },
+
+    aboutAppendsWidgetNamespace: function (test) {
+        var widget = Iris.Widget.create({
+            about: { name: "ArrayAboutWidget" }
+        });
+        test.equals(widget, Iris.Widget.ArrayAboutWidget);
+        test.done();
+    },
+    
+    targetCascades: function (test) {
+        var widget = Iris.Widget.create();
+        test.equals(widget, widget.target("div"));
+        test.equals("div", widget.targetElement);
+        test.done();
+    },
     
     modelEvents: function (test) {
         var receiver;
