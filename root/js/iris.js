@@ -463,7 +463,8 @@
                 rest_params += resource_params.rest.join("/");
             }
             if (resource_params && resource_params.query) {
-                for (var i = 0; i < resource_params.query.length - 1; i++) {
+                query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
+                for (var i = 2; i < resource_params.query.length - 1; i++) {
                     query_params += "&" + resource_params.query[i] + "=" + resource_params.query[i + 1];
                 }
             }
