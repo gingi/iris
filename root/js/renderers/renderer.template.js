@@ -1,5 +1,16 @@
 (function( jQuery ) {
-
+	var schema = {
+		properties: {
+			target: {type: 'string', required: true},
+			data: {
+				required: true,
+				type: 'array',
+				items: {
+					type: 'string'
+				}
+			}
+		}
+	};
   var methods = {
   about : function () {
       return {
@@ -25,6 +36,13 @@
 
       var target = document.getElementById(options.target);
       var opt = options;
+
+	  var check = window.json.validate(opt, schema);
+	  if (!check['valid']) {
+		  console.log(check['errors']);
+		  $.error(check['errors']);
+	  }
+
       target.innerHTML = "";
 
       var html = "";
