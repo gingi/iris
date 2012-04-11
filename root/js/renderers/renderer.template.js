@@ -1,7 +1,7 @@
 (function( jQuery ) {
 
   var methods = {
-  about : function () { 
+  about : function () {
       return {
       name: "template",
       author: "Tobias Paczian",
@@ -17,28 +17,28 @@
       return [ "A", "B", "C" ];
     },
   render : function ( settings ) {
-      
-      this.options = { key: "value", 
+
+      var options = { key: "value",
 		       target: "test",
 		       data: [] };
-      jQuery.extend (this.options, settings);
-      
-      var target = document.getElementById(this.options.target);
-      var opt = this.options;
+      jQuery.extend (options, settings);
+
+      var target = document.getElementById(options.target);
+      var opt = options;
       target.innerHTML = "";
-      
+
       var html = "";
-      var data = this.options.data;
+      var data = options.data;
       for (i=0;i<data.length;i++) {
 	html += data[i];
       }
       target.innerHTML = html;
     }
   };
-  
+
   jQuery.fn.RendererTemplate = function( method ) {
     if ( methods[method] ) {
-      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+      return methods[method](arguments[1]);
     } else {
       jQuery.error( 'Method ' +  method + ' does not exist on jQuery.RendererTemplate' );
     }
