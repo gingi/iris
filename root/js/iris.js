@@ -211,7 +211,7 @@
                 );
                 return widget;
             },
-            getJSON: Iris.getJSON
+            getJSON: Iris.getJSON,
         };
         if (spec.about && spec.about.name) {
             Widget[spec.about.name] = widget;
@@ -580,7 +580,7 @@
             DataStore[type] = null;
         }
     }
-})(); // END DataHandler
+}).call(this); // END DataHandler
 
 // FrameBuilder   
 (function () {
@@ -1070,4 +1070,4 @@
             return false;
         }
     }
-})(); // END FrameBuilder
+}).call(this); // END FrameBuilder

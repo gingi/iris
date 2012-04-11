@@ -88,8 +88,19 @@ app.get('/404', function (req, res) {
                           message: 'Now go back to where ya came from.'});
 });
 
-app.get('/widget', function (req, res) {
-    directoryContents(res, WIDGET_JS_DIR);
+app.get('/widget', function (request, response) {
+    var i, f, widgets = [];
+    fs.readdir(WIDGET_JS_DIR, function (err, files) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        for (i in files) {
+            f = files[i];
+            var widget = require(WIDGET_JS_DIR + '/' + f);
+            widgets[widgets.length] = widget.about;
+            widgets[widgets.length].filename = f;
+        }
+        response.write(JSON.stringify(widgets));
+        response.end();
+    });
 });
 
 app.get('/widget/:widget', function (req, res) {
