@@ -1,5 +1,25 @@
 (function( $ ){
-
+	var schema = {
+		properties: {
+			target: {type: 'string', required: true},
+			width: {type: 'integer'},
+			height: {type: 'integer'},
+			radius: {type: 'integer'},
+			data: {
+				description: "list of 2-tuple of string, float",
+				required: true,
+				type: 'array',
+				items: {
+					type: 'array',
+					minItems: 2,
+					maxItems: 2,
+					items: {
+						type: ['number','string']
+					}
+				}
+			}
+		}
+	};
   var methods = {
   about : function() { 
       return {
@@ -15,8 +35,8 @@
 		 'target': 'pie_space',
 		 'data': 'example_data()' },
       classes: [  ],
-      data_format: "list of 2-tuple of string, float"
-      }
+      data_format: schema.properties.data.description
+  }
     },
   example_data : function() {
       return [ [ "slice a", 20 ], [ "slice b", 30 ], [ "slice c", 25 ], [ "slice d", 5 ] ];
@@ -29,10 +49,18 @@
 		       target: "pie_space",
 		       data: [] };
       $.extend (this.options, settings);
-      
-      var target = document.getElementById(this.options.target);
+
       var opt = this.options;
+
+	  var check = window.json.validate(opt, schema);
+	  if (!check['valid']) {
+		  $.error( check['errors'] );
+	  }
+	  
+      var target = document.getElementById(this.options.target);
       target.innerHTML = "";
+	  
+	  
       target.onclick = function() {
 	if (fb_dragData) {
 	  opt.data = fb_dragData;
