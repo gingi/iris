@@ -6,7 +6,7 @@ script(type="text/javascript")
 	$(function () {
 		var uri = 'http://dev.metagenomics.anl.gov/api_new.cgi';
 		var widget = Iris.Widget.create({
-			renderers: [ uri + '/renderer/' ],
+			renderers: [ '/renderer/' ],
 			services:  [ uri + '/' ],
 			dataflows: [ uri + '/dataflow/' ],
 			libraries:	 uri + '/js/',
