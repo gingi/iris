@@ -26,7 +26,7 @@
 		}
 	};
   var methods = {
-  about : function() { 
+  about : function() {
       return {
       name: "table",
       author: "Tobias Paczian",
@@ -49,35 +49,35 @@
 	       header: [ "col A", "col B", "col c" ] };
     },
   render : function( settings ) {
-      
-      this.options = { width: null,
+
+      var options = { width: null,
 		       height: null,
 		       target: "table_space",
 		       data: {} };
-      $.extend (this.options, settings);
-      
-	  var check = window.json.validate(this.options, schema);
+      $.extend (options, settings);
+
+	  var check = window.json.validate(options, schema);
 	  if (!check['valid']) {
 		  $.error( check['errors'] );
 	  }
-	  
-	  
-      var tdata = this.options.data.data;
+
+
+      var tdata = options.data.data;
       if (typeof(tdata) == 'string') {
 	eval("tdata = "+tdata);
       }
-      var header = this.options.data.header;
-      if (! this.options.data.header) {
+      var header = options.data.header;
+      if (! options.data.header) {
 	header = tdata.shift();
       }
-      var target = this.options.target;
+      var target = options.target;
       var defined_width = "";
-      if (this.options.width) {
-	defined_width = "width: "+this.options.width+"px; ";
+      if (options.width) {
+	defined_width = "width: "+options.width+"px; ";
       }
       var defined_height = "";
-      if (this.options.height) {
-	defined_height = "height: "+this.options.height+"px; ";
+      if (options.height) {
+	defined_height = "height: "+options.height+"px; ";
       }
       var html = "<table id='widget_data_table' class='display' cellspacing='0' cellpadding='0' border='0' style='"+defined_width+" "+defined_height+"'><thead><tr>";
       for (var l=0;l<header.length;l++) {
@@ -95,7 +95,7 @@
       }
       html += "</tbody></table>";
       document.getElementById(target).innerHTML = html;
-      
+
       var oTable = $('#widget_data_table').dataTable();
       oTable.selectedData = [];
       oTable.createDragData = function(data) {
@@ -113,48 +113,48 @@
 	if (dragEnabled) {
 	  ev = ev || window.event;
 	  var mpos = mouseCoords(ev);
-	  this.selectedData = [];
-	  this.startSelect = ev.target;
-	  this.startSelectY = mpos.y;
+	  var selectedData = [];
+	  var startSelect = ev.target;
+	  var startSelectY = mpos.y;
 	}
       };
       oTable[0].onmouseup = function(ev) {
 	if (dragEnabled) {
 	  if (dragData) {
 	    make_table(target, header, dragData);
-	    this.startSelect = null;
+	    startSelect = null;
 	    disableDrag();
 	  }
-	  
-	  if (this.startSelect) {
+
+	  if (startSelect) {
 	    ev = ev || window.event;
 	    var mpos = mouseCoords(ev);
-	    if (this.startSelectY < mpos.y) {
-	      var cnode = this.startSelect.parentNode;
-	      this.selectedData.push(cnode);
+	    if (startSelectY < mpos.y) {
+	      var cnode = startSelect.parentNode;
+	      selectedData.push(cnode);
 	      while (cnode != ev.target.parentNode) {
 		cnode = cnode.nextSibling;
-		this.selectedData.push(cnode);
+		selectedData.push(cnode);
 	      }
 	    } else {
 	      var cnode = ev.target.parentNode;
-	      this.selectedData.push(cnode);
-	      while (cnode != this.startSelect.parentNode) {
+	      selectedData.push(cnode);
+	      while (cnode != startSelect.parentNode) {
 		cnode = cnode.nextSibling;
-		this.selectedData.push(cnode);
+		selectedData.push(cnode);
 	      }
 	    }
-	    dragData = oTable.createDragData(this.selectedData);
-	    this.startSelect = null;
+	    dragData = oTable.createDragData(selectedData);
+	    startSelect = null;
 	  }
 	}
       };
     }
   };
-  
+
   $.fn.RendererTable = function( method ) {
     if ( methods[method] ) {
-      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+        return methods[method](arguments[1]);
     } else {
       $.error( 'Method ' +  method + ' does not exist on jQuery.RendererTable' );
     }

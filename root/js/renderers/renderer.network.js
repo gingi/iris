@@ -1,7 +1,7 @@
 (function( jQuery ) {
 
     var methods = {
-        about : function () { 
+        about : function () {
             return {
                 name: "network",
                 author: "Paul and Jer-Ming",
@@ -15,14 +15,14 @@
         },
         render : function ( settings ) {
 
-            var options = { key: "value", 
+            var options = { key: "value",
 		             target: "test",
                              width: 600,
                              height: 600,
 		             data: [] };
 
             jQuery.extend (options, settings);
-                
+
             var target = document.getElementById(options.target);
             target.innerHTML = "";
 
@@ -40,7 +40,7 @@
                 if (typeof(nodeHash.types[node.type]) === 'undefined') {
                     nodeHash.types[node.type] = [];
                 }
-                
+
                 nodeHash.types[node.type].push(node);
             }
 
@@ -128,7 +128,7 @@
 
     jQuery.fn.RendererNetwork = function( method ) {
         if ( methods[method] ) {
-            return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+          return methods[method](arguments[1]);
         } else {
             jQuery.error( 'Method ' +  method + ' does not exist on jQuery.RendererTemplate' );
         }
