@@ -18,7 +18,7 @@
     },
   render : function ( settings ) {
       
-      this.options = { key: "value", 
+      options = { key: "value", 
 		       target: "test",
 		       data: [] };
       jQuery.extend (this.options, settings);
