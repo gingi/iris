@@ -650,11 +650,10 @@
     //
 
     fb.query_renderer_resource = function (resource, list) {
-        jQuery.get(resource, function(data) {
-	    var res = JSON.parse(data);
+        jQuery.get(resource, function (data) {
             renderer_resources[renderer_resources.length] = resource;
-            for (i = 0; i < res.length; i++) {
-                available_renderers[res[i]] =
+            for (i = 0; i < data.length; i++) {
+                available_renderers[data[i]] =
                     renderer_resources.length - 1;
             }
             if (list) {
