@@ -158,13 +158,16 @@ app.get('/renderer/:renderer', function (req, res) {
         var basename = 'renderer.' + req.params.renderer + '.js';
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
+        var renderer = require(filename);
+        var requires = (renderer.about()['requires']) ? renderer.about()['requires'] : [];
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",
-                    name: req.params.renderer
+                    name: req.params.renderer,
+                    requires : requires
                 });
             }
         });
