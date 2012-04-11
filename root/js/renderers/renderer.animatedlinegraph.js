@@ -47,6 +47,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
       options: {
             'bgColor': 'RGBColor()',
 		    'color': 'RGBColor()',
+		    'outlineColor' : 'RGBColor()',
     		'data': '[]'
     	},
       classes: [ ],
@@ -74,12 +75,11 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
 
         var options =     {
             bgColor         :  new RGBColor(255,255,255),
-            color           :  new RGBColor(255,0,0),
             outlineColor    :  new RGBColor(0,0,0),
-            visThreshold    :  0.01,
             width           : 400,
             height          : 400,
             speed           : 50,
+            animate         : 1,
         };
 
         jQuery.extend (options, settings);
@@ -156,6 +156,9 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
                 if (options.data[i].data.length > me.steps) {
                     me.steps = options.data[i].data.length;
                 }
+            }
+            if (! options.animate) {
+                me.step = me.steps;
             }
         }
 
