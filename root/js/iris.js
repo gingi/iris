@@ -650,10 +650,10 @@
     //
 
     fb.query_renderer_resource = function (resource, list) {
-        jQuery.get(resource, function (data) {
+        jQuery.getJSON(resource, function (data) {
             renderer_resources[renderer_resources.length] = resource;
             for (i = 0; i < data.length; i++) {
-                available_renderers[data[i]] =
+                available_renderers[data[i].filename] =
                     renderer_resources.length - 1;
             }
             if (list) {
@@ -748,7 +748,7 @@
                 renderer_callback_list[renderer] = [];
             }
             renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-            $.get(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
+            jQuery.getJSON(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
                 eval(data);
                 var x = renderer;
                 x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
