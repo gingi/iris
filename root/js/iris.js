@@ -9,9 +9,9 @@
     var Iris = root.Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
-
+    
     // Utility fuctions
-
+    
     Iris.each = function (array, func) {
         for (var i = 0; i < array.length; i++) {
             func(array[i]);
@@ -22,12 +22,14 @@
     Iris.extend = function (object) {
         Iris.each(Array.prototype.slice.apply(arguments), function (source) {
             for (var property in source) {
-                object[property] = source[property];
+                if (!object[property]) {
+                    object[property] = source[property];
+                }
             }
         });
         return object;
     };
-
+    
     Iris.keys = function (object) {
         if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
@@ -49,17 +51,17 @@
         }
         return values;
     };
-
+    
     function capitalize(string) {
         if (string == null || string == "") return string;
         return string[0].toUpperCase() + string.slice(1);
     }
-
+    
     Iris.normalizeName = function (string) {
         var capitalized = capitalize(string);
         return capitalized.split(/\s/).join('');
     };
-
+    
     var EventCallbacks;
     var eventSplitter = /\s+/;
     var observable = function () {
@@ -117,7 +119,8 @@
                     while ((node = node.next) !== tail) {
                         cb = node.callback;
                         ctx = node.context;
-                        if ((callback && cb !== callback) || (context && ctx !== context)) {
+                        if ((callback && cb !== callback) ||
+                            (context && ctx !== context)) {
                             this.on(event, cb, ctx);
                         }
                     }
@@ -159,7 +162,7 @@
             }
         };
     };
-
+    
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
@@ -178,7 +181,7 @@
             services[service.path] = service.uri;
         }
     });
-
+    
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
         var url = Iris.dataURI(path);
@@ -198,16 +201,43 @@
      */
     var Widget = Iris.Widget = {};
     Widget.extend = function (spec) {
-        var widget;
+        var widget = {};
         spec = (spec || {});
         spec.renderers = (spec.renderers || []);
         spec.services  = (spec.services  || []);
         spec.dataflows = (spec.dataflows || []);
-
-        widget = {
+        var about;
+        switch (typeof spec.about) {
+            case 'function' : about = spec.about();  break;
+            case 'object'   : about = spec.about;    break;
+            default         : about = {};            break;
+        };
+        
+        var widget = Iris.extend({}, spec);
+        Iris.extend(widget, {
             target: function (target) {
                 widget.targetElement = target;
                 return widget;
+            },
+            loadRenderer: function (args) {
+                Iris._FrameBuilder.load_renderer(args);
+            },
+            getData: function (args) {
+                Iris._DataHandler.get_objects(args);
+            },
+            setup: function () {
+                throw "setup() needs to be implemented, pal.";
+            },
+            create: function (args) {
+                var widgetInstance = {
+                    about: function (name) {
+                        return about[name];
+                    }
+                };
+                Iris.extend(widgetInstance, widget);
+                widgetInstance.setup(args);
+                //...
+                return widgetInstance;
             },
             display: function () {
                 Iris._FrameBuilder.init(
@@ -221,13 +251,14 @@
                 return widget;
             },
             getJSON: Iris.getJSON,
-        };
-        if (spec.about && spec.about.name) {
-            Widget[spec.about.name] = widget;
+        });
+        Iris.extend(widget, Widget);
+        if (about.name) {
+            Widget[about.name] = widget;
         }
         return widget;
     };
-
+    
     /* ===================================================
      * Iris.Renderer
      */
@@ -236,24 +267,35 @@
     Renderer.extend = function (spec) {
         var renderer;
         spec = (spec || {});
-        var about = (spec.about() || {});
-
-        var renderer = {};
-        Iris.extend(renderer, spec);
-
-        var name = about["name"];
-        var plugin = "Renderer" + Iris.normalizeName(name);
-        // Expose as jQuery plugin
-        Iris.Renderer.renderers[plugin] = renderer;
-        jQuery.fn[plugin] = function (method) {
-            if (renderer[method]) {
-                return renderer[method](arguments[1]);
-            } else {
-                jQuery.error(
-                    'Method ' + method + ' does not exist on jQuery.' + plugin
-                );
-            }
+        var about;
+        switch (typeof spec.about) {
+            case 'function' : about = spec.about();  break;
+            case 'object'   : about = spec.about;    break;
+            default         : about = {};            break;
         };
+        
+        var renderer = Iris.extend({}, spec);
+        Iris.extend(renderer, Renderer);
+        
+        if (about["name"]) {
+            var name = Iris.normalizeName(about["name"]);
+            Renderer[name] = renderer;
+            var plugin = "Renderer" + name;
+            // Expose as jQuery plugin
+        Iris.Renderer.renderers[plugin] = renderer;
+            jQuery.fn[plugin] = function (method) {
+                if (renderer[method]) {
+                    return renderer[method](arguments[1]);
+                } else {
+                    jQuery.error(
+                        'Method ' + method + ' does not exist on jQuery.' + plugin
+                    );
+                }
+            };
+        }
+        renderer.about = function (name) {
+            return about[name];
+        }
         return renderer;
     };
 
@@ -266,7 +308,7 @@
         Iris.extend(model, observable());
         return model;
     };
-
+    
     /* ===================================================
      * Iris.Event
      */
@@ -284,7 +326,7 @@
             [[0, 0], [1, 0], [2, 5], [3, 0], [4, 5], [5, 0], [6, 5]],
             [[0, 0], [1, 0], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
         ],
-
+    
         {
             header: ["firstname", "lastname", "email"],
             data: [
@@ -307,7 +349,7 @@
 // DataHandler
 (function () {
     var dh = Iris._DataHandler = {};
-
+    
     // global variables
     var DataStore = dh.DataStore = [];
     var TypeData;
@@ -662,14 +704,14 @@
     }
 }).call(this); // END DataHandler
 
-// FrameBuilder
+// FrameBuilder   
 (function () {
     var fb = Iris._FrameBuilder = {};
     var dh = Iris._DataHandler;
 
     var loaded_libraries       = [];
     var library_callback_list  = [];
-
+                              
     var renderer_resources     = [];
     Iris._FrameBuilder.renderer_resources = renderer_resources;
 
