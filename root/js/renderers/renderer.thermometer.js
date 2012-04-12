@@ -1,3 +1,4 @@
+
 (function () {
 
 	var schema = {
@@ -28,7 +29,7 @@
   example_data : function () {
       return [
         {
-            value   : 0.10,
+            value   : 0.90,
             topColor : new RGBColor(255,0,0),
             bottomColor : new RGBColor(255,255,255)
         }
@@ -41,7 +42,7 @@
             bottomColor         :  new RGBColor(255,255,255),
             outlineColor    :  new RGBColor(0,0,0),
             width           : 10,
-            height          : 400,
+            height          : 400
         };
 
         jQuery.extend (options, settings);
@@ -73,31 +74,35 @@
 
         if (ctx) {
 
+            if (options.data[0].bounds == undefined) {
+                options.data[0].bounds = new Rectangle(new Point(0,0), new Size(canvas.width, canvas.height));
+            }
+
             var grad = ctx.createLinearGradient(
-                0,
-                0,
-                canvas.width,
-                canvas.height
+                options.data[0].bounds.origin.x,
+                options.data[0].bounds.origin.y,
+                options.data[0].bounds.size.width,
+                options.data[0].bounds.size.height
             );
             grad.addColorStop(0,options.data[0].topColor.asString());
             grad.addColorStop(1,options.data[0].bottomColor.asString());
             ctx.fillStyle = grad;
 
             ctx.fillRect(
-                0,
-                0,
-                canvas.width,
-                canvas.height
+                options.data[0].bounds.origin.x,
+                options.data[0].bounds.origin.y,
+                options.data[0].bounds.size.width,
+                options.data[0].bounds.size.height
             );
 
             var invGrad = ctx.createLinearGradient(
-                0,
-                0,
-                canvas.width,
-                canvas.height
+                options.data[0].bounds.origin.x,
+                options.data[0].bounds.origin.y,
+                options.data[0].bounds.size.width,
+                options.data[0].bounds.size.height
             );
-            invGrad.addColorStop(0,options.data[0].bottomColor.asString());
-            invGrad.addColorStop(1,options.data[0].topColor.asString());
+            invGrad.addColorStop(0,options.data[0].topColor.invert().asString());
+            invGrad.addColorStop(1,options.data[0].bottomColor.invert().asString());
             ctx.fillStyle = invGrad;
 
             if (options.data[0].value > 0.45 && options.data[0].value < 0.55) {
@@ -105,11 +110,14 @@
             }
 
             ctx.fillRect(
-                0,
-                (1 - options.data[0].value) * canvas.height,
-                canvas.width,
+                options.data[0].bounds.origin.x,
+                (1 - options.data[0].value) * options.data[0].bounds.size.height + options.data[0].bounds.origin.y,
+                options.data[0].bounds.size.width,
                 1
             );
+
+            //ctx.strokeStyle = options.outlineColor;
+            //ctx.strokeRect(0,0,options.data[0].bounds.width,canvas.height);
         }
     },
   };
