@@ -8,45 +8,47 @@
             requires: [],
         }
     });
-    // widget.view({
-    //     dataPath: '/service/list',
-    //     renderer: "DropDown",
-    //     transform: function (data) {
-    //         var list = [];
-    //         for (var i in data) {
-    //             var service = data[i];
-    //             var name = service.name;
-    //             var value = service.uri;
-    //             if (service.path) {
-    //                 value += service.path;
-    //                 name += service.path;
-    //             }
-    //             list.push({
-    //                 name: name,
-    //                 value: value,
-    //             });
-    //         }
-    //         list.push({ name: "[ Custom ]", value: "" });
-    //         return list;                    
-    //     }
-    // }).view({
-    //     render: function () {
-    //         var div = document.createElement('div');
-    //         var input = document.createElement('input');
-    //         div.appendChild(input);
-    //         var button = document.createElement('input');
-    //         button.setAttribute("type", "button");
-    //         button.setAttribute('value', 'load');
-    //         button.onclick = function () {
-    //             console.log("Button clicked", event);
-    //         };
-    //         div.appendChild(button);
-    //         return div;
-    //     }
-    // }).view({
-    //     dataPath: '/service',
-    //     renderer: "Syntax"
-    // });
+    widget.addRenderer({
+        dataPath: '/service/list',
+        renderer: "DropDown",
+        transform: function (data) {
+            var list = [];
+            for (var i in data) {
+                var service = data[i];
+                var name = service.name;
+                var value = service.uri;
+                if (service.path) {
+                    value += service.path;
+                    name += service.path;
+                }
+                list.push({
+                    name: name,
+                    value: value,
+                });
+            }
+            list.push({ name: "[ Custom ]", value: "" });
+            return list;                    
+        }
+    }).addRenderer({
+        
+        render: function () {
+            var div = document.createElement('div');
+            var input = document.createElement('input');
+            div.appendChild(input);
+            var button = document.createElement('input');
+            button.setAttribute("type", "button");
+            button.setAttribute('value', 'load');
+            button.onclick = function () {
+                console.log("Button clicked", event);
+            };
+            div.appendChild(button);
+            return div;
+        }
+    }).addRenderer({
+        // dataPath: '/service',
+        target: "select",
+        renderer: "Syntax"
+    });
 
     widget.display = function (args) {
         var div = document.getElementById(widget.targetElement);

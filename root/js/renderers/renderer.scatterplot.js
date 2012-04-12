@@ -92,7 +92,7 @@
 			var sampleData = new Array();
 			for(var i=0; i< 1000; i++) {
 				sampleData[i] = new Array();
-				sampleData[i][0] = Math.random()*100 - 90;
+				sampleData[i][0] = 2^i;
 				sampleData[i][1] = Math.random()*100 - 50;
 				sampleData[i][2] = Math.random()*10;
 				sampleData[i][3] = Math.floor(Math.random()*21);
@@ -117,8 +117,8 @@
 				boundingBox: true,
 				x: 0,
 				y: 1,
-				colorBy: 1,
-				scaleBy: 0,
+				colorBy: 2,
+				scaleBy: 3,
 				scale: ['linear','linear','linear','linear'],
                 data: []
 
@@ -177,10 +177,24 @@
 				axes[i].range = axes[i].max - axes[i].min;
 			}
 			axes[opt.x].scale = function(value) {
-				return opt.xPadding + (value - axes[opt.x].min) * (opt.width - 2*opt.xPadding) / axes[opt.x].range;
+				if (opt.scale[opt.x] === 'linear') {
+					return opt.xPadding + (value - axes[opt.x].min) * (opt.width - 2*opt.xPadding) / axes[opt.x].range;
+				} else {
+					if (value === axes[opt.x].min) {
+						return opt.xPadding;
+					}
+					return opt.xPadding + Math.log(value - axes[opt.x].min) * (opt.width - 2*opt.xPadding) / Math.log(axes[opt.x].range);
+				}
 			}
 			axes[opt.y].scale = function(value) {
-				return opt.yPadding + (axes[opt.y].max - value) * (opt.height - 2*opt.yPadding) / axes[opt.y].range; 
+				if (opt.scale[opt.y] === 'linear') {
+					return opt.yPadding + (axes[opt.y].max - value) * (opt.height - 2*opt.yPadding) / axes[opt.y].range; 
+				} else {
+					if (value === axes[opt.y].min) {
+						return opt.yPadding;
+					}
+					return opt.yPadding + opt.height - Math.log(value - axes[opt.y].min) * (opt.height - 2*opt.yPadding) / Math.log(axes[opt.y].range); 
+				}
 			}
 			var doColor = false;
 			if (opt.colorBy < axes.length && opt.colorBy >= 0) {

@@ -58,5 +58,6 @@ exports.jQueryStub = (function () {
     stub.ajaxSetup = function () { };
     stub.ajax      = function () { };
     stub.getJSON   = function () { };
+    stub.fn        = {};
     return stub;
 })();
