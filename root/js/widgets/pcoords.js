@@ -1,5 +1,5 @@
 (function() {
-    var widget = Iris.Widget.create({
+    var widget = Iris.Widget.extend({
         about: {
             name: "Pcoords",
             author: "Andrew Olson",

@@ -4,7 +4,7 @@
  *
  * Creation:
  *
- *     var widget = Iris.Widget.create({
+ *     var widget = Iris.Widget.extend({
  *         about: { name: "GeneGODistribution" }
  *     });
  *     widget.view({
@@ -60,7 +60,7 @@ function createWidget(spec, my) {
             if (typeof element.render != 'function') {
                 throw "'render:' must be a function.";
             }
-            renderer = element.renderer = Iris.Renderer.create({
+            renderer = element.renderer = Iris.Renderer.extend({
                 render: element.render
             });
         } else if (typeof renderer == 'string') {
@@ -157,7 +157,7 @@ function createWidget(spec, my) {
     
     var WidgetSingleton = {};
     
-    WidgetSingleton.create = function (spec) {
+    WidgetSingleton.extend = function (spec) {
     if (!spec || !spec.about) {
         throw "'about' parameter is missing";
     }

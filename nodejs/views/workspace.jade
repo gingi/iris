@@ -8,8 +8,6 @@ block scripts
 	script(type="text/javascript", src="/js/jquery-ui.js")
 	script(type="text/javascript", src="/js/d3.js")
 	script(type="text/javascript", src="/js/iris.js")
-	script(type="text/javascript", src="/js/widgets/widget.js")
-	script(type="text/javascript", src="/js/renderers/renderer.js")
 	- each widget in list
 		script(type="text/javascript", src="/js/widgets/" + widget.js)
 	script
@@ -35,7 +33,7 @@ block scripts
 				if (!widget) {
 					throw "Cannot find widget named " + widgetId + "!";
 				}
-				widget.div(divId).display({});
+				widget.target(divId).display({});
 				$(elem).addClass('active');
 				widgets[widgetId] = divId;
 			}
