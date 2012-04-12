@@ -9,9 +9,9 @@
     var Iris = root.Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
-    
+
     // Utility fuctions
-    
+
     Iris.each = function (array, func) {
         for (var i = 0; i < array.length; i++) {
             func(array[i]);
@@ -27,7 +27,7 @@
         });
         return object;
     };
-    
+
     Iris.keys = function (object) {
         if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
@@ -49,17 +49,17 @@
         }
         return values;
     };
-    
+
     function capitalize(string) {
         if (string == null || string == "") return string;
         return string[0].toUpperCase() + string.slice(1);
     }
-    
+
     Iris.normalizeName = function (string) {
         var capitalized = capitalize(string);
         return capitalized.split(/\s/).join('');
     };
-    
+
     var EventCallbacks;
     var eventSplitter = /\s+/;
     var observable = function () {
@@ -159,7 +159,7 @@
             }
         };
     };
-    
+
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
@@ -178,7 +178,7 @@
             services[service.path] = service.uri;
         }
     });
-    
+
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
         var url = Iris.dataURI(path);
@@ -203,7 +203,7 @@
         spec.renderers = (spec.renderers || []);
         spec.services  = (spec.services  || []);
         spec.dataflows = (spec.dataflows || []);
-        
+
         widget = {
             target: function (target) {
                 widget.targetElement = target;
@@ -227,22 +227,24 @@
         }
         return widget;
     };
-    
+
     /* ===================================================
      * Iris.Renderer
      */
     var Renderer = Iris.Renderer = {};
+    Renderer.renderers = {};
     Renderer.extend = function (spec) {
         var renderer;
         spec = (spec || {});
         var about = (spec.about() || {});
-        
+
         var renderer = {};
         Iris.extend(renderer, spec);
-        
+
         var name = about["name"];
         var plugin = "Renderer" + Iris.normalizeName(name);
         // Expose as jQuery plugin
+        Iris.Renderer.renderers[plugin] = renderer;
         jQuery.fn[plugin] = function (method) {
             if (renderer[method]) {
                 return renderer[method](arguments[1]);
@@ -264,7 +266,7 @@
         Iris.extend(model, observable());
         return model;
     };
-    
+
     /* ===================================================
      * Iris.Event
      */
@@ -282,7 +284,7 @@
             [[0, 0], [1, 0], [2, 5], [3, 0], [4, 5], [5, 0], [6, 5]],
             [[0, 0], [1, 0], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
         ],
-    
+
         {
             header: ["firstname", "lastname", "email"],
             data: [
@@ -305,7 +307,7 @@
 // DataHandler
 (function () {
     var dh = Iris._DataHandler = {};
-    
+
     // global variables
     var DataStore = dh.DataStore = [];
     var TypeData;
@@ -618,16 +620,20 @@
     }
 }).call(this); // END DataHandler
 
-// FrameBuilder   
+// FrameBuilder
 (function () {
     var fb = Iris._FrameBuilder = {};
     var dh = Iris._DataHandler;
 
     var loaded_libraries       = [];
     var library_callback_list  = [];
-                              
+
     var renderer_resources     = [];
+    Iris._FrameBuilder.renderer_resources = renderer_resources;
+
     var available_renderers    = [];
+    Iris._FrameBuilder.available_renderers = available_renderers;
+
     var loaded_renderers       = [];
     var renderer_callback_list = [];
 
@@ -770,6 +776,7 @@
     }
 
     fb.load_renderer = function (renderer, callback_function, callback_params) {
+
         if (loaded_renderers[renderer]) {
             if (!renderer_callback_list[renderer]) {
                 renderer_callback_list[renderer] = [];
@@ -784,7 +791,8 @@
                 renderer_callback_list[renderer] = [];
             }
             renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-            jQuery.getJSON(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
+
+            jQuery.get(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
                 eval(data);
                 var x = renderer;
                 x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
