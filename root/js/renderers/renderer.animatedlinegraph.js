@@ -37,7 +37,7 @@
   var renderer = {
         about: function() {
             return {
-                name: "Animated Line Graph",
+                name: "animatedlinegraph",
                 author: "Jim Thomason",
                 version: "1.0",
                 requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
