@@ -213,6 +213,10 @@
             default         : about = {};            break;
         };
         
+        if (spec.setup && typeof spec.setup !== 'function') {
+            throw "setup() must be a function returning a string.";
+        }
+        
         var widget = Iris.extend({}, spec);
         Iris.extend(widget, {
             target: function (target) {
@@ -225,18 +229,24 @@
             getData: function (args) {
                 Iris._DataHandler.get_objects(args);
             },
-            setup: function () {
-                throw "setup() needs to be implemented, pal.";
+            setup: function (args) {
+                return [];
             },
-            create: function (args) {
+            create: function (element, args) {
                 var widgetInstance = {
                     about: function (name) {
                         return about[name];
                     }
                 };
                 Iris.extend(widgetInstance, widget);
-                widgetInstance.setup(args);
-                //...
+                var deferreds = widgetInstance.setup(args);
+                if (Object.prototype.toString.call(deferreds)
+                    !== '[object Array]') {
+                    throw "setup() needs to turn an array";
+                }
+                jQuery.when(deferreds).then(function (retValues) {
+                    widgetInstance.display(element, retValues);
+                });
                 return widgetInstance;
             },
             display: function () {
