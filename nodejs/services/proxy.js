@@ -11,6 +11,25 @@ var RENDERER_JS_DIR = JS_DIR + '/renderers';
 var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 
+function serverIris() {
+    var Iris = this.Iris = {};
+    var registrants = {};
+    var lastRegistrant = null;
+    Iris.interceptor = {
+        extend: function (spec) {
+            var about = spec.about();
+            registrants[about.name] = lastRegistrant = about;
+        }
+    };
+    Iris.registrant = function (name) {
+        return registrants[name];
+    };
+    Iris.lastRegistrant = function () {
+        return lastRegistrant;
+    };
+    Iris.Widget = Iris.Renderer = Iris.interceptor;
+    return Iris;
+}
 
 /* Widget configuration
  *
@@ -88,8 +107,19 @@ app.get('/404', function (req, res) {
                           message: 'Now go back to where ya came from.'});
 });
 
-app.get('/widget', function (req, res) {
-    directoryContents(res, WIDGET_JS_DIR);
+app.get('/widget', function (request, response) {
+    var i, f, widgets = [];
+    fs.readdir(WIDGET_JS_DIR, function (err, files) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        for (i in files) {
+            f = files[i];
+            var widget = require(WIDGET_JS_DIR + '/' + f);
+            widgets[widgets.length] = widget.about;
+            widgets[widgets.length].filename = f;
+        }
+        response.write(JSON.stringify(widgets));
+        response.end();
+    });
 });
 
 app.get('/widget/:widget', function (req, res) {
@@ -130,6 +160,7 @@ app.get('/renderer/:renderer', function (req, res) {
         return;
     }
     if (req.params.renderer.match(/.js$/)) {
+        // Send the file
         var filename = RENDERER_JS_DIR + '/' + req.params.renderer;
         path.exists(filename, function (exists) {
             if (!exists) {
@@ -143,16 +174,23 @@ app.get('/renderer/:renderer', function (req, res) {
             }
         });
     } else {
+        if (!this.Iris) {
+            serverIris();
+        }
         var basename = 'renderer.' + req.params.renderer + '.js';
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
+        require(filename);
+        var renderer = this.Iris.lastRegistrant();
+        var requires = (renderer['requires'] || []);
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",
-                    name: req.params.renderer
+                    name: renderer["name"],
+                    requires : requires
                 });
             }
         });

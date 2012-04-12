@@ -50,6 +50,15 @@
         return values;
     };
     
+    function capitalize(string) {
+        if (string == null || string == "") return string;
+        return string[0].toUpperCase() + string.slice(1);
+    }
+    
+    Iris.normalizeName = function (string) {
+        var capitalized = capitalize(string);
+        return capitalized.split(/\s/).join('');
+    };
     
     var EventCallbacks;
     var eventSplitter = /\s+/;
@@ -188,7 +197,7 @@
      * Iris.Widget
      */
     var Widget = Iris.Widget = {};
-    Widget.create = function (spec) {
+    Widget.extend = function (spec) {
         var widget;
         spec = (spec || {});
         spec.renderers = (spec.renderers || []);
@@ -211,12 +220,39 @@
                 );
                 return widget;
             },
-            getJSON: Iris.getJSON
+            getJSON: Iris.getJSON,
         };
         if (spec.about && spec.about.name) {
             Widget[spec.about.name] = widget;
         }
         return widget;
+    };
+    
+    /* ===================================================
+     * Iris.Renderer
+     */
+    var Renderer = Iris.Renderer = {};
+    Renderer.extend = function (spec) {
+        var renderer;
+        spec = (spec || {});
+        var about = (spec.about() || {});
+        
+        var renderer = {};
+        Iris.extend(renderer, spec);
+        
+        var name = about["name"];
+        var plugin = "Renderer" + Iris.normalizeName(name);
+        // Expose as jQuery plugin
+        jQuery.fn[plugin] = function (method) {
+            if (renderer[method]) {
+                return renderer[method](arguments[1]);
+            } else {
+                jQuery.error(
+                    'Method ' + method + ' does not exist on jQuery.' + plugin
+                );
+            }
+        };
+        return renderer;
     };
 
     /* ===================================================
@@ -581,7 +617,7 @@
             DataStore[type] = null;
         }
     }
-})(); // END DataHandler
+}).call(this); // END DataHandler
 
 // FrameBuilder   
 (function () {
@@ -651,11 +687,10 @@
     //
 
     fb.query_renderer_resource = function (resource, list) {
-        jQuery.get(resource, function(data) {
-	    var res = JSON.parse(data);
+        jQuery.getJSON(resource, function (data) {
             renderer_resources[renderer_resources.length] = resource;
-            for (i = 0; i < res.length; i++) {
-                available_renderers[res[i]] =
+            for (i = 0; i < data.length; i++) {
+                available_renderers[data[i].filename] =
                     renderer_resources.length - 1;
             }
             if (list) {
@@ -750,7 +785,7 @@
                 renderer_callback_list[renderer] = [];
             }
             renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-            $.get(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
+            jQuery.getJSON(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
                 eval(data);
                 var x = renderer;
                 x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
@@ -1072,4 +1107,4 @@
             return false;
         }
     }
-})(); // END FrameBuilder
+}).call(this); // END FrameBuilder
