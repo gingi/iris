@@ -16,7 +16,7 @@ function serverIris() {
     var registrants = {};
     var lastRegistrant = null;
     Iris.interceptor = {
-        create: function (spec) {
+        extend: function (spec) {
             var about = spec.about();
             registrants[about.name] = lastRegistrant = about;
         }
