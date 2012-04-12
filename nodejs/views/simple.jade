@@ -18,9 +18,9 @@ script(type="text/javascript")
 	
 .well(id="widget1")
 .well(id="control")
-	img(src="/img/graph.gif", style="height:48px", onload="Iris.Event.DragDrop(this, 'renderer.linegraph.js', 'renderer');", data-type="3d-matrix")
-	img(src="/img/table.png", style="height: 48px", onload="Iris.Event.DragDrop(this, 'renderer.table.js', 'renderer');", data-type="table")
-	img(src="/img/piechart.png", style="height: 48px", id="piechart_drag", onload="Iris.Event.DragDrop(this, 'renderer.piechart.js', 'renderer');", data-type="named_numbers")
+	img(src="/img/graph.gif", style="height:48px", onload="Iris.Event.DragDrop(this, 'Linegraph', 'renderer');", data-type="3d-matrix")
+	img(src="/img/table.png", style="height: 48px", onload="Iris.Event.DragDrop(this, 'Table', 'renderer');", data-type="table")
+	img(src="/img/piechart.png", style="height: 48px", id="piechart_drag", onload="Iris.Event.DragDrop(this, 'Piechart', 'renderer');", data-type="named_numbers")
 
 	hr(style="height:1px")
 

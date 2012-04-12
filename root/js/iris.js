@@ -233,7 +233,6 @@
      */
     var Renderer = Iris.Renderer = {};
     Renderer.extend = function (spec) {
-        var renderer;
         spec = (spec || {});
         var about = (spec.about() || {});
         
@@ -241,7 +240,9 @@
         Iris.extend(renderer, spec);
         
         var name = about["name"];
-        var plugin = "Renderer" + Iris.normalizeName(name);
+        Iris.Renderer[Iris.normalizeName(name)] = renderer;
+        
+/*
         // Expose as jQuery plugin
         jQuery.fn[plugin] = function (method) {
             if (renderer[method]) {
@@ -252,6 +253,7 @@
                 );
             }
         };
+*/
         return renderer;
     };
 
@@ -760,17 +762,20 @@
     fb.test_renderer = function (params) {
         if (params.ret) {
             document.getElementById(params.target).innerHTML = "";
-            var x = params.renderer;
-            x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
-            eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': params.target })");
+
+            Iris.Renderer[params.renderer].render({ data: Iris.Renderer[params.renderer].example_data(), target: params.target });
         } else {
             params.ret = 1;
-            fb.load_renderer(params.renderer, fb.test_renderer, params);
+            fb.load_renderer(params.renderer).then(function() {
+                fb.test_renderer(params);
+            });
         }
     }
 
-    fb.load_renderer = function (renderer, callback_function, callback_params) {
+    fb.load_renderer = function (renderer) {
         if (loaded_renderers[renderer]) {
+            return loaded_renderers[renderer];
+/*
             if (!renderer_callback_list[renderer]) {
                 renderer_callback_list[renderer] = [];
             }
@@ -779,22 +784,50 @@
             } else {
                 renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
             }
+*/
         } else {
+            var promise = jQuery.Deferred();
+            loaded_renderers[renderer] = promise;
+/*
             if (!renderer_callback_list[renderer]) {
                 renderer_callback_list[renderer] = [];
             }
             renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-            jQuery.getJSON(renderer_resources[available_renderers[renderer]] + renderer, function(data) {
+*/
+            var promises = [];
+
+            var scriptJs = 'renderer.'+renderer.toLowerCase()+'.js';
+            var scriptUrl = renderer_resources[available_renderers[scriptJs]] + scriptJs;
+            jQuery.get(scriptUrl).then(function(data) {
                 eval(data);
-                var x = renderer;
-                x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
-                eval("loaded_renderers[renderer] = $('div')." + x + "('about')");
-                for (i = 0; i < loaded_renderers[renderer].requires.length; i++) {
-                    fb.load_library(loaded_renderers[renderer].requires[i], fb.check_renderer_dependencies, renderer);
+                loaded_renderers[renderer] = Iris.Renderer[renderer].about();
+                for (var i=0; i<loaded_renderers[renderer].requires.length; i++) {
+                    promises.push(fb.load_library(loaded_renderers[renderer].requires[i]));
                 }
-                fb.check_renderer_dependencies(renderer);
+
+                jQuery.when.apply(this, promises).then(function() {
+                    promise.resolve();
+                });
             });
         }
+ 
+        return promise;
+   }
+
+    fb.load_library = function (library) {
+        var promise = jQuery.Deferred();
+
+        if (loaded_libraries[library]) {
+            promise.resolve();
+        } else {
+            var scriptUrl = library_resource + library;
+            jQuery.get(scriptUrl).then(function(data) {
+                eval(data);
+                promise.resolve();
+            });
+        }
+
+        return promise;
     }
 
     fb.check_renderer_dependencies = function (renderer) {
@@ -813,33 +846,6 @@
             }
             renderer_callback_list[renderer] = null;
             loaded_renderers[renderer].ready = 1;
-        }
-    }
-
-    fb.load_library = function (library, callback, params) {
-        if (loaded_libraries[library]) {
-            if (library_callback_list[library]) {
-                for (i = 0; i < library_callback_list[library].length; i++) {
-                    library_callback_list[library][i][0].call(null, library_callback_list[library][i][1]);
-                }
-                library_callback_list[library] = null;
-            }
-        } else {
-            if (!library_callback_list[library]) {
-                library_callback_list[library] = [];
-            }
-            library_callback_list[library][library_callback_list[library].length] = [callback, params];
-
-            var scriptTag = document.createElement("script");
-            scriptTag.setAttribute("type", "text/javascript");
-            scriptTag.setAttribute("src", library_resource + library);
-            scriptTag.onload = scriptTag.onreadystatechange = function() {
-                if (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") {
-                    loaded_libraries[library] = 1;
-                    fb.load_library(library, callback, params);
-                }
-            }
-            document.getElementsByTagName("head")[0].appendChild(scriptTag);
         }
     }
 

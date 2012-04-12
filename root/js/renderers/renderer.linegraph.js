@@ -76,11 +76,11 @@
             };
             $.extend(options, settings);
 
-            var check = window.json.validate(options, schema);
+/*            var check = window.json.validate(options, schema);
             if (!check['valid']) {
                 $.error(check['errors']);
             }
-
+*/
             document.getElementById(options.target).innerHTML = "";
 
             var maxx = 0;
