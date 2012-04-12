@@ -1,7 +1,7 @@
 (function() {
     var uriPrefix = Iris.dataURI();
     var widget = {};
-    widget = Iris.Widget.create({
+    widget = Iris.Widget.extend({
         about: {
             name: "DataBrowser",
             author: "Andrew Olson",

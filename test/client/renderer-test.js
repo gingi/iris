@@ -20,7 +20,7 @@ module.exports = {
         callback();
     },
     createRenderer: function (test) {
-        var renderer = Iris.Renderer.create({
+        var renderer = Iris.Renderer.extend({
             about: { name: "MyRenderer" },
             render: function () {}
         });
@@ -29,7 +29,7 @@ module.exports = {
     },
     createRendererWithoutAbout: function (test) {
         test.doesNotThrow(function () {
-            Iris.Renderer.create({ render: function () {} });
+            Iris.Renderer.extend({ render: function () {} });
         }, null, "Should be able to create a non-registered Renderer");
         test.done();
     },

@@ -210,5 +210,5 @@
     },
   };
 
-  Iris.Renderer.create(renderer);
+  Iris.Renderer.extend(renderer);
 }).call(this);
