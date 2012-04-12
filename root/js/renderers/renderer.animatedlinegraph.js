@@ -186,6 +186,15 @@
             ctx.strokeStyle = options.outlineColor.asString();
             ctx.strokeRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
 
+            renderer.drawGrid(
+                canvas,
+                {
+                    ticks : 10,
+                    bounds : renderer.getGraphBounds(canvas),
+                    color : new RGBColor(210,210,210),
+                }
+            );
+
             for (var i = 0; i < options.data.length; i++) {
                 ctx.strokeStyle = options.data[i].color.asString();
                 var data = options.data[i].data;
