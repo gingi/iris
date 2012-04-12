@@ -299,7 +299,7 @@
                     barRect.origin.x,
                     barRect.origin.y+barRect.size.height
                 );
-                grad.addColorStop(0,options.data[i].asString());
+                grad.addColorStop(0,options.data[i].color.asString());
                 grad.addColorStop(1,options.bgColor.asString());
                 ctx.fillStyle = grad;
 
