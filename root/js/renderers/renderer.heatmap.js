@@ -2981,7 +2981,7 @@
 
             if (regionRect.containsPoint(coords)) {
                 if (me.lastRect == undefined || regionRect.asString() != me.lastRect.asString()) {
-                    var thermometer = Iris.Renderer.renderers['RendererThermometer'];
+                    var thermometer = Iris.Renderer['RendererThermometer'];
 
                     me.lastRect = regionRect;
                     thermometer.renderCanvas(
