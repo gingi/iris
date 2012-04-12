@@ -359,16 +359,42 @@
         }
 
         if (new_data) {
-            if (!new_data.length) {
-                new_data = [{
-                    'type': type,
-                    'data': [new_data]
-                }];
-            }
-            for (var i = 0; i < new_data.length; i++) {
+	    
+	    var repo_type = 'default';
+	    if (data_repository && data_repository.type) {
+		repo_type = data_repository.type;
+	    }
+	    
+	    switch (repo_type) {
+	    case 'default':
+		if (!new_data.length) {
+                    new_data = [{
+			'type': type,
+			'data': [new_data]
+                    }];
+		}
+		if (typeof(new_data[0]) != 'object') {
+		    var dataids = [];
+		    for (i=0; i<new_data.length; i++) {
+			dataids.push( { 'id': new_data[i] } );
+		    }
+		    new_data = [ { 'type': type, 'data': dataids } ];
+		}
+		break;
+	    case 'shock':
+		var parsed = [];
+		new_data = new_data.D;
+		for (i=0; i<new_data.length; i++) {
+		    parsed.push(new_data[i].attributes);
+		}
+		new_data = [ { 'type': type, 'data': parsed } ];
+		break;
+	    }
+
+	    for (var i = 0; i < new_data.length; i++) {
                 if (new_data[i].type) {
-                    var type = new_data[i].type;
-                    if (!TypeData['types'][type]) {
+		    var type = new_data[i].type;
+		    if (!TypeData['types'][type]) {
                         DataStore[type] = [];
                         TypeData['type_count']++;
                         TypeData['types'][type] = 0;
@@ -394,8 +420,7 @@
         if (repository && repository.id) {
             DataRepositories[repository.id] = repository;
             DataRepositoriesCount++;
-            if (repository.
-        default ||DataRepositoryDefault == null) {
+            if (repository.default ||DataRepositoryDefault == null) {
                 DataRepositoryDefault = DataRepositories[repository.id];
             }
         }
@@ -485,9 +510,18 @@
         if (DataRepositoryDefault.authentication) {
             authentication = "&" + DataRepositoryDefault.authentication;
         }
+	var repo_type = 'default';
+	var repo = DataRepositoryDefault;
+	if (DataRepositoryDefault.type) {
+	    repo_type = DataRepositoryDefault.type;
+	}
 
         if (resource_params) {
             if (resource_params.data_repository && DataRepositories[resource_params.data_repository]) {
+		repo = DataRepositories[resource_params.data_repository];
+		if (repo.type) {
+		    repo_type = repo.type;
+		}
                 base_url = DataRepositories[resource_params.data_repository].url;
                 if (DataRepositories[resource_params.data_repository].authentication) {
                     authentication = "&" + DataRepositories[resource_params.data_repository].authentication;
@@ -506,8 +540,15 @@
             }
         }
 
-        base_url += type + "/" + rest_params + query_params + authentication;
-
+	switch (repo_type) {
+	case 'default':
+            base_url += type + "/" + rest_params + query_params + authentication;
+	    break;
+	case 'shock':
+	    base_url += query_params + authentication;
+	    break;
+	}
+	    
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
             xhr.open('GET', base_url, true);
