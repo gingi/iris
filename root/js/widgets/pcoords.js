@@ -22,8 +22,8 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
-    widget.display = function (args) {
-        var div = $("#" + widget.targetElement);
+    widget.display = function (element, args) {
+        var div = $(element);
         div.text('');
         containerNode = div;
         var canvasHeight = Math.max(div.parent().height(), 250);
@@ -31,7 +31,7 @@
         div.height(canvasHeight);
         div.width(canvasWidth);
         var createCanvas = function(args) {
-            var canvasId = widget.targetElement + '_canvas' + args['suffix'];
+            var canvasId = element.id + '_canvas' + args['suffix'];
             var style = [
                 "position:absolute",
                 "left:0",

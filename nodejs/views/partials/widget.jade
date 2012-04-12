@@ -3,12 +3,11 @@
 
 block append scripts
     script(type="text/javascript", src="/js/iris.js")
-    // script(type="text/javascript", src="/js/widgets/widget.js")
-    // script(type="text/javascript", src="/js/renderers/renderer.js")
     script(type="text/javascript", src="/js/widgets/#{js}")
     script(type="text/javascript")
         $(function () {
-            Iris.Widget["#{widget}"].target("#{widget}").display({});
+            Iris.Widget["#{widget}"]
+                .create(document.getElementById("#{widget}"));
         });
 
 div(id="#{widget}", style="position: relative; min-width:500px")

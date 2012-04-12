@@ -33,7 +33,7 @@ block scripts
 				if (!widget) {
 					throw "Cannot find widget named " + widgetId + "!";
 				}
-				widget.target(divId).display({});
+				widget.create(document.getElementById(divId));
 				$(elem).addClass('active');
 				widgets[widgetId] = divId;
 			}

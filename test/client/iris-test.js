@@ -79,8 +79,7 @@ module.exports = {
     
     createWidget: function (test) {
         Iris.Widget.extend({
-            about: { name: "KrazyGadget" },
-            setup: function () {}
+            about: { name: "KrazyGadget" }
         });
         var widget = Iris.Widget.KrazyGadget.create();
         test.equals("KrazyGadget", widget.about("name"));
@@ -89,11 +88,37 @@ module.exports = {
     
     extendFromAnExistingRenderer: function (test) {
         var renderer1 = Iris.Renderer.extend({
-            about: { name: "AbstractRenderer", foo: "bar" }
+            about: { name: "AbstractRenderer", foo: "bar" },
+            render: function () { return "A"; }
         });
-        var renderer2 = renderer1.extend({ about: { foo: "goo" } });
+        var renderer2 = renderer1.extend({
+            about: { foo: "goo" },
+            render: function () { return "B"; }
+        });
         test.equals("bar", renderer1.about("foo"));
+        test.equals("A", renderer1.render());
         test.equals("goo", renderer2.about("foo"));
+        test.equals("B", renderer2.render());
+        test.done();
+    },
+    
+    widgetSetupIsOptional: function (test) {
+        var widget;
+        test.doesNotThrow(function () {
+            widget = Iris.Widget.extend();
+        });
+        test.deepEqual([], widget.setup());
+        test.done();
+    },
+    
+    widgetSetupReturnsArrayOrElse: function (test) {
+        test.throws(function () {
+            var widget = Iris.Widget.extend({setup: "nonfunction"});
+        });
+        test.throws(function () {
+            var widget = Iris.Widget.extend({ setup: function () { } });
+            widget.create();
+        });
         test.done();
     }
 };
