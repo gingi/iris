@@ -43,6 +43,14 @@ module.exports = {
         test.done();
     },
     
+    aboutAsFunctionInWidget: function (test) {
+        var widget = Iris.Widget.extend({
+            about: function () { return { name: "AnotherWidget" }; }
+        });
+        test.equals(widget, Iris.Widget.AnotherWidget);
+        test.done();
+    },
+    
     targetCascades: function (test) {
         var widget = Iris.Widget.extend();
         test.equals(widget, widget.target("div"));
@@ -58,6 +66,59 @@ module.exports = {
         });
         model.trigger("some-event", "Event Triggered");
         test.equals("Event Triggered", receiver);
+        test.done();
+    },
+    
+    aboutAppendsRendererNamespace: function (test) {
+        var renderer = Iris.Renderer.extend({
+            about: { name: "KewlRenderer" }
+        });
+        test.equals(renderer, Iris.Renderer.KewlRenderer);
+        test.done();
+    },
+    
+    createWidget: function (test) {
+        Iris.Widget.extend({
+            about: { name: "KrazyGadget" }
+        });
+        var widget = Iris.Widget.KrazyGadget.create();
+        test.equals("KrazyGadget", widget.about("name"));
+        test.done();
+    },
+    
+    extendFromAnExistingRenderer: function (test) {
+        var renderer1 = Iris.Renderer.extend({
+            about: { name: "AbstractRenderer", foo: "bar" },
+            render: function () { return "A"; }
+        });
+        var renderer2 = renderer1.extend({
+            about: { foo: "goo" },
+            render: function () { return "B"; }
+        });
+        test.equals("bar", renderer1.about("foo"));
+        test.equals("A", renderer1.render());
+        test.equals("goo", renderer2.about("foo"));
+        test.equals("B", renderer2.render());
+        test.done();
+    },
+    
+    widgetSetupIsOptional: function (test) {
+        var widget;
+        test.doesNotThrow(function () {
+            widget = Iris.Widget.extend();
+        });
+        test.deepEqual([], widget.setup());
+        test.done();
+    },
+    
+    widgetSetupReturnsArrayOrElse: function (test) {
+        test.throws(function () {
+            var widget = Iris.Widget.extend({setup: "nonfunction"});
+        });
+        test.throws(function () {
+            var widget = Iris.Widget.extend({ setup: function () { } });
+            widget.create();
+        });
         test.done();
     }
 };

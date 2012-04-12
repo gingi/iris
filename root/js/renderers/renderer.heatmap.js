@@ -1,3 +1,4 @@
+
 (function () {
 	var schema = {
 		properties: {
@@ -2740,6 +2741,9 @@
 
   render : function ( settings ) {
 
+        jQuery.get('/js/renderers/renderer.thermometer.js');
+
+
         var options =     {
             bgColor         :  new RGBColor(255,255,255),
             color           :  new RGBColor(255,0,0),
@@ -2774,8 +2778,14 @@
         }
 
         return new Rectangle(
-            new Point( parseInt(canvas.width) - parseInt(canvas.width) / fraction , 0),
-            new Size(parseInt(canvas.width) / fraction, parseInt(canvas.height) / fraction)
+            new Point(
+                parseInt(canvas.width) - parseInt(canvas.width) / fraction,
+                0
+            ),
+            new Size(
+                parseInt(canvas.width) / fraction /*- 40*/ - 10,
+                parseInt(canvas.height) / fraction /*- 30*/
+            )
         );
 
     },
@@ -2784,8 +2794,31 @@
         var graphBounds = renderer.getGraphBounds(canvas);
 
         var xbounds = new Rectangle(
-            new Point(graphBounds.origin.x, graphBounds.origin.y + graphBounds.size.height),
-            new Size(graphBounds.size.width, parseInt(canvas.width) - graphBounds.size.height)
+            new Point(
+                graphBounds.origin.x,
+                graphBounds.origin.y + graphBounds.size.height
+            ),
+            new Size(
+                graphBounds.size.width,
+                graphBounds.origin.y + graphBounds.size.height
+            )
+        );
+
+        return xbounds;
+    },
+
+    getXGutterBounds : function(canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        var xbounds = new Rectangle(
+            new Point(
+                graphBounds.origin.x,
+                0
+            ),
+            new Size(
+                graphBounds.size.width,
+                graphBounds.origin.y
+            )
         );
 
         return xbounds;
@@ -2795,13 +2828,35 @@
         var graphBounds = renderer.getGraphBounds(canvas);
 
         return new Rectangle (
-            new Point(0,0),
-            new Size(parseInt(canvas.width) - graphBounds.size.width, graphBounds.size.height)
+            new Point(
+                0,
+                graphBounds.origin.y
+            ),
+            new Size(
+                graphBounds.origin.x,
+                graphBounds.size.height
+            )
         );
 
     },
 
-    getCornerLabelBounds : function (canvas) {
+    getYGutterBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle (
+            new Point(
+                graphBounds.origin.x + graphBounds.size.width,
+                graphBounds.origin.y
+            ),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                graphBounds.size.height
+            )
+        );
+
+    },
+
+    getLLCornerLabelBounds : function (canvas) {
         var graphBounds = renderer.getGraphBounds(canvas);
         var xLabelBounds = renderer.getXLabelBounds(canvas);
         var yLabelBounds = renderer.getYLabelBounds(canvas);
@@ -2812,22 +2867,107 @@
         );
     },
 
+    getULCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(0,0),
+            new Size(graphBounds.origin.x, graphBounds.origin.y)
+        );
+    },
+
+    getURCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(graphBounds.origin.x + graphBounds.size.width,0),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                graphBounds.origin.y
+            )
+        );
+    },
+
+    getLRCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(graphBounds.origin.x + graphBounds.size.width,graphBounds.origin.y + graphBounds.size.height),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                canvas.height - (graphBounds.size.height + graphBounds.origin.y)
+            )
+        );
+    },
+
 
     renderCanvas : function (canvas,options) {
 
         var ctx = canvas.getContext('2d');
 
         if (ctx) {
+
             var graphBounds = renderer.getGraphBounds(canvas);
 
             ctx.fillStyle = options.bgColor.asString();
             ctx.fillRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
 
-        ctx.strokeStyle = options.outlineColor.asString();
-        ctx.strokeRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
+            ctx.strokeStyle = options.outlineColor.asString();
+            ctx.strokeRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
 
-        for (var i = 0; i < options.data.length; i++) {
-            var region = options.data[i];
+            for (var i = 0; i < options.data.length; i++) {
+                var region = options.data[i];
+                var regionRect = new Rectangle(
+                    new Point(
+                        region.x * graphBounds.size.width + graphBounds.origin.x,
+                        region.y * graphBounds.size.height + graphBounds.origin.y
+                    ),
+                    new Size(
+                        region.width * graphBounds.size.width,
+                        region.height * graphBounds.size.height
+                    )
+                );
+
+                var alphaColor = "rgba(" + options.color.r + ',' + options.color.g +',' + options.color.b + ',' + region.score + ")";
+                if (region.score > options.visThreshold) {
+                    ctx.fillStyle = alphaColor;
+                    ctx.fillRect(regionRect.origin.x,regionRect.origin.y, regionRect.size.width, regionRect.size.height);
+                }
+
+            };
+
+            var gutter = renderer.getYGutterBounds(canvas);
+            ctx.fillStyle = options.bgColor.asString();
+            ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
+
+
+            canvas.addEventListener('mousemove', function(e) { renderer.mousemotion(e, options.data, renderer, canvas) }, false);
+            canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
+
+        }
+    },
+    mouseout : function(e, renderer, canvas, options) {
+        var ctx = canvas.getContext('2d');
+        var gutter = renderer.getYGutterBounds(canvas);
+        ctx.fillStyle = options.bgColor.asString();
+        ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
+    },
+    mousemotion : function (e, data, renderer, canvas) {
+
+        var me = arguments.callee;
+
+        var coords = new Point(
+            e.offsetX,
+            e.offsetY
+        );
+        if (e.offsetX == undefined || e.offsetY == undefined) {
+            coords = new Point(e.layerX, e.layerY);
+        }
+
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        for (var i = 0; i < data.length; i++) {
+            var region = data[i];
             var regionRect = new Rectangle(
                 new Point(
                     region.x * graphBounds.size.width + graphBounds.origin.x,
@@ -2839,18 +2979,30 @@
                 )
             );
 
-            var alphaColor = "rgba(" + options.color.r + ',' + options.color.g +',' + options.color.b + ',' + region.score + ")";
-            if (region.score > options.visThreshold) {
-                ctx.fillStyle = alphaColor;
-                ctx.fillRect(regionRect.origin.x,regionRect.origin.y, regionRect.size.width, regionRect.size.height);
+            if (regionRect.containsPoint(coords)) {
+                if (me.lastRect == undefined || regionRect.asString() != me.lastRect.asString()) {
+                    var thermometer = Iris.Renderer.renderers['RendererThermometer'];
+
+                    me.lastRect = regionRect;
+                    thermometer.renderCanvas(
+                        canvas,
+                        {
+                            data : [
+                                {
+                                    value : region.score,
+                                    topColor : new RGBColor(255,0,0),
+                                    bottomColor : new RGBColor(255,255,255),
+                                    bounds : renderer.getYGutterBounds(canvas),
+                                }
+                            ]
+                        }
+
+                    );
+                }
             }
-
-        };
-
+        }
 
     }
-
-}
 
 
 

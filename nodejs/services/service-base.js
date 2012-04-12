@@ -202,9 +202,11 @@
     };
 
     exports.startService = function () {
-        app.listen(configuration.appPort);
-        console.log("service-address %s", uri());
-        console.log("service-mode %s", app.settings.env);
+        if (!process.env.NODE_TEST_MODE) {
+            app.listen(configuration.appPort);
+            console.log("service-address %s", uri());
+            console.log("service-mode %s", app.settings.env);
+        }
     };
 
     exports.httpGET = function (response, serviceName, path) {

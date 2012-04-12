@@ -21,7 +21,7 @@
     var renderer = {
       about : function () {
           return {
-          name: "Animated Bar Chart",
+          name: "animatedbarchart",
           author: "Jim Thomason",
           version: "1.0",
           requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
@@ -299,7 +299,7 @@
                     barRect.origin.x,
                     barRect.origin.y+barRect.size.height
                 );
-                grad.addColorStop(0,"rgb(" + options.data[i].color.r + ',' + options.data[i].color.g + ',' + options.data[i].color.b + ')');
+                grad.addColorStop(0,options.data[i].color.asString());
                 grad.addColorStop(1,options.bgColor.asString());
                 ctx.fillStyle = grad;
 

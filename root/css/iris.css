@@ -5,6 +5,12 @@
 #chart2 .axis-text { font-size: 10px }
 .rule line { stroke: #eee; shape-rendering: crispEdges; }
 .rule line.axis { stroke: #000; }
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }
+
 
 .dataTables_wrapper {
 	position: relative;
