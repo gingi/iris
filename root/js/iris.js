@@ -286,8 +286,9 @@
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
         
-        var name = about["name"];
-        Iris.Renderer[Iris.normalizeName(name)] = renderer;
+        if (about["name"]) {
+            var name = Iris.normalizeName(about["name"]);
+            Iris.Renderer[name] = renderer;
         
 /*
         // Expose as jQuery plugin
@@ -301,6 +302,10 @@
             }
         };
 */
+        }
+        renderer.about = function (name) {
+            return about[name];
+        };
         return renderer;
     };
 
