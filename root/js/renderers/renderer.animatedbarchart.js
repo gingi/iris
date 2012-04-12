@@ -92,8 +92,14 @@
         }
 
         return new Rectangle(
-            new Point( parseInt(canvas.width) - parseInt(canvas.width) / fraction + 40, 0),
-            new Size(parseInt(canvas.width) / fraction - 40, parseInt(canvas.height) / fraction - 30)
+            new Point(
+                parseInt(canvas.width) - parseInt(canvas.width) / fraction + 40,
+                0
+            ),
+            new Size(
+                parseInt(canvas.width) / fraction - 40,
+                parseInt(canvas.height) / fraction - 30
+            )
         );
 
     },
@@ -102,8 +108,31 @@
         var graphBounds = renderer.getGraphBounds(canvas);
 
         var xbounds = new Rectangle(
-            new Point(graphBounds.origin.x, graphBounds.origin.y + graphBounds.size.height),
-            new Size(graphBounds.size.width, parseInt(canvas.width) - graphBounds.size.height)
+            new Point(
+                graphBounds.origin.x,
+                graphBounds.origin.y + graphBounds.size.height
+            ),
+            new Size(
+                graphBounds.size.width,
+                graphBounds.origin.y + graphBounds.size.height
+            )
+        );
+
+        return xbounds;
+    },
+
+    getXGutterBounds : function(canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        var xbounds = new Rectangle(
+            new Point(
+                graphBounds.origin.x,
+                0
+            ),
+            new Size(
+                graphBounds.size.width,
+                graphBounds.origin.y
+            )
         );
 
         return xbounds;
@@ -113,13 +142,35 @@
         var graphBounds = renderer.getGraphBounds(canvas);
 
         return new Rectangle (
-            new Point(0,0),
-            new Size(parseInt(canvas.width) - graphBounds.size.width, graphBounds.size.height)
+            new Point(
+                0,
+                graphBounds.origin.y
+            ),
+            new Size(
+                graphBounds.origin.x,
+                graphBounds.size.height
+            )
         );
 
     },
 
-    getCornerLabelBounds : function (canvas) {
+    getYGutterBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle (
+            new Point(
+                graphBounds.origin.x + graphBounds.size.width,
+                graphBounds.origin.y
+            ),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                graphBounds.size.height
+            )
+        );
+
+    },
+
+    getLLCornerLabelBounds : function (canvas) {
         var graphBounds = renderer.getGraphBounds(canvas);
         var xLabelBounds = renderer.getXLabelBounds(canvas);
         var yLabelBounds = renderer.getYLabelBounds(canvas);
@@ -127,6 +178,39 @@
         return new Rectangle(
             new Point(yLabelBounds.origin.x, xLabelBounds.origin.y),
             new Size(yLabelBounds.size.width, xLabelBounds.size.height)
+        );
+    },
+
+    getULCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(0,0),
+            new Size(graphBounds.origin.x, graphBounds.origin.y)
+        );
+    },
+
+    getURCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(graphBounds.origin.x + graphBounds.size.width,0),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                graphBounds.origin.y
+            )
+        );
+    },
+
+    getLRCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+
+        return new Rectangle(
+            new Point(graphBounds.origin.x + graphBounds.size.width,graphBounds.origin.y + graphBounds.size.height),
+            new Size(
+                canvas.width - (graphBounds.size.width + graphBounds.origin.x),
+                canvas.height - (graphBounds.size.height + graphBounds.origin.y)
+            )
         );
     },
 
@@ -253,6 +337,7 @@
                         bounds : renderer.getXLabelBounds(canvas)
                     }
                 );
+
             }
             else {
                 ctx.restore();
@@ -303,18 +388,17 @@
                 options.bounds.origin.x + options.bounds.size.width - 5,
                 options.bounds.size.height - i / options.ticks * options.bounds.size.height
             );
-            if (1) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    options.bounds.origin.x + options.bounds.size.width - 5,
-                    options.bounds.size.height - i / options.ticks * options.bounds.size.height
-                    );
-                ctx.lineTo(
-                    options.bounds.origin.x + options.bounds.size.width,
-                    options.bounds.size.height - i / options.ticks * options.bounds.size.height
+
+            ctx.beginPath();
+            ctx.moveTo(
+                options.bounds.origin.x + options.bounds.size.width - 5,
+                options.bounds.size.height - i / options.ticks * options.bounds.size.height
                 );
-                ctx.stroke();
-            }
+            ctx.lineTo(
+                options.bounds.origin.x + options.bounds.size.width,
+                options.bounds.size.height - i / options.ticks * options.bounds.size.height
+            );
+            ctx.stroke();
         }
 
         ctx.restore();
@@ -356,18 +440,16 @@
                 options.bounds.origin.y + 5
             );
 
-            if (1) {
-                ctx.beginPath();
-                ctx.moveTo(
+            ctx.beginPath();
+            ctx.moveTo(
                 options.bounds.origin.x + i / options.ticks * options.bounds.size.width,
                 options.bounds.origin.y + 5
-                    );
-                ctx.lineTo(
-                options.bounds.origin.x + i / options.ticks * options.bounds.size.width,
-                options.bounds.origin.y
-                );
-                ctx.stroke();
-            }
+            );
+            ctx.lineTo(
+            options.bounds.origin.x + i / options.ticks * options.bounds.size.width,
+            options.bounds.origin.y
+            );
+            ctx.stroke();
         }
 
         ctx.restore();
