@@ -6,7 +6,7 @@ script(type="text/javascript")
 	$(function () {
 		var selectedData = Iris.Model.create({ name: ""	 });
 		var selectedRenderer = Iris.Model.create({ name: "" });
-		var widget = Iris.Widget.create({
+		var widget = Iris.Widget.extend({
 			renderers: [ '/renderer/' ],
 			services:  [ '/' ],
 			dataflows: [ '/dataflow/' ],
