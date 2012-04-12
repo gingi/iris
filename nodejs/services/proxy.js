@@ -11,23 +11,26 @@ var RENDERER_JS_DIR = JS_DIR + '/renderers';
 var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 
+var Iris;
 function serverIris() {
-    var Iris = this.Iris = {};
-    var registrants = {};
-    var lastRegistrant = null;
-    Iris.interceptor = {
-        extend: function (spec) {
-            var about = spec.about();
-            registrants[about.name] = lastRegistrant = about;
-        }
-    };
-    Iris.registrant = function (name) {
-        return registrants[name];
-    };
-    Iris.lastRegistrant = function () {
-        return lastRegistrant;
-    };
-    Iris.Widget = Iris.Renderer = Iris.interceptor;
+    if(typeof Iris == 'undefined') {
+        Iris = this.Iris = {};
+        var registrants = {};
+        var lastRegistrant = null;
+        Iris.interceptor = {
+            extend: function (spec) {
+                var about = spec.about();
+                registrants[about.name.toLowerCase()] = lastRegistrant = about;
+            }
+        };
+        Iris.registrant = function (name) {
+            return registrants[name.toLowerCase()];
+        };
+        Iris.lastRegistrant = function () {
+            return lastRegistrant;
+        };
+        Iris.Widget = Iris.Renderer = Iris.interceptor;
+    }
     return Iris;
 }
 
@@ -181,15 +184,20 @@ app.get('/renderer/:renderer', function (req, res) {
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
         require(filename);
-        var renderer = this.Iris.lastRegistrant();
-        var requires = (renderer['requires'] || []);
+        var renderer = Iris.registrant(req.params.renderer);
+        console.log(renderer);
+        var name = req.params.renderer, requires = [];
+        if( (renderer) &&
+            (renderer.hasOwnProperty('requires')) ) {
+            requires = renderer['requires']
+        }
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",
-                    name: renderer["name"],
+                    name: name,
                     requires : requires
                 });
             }
