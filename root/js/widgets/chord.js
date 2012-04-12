@@ -17,8 +17,7 @@
         });
     }
     var svg;
-    widget.display = function (args) {
-        var div = document.getElementById(widget.targetElement);
+    widget.display = function (div, args) {
         div.innerHTML = '';
         var chord = d3.layout.chord()
             .padding(.05)
