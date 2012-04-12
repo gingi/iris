@@ -12,7 +12,7 @@
         widget = {};
     } else {
         // On the client
-        widget = Iris.Widget.create({
+        widget = Iris.Widget.extend({
             about: about()
         });
     }

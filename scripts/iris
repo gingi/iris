@@ -181,7 +181,7 @@ function _kill {
     local owner=$(ps -o user $pid | grep -v '^USER')
     if test -n "$owner"; then
         if test $WHOAMI == $owner; then
-            kill $pid
+            kill $pid 2> /dev/null
         else
             _error "Process $pid is owned by $owner, not you ($WHOAMI)."
             echo "Rerun as $owner (example: 'sudo iris stop')"

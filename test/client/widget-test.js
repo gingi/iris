@@ -13,7 +13,7 @@ module.exports = {
         });
         Iris = context.Iris;
         Iris.Renderer = {
-            create: function (args) {
+            extend: function (args) {
                 var that = args;
                 that.div = function () {};
                 return that;
@@ -31,7 +31,7 @@ module.exports = {
     },
 
     createWithNoParamsThrowsOnDisplay: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: { name: "SomeWidget" }
         });
         test.throws(function () {
@@ -41,7 +41,7 @@ module.exports = {
     },
 
     createWithRenderFunction: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: {
                 name: "SomeWidget"
             },
@@ -55,16 +55,16 @@ module.exports = {
 
     createWithNonFunctionRender: function (test) {
         test.throws(function () {
-            Iris.Widget.create({
+            Iris.Widget.extend({
                 about: { name: "HelloWidget" },
                 display: "A String"
             });
-        }, null, "'display:' param to create() should not be a String");
+        }, null, "'display:' param to extend() should not be a String");
         test.done();
     },
 
     aboutAsFunction: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: function () {
                 return { name: "FunctionAboutWidget" };
             }
@@ -74,7 +74,7 @@ module.exports = {
     },
 
     aboutAsAssociativeArray: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: { name: "ArrayAboutWidget" }
         });
         test.equals(widget, Iris.Widget.ArrayAboutWidget);
@@ -83,7 +83,7 @@ module.exports = {
 
     aboutAsOtherObjectThrowsError: function (test) {
         test.throws(function () {
-            Iris.Widget.create({
+            Iris.Widget.extend({
                 about: "AboutString"
             })
         }, null, "about: as a String should throw error");
@@ -91,7 +91,7 @@ module.exports = {
     },
 
     cascadingMethods: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: { name: "SomeWidget" }
         });
         test.equals(widget, widget.div("someDiv"));
@@ -101,7 +101,7 @@ module.exports = {
     },
 
     divElement: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: { name: "W" }
         });
         test.throws(function () {
@@ -113,7 +113,7 @@ module.exports = {
     renderLayout: function (test) {
         var calledRender = 0;
         var times = 5;
-        var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        var widget = Iris.Widget.extend({ about: { name: "SomeWidget" } });
         widget.div('someDiv');
         for (var i = 0; i < times; i++) {
             widget.view({
@@ -136,7 +136,7 @@ module.exports = {
 
     malformedLayoutThrowsError: function (test) {
         var layoutWidget = function (renderItem) {
-            var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+            var widget = Iris.Widget.extend({ about: { name: "SomeWidget" } });
             widget.view(renderItem);
         };
         // No render function
@@ -166,7 +166,7 @@ module.exports = {
                 div: function () {}
             }
         };
-        var widget = Iris.Widget.create({ about: { name: "MyWidget" } });
+        var widget = Iris.Widget.extend({ about: { name: "MyWidget" } });
         widget.div("div90210");
         widget.view({
             renderer: "MyRenderer",
@@ -189,7 +189,7 @@ module.exports = {
                 div: function () {}
             }
         };
-        var widget = Iris.Widget.create({ about: { name: "MyWidget" } })
+        var widget = Iris.Widget.extend({ about: { name: "MyWidget" } })
             .div("someDivId")
             .view({
                 renderer: "MyRenderer",
@@ -211,7 +211,7 @@ module.exports = {
     
     multipleRenderers: function (test) {
         var calls = [];
-        var widget = Iris.Widget.create({ about: { name: "LayoutWidget" } })
+        var widget = Iris.Widget.extend({ about: { name: "LayoutWidget" } })
         .div("someOtherDiv")
         .view({
             dataPath: "/dataPath1",
@@ -235,7 +235,7 @@ module.exports = {
     },
     
     widgetRenderReturnValueAsString: function (test) {
-        var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        var widget = Iris.Widget.extend({ about: { name: "SomeWidget" } });
         widget.view({ render: function () { return "Foobar"; } });
         widget.div('testdiv');
         widget.display();
@@ -247,7 +247,7 @@ module.exports = {
     },
     
     widgetRenderReturnValueAsNode: function (test) {
-        var widget = Iris.Widget.create({ about: { name: "SomeWidget" } });
+        var widget = Iris.Widget.extend({ about: { name: "SomeWidget" } });
         widget.view({
             render: function () {
                 return new String("Yomama");

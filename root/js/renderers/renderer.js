@@ -4,7 +4,7 @@
  *
  * Creation:
  *
- *     Iris.Renderer.create({
+ *     Iris.Renderer.extend({
  *         about: { name: "Histogram" },
  *         render: function (data) { ... }
  *     });
@@ -30,7 +30,7 @@ Iris.Renderer = (function () {
      * into iris.js? 
      */
     var RendererSingleton = {};
-    RendererSingleton.create = function (spec) {
+    RendererSingleton.extend = function (spec) {
         var newRenderer = createRenderer(spec, {});
         if (spec && spec.about) {
             var setting;
@@ -63,7 +63,7 @@ Iris.Renderer = (function () {
     return RendererSingleton;
 })();
 
-Iris.Renderer.create(function () {
+Iris.Renderer.extend(function () {
     function option(args) {
         var opt = document.createElement('option');
         opt.value = args.value;
@@ -88,7 +88,7 @@ Iris.Renderer.create(function () {
     };
 }());
 
-Iris.Renderer.create(function () {
+Iris.Renderer.extend(function () {
     function syntaxHighlight(json) {
         json = json.replace(/&/g, '&amp;')
                    .replace(/</g, '&lt;')
