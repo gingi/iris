@@ -2768,47 +2768,50 @@
         renderer.renderCanvas(canvas,options);
     },
 
-    getGraphBounds : function (div, fraction) {
+    getGraphBounds : function (canvas, fraction) {
         if (! fraction) {
             fraction = 1;
         }
 
         return new Rectangle(
-            new Point( parseInt(div.width) - parseInt(div.width) / fraction, 0),
-            new Size(parseInt(div.width) / fraction, parseInt(div.height) / fraction)
+            new Point( parseInt(canvas.width) - parseInt(canvas.width) / fraction , 0),
+            new Size(parseInt(canvas.width) / fraction, parseInt(canvas.height) / fraction)
         );
 
     },
 
-    getXLabelBounds : function (div) {
-        var graphBounds = getGraphBounds(div);
+    getXLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
 
-        return new Rectangle(
-            graphBounds.origin,
-            new Size(parseInt(div.width) - graphBounds.size.width, parseInt(div.height) - graphBounds.size.height)
+        var xbounds = new Rectangle(
+            new Point(graphBounds.origin.x, graphBounds.origin.y + graphBounds.size.height),
+            new Size(graphBounds.size.width, parseInt(canvas.width) - graphBounds.size.height)
         );
+
+        return xbounds;
     },
 
-    getYLabelBounds : function (div) {
-        var graphBounds = getGraphBounds(div);
+    getYLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
 
         return new Rectangle (
-            new Point(0,graphBounds.y),
-            new Size(parseInt(div.width) - graphBounds.size.width, parseInt(div.height) - graphBounds.size.height)
+            new Point(0,0),
+            new Size(parseInt(canvas.width) - graphBounds.size.width, graphBounds.size.height)
         );
 
     },
 
-    getCornerLabelBounds : function (div) {
-        var graphBounds = getGraphBounds(div);
-        var xLabelBounds = getXLabelBounds(div);
-        var yLabelBounds = getYLabelBounds(div);
+    getCornerLabelBounds : function (canvas) {
+        var graphBounds = renderer.getGraphBounds(canvas);
+        var xLabelBounds = renderer.getXLabelBounds(canvas);
+        var yLabelBounds = renderer.getYLabelBounds(canvas);
 
         return new Rectangle(
-            new Point(yLabelBounds.origin.x, xLabelBounds.y),
-            new Size(xLabelBounds.size.width, yLabelBounds.size.height)
+            new Point(yLabelBounds.origin.x, xLabelBounds.origin.y),
+            new Size(yLabelBounds.size.width, xLabelBounds.size.height)
         );
     },
+
 
     renderCanvas : function (canvas,options) {
 
@@ -2843,6 +2846,7 @@
             }
 
         };
+
 
     }
 
