@@ -17,11 +17,13 @@
         });
     }
     var svg;
-    var div;
+    var elementId;
+    var targetNode;
     var phenotypes;
 
     widget.display = function (args) {
-        div = widget.targetElement;
+        elementId = widget.targetElement;
+        targetNode = document.getElementById(elementId);
         var trait = (args.hasOwnProperty('trait')) ? args['trait'] : 'B11';
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
@@ -31,7 +33,7 @@
             phenotypes = json;
             drawBarChart(20);
         });
-        d3.select(div)
+        d3.select("#" + elementId)
             .append("input")
                 .attr("type", "range")
                 .attr("id", "width-range")
@@ -84,7 +86,7 @@
         var xpad = 20;
 
         var max_width =
-            div.clientWidth - sidePad - xpad;
+            targetNode.clientWidth - sidePad - xpad;
 
         var rowNmbr = Math.floor(data.length * w / max_width);
         if ((data.length * w) % max_width > 0) {
@@ -101,10 +103,10 @@
         // define svg element
         d3.select("#" + widget.targetElement + " .chart").remove();
 
-        svg = d3.select(div)
+        svg = d3.select("#" + elementId)
             .append("svg")
                 .attr("class", "chart")
-                .attr("width", div.clientWidth - sidePad)
+                .attr("width", targetNode.clientWidth - sidePad)
                 .attr("height", h * rowNmbr)
                 .append("g")
                     .attr("transform", "translate(0,20)");
