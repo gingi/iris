@@ -2943,6 +2943,7 @@
 
             canvas.addEventListener('mousemove', function(e) { renderer.mousemotion(e, options.data, renderer, canvas) }, false);
             canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
+
         }
     },
     mouseout : function(e, renderer, canvas, options) {
@@ -2959,6 +2960,9 @@
             e.offsetX,
             e.offsetY
         );
+        if (e.offsetX == undefined || e.offsetY == undefined) {
+            coords = new Point(e.layerX, e.layerY);
+        }
 
         var graphBounds = renderer.getGraphBounds(canvas);
 
@@ -2978,6 +2982,7 @@
             if (regionRect.containsPoint(coords)) {
                 if (me.lastRect == undefined || regionRect.asString() != me.lastRect.asString()) {
                     var thermometer = Iris.Renderer.renderers['RendererThermometer'];
+
                     me.lastRect = regionRect;
                     thermometer.renderCanvas(
                         canvas,
