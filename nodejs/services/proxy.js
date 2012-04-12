@@ -11,6 +11,25 @@ var RENDERER_JS_DIR = JS_DIR + '/renderers';
 var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 
+function serverIris() {
+    var Iris = this.Iris = {};
+    var registrants = {};
+    var lastRegistrant = null;
+    Iris.interceptor = {
+        create: function (spec) {
+            var about = spec.about();
+            registrants[about.name] = lastRegistrant = about;
+        }
+    };
+    Iris.registrant = function (name) {
+        return registrants[name];
+    };
+    Iris.lastRegistrant = function () {
+        return lastRegistrant;
+    };
+    Iris.Widget = Iris.Renderer = Iris.interceptor;
+    return Iris;
+}
 
 /* Widget configuration
  *
@@ -155,18 +174,20 @@ app.get('/renderer/:renderer', function (req, res) {
             }
         });
     } else {
+        var Iris = serverIris();
         var basename = 'renderer.' + req.params.renderer + '.js';
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
-        var renderer = require(filename);
-        var requires = (renderer.about()['requires']) ? renderer.about()['requires'] : [];
+        require(filename);
+        var renderer = Iris.lastRegistrant();
+        var requires = (renderer['requires'] || []);
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",
-                    name: req.params.renderer,
+                    name: renderer["name"],
                     requires : requires
                 });
             }

@@ -1,7 +1,6 @@
 link(rel="stylesheet", type="text/css", href="/css/framebuilder.css")
 script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
-script(type="text/javascript", src="/js/d3.js")
 script(type="text/javascript", src="/js/revalidator.js")
 each require in requires
   script(type="text/javascript", src="/js/#{require}")
@@ -9,8 +8,8 @@ each require in requires
 script(type="text/javascript", src="#{js}")
 script(type="text/javascript")
     $(function () {
-        var x = "#{name}";
-        x = "Renderer" + x[0].toUpperCase() + x.slice(1);
+        x = "Renderer" + Iris.normalizeName("#{name}");
+        console.log("Plugin", x);
         eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': 'renderMe' })");
     });
 

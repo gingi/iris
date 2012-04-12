@@ -50,6 +50,15 @@
         return values;
     };
     
+    function capitalize(string) {
+        if (string == null || string == "") return string;
+        return string[0].toUpperCase() + string.slice(1);
+    }
+    
+    Iris.normalizeName = function (string) {
+        var capitalized = capitalize(string);
+        return capitalized.split(/\s/).join('');
+    };
     
     var EventCallbacks;
     var eventSplitter = /\s+/;
@@ -217,6 +226,33 @@
             Widget[spec.about.name] = widget;
         }
         return widget;
+    };
+    
+    /* ===================================================
+     * Iris.Renderer
+     */
+    var Renderer = Iris.Renderer = {};
+    Renderer.create = function (spec) {
+        var renderer;
+        spec = (spec || {});
+        var about = (spec.about() || {});
+        
+        var renderer = {};
+        Iris.extend(renderer, spec);
+        
+        var name = about["name"];
+        var plugin = "Renderer" + Iris.normalizeName(name);
+        // Expose as jQuery plugin
+        jQuery.fn[plugin] = function (method) {
+            if (renderer[method]) {
+                return renderer[method](arguments[1]);
+            } else {
+                jQuery.error(
+                    'Method ' + method + ' does not exist on jQuery.' + plugin
+                );
+            }
+        };
+        return renderer;
     };
 
     /* ===================================================

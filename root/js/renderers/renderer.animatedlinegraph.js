@@ -1,58 +1,56 @@
-document.write("<script type=\"text/javascript\" src=\"/js/rectangle.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/point.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/size.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></script>");
+(function () {
 
+    var schema = {
+        properties: {
+            data: {
+                required: true,
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        color: {
+                            type: 'object',
+                            required: true
+                        },
+                        data: {
+                            type: 'array',
+                            required: true,
+                            items: {
+                                type: 'array',
+                                required: true,
+                                items: {
+                                    type: 'number',
+                                    minimum: 0,
+                                    maximum: 1,
+                                    required: true,
+                                },
+                                minItems: 2,
+                                maxItems: 2,
+                            }
+                        },
+                    }
+                }
+            }
+        }
+    };
 
-(function( jQuery ) {
-
-	var schema = {
-		properties: {
-			data: {
-				required: true,
-				type: 'array',
-				items: {
-					type: 'object',
-					properties: {
-						color: {type: 'object', required: true},
-						data : {
-						    type : 'array',
-						    required : true,
-						    items : {
-						        type : 'array',
-						        required : true,
-						        items : {
-						            type : 'number',
-						            minimum : 0,
-						            maximum : 1,
-						            required : true,
-						        },
-                                minItems : 2,
-                                maxItems : 2,
-						    }
-						},
-					}
-				}
-			}
-		}
-	}
-
-  var methods = {
-  about : function () {
-      return {
-      name: "Animated Line Graph",
-      author: "Jim Thomason",
-      version: "1.0",
-      requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
-      options: {
-            'bgColor': 'RGBColor()',
-		    'color': 'RGBColor()',
-		    'outlineColor' : 'RGBColor()',
-    		'data': '[]'
-    	},
-      classes: [ ],
-      data_format: "list of string" }
-    },
+  var renderer = {
+        about: function() {
+            return {
+                name: "Animated Line Graph",
+                author: "Jim Thomason",
+                version: "1.0",
+                requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
+                options: {
+                    'bgColor': 'RGBColor()',
+                    'color': 'RGBColor()',
+                    'outlineColor': 'RGBColor()',
+                    'data': '[]'
+                },
+                classes: [],
+                data_format: "list of string"
+            }
+        },
   example_data : function () {
       return [
         {
@@ -100,7 +98,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
         canvas.height = options.height;
         target.appendChild(canvas);
 
-        methods.renderCanvas(canvas,options);
+        renderer.renderCanvas(canvas,options);
 
     },
 
@@ -165,7 +163,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
         var ctx = canvas.getContext('2d');
 
         if (ctx) {
-            var graphBounds = methods.getGraphBounds(canvas);
+            var graphBounds = renderer.getGraphBounds(canvas);
 
             ctx.fillStyle = options.bgColor.asString();
             ctx.fillRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
@@ -208,22 +206,9 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
                 me.step++;
                 setTimeout(function() {me(canvas, options) }, options.speed);
             }
-
-
         }
-
     },
-
-
-
   };
 
-  jQuery.fn.RendererAnimatedlinegraph = function( method ) {
-    if ( methods[method] ) {
-      return methods[method](arguments[1]);
-    } else {
-      jQuery.error( 'Method ' +  method + ' does not exist on jQuery.RendererTemplate' );
-    }
-  };
-
-})( jQuery );
+  Iris.Renderer.create(renderer);
+}).call(this);
