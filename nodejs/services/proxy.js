@@ -174,12 +174,14 @@ app.get('/renderer/:renderer', function (req, res) {
             }
         });
     } else {
-        var Iris = serverIris();
+        if (!this.Iris) {
+            serverIris();
+        }
         var basename = 'renderer.' + req.params.renderer + '.js';
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
         require(filename);
-        var renderer = Iris.lastRegistrant();
+        var renderer = this.Iris.lastRegistrant();
         var requires = (renderer['requires'] || []);
         path.exists(filename, function (exists) {
             if (!exists) {
