@@ -1,3 +1,4 @@
+process.env.NODE_TEST_MODE = 1;
 var IRIS_HOME   = __dirname + '/../..';
 var SERVICE_DIR = IRIS_HOME + '/nodejs/services';
 var target = SERVICE_DIR + '/proxy.js';
