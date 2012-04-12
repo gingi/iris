@@ -26,7 +26,7 @@
 		}
 	};
 
-    Iris.Renderer.create({
+    Iris.Renderer.extend({
         about: function() {
             return {
                 name: "linegraph",

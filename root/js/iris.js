@@ -197,7 +197,7 @@
      * Iris.Widget
      */
     var Widget = Iris.Widget = {};
-    Widget.create = function (spec) {
+    Widget.extend = function (spec) {
         var widget;
         spec = (spec || {});
         spec.renderers = (spec.renderers || []);
@@ -232,7 +232,7 @@
      * Iris.Renderer
      */
     var Renderer = Iris.Renderer = {};
-    Renderer.create = function (spec) {
+    Renderer.extend = function (spec) {
         var renderer;
         spec = (spec || {});
         var about = (spec.about() || {});

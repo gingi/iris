@@ -21,7 +21,7 @@ module.exports = {
     },
 
     createWidget: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
         });
         test.ok(typeof widget.display === 'function',
             "Should be able to call display()");
@@ -36,7 +36,7 @@ module.exports = {
     },
 
     aboutAppendsWidgetNamespace: function (test) {
-        var widget = Iris.Widget.create({
+        var widget = Iris.Widget.extend({
             about: { name: "ArrayAboutWidget" }
         });
         test.equals(widget, Iris.Widget.ArrayAboutWidget);
@@ -44,7 +44,7 @@ module.exports = {
     },
     
     targetCascades: function (test) {
-        var widget = Iris.Widget.create();
+        var widget = Iris.Widget.extend();
         test.equals(widget, widget.target("div"));
         test.equals("div", widget.targetElement);
         test.done();
