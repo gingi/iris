@@ -1,10 +1,4 @@
-document.write("<script type=\"text/javascript\" src=\"/js/rectangle.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/point.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/size.js\"></script>");
-document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></script>");
-
-
-(function( jQuery ) {
+(function () {
 	var schema = {
 		properties: {
 			data: {
@@ -23,7 +17,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
 			}
 		}
 	}
-  var methods = {
+  var renderer = {
   about : function () {
       return {
       name: "heatmap",
@@ -2771,8 +2765,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
         canvas.height = options.height;
         target.appendChild(canvas);
 
-        methods.renderCanvas(canvas,options);
-
+        renderer.renderCanvas(canvas,options);
     },
 
     getGraphBounds : function (div, fraction) {
@@ -2822,7 +2815,7 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
         var ctx = canvas.getContext('2d');
 
         if (ctx) {
-            var graphBounds = methods.getGraphBounds(canvas);
+            var graphBounds = renderer.getGraphBounds(canvas);
 
             ctx.fillStyle = options.bgColor.asString();
             ctx.fillRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
@@ -2853,18 +2846,10 @@ document.write("<script type=\"text/javascript\" src=\"/js/RGBColor.js\"></scrip
 
     }
 
-},
+}
 
 
 
   };
-
-  jQuery.fn.RendererHeatmap = function( method ) {
-    if ( methods[method] ) {
-      return methods[method](arguments[1]);
-    } else {
-      jQuery.error( 'Method ' +  method + ' does not exist on jQuery.RendererTemplate' );
-    }
-  };
-
-})( jQuery );
+    Iris.Renderer.extend(renderer);
+}).call(this);
