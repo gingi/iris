@@ -101,12 +101,12 @@
                 options.data[0].bounds.size.width,
                 options.data[0].bounds.size.height
             );
-            invGrad.addColorStop(0,options.data[0].topColor.invert().asString());
-            invGrad.addColorStop(1,options.data[0].bottomColor.invert().asString());
+            invGrad.addColorStop(0,options.data[0].topColor.invert().darkenBy(30).asString());
+            invGrad.addColorStop(1,options.data[0].bottomColor.invert().darkenBy(30).asString());
             ctx.fillStyle = invGrad;
 
             if (options.data[0].value > 0.45 && options.data[0].value < 0.55) {
-                ctx.fillStyle = '#000';
+//                ctx.fillStyle = '#000';
             }
 
             ctx.fillRect(
