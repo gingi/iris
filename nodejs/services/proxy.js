@@ -89,6 +89,7 @@ function widgetList(startCallback, itemCallback, listCallback) {
     });
 }
 
+/*
 app.get('/widget', function (request, response) {
     widgetList(
         function () {
@@ -106,6 +107,27 @@ app.get('/widget', function (request, response) {
             response.end();
         }
     );
+});
+*/
+
+app.get('/widget', function (request, response) {
+    var i, f, widgets = [];
+    fs.readdir(WIDGET_JS_DIR, function (err, files) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        for (i in files) {
+            f = files[i];
+            if (f.match(/^widget\.\w+\.js$/)) {
+                var name = files[i].split('.', 3)[1];
+                widgets[widgets.length] = {
+                    name: name,
+                    filename: files[i],
+                    example: iris.uri() + "/widget/" + name
+                };
+            }
+        }
+        response.write(JSON.stringify(widgets));
+        response.end();
+    });
 });
 
 function aboutModule(filename, key) {
@@ -125,7 +147,7 @@ app.get('/widget/:widget', function (req, res) {
     }
     if (req.params.widget.match(/.js$/)) {
         // Send the file
-        var filename = RENDERER_JS_DIR + '/' + req.params.widget;
+        var filename = WIDGET_JS_DIR + '/' + req.params.widget;
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
