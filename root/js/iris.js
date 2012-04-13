@@ -360,7 +360,7 @@
                 }
             }
         }
-    }
+    };
 
     // generic data loader
     // given a DOM id, interprets the innerHTML of the element as JSON data and loads it into the DataStore
@@ -434,7 +434,7 @@
                 }
             }
         }
-    }
+    };
 
     // adds / replaces a repository in the DataRepositories list
 
@@ -447,7 +447,7 @@
                 DataRepositoryDefault = DataRepositories[repository.id];
             }
         }
-    }
+    };
 
     // removes a repository from the DataRepositories list
 
@@ -462,7 +462,7 @@
                 }
             }
         }
-    }
+    };
 
     // sets the default repository
 
@@ -471,7 +471,7 @@
         if (id && DataRepositories[id]) {
             DataRepositoryDefault = DataRepositories[id];
         }
-    }
+    };
 
     // event handler for an input type file element, which interprets the selected file(s)
     // as JSON data and loads them into the DataStore
@@ -494,7 +494,7 @@
                 reader.readAsText(f);
             }
         }
-    }
+    };
 
     // client side data requestor
     // initiates data retrieval from a resource, saving callback functions /
@@ -517,7 +517,7 @@
             }
         }
         return 0;
-    }
+    };
 
     // data retrieval function triggered by get_objects
     // queries the default DataRepository if none is defined in resource_params
@@ -607,10 +607,10 @@
         xhr.onabort = function() {
             alert("data retrieval was aborted");
             return;
-        }
+        };
 
         xhr.send();
-    }
+    };
 
     // called by the returned data from a get_objects_from_repository call
     // loads the returned data into the DataStore, deletes the sent data from the DOM
@@ -626,14 +626,14 @@
             'data': new_data
         }]);
         callback(type);
-    }
+    };
 
     // function for backwards compatibility
 
 
     dh.ajax_result = function (new_data, type) {
         data_return(type, new_data);
-    }
+    };
 
     // executes the callback functions for a given type
 
@@ -644,7 +644,7 @@
             CallbackList[type][c][0].call(null, CallbackList[type][c][1], type);
         }
         CallbackList[type] = null;
-    }
+    };
 
     // deletes an object from the DataStore
 
@@ -658,7 +658,7 @@
                 delete_object_type(type);
             }
         }
-    }
+    };
 
     // deletes a set of objects from the DataStore
 
@@ -668,7 +668,7 @@
         for (var i = 0; i < ids.length; i++) {
             delete_object(type, ids[i]);
         }
-    }
+    };
 
     // deletes an entire type from the DataStore
 
@@ -680,7 +680,7 @@
             TypeData['type_count']--;
             DataStore[type] = null;
         }
-    }
+    };
 }).call(this); // END DataHandler
 
 // FrameBuilder   
@@ -923,6 +923,10 @@
                 jQuery.when.apply(this, promises).then(function() {
                     promise.resolve();
                 });
+            }, function(jqXHR, textStatus, errorThrown) {
+                if (textStatus === 'parsererror') {
+                    parserError(script_url);
+                }
             });
         }
  
@@ -950,6 +954,10 @@
                 jQuery.when.apply(this, promises).then(function() {
                     promise.resolve();
                 });
+            }, function(jqXHR, textStatus, errorThrown) {
+                if (textStatus === 'parsererror') {
+                    parserError(script_url);
+                }
             });
         }
 
@@ -967,6 +975,10 @@
             var script_url = library_resource + library;
             jQuery.getScript(script_url).then(function() {
                 promise.resolve();
+            }, function(jqXHR, textStatus, errorThrown) {
+                if (textStatus === 'parsererror') {
+                    parserError(script_url);
+                }
             });
         }
 
@@ -1165,7 +1177,7 @@
                 break;
             }
         }
-    }
+    };
 
     //
     // helper functions
@@ -1183,7 +1195,7 @@
             x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
             y: ev.clientY + document.body.scrollTop - document.body.clientTop
         };
-    }
+    };
 
     //
     // drag and drop
@@ -1195,22 +1207,22 @@
             dragType = type;
             dragData = data;
             return true;
-        }
+        };
         dragObject.ondragend = function(ev) {
             return false;
-        }
-    }
+        };
+    };
 
     fb.init_dropzone = function (dropZone) {
         dropZone.ondragenter = function(ev) {
             return false;
-        }
+        };
         dropZone.ondragleave = function(ev) {
             return false;
-        }
+        };
         dropZone.ondragover = function(ev) {
             return false;
-        }
+        };
         dropZone.ondrop = function(ev) {
             ev = ev || window.event;
             var tar = ev.target;
@@ -1234,6 +1246,16 @@
             }
             dragData = null;
             return false;
+        };
+    };
+
+    function parserError(script_url) {
+        var error = "ParserError: '" + script_url + "' has a syntax error";
+
+        if (jQuery.isFunction(alert)) {
+            alert(error);
         }
+
+        throw error;
     }
 }).call(this); // END FrameBuilder
