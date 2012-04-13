@@ -705,17 +705,14 @@
     var fb = Iris._FrameBuilder = {};
     var dh = Iris._DataHandler;
 
-    var loaded_libraries       = [];
-    var library_callback_list  = [];
-                              
     var renderer_resources     = [];
     Iris._FrameBuilder.renderer_resources = renderer_resources;
 
-    var available_renderers    = [];
-    Iris._FrameBuilder.available_renderers = available_renderers;
+    var available_renderers    = {};
+    var loaded_renderers       = {};
+    var loaded_libraries       = {};
 
-    var loaded_renderers       = [];
-    var renderer_callback_list = [];
+    Iris._FrameBuilder.available_renderers = available_renderers;
 
     var dataflow_resources     = [];
     var dataflows              = [];
@@ -773,10 +770,11 @@
 
     fb.query_renderer_resource = function (resource, list) {
         jQuery.getJSON(resource, function (data) {
-            renderer_resources[renderer_resources.length] = resource;
+            renderer_resources.push(resource);
             for (i = 0; i < data.length; i++) {
-                available_renderers[data[i].filename] =
-                    renderer_resources.length - 1;
+                var rend = data[i];
+                rend.resource = resource;
+                available_renderers[data[i].name] = rend;
             }
             if (list) {
                 fb.update_renderer_list(list);
@@ -845,7 +843,7 @@
 
     fb.test_renderer = function (params) {
         if (params.ret) {
-            document.getElementById(params.target).innerHTML = "";
+            params.target.innerHTML = "";
 
             Iris.Renderer[params.renderer].render({ data: Iris.Renderer[params.renderer].exampleData(), target: params.target });
         } else {
@@ -859,34 +857,18 @@
     fb.load_renderer = function (renderer) {
         if (loaded_renderers[renderer]) {
             return loaded_renderers[renderer];
-/*
-            if (!renderer_callback_list[renderer]) {
-                renderer_callback_list[renderer] = [];
-            }
-            if (loaded_renderers[renderer].ready) {
-                callback_function.call(null, callback_params);
-            } else {
-                renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-            }
-*/
         } else {
             var promise = jQuery.Deferred();
             loaded_renderers[renderer] = promise;
-/*
-            if (!renderer_callback_list[renderer]) {
-                renderer_callback_list[renderer] = [];
-            }
-            renderer_callback_list[renderer][renderer_callback_list[renderer].length] = [callback_function, callback_params];
-*/
+
             var promises = [];
 
-            var scriptJs = 'renderer.'+renderer.toLowerCase()+'.js';
-            var scriptUrl = renderer_resources[available_renderers[scriptJs]] + scriptJs;
-            jQuery.get(scriptUrl).then(function(data) {
-                eval(data);
-                loaded_renderers[renderer] = Iris.Renderer[renderer].about();
-                for (var i=0; i<loaded_renderers[renderer].requires.length; i++) {
-                    promises.push(fb.load_library(loaded_renderers[renderer].requires[i]));
+            var rend_data = available_renderers[renderer];
+            var script_url = rend_data.resource + rend_data.filename;
+            jQuery.getScript(script_url).then(function() {
+                var requires = Iris.Renderer[renderer].about('requires');
+                for (var i=0; i<requires.length; i++) {
+                    promises.push(fb.load_library(requires[i]));
                 }
 
                 jQuery.when.apply(this, promises).then(function() {
@@ -899,38 +881,19 @@
    }
 
     fb.load_library = function (library) {
-        var promise = jQuery.Deferred();
-
         if (loaded_libraries[library]) {
-            promise.resolve();
+            return loaded_libraries[library];
         } else {
-            var scriptUrl = library_resource + library;
-            jQuery.get(scriptUrl).then(function(data) {
-                eval(data);
+            var promise = jQuery.Deferred();
+            loaded_libraries[library] = promise;
+
+            var script_url = library_resource + library;
+            jQuery.getScript(script_url).then(function() {
                 promise.resolve();
             });
         }
 
         return promise;
-    }
-
-    fb.check_renderer_dependencies = function (renderer) {
-        var ready = 1;
-        for (i = 0; i < loaded_renderers[renderer].requires.length; i++) {
-            if (!loaded_libraries[loaded_renderers[renderer].requires[i]]) {
-                ready = 0;
-            }
-        }
-        if (ready) {
-            if (!renderer_callback_list[renderer]) {
-                renderer_callback_list[renderer] = [];
-            }
-            for (i = 0; i < renderer_callback_list[renderer].length; i++) {
-                renderer_callback_list[renderer][i][0].call(null, renderer_callback_list[renderer][i][1]);
-            }
-            renderer_callback_list[renderer] = null;
-            loaded_renderers[renderer].ready = 1;
-        }
     }
 
     //
@@ -1179,7 +1142,7 @@
             }
             if (dragType == 'renderer') {
                 fb.test_renderer({
-                    'target': tar.id,
+                    'target': document.getElementById(tar.id),
                     'renderer': dragData
                 });
                 dropZones[tar.id] = dragData;

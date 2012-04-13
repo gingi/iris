@@ -67,11 +67,12 @@
             };
             $.extend(options, settings);
 
+/*
             var check = window.json.validate(options, schema);
             if (!check['valid']) {
                console.log(check['errors']);
             }
-
+*/
 
             var tdata = options.data.data;
             if (typeof(tdata) == 'string') {
