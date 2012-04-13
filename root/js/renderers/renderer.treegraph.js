@@ -1,19 +1,17 @@
 (function() {
     Iris.Renderer.extend({
-	  about : function() { 
-	      return {
+	  about : {
 	      name: "treegraph",
 	      author: "Annette Greiner",
 	      version: "1.0",
 	      requires: [ 'd3.js' ],
-	      options: {'width': 960,
-			       'height': 1200,
-			       'padding': 40,
-			        'data': 'exampleData()',
-			       'target': "chart"},
+		  defaults: { width: 960,
+			       height: 1200,
+			       padding: 20,
+			       data: "exampleData()"
+			      },
 	      classes: ["link", "node"],
-	      data_format: "tree"
-	    };
+	      dataFormat: "tree"
 	  },
 	  exampleData: function(){
 		var dataobj =   {
@@ -48,15 +46,8 @@
   };
   	      	return  dataobj;
 	     },
-	  render : function( settings ) {
+	  render : function( options ) {
 	  
-	     var options = { width: 960,
-			       height: 1200,
-			       padding: 20,
-			       target: "chart",
-			       data: {} };
-	       $.extend(options, settings);
-	
 	      options.target.innerHTML = "";
 	
 		  //-------    
