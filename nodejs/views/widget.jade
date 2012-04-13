@@ -9,8 +9,8 @@ block scripts
     script(type="text/javascript", src="#{filename}")
     script(type="text/javascript")
         $(function () {
-            Iris.Widget["#{widget}"]
-                .create(document.getElementById("#{widget}"));
+            Iris.Widget["#{name}"]
+                .create(document.getElementById("#{name}"));
         });
 
-div(id="#{widget}", style="position: relative; min-width:500px")
+div(id="#{name}", style="position: relative; min-width:500px")

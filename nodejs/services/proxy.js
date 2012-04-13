@@ -175,7 +175,6 @@ app.get('/widget/:widget', function (req, res) {
             } else {
                 routes.widget(req, res, {
                     title: "widget",
-                    widget: widget.name,
                     filename: filename,
                     name: name,
                     requires : requires
