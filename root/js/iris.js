@@ -9,9 +9,8 @@
     var Iris = root.Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
-
+    
     // Utility fuctions
-
     Iris.each = function (array, func) {
         for (var i = 0; i < array.length; i++) {
             func(array[i]);
@@ -29,7 +28,7 @@
         });
         return object;
     };
-
+    
     Iris.keys = function (object) {
         if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
@@ -51,17 +50,17 @@
         }
         return values;
     };
-
+    
     function capitalize(string) {
         if (string == null || string == "") return string;
         return string[0].toUpperCase() + string.slice(1);
     }
-
+    
     Iris.normalizeName = function (string) {
         var capitalized = capitalize(string);
         return capitalized.split(/\s/).join('');
     };
-
+    
     var EventCallbacks;
     var eventSplitter = /\s+/;
     var observable = function () {
@@ -162,7 +161,7 @@
             }
         };
     };
-
+    
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
@@ -181,7 +180,7 @@
             services[service.path] = service.uri;
         }
     });
-
+    
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
         var url = Iris.dataURI(path);
@@ -212,11 +211,11 @@
             case 'object'   : about = spec.about;    break;
             default         : about = {};            break;
         };
-
+        
         if (spec.setup && typeof spec.setup !== 'function') {
             throw "setup() must be a function returning a string.";
         }
-
+        
         var widget = Iris.extend({}, spec);
         Iris.extend(widget, {
             target: function (target) {
@@ -268,7 +267,7 @@
         }
         return widget;
     };
-
+    
     /* ===================================================
      * Iris.Renderer
      */
@@ -282,14 +281,14 @@
             case 'object'   : about = spec.about;    break;
             default         : about = {};            break;
         };
-
+        
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
-
+        
         if (about["name"]) {
             var name = Iris.normalizeName(about["name"]);
             Iris.Renderer[name] = renderer;
-
+        
 /*
         // Expose as jQuery plugin
         jQuery.fn[plugin] = function (method) {
@@ -318,7 +317,7 @@
         Iris.extend(model, observable());
         return model;
     };
-
+    
     /* ===================================================
      * Iris.Event
      */
@@ -336,7 +335,7 @@
             [[0, 0], [1, 0], [2, 5], [3, 0], [4, 5], [5, 0], [6, 5]],
             [[0, 0], [1, 0], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
         ],
-
+    
         {
             header: ["firstname", "lastname", "email"],
             data: [
@@ -359,7 +358,7 @@
 // DataHandler
 (function () {
     var dh = Iris._DataHandler = {};
-
+    
     // global variables
     var DataStore = dh.DataStore = [];
     var TypeData;
@@ -413,12 +412,12 @@
         }
 
         if (new_data) {
-
+	    
 	    var repo_type = 'default';
 	    if (data_repository && data_repository.type) {
 		repo_type = data_repository.type;
 	    }
-
+	    
 	    switch (repo_type) {
 	    case 'default':
 		if (!new_data.length) {
@@ -602,7 +601,7 @@
 	    base_url += query_params + authentication;
 	    break;
 	}
-
+	    
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
             xhr.open('GET', base_url, true);
@@ -714,14 +713,14 @@
     }
 }).call(this); // END DataHandler
 
-// FrameBuilder
+// FrameBuilder   
 (function () {
     var fb = Iris._FrameBuilder = {};
     var dh = Iris._DataHandler;
 
     var loaded_libraries       = [];
     var library_callback_list  = [];
-
+                              
     var renderer_resources     = [];
     Iris._FrameBuilder.renderer_resources = renderer_resources;
 
@@ -908,7 +907,7 @@
                 });
             });
         }
-
+ 
         return promise;
    }
 
