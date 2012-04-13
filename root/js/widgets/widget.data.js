@@ -3,7 +3,8 @@
     widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "DataBrowser",
+                name: "JSON Browser",
+                key: "data",
                 author: "Andrew Olson",
                 requires: []
             };
@@ -48,9 +49,7 @@
     //     renderer: "Syntax"
     // });
 
-   display : function (args) {
-        var div = document.getElementById(widget.targetElement);
->>>>>>> Stashed changes
+   display : function (div, args) {
         div.innerHTML = '';
         var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
         if (args.hasOwnProperty('API')) {

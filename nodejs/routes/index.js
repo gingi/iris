@@ -4,7 +4,7 @@ exports.index = function(req, res) {
 
 exports.widget = function(req, res, args) {
     args['title'] = args['widget'];
-    res.render('widgets', args);
+    res.render('widget', args);
 };
 
 exports.renderer = function (req, res, args) {
