@@ -25,7 +25,7 @@
                     'data': 'exampleData()'
                 },
                 classes: [],
-                data_format: "list of string"
+                dataFormat: "list of string"
             };
         },
         exampleData: function() {

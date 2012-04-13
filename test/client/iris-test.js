@@ -87,18 +87,21 @@ module.exports = {
     },
     
     extendFromAnExistingRenderer: function (test) {
+        var result;
         var renderer1 = Iris.Renderer.extend({
             about: { name: "AbstractRenderer", foo: "bar" },
-            render: function () { return "A"; }
+            render: function () { result = "A"; }
         });
         var renderer2 = renderer1.extend({
             about: { foo: "goo" },
-            render: function () { return "B"; }
+            render: function () { result = "B"; }
         });
-        test.equals("bar", renderer1.about("foo"));
-        test.equals("A", renderer1.render());
-        test.equals("goo", renderer2.about("foo"));
-        test.equals("B", renderer2.render());
+        // test.equals("bar", renderer1.about("foo"));
+        renderer1.render();
+        test.equals("A", result);
+        // test.equals("goo", renderer2.about("foo"));
+        renderer2.render();
+        test.equals("B", result);
         test.done();
     },
     
@@ -119,6 +122,53 @@ module.exports = {
             var widget = Iris.Widget.extend({ setup: function () { } });
             widget.create();
         });
+        test.done();
+    },
+    
+    rendererUsesDefaultValues: function (test) {
+        var result;
+        var renderer = Iris.Renderer.extend({
+            about: {
+                defaults: { foo: "bar" }
+            },
+            render: function (settings) {
+                result = settings["foo"];
+            }
+        });
+        renderer.render({ foo: "goo" });
+        test.equal("goo", result,
+            "'foo' default element should be overridden");
+        renderer.render({});
+        test.equal("bar", result,
+            "'foo' default should be used");
+        test.done();
+    },
+    
+    rendererWithoutDefaults: function (test) {
+        var renderer = Iris.Renderer.extend({
+            about: {
+            },
+            render: function (settings) {
+            }
+        });
+        test.doesNotThrow(function () {
+            renderer.render();
+        });
+        test.done();
+    },
+    
+    rendererUsesDefaultCallback: function (test) {
+        var result;
+        var renderer = Iris.Renderer.extend({
+            about: {
+                setDefaults: function () { return { foo: "bar" } }
+            },
+            render: function (settings) {
+                result = settings["foo"];
+            }
+        });
+        renderer.render();
+        test.equal("bar", result, "'foo' should be set to the default");
         test.done();
     }
 };
