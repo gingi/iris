@@ -43,14 +43,12 @@
         }
     };
     return Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "FormTypeahead",
-                author: "Scott Devoid",
-                version: "0.1",
-                requires: ['jquery.js', 'revalidator.js', 'bootstrap-typeahead.js'],
-                options: schema
-            };
+        about: {
+            name: "FormTypeahead",
+            author: "Scott Devoid",
+            version: "0.1",
+            requires: ['jquery.js', 'revalidator.js', 'bootstrap-typeahead.js'],
+            options: schema
         },
         exampleData: function() {
             return {

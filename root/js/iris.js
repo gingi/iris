@@ -253,22 +253,27 @@
 
     Renderer.extend = function (spec) {
         spec = (spec || {});
-        var about;
-        switch (typeof spec.about) {
-            case 'function' : about = spec.about();  break;
-            case 'object'   : about = spec.about;    break;
-            default         : about = {};            break;
-        };
-        
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
-        
-        if (about["name"]) {
-            var name = Iris.normalizeName(about["name"]);
+        if (renderer.about["name"]) {
+            var name = Iris.normalizeName(renderer.about["name"]);
             Iris.Renderer[name] = renderer;
         }
-        renderer.about = function (name) {
-            return about[name];
+
+        var tmpRender = renderer.render;
+        renderer.render = function (settings) {
+            settings = (settings || {});
+            if (renderer.about) {
+                if (renderer.about.defaults) {
+                    Iris.extend(settings, renderer.about.defaults);
+                }
+                if (renderer.about.setDefaults) {
+                    Iris.extend(settings, renderer.about.setDefaults());
+                }
+            }
+            
+            // validate(args);
+            return tmpRender(settings);
         };
         return renderer;
     };

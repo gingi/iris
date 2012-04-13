@@ -43,7 +43,7 @@
                     'data': 'exampleData()'
                 },
                 classes: ['axis-text', 'color#', 'rule', 'axis'],
-                data_format: schema.properties.data.description
+                dataFormat: schema.properties.data.description
             }
         },
         exampleData: function() {
