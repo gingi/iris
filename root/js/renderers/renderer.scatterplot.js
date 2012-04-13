@@ -63,7 +63,7 @@
     Iris.Renderer.extend({
         about: {
             key: "scatterplot",
-            name: "Scatterplot",
+            name: "scatterplot",
             author: "Andrew Olson",
             version: "1.0",
             requires: ['RGBColor.js'],
@@ -72,6 +72,7 @@
                 target: 'test',
                 data: 'exampleData()'
             },
+			schema: schema,
             dataFormat: "list of tuples",
             defaults: {
                 target: "test",
@@ -113,10 +114,6 @@
         },
         render: function (options) {
 			var opt = options;
-            var check = window.json.validate(opt, schema);
-            if (!check['valid']) {
-                $.error(check['errors']);
-            }
             var data = options.data;
 
             var target = options.target;

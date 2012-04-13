@@ -27,24 +27,30 @@
 	};
 
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "linegraph",
-                author: "Tobias Paczian",
-                version: "1.0",
-                requires: ['d3.js'],
-                options: {
-                    'width': 800,
-                    'height': 600,
-                    'padding': 40,
-                    'target': 'chart',
-                    'ticksx': 10,
-                    'ticksy': 10,
-                    'data': 'exampleData()'
-                },
-                classes: ['axis-text', 'color#', 'rule', 'axis'],
-                dataFormat: schema.properties.data.description
-            }
+        about: {
+            name: "linegraph",
+            author: "Tobias Paczian",
+            version: "1.0",
+            requires: ['d3.js'],
+            options: {
+                width: 800,
+                height: 600,
+                padding: 40,
+                target: 'chart',
+                ticksx: 10,
+                ticksy: 10,
+                data: 'exampleData()'
+            },
+            defaults: {
+                width: 450,
+                height: 450,
+                padding: 40,
+                target: "chart",
+                ticksx: 10,
+                ticksy: 10
+            },
+            classes: ['axis-text', 'color#', 'rule', 'axis'],
+            dataFormat: schema.properties.data.description
         },
         exampleData: function() {
             return [[
@@ -63,18 +69,7 @@
                 [5, 0]
             ]];
         },
-        render: function(settings) {
-
-            var options = {
-                width: 450,
-                height: 450,
-                padding: 40,
-                target: "chart",
-                ticksx: 10,
-                ticksy: 10,
-                data: []
-            };
-            $.extend(options, settings);
+        render: function(options) {
 
 /*            var check = window.json.validate(options, schema);
             if (!check['valid']) {
