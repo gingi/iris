@@ -695,6 +695,9 @@
     var loaded_renderers       = {};
     Iris._FrameBuilder.available_renderers = available_renderers;
 
+    var widget_resources     = [];
+    Iris._FrameBuilder.widget_resources = widget_resources;
+
     var available_widgets    = {};
     var loaded_widgets       = {};
     Iris._FrameBuilder.available_widgets = available_widgets;
