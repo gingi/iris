@@ -4,41 +4,31 @@
             return {
                 name: "RendererDemo",
                 author: "Tobias Paczian",
-                requires: [ ],
+                requires: [ ]
             };
         }
     });
 
-    widet.setup = function () {
+    widget.setup = function () {
 	var promise = this.loadRenderer('template');
 	return [ promise ];
     }
 
     widget.display = function (div, args) {
-        div.innerHTML = 'Hello World';
-        // var rend_disp = document.createElement('div');
-	// rend_disp.setAttribute('id', 'renderer_display');
-	// rend_dist.setAttribute('style', "height: 600px;");
-	// div.appendChild(rend_disp);
-	// Iris.Renderer.Template.render( { target: rend_disp, data: Iris.Renderer.Template.exampleData() } );
+        div.innerHTML = '<div id="renderer_display" style="height: 450px;" class="well"></div><div class="well" id="renderer_select" style="height: 40px;"><select id="renderer_selection"></select><input type="button" value="select" id="select_button" class="btn"></div>';
+        var rend_disp = document.getElementById('renderer_display');
+	Iris.Renderer.template.render( { target: rend_disp, data: Iris.Renderer.template.exampleData() } );
 
-	// var select_disp = document.createElement('div');
-	// select_dist.setAttribute('style', "height: 150px;");
-	// div.appendChild(select_disp);
+	var select_disp = document.getElementById('renderer_select');
+	var lb = document.getElementById('renderer_selection');
+	for (i in Iris._FrameBuilder.available_renderers) {
+	    lb.add(new Option(i, i), null);
+	}
 
-	// var lb = document.createElement('select');
-	// lb.setAttribute('id', 'renderer_selection');
-	// for (i in Iris._FrameBuilder.available_renderers) {
-	//     lb.add(new Option(i, i), null);
-	// }
-	// select_disp.appendChild(lb);
-
-	// var btn = document.createElement('input');
-	// btn.setAttribute('type', 'button');
-	// btn.onclick = function () {
-	//     Iris._FrameBuilder.test_renderer( { renderer: document.getElementById('renderer_selection').options[document.getElementById('renderer_selection').selectedIndex].value, target: document.getElementById('renderer_display') } );
-	// };
-	// select_disp.appendChild(btn);
+	var btn = document.getElementById('select_button');
+	btn.onclick = function () {
+	    Iris._FrameBuilder.test_renderer( { renderer: document.getElementById('renderer_selection').options[document.getElementById('renderer_selection').selectedIndex].value, target: document.getElementById('renderer_display') } );
+	};
 
     };
 
