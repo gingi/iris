@@ -3,11 +3,12 @@ link(rel="stylesheet", type="text/css", href="/css/iris.css")
 script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
 script(type="text/javascript")
-        $(function () {
-            Iris._FrameBuilder.init( { renderer_resources: [ '/renderer/' ], data_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi' ], dataflow_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ], library_resource: '/js/', widget_resources: [ '/widget/' ], layout: null, viewports: null } ).then( function () {
-	                Iris.Widget.RendererDemo.create(document.getElementById("#{widget}"));
-			});
+    $(function () {
+        Iris._FrameBuilder.init( { renderer_resources: [ '/renderer/' ], data_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi' ], dataflow_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ], library_resource: '/js/', widget_resources: [ '/widget/' ], layout: null, viewports: null } ).then( function () {
+            Iris._FrameBuilder.load_widget('rendererdemo').then( function () {
+                Iris.Widget.RendererDemo.create(document.getElementById("widget1"));
+            });
         });
-	
+    });
+
 .well(id="widget1")
-.well(id="control")
