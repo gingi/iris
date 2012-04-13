@@ -8,9 +8,12 @@ each require in requires
 script(type="text/javascript", src="#{js}")
 script(type="text/javascript")
     $(function () {
-        x = "Renderer" + Iris.normalizeName("#{name}");
-        console.log("Plugin", x);
-        eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': 'renderMe' })");
+        var renderer = Iris.Renderer["#{name}"];
+        console.log(renderer);
+        renderer.render({
+            target: document.getElementById("renderMe"),
+            data: renderer.exampleData()
+        });
     });
 
 div(id="renderMe", style="position: relative; min-width:500px")

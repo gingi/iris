@@ -213,9 +213,9 @@ app.get('/renderer/:renderer', function (req, res) {
         require(filename);
         var renderer = Iris.registrant(req.params.renderer);
         var name = req.params.renderer, requires = [];
-        if( (renderer) &&
-            (renderer.hasOwnProperty('requires')) ) {
-            requires = renderer['requires']
+        if (renderer && renderer.hasOwnProperty('requires')) {
+            requires = renderer['requires'];
+            name = renderer['name'];
         }
         path.exists(filename, function (exists) {
             if (!exists) {

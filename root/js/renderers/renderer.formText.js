@@ -41,7 +41,7 @@
                 options: schema
             };
         },
-        example_data: function() {
+        exampleData: function() {
             return {
                 type  : 'text',
                 name  : 'helloText',
@@ -57,7 +57,7 @@
             var config, target, text, controlGroup, label, controls, evType;
             config = settings.data;
             json.validate(config, schema);
-            target = jQuery('#'+settings.target);
+            target = jQuery(settings.target);
             // settings for <input type='text'> element
             text = jQuery("<input>").attr("type", config.type)
                                         .attr("name", config.name);

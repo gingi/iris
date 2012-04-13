@@ -197,7 +197,7 @@ function test_renderer(params) {
         document.getElementById(params.target).innerHTML = "";
         var x = params.renderer;
         x = "Renderer" + x.substr(x.indexOf('.') + 1, 1).toUpperCase() + x.substring(x.indexOf('.') + 2, x.lastIndexOf('.'));
-        eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('example_data'), 'target': params.target })");
+        eval("$('div')." + x + "('render', { 'data': $('div')." + x + "('exampleData'), 'target': params.target })");
     } else {
         params.ret = 1;
         load_renderer(params.renderer, test_renderer, params);

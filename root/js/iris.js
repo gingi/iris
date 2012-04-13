@@ -57,8 +57,8 @@
     }
     
     Iris.normalizeName = function (string) {
-        var capitalized = capitalize(string);
-        return capitalized.split(/\s/).join('');
+        // var capitalized = capitalize(string);
+        return string.split(/\s/).join('');
     };
     
     var EventCallbacks;
@@ -288,19 +288,6 @@
         if (about["name"]) {
             var name = Iris.normalizeName(about["name"]);
             Iris.Renderer[name] = renderer;
-        
-/*
-        // Expose as jQuery plugin
-        jQuery.fn[plugin] = function (method) {
-            if (renderer[method]) {
-                return renderer[method](arguments[1]);
-            } else {
-                jQuery.error(
-                    'Method ' + method + ' does not exist on jQuery.' + plugin
-                );
-            }
-        };
-*/
         }
         renderer.about = function (name) {
             return about[name];
@@ -860,7 +847,7 @@
         if (params.ret) {
             document.getElementById(params.target).innerHTML = "";
 
-            Iris.Renderer[params.renderer].render({ data: Iris.Renderer[params.renderer].example_data(), target: params.target });
+            Iris.Renderer[params.renderer].render({ data: Iris.Renderer[params.renderer].exampleData(), target: params.target });
         } else {
             params.ret = 1;
             fb.load_renderer(params.renderer).then(function() {

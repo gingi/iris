@@ -10,7 +10,7 @@
                 options: {
                     'id': 'resourceSelector',
                     'target': 'layout_east',
-                    'data': 'example_data()',
+                    'data': 'exampleData()',
                     'action_button': true,
                     'action_button_name': 'select',
                     'flow': 'example',
@@ -22,7 +22,7 @@
                 data_format: null
             }
         },
-        example_data: function() {
+        exampleData: function() {
             return null;
         },
         render: function(settings) {
@@ -30,7 +30,7 @@
             var options = {
                 'id': 'resourceSelector',
                 'target': 'test',
-                'data': 'example_data()',
+                'data': 'exampleData()',
                 'action_button': true,
                 'action_button_name': 'select',
                 'flow': 'example',
@@ -40,7 +40,7 @@
             };
             jQuery.extend(options, settings);
 
-            var target = document.getElementById(options.target);
+            var target = options.target;
             var opt = options;
 
             target.innerHTML = "";

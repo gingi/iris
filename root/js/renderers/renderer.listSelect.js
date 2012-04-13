@@ -10,20 +10,20 @@
           data_format: "list of string"
       };
   },
-  example_data : function () {
+  exampleData : function () {
       return ['model', 'genome', 'sequence'];
   },
 
   render : function ( settings ) {
       this.options = { 
          'target': 'test',
-         'data': 'example_data()',
+         'data': 'exampleData()',
          'clickFn' : function (x) { return false; }
       };
       jQuery.extend (this.options, settings);
       var data   = this.options.data;
       // FIXME: this.options.target should be an Element, not Id
-      var target = jQuery("#"+this.options.target);
+      var target = jQuery(this.options.target);
       var form   = jQuery("<form>").addClass("form-horizontal").addClass("span12");
     
       var url = jQuery("<input>").attr("type", "text")

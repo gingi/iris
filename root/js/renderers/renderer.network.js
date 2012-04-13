@@ -9,7 +9,7 @@
                 options: {
                     'key': 'value',
                     'target': 'test',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: "list of string"
@@ -18,7 +18,7 @@
 
         render: render,
 
-        example_data: function() {
+        exampleData: function() {
             var nodeSize = 30;
 
             return {
@@ -99,7 +99,7 @@
 
         jQuery.extend(options, settings);
 
-        var target = document.getElementById(options.target);
+        var target = options.target;
         target.innerHTML = "";
 
         var data = options.data;

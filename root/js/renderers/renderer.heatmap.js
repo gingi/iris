@@ -33,7 +33,7 @@
       classes: [ ],
       data_format: "list of string" }
     },
-  example_data : function () {
+  exampleData : function () {
       return [
 
 {x : 0.00000, y : 0.00000, width : 0.01, height : 0.04, score : 0.36727},
@@ -2755,7 +2755,7 @@
 
         jQuery.extend (options, settings);
 
-        var target = document.getElementById(options.target);
+        var target = options.target;
         var opt = options;
 		var check = window.json.validate(opt, schema);
 		if (!check['valid']) {

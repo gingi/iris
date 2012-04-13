@@ -22,13 +22,13 @@
                 options: {
                     'key': 'value',
                     'target': 'test',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: "list of string"
             };
         },
-        example_data: function() {
+        exampleData: function() {
             var json = {
                 "glossary": {
                     "title": "example glossary",
@@ -62,7 +62,7 @@
             };
             jQuery.extend(options, settings);
 
-            var target = document.getElementById(options.target);
+            var target = options.target;
             var opt = options;
 
             var check = window.json.validate(opt, schema);

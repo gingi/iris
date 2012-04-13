@@ -40,13 +40,13 @@
                     'target': 'chart',
                     'ticksx': 10,
                     'ticksy': 10,
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: ['axis-text', 'color#', 'rule', 'axis'],
                 data_format: schema.properties.data.description
             }
         },
-        example_data: function() {
+        exampleData: function() {
             return [[
                 [0, 0],
                 [1, 1],
@@ -81,7 +81,7 @@
                 $.error(check['errors']);
             }
 */
-            document.getElementById(options.target).innerHTML = "";
+            options.target.innerHTML = "";
 
             var maxx = 0;
             var maxy = 0;
@@ -99,7 +99,7 @@
             var x = d3.scale.linear().domain([0, maxx]).range([0, options.width]);
             var y = d3.scale.linear().domain([0, maxy]).range([options.height, 0]);
 
-            var vis = d3.select(document.getElementById(options.target)).append("svg").attr("width", options.width + options.padding * 2).attr("height", options.height + options.padding * 2).append("g").attr("transform", "translate(" + options.padding + "," + options.padding + ")");
+            var vis = d3.select(options.target).append("svg").attr("width", options.width + options.padding * 2).attr("height", options.height + options.padding * 2).append("g").attr("transform", "translate(" + options.padding + "," + options.padding + ")");
 
             var rules = vis.selectAll("g.rule").data(x.ticks(options.ticksx)).enter().append("g").attr("class", "rule");
 

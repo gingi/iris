@@ -33,7 +33,7 @@
           classes: [ ],
           data_format: "list of string" }
         },
-      example_data : function () {
+      exampleData : function () {
           return [
             { color : new RGBColor(255,0,0), x : 0.0, width : 0.1, height : 0.5, },
             { color : new RGBColor(0,255,0), x : 0.1, width : 0.1, height : 0.1, },
@@ -67,7 +67,7 @@
 
             jQuery.extend (options, settings);
 
-            var target = document.getElementById(options.target);
+            var target = options.target;
             var opt = options;
 
             var check = window.json.validate(opt, schema);

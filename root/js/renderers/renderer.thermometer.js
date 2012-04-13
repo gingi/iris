@@ -26,7 +26,7 @@
                 data_format: "list of string"
             }
         },
-  example_data : function () {
+  exampleData : function () {
       return [
         {
             value   : 0.90,
@@ -47,7 +47,7 @@
 
         jQuery.extend (options, settings);
 
-        var target = document.getElementById(options.target);
+        var target = options.target;
         var opt = options;
 
 		var check = window.json.validate(opt, schema);
