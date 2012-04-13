@@ -2,7 +2,7 @@
     var schema = {
         properties: {
             target: {
-                type: 'string',
+                type: 'object',
                 required: true
             },
             data: {
@@ -15,32 +15,25 @@
         }
     };
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "template",
-                author: "Tobias Paczian",
-                version: "1.0",
-                requires: [],
-                options: {
-                    'key': 'value',
-                    'target': 'test',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                data_format: "list of string"
-            }
+        about: {
+            name: "template",
+            author: "Tobias Paczian",
+            version: "1.0",
+            requires: [],
+            defaults: {
+                key: "value",
+                target: "test"
+            },
+            setDefaults: function () {
+                // Callback for defaults loaded at render time.
+                return {};
+            },
+            dataFormat: "list of string"
         },
-        exampleData: function() {
+        exampleData: function () {
             return ["A", "B", "C"];
         },
-        render: function(settings) {
-
-            var options = {
-                key: "value",
-                target: "test",
-                data: []
-            };
-            jQuery.extend(options, settings);
+        render: function (options) {
 
             var target = options.target;
             var opt = options;

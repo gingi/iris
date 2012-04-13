@@ -1,19 +1,24 @@
 (function() {
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "network",
-                author: "Paul and Jer-Ming",
-                version: "1.0",
-                requires: ['d3.js'],
-                options: {
-                    'key': 'value',
-                    'target': 'test',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                data_format: "list of string"
-            };
+        about: {
+            name: "network",
+            author: "Paul and Jer-Ming",
+            version: "1.0",
+            requires: ['d3.js'],
+            options: {
+                'key': 'value',
+                'target': 'test',
+                'data': 'exampleData()'
+            },
+            defaults: {
+                key: "value",
+                target: "test",
+                width: 600,
+                height: 600,
+                data: []
+            },
+            classes: [],
+            dataFormat: "list of string"
         },
 
         render: render,
@@ -88,17 +93,7 @@
         }
     });
 
-    function render(settings) {
-        var options = {
-            key: "value",
-            target: "test",
-            width: 600,
-            height: 600,
-            data: []
-        };
-
-        jQuery.extend(options, settings);
-
+    function render(options) {
         var target = options.target;
         target.innerHTML = "";
 

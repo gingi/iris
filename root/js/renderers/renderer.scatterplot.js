@@ -73,36 +73,19 @@
         }
     };
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                key: "scatterplot",
-                name: "scatterplot",
-                author: "Andrew Olson",
-                version: "1.0",
-                requires: [],
-                options: {
-                    'key': 'value',
-                    'target': 'test',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                data_format: "list of tuples"
-            }
-        },
-        exampleData: function() {
-			var sampleData = new Array();
-			for(var i=0; i< 1000; i++) {
-				sampleData[i] = new Array();
-				sampleData[i][0] = 2^i;
-				sampleData[i][1] = Math.random()*100 - 50;
-				sampleData[i][2] = Math.random()*10;
-				sampleData[i][3] = Math.floor(Math.random()*21);
-			}
-			return sampleData;
-//            return [[-5, -3, 0], [1, 1, 2], [2, 2, 2], [3, 30, 2], [10, 4, 3]];
-        },
-        render: function(settings) {
-            this.options = {
+        about: {
+            key: "scatterplot",
+            name: "Scatterplot",
+            author: "Andrew Olson",
+            version: "1.0",
+            requires: [],
+            options: {
+                key: 'value',
+                target: 'test',
+                data: 'exampleData()'
+            },
+            dataFormat: "list of tuples",
+            defaults: {
                 target: "test",
                 width: 800,
                 height: 400,
@@ -122,17 +105,29 @@
 				scaleBy: 3,
 				scale: ['linear','linear','linear','linear'],
                 data: []
-
-            };
-            jQuery.extend(this.options, settings);
-			var opt = this.options;
+            },
+        },
+        exampleData: function() {
+			var sampleData = new Array();
+			for(var i=0; i< 1000; i++) {
+				sampleData[i] = new Array();
+				sampleData[i][0] = 2^i;
+				sampleData[i][1] = Math.random()*100 - 50;
+				sampleData[i][2] = Math.random()*10;
+				sampleData[i][3] = Math.floor(Math.random()*21);
+			}
+			return sampleData;
+//            return [[-5, -3, 0], [1, 1, 2], [2, 2, 2], [3, 30, 2], [10, 4, 3]];
+        },
+        render: function (options) {
+			var opt = options;
             var check = window.json.validate(opt, schema);
             if (!check['valid']) {
                 $.error(check['errors']);
             }
-            var data = this.options.data;
+            var data = options.data;
 
-            var target = this.options.target;
+            var target = options.target;
             var canvas;
             if (target.tagName === "CANVAS") {
                 canvas = target;
@@ -140,10 +135,10 @@
                 canvas = document.createElement('canvas');
                 target.appendChild(canvas);
             }
-            canvas.width = this.options.width;
-            canvas.height = this.options.height;
+            canvas.width = options.width;
+            canvas.height = options.height;
             var ctx = canvas.getContext('2d');
-            ctx.strokeStyle = this.options.strokeStyle;
+            ctx.strokeStyle = options.strokeStyle;
 			if (opt.boundingBox) {
 				ctx.strokeRect(0, 0, canvas.width, canvas.height);
 			}
@@ -167,7 +162,7 @@
                     }
                 }
             }
-			if (this.options.axes) {
+			if (options.axes) {
 				// adjust min and max if necessary
 				if(0 < axes[opt.x].min) { axes[opt.x].min = 0 }
 				if(0 > axes[opt.x].max) { axes[opt.x].max = 0 }
@@ -221,7 +216,7 @@
 				if (doColor) {
 					ctx.fillStyle = axes[opt.colorBy].toRGB(data[i][opt.colorBy]);
 				}
-				if (this.options.glyph === 'circle') {
+				if (options.glyph === 'circle') {
 					var radius = doScale ? axes[opt.scaleBy].radius(data[i][opt.scaleBy]) : opt.radius;
                     ctx.beginPath();
                     ctx.arc(Math.floor(x), Math.floor(y), radius, 0, 2 * Math.PI, true);
@@ -231,7 +226,7 @@
                     ctx.fillRect(Math.floor(x), Math.floor(y), 2, 2);
                 }
             }
-			if (this.options.axes) {
+			if (options.axes) {
 				ctx.strokeRect(
 					Math.floor(axes[0].scale(axes[0].min)),
 					Math.floor(axes[1].scale(0)),
@@ -241,7 +236,6 @@
 					Math.floor(axes[1].scale(axes[1].max)),
 					1,opt.height - 2*opt.yPadding);
 			}
-            console.log("Done rendering");
         }
     });
 }).call(this);

@@ -1,45 +1,28 @@
 (function () {
 
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "resourceSelector",
-                author: "Tobias Paczian",
-                version: "1.0",
-                requires: [],
-                options: {
-                    'id': 'resourceSelector',
-                    'target': 'layout_east',
-                    'data': 'exampleData()',
-                    'action_button': true,
-                    'action_button_name': 'select',
-                    'flow': 'example',
-                    'flow_target': 'layout_east',
-                    'resource': 'metagenome',
-                    'resource_provider': 'MG-RAST'
-                },
-                classes: [],
-                data_format: null
-            }
+        about: {
+            name: "resourceSelector",
+            author: "Tobias Paczian",
+            version: "1.0",
+            requires: [],
+            defaults: {
+                id: 'resourceSelector',
+                target: 'test',
+                data: 'exampleData()',
+                action_button: true,
+                action_button_name: 'select',
+                flow: 'example',
+                flow_target: 'layout_east',
+                resource: 'metagenome',
+                resource_provider: 'MG-RAST'
+            },
+            dataFormat: null
         },
         exampleData: function() {
             return null;
         },
-        render: function(settings) {
-
-            var options = {
-                'id': 'resourceSelector',
-                'target': 'test',
-                'data': 'exampleData()',
-                'action_button': true,
-                'action_button_name': 'select',
-                'flow': 'example',
-                'flow_target': 'layout_east',
-                'resource': 'metagenome',
-                'resource_provider': 'MG-RAST'
-            };
-            jQuery.extend(options, settings);
-
+        render: function(options) {
             var target = options.target;
             var opt = options;
 
