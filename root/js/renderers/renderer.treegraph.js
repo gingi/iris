@@ -7,7 +7,7 @@
 	      requires: [ 'd3.js' ],
 		  defaults: { width: 960,
 			       height: 1200,
-			       padding: 20,
+			       padding: 0,
 			       data: "exampleData()"
 			      },
 	      classes: ["link", "node"],
@@ -53,7 +53,7 @@
 		  //-------    
 		 
 		 var cluster = d3.layout.cluster()
-		     .size([options.height, options.width + 200 ]);
+		     .size([options.height, options.width - 280 ]);
 		 
 		 var diagonal = d3.svg.diagonal()
 		     .projection(function(d) { return [d.y, d.x]; });
@@ -62,7 +62,7 @@
 		     .attr("width", options.width)
 		     .attr("height", options.height)
 		   .append("g")
-		     .attr("transform", "translate(40, 0)");
+		     .attr("transform", "translate(80, 0)");
 		 
 	   var nodes = cluster.nodes(options.data);
 	 
@@ -77,17 +77,18 @@
 	       .data(nodes)
 	     .enter().append("g")
 	       .attr("class", "node")
-	       .attr("style", "font: 10px sans-serif;")
+	       .attr("style", "font: 16px sans-serif; font-style: italic;")
 	       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 	 
 	   node.append("circle")
-	       .attr("r", 4.5)
+	       .attr("r", 6)
 	       .attr("style", "fill: #fff; stroke: steelblue; stroke-width: 1.5px;");
 	 
 	   node.append("text")
 	       .attr("dx", function(d) { return d.children ? -8 : 8; })
 	       .attr("dy", 3)
 	       .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
+	       .attr("style", "fill: #666")
 	       .text(function(d) { return d.name; });
 	}
 });
