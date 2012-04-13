@@ -12,7 +12,8 @@
                 type: 'integer'
             },
             radius: {
-                type: 'integer'
+                type: 'integer',
+                required: true
             },
             data: {
                 description: "list of 2-tuple of string, float",
@@ -30,40 +31,26 @@
         }
     };
     Iris.Renderer.extend({
-        about: function() {
-            return {
-                name: "piechart",
-                author: "Tobias Paczian",
-                version: "1.0",
-                requires: ['d3.js', 'd3.geom.min.js', 'd3.layout.min.js'],
-                options: {
-                    'width': 600,
-                    'height': 600,
-                    'radius': 290,
-                    'target': 'pie_space',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                data_format: schema.properties.data.description
-            }
+        about: {
+            name: "piechart",
+            author: "Tobias Paczian",
+            version: "1.0",
+            requires: ['d3.js'],
+            defaults: {
+                width: 600,
+                height: 600,
+                radius: 290,
+                target: 'pie_space',
+                data: 'exampleData()'
+            },
+            dataFormat: schema.properties.data.description
         },
         exampleData: function() {
             return [["slice a", 20], ["slice b", 30], ["slice c", 25], ["slice d", 5]];
         },
-        render: function(settings) {
+        render: function (options) {
 
-            var options = {
-                width: 500,
-                height: 500,
-                radius: 245,
-                target: "pie_space",
-                data: []
-            };
-            $.extend(options, settings);
-
-            var opt = options;
-
-            var check = window.json.validate(opt, schema);
+            var check = window.json.validate(options, schema);
             if (!check['valid']) {
                 $.error(check['errors']);
             }
@@ -92,8 +79,11 @@
                     "value": options.data[i][1]
                 });
             }
-
-            var vis = d3.select(options.target).append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+            var vis = d3.select(options.target)
+                .append("svg:svg").data([data])
+                    .attr("width", w).attr("height", h)
+                .append("svg:g")
+                    .attr("transform", "translate(" + r + "," + r + ")");
 
             var arc = d3.svg.arc().outerRadius(r);
 
@@ -101,7 +91,9 @@
                 return d.value;
             });
 
-            var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+            var arcs = vis.selectAll("g.slice")
+                .data(pie).enter().append("svg:g")
+                .attr("class", "slice");
 
             arcs.append("svg:path").attr("fill", function(d, i) {
                 return color(i);
