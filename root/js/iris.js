@@ -915,7 +915,7 @@
             var rend_data = available_renderers[renderer];
             var script_url = rend_data.resource + rend_data.filename;
             jQuery.getScript(script_url).then(function() {
-                var requires = Iris.Renderer[renderer].about('requires');
+                var requires = Iris.Renderer[renderer].about.requires;
                 for (var i=0; i<requires.length; i++) {
                     promises.push(fb.load_library(requires[i]));
                 }
