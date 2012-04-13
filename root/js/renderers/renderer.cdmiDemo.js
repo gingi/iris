@@ -1,7 +1,7 @@
 (function() {
     Iris.Renderer.extend({
         about: {
-            name: "listSelect",
+            name: "cdmiDemo",
             // key: "listselect",
             author: "Scott Devoid",
             version: "0.1",

@@ -44,7 +44,7 @@
     };
     return Iris.Renderer.extend({
         about: {
-            name: "FormTypeahead",
+            name: "formTypeahead",
             author: "Scott Devoid",
             version: "0.1",
             requires: ['jquery.js', 'revalidator.js', 'bootstrap-typeahead.js'],
