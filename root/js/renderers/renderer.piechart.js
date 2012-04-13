@@ -41,13 +41,13 @@
                     'height': 600,
                     'radius': 290,
                     'target': 'pie_space',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: schema.properties.data.description
             }
         },
-        example_data: function() {
+        exampleData: function() {
             return [["slice a", 20], ["slice b", 30], ["slice c", 25], ["slice d", 5]];
         },
         render: function(settings) {
@@ -68,7 +68,7 @@
                 $.error(check['errors']);
             }
 
-            var target = document.getElementById(options.target);
+            var target = options.target;
             target.innerHTML = "";
 
 
@@ -93,7 +93,7 @@
                 });
             }
 
-            var vis = d3.select(document.getElementById(options.target)).append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+            var vis = d3.select(options.target).append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
 
             var arc = d3.svg.arc().outerRadius(r);
 

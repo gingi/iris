@@ -24,13 +24,13 @@
                 options: {
                     'key': 'value',
                     'target': 'test',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: "list of string"
             }
         },
-        example_data: function() {
+        exampleData: function() {
             return ["A", "B", "C"];
         },
         render: function(settings) {
@@ -42,7 +42,7 @@
             };
             jQuery.extend(options, settings);
 
-            var target = document.getElementById(options.target);
+            var target = options.target;
             var opt = options;
 
             var check = window.json.validate(opt, schema);

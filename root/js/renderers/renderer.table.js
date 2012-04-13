@@ -39,13 +39,13 @@
                     'width': null,
                     'height': null,
                     'target': 'table_space',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: "list of list of 2-tuple of float"
             }
         },
-        example_data: function () {
+        exampleData: function () {
             return {
                 data: [
                     ["a1", "b1", "c1"],
@@ -105,7 +105,7 @@
                 html += "<tr><td>" + tdata[l].join("</td><td>") + "</td></tr>";
             }
             html += "</tbody></table>";
-            document.getElementById(target).innerHTML = html;
+            target.innerHTML = html;
 
             var oTable = $('#widget_data_table').dataTable();
             oTable.selectedData = [];

@@ -75,6 +75,7 @@
     Iris.Renderer.extend({
         about: function() {
             return {
+                key: "scatterplot",
                 name: "scatterplot",
                 author: "Andrew Olson",
                 version: "1.0",
@@ -82,13 +83,13 @@
                 options: {
                     'key': 'value',
                     'target': 'test',
-                    'data': 'example_data()'
+                    'data': 'exampleData()'
                 },
                 classes: [],
                 data_format: "list of tuples"
             }
         },
-        example_data: function() {
+        exampleData: function() {
 			var sampleData = new Array();
 			for(var i=0; i< 1000; i++) {
 				sampleData[i] = new Array();
@@ -131,7 +132,7 @@
             }
             var data = this.options.data;
 
-            var target = document.getElementById(this.options.target);
+            var target = this.options.target;
             var canvas;
             if (target.tagName === "CANVAS") {
                 canvas = target;
@@ -240,6 +241,7 @@
 					Math.floor(axes[1].scale(axes[1].max)),
 					1,opt.height - 2*opt.yPadding);
 			}
+            console.log("Done rendering");
         }
     });
 }).call(this);
