@@ -13,20 +13,17 @@
 	
     Iris.Renderer.extend({
 
-        about: function() {
-            return {
-                name: "jsonpretty",
-                author: "Andrew Olson,Jer-Ming Chia",
-                version: "1.0",
-                requires: [],
-                options: {
-                    'key': 'value',
-                    'target': 'test',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                dataFormat: "list of string"
-            };
+        about: {
+            name: "jsonpretty",
+            author: "Andrew Olson,Jer-Ming Chia",
+            version: "1.0",
+            requires: [],
+            options: {
+                key: 'value',
+                target: 'test',
+                data: 'exampleData()'
+            },
+            dataFormat: "list of string"
         },
         exampleData: function() {
             var json = {
@@ -54,13 +51,7 @@
             return json;
         },
 
-        render: function(settings) {
-            var options = {
-                key: "value",
-                target: "test",
-                data: []
-            };
-            jQuery.extend(options, settings);
+        render: function(options) {
 
             var target = options.target;
             var opt = options;
@@ -71,11 +62,11 @@
                 $.error(check['errors']);
             }
 
-            var jsonpretty = this.syntaxHighlight(JSON.stringify(options.data, undefined, 4));
+            var jsonpretty = syntaxHighlight(JSON.stringify(options.data, undefined, 4));
 			target.appendChild(document.createElement('pre')).innerHTML = jsonpretty;
-        },
+        }});
 		
-	   syntaxHighlight : function(json) {
+	   var syntaxHighlight =  function(json) {
 	    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
 	            var cls = 'number';
@@ -93,5 +84,4 @@
 	            return '<span class="' + cls + '">' + match + '</span>';
 	        });
 	    }			
-    });
 }).call(this);
