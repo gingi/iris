@@ -3,32 +3,11 @@ link(rel="stylesheet", type="text/css", href="/css/iris.css")
 script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
 script(type="text/javascript")
-    $(function () {
-        Iris._FrameBuilder.init({
-            renderer_resources: [ '/renderer/' ],
-            widget_resources: [ '/widget/' ],
-            data_resources:  [ '/' ],
-            dataflow_resources: [ '/dataflow/' ],
-            library_resource: '/js/',
-            viewports: ['widget1']
-        }).then(function() {
-            var selectedData = Iris.Model.create({ name: "" });
-            var selectedRenderer = Iris.Model.create({ name: "" });
-            var widget = Iris.Widget.extend({});
-            widget.create();
+        $(function () {
+            Iris._FrameBuilder.init( { renderer_resources: [ '/renderer/' ], data_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi' ], dataflow_resources: [ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ], library_resource: '/js/', widget_resources: [ '/widget/' ], layout: null, viewports: null } ).then( function () {
+	                Iris.Widget.RendererDemo.create(document.getElementById("#{widget}"));
+			});
         });
+	
 .well(id="widget1")
 .well(id="control")
-    img(src="/img/graph.gif", style="height:48px", onload="Iris.Event.DragDrop(this, 'linegraph', 'renderer');", data-type="3d-matrix")
-    img(src="/img/table.png", style="height: 48px", onload="Iris.Event.DragDrop(this, 'table', 'renderer');", data-type="table")
-    img(src="/img/piechart.png", style="height: 48px", id="piechart_drag", onload="Iris.Event.DragDrop(this, 'piechart', 'renderer');", data-type="named_numbers")
-
-    hr(style="height:1px")
-
-    script(type="text/javascript")
-        for (var i in Iris.TestData) {
-            var num = i; num++; // Methinks Jade is retarded.
-            var button = $("<p>").addClass("btn").html("TestData " + num);
-            $("#control").append(button);
-            Iris.Event.DragDrop(button[0], Iris.TestData[i], "data");
-        }
