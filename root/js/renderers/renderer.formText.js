@@ -33,7 +33,7 @@
     };
     Iris.Renderer.extend({
         about: {
-            name: "FormText",
+            name: "formText",
             author: "Scott Devoid",
             version: "0.1",
             requires: ['jquery.js', 'revalidator.js'],
