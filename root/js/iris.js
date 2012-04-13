@@ -200,21 +200,12 @@
      */
     var Widget = Iris.Widget = {};
     Widget.extend = function (spec) {
-        var widget = {};
-        spec = (spec || {});
-        spec.renderers = (spec.renderers || []);
-        spec.services  = (spec.services  || []);
-        spec.dataflows = (spec.dataflows || []);
         var about;
         switch (typeof spec.about) {
             case 'function' : about = spec.about();  break;
             case 'object'   : about = spec.about;    break;
             default         : about = {};            break;
         };
-        
-        if (spec.setup && typeof spec.setup !== 'function') {
-            throw "setup() must be a function returning a string.";
-        }
         
         var widget = Iris.extend({}, spec);
         Iris.extend(widget, {
@@ -223,13 +214,10 @@
                 return widget;
             },
             loadRenderer: function (args) {
-                Iris._FrameBuilder.load_renderer(args);
+                return Iris._FrameBuilder.load_renderer(args);
             },
             getData: function (args) {
-                Iris._DataHandler.get_objects(args);
-            },
-            setup: function (args) {
-                return [];
+                return Iris._DataHandler.get_objects(args);
             },
             create: function (element, args) {
                 var widgetInstance = {
@@ -238,28 +226,18 @@
                     }
                 };
                 Iris.extend(widgetInstance, widget);
-                var deferreds = widgetInstance.setup(args);
-                if (Object.prototype.toString.call(deferreds)
-                    !== '[object Array]') {
-                    throw "setup() needs to turn an array";
+                var promises = widgetInstance.setup(args);
+                if (!jQuery.isArray(promises)) {
+                    throw "setup() needs to return an array";
                 }
-                jQuery.when(deferreds).then(function (retValues) {
-                    widgetInstance.display(element, retValues);
+                jQuery.when.apply(this, promises).then(function () {
+                    widgetInstance.display(element, arguments);
                 });
                 return widgetInstance;
             },
-            display: function () {
-                Iris._FrameBuilder.init(
-                    spec.renderers,
-                    spec.services,
-                    spec.dataflows,
-                    spec.libraries,
-                    spec.layout,
-                    [ spec.el ]
-                );
-                return widget;
-            },
-            getJSON: Iris.getJSON,
+            setup: function (args) {},
+            display: function () {},
+            getJSON: Iris.getJSON
         });
         Iris.extend(widget, Widget);
         if (about.name) {
@@ -710,9 +688,13 @@
 
     var available_renderers    = {};
     var loaded_renderers       = {};
-    var loaded_libraries       = {};
-
     Iris._FrameBuilder.available_renderers = available_renderers;
+
+    var available_widgets    = {};
+    var loaded_widgets       = {};
+    Iris._FrameBuilder.available_widgets = available_widgets;
+
+    var loaded_libraries       = {};
 
     var dataflow_resources     = [];
     var dataflows              = [];
@@ -730,45 +712,73 @@
     //
 
 
-    fb.init = function (rendererResources, dataResources, dataflowResources, libraryResource, layout, viewports) {
+//    fb.init = function (rendererResources, widgetResources, dataResources, dataflowResources, libraryResource, layout, viewports) {
+    fb.init = function (settings) {
+        var promise = jQuery.Deferred();
+        var promises = [];
+
+        var layout = settings.layout;
         if (layout) {
             PageLayout = $('body').layout(layout);
         }
 
         dh.initialize_data_storage();
 
+        var rendererResources = settings.renderer_resources;
         if (rendererResources) {
             for (i in rendererResources) {
-                fb.query_renderer_resource(rendererResources[i]);
+                promises.push(fb.query_renderer_resource(rendererResources[i]));
             }
         }
+
+        var widgetResources = settings.widget_resources;
+        if (widgetResources) {
+            for (i in widgetResources) {
+                promises.push(fb.query_widget_resource(widgetResources[i]));
+            }
+        }
+
+        var dataResources = settings.data_resources;
         if (dataResources) {
             for (i in dataResources) {
-                fb.query_data_resource(dataResources[i]);
+                promises.push(fb.query_data_resource(dataResources[i]));
             }
         }
+
+        var dataflowResources = settings.dataflow_resources;
         if (dataflowResources) {
             for (i in dataflowResources) {
-                fb.query_dataflow_resource(dataflowResources[i]);
+                promises.push(fb.query_dataflow_resource(dataflowResources[i]));
             }
         }
+
+        var libraryResource = settings.library_resource;
         if (libraryResource) {
             library_resource = libraryResource;
         }
 
+        var viewports = settings.viewports;
         if (viewports) {
             for (i = 0; i < viewports.length; i++) {
                 dropZones[viewports[i]] = 1;
                 fb.init_dropzone(document.getElementById(viewports[i]));
             }
         }
-    }
+
+        jQuery.when.apply(this, promises).then(function() {
+            promise.resolve();
+        });
+
+        return promise;
+    };
 
     //
     // resource section
     //
 
     fb.query_renderer_resource = function (resource, list) {
+        var promise = jQuery.Deferred();
+
         jQuery.getJSON(resource, function (data) {
             renderer_resources.push(resource);
             for (i = 0; i < data.length; i++) {
@@ -779,8 +789,11 @@
             if (list) {
                 fb.update_renderer_list(list);
             }
+            promise.resolve();
         });
-    }
+
+        return promise;
+    };
 
     fb.update_renderer_list = function (list) {
         var renderer_select = document.getElementById(list);
@@ -790,22 +803,44 @@
                 renderer_select.add(new Option(i, i), null);
             }
         }
-    }
+    };
+
+    fb.query_widget_resource = function (resource, list) {
+        var promise = jQuery.Deferred();
+
+        jQuery.getJSON(resource, function (data) {
+            widget_resources.push(resource);
+            for (i = 0; i < data.length; i++) {
+                var widget = data[i];
+                widget.resource = resource;
+                available_widgets[data[i].name] = widget;
+            }
+            if (list) {
+                fb.update_widget_list(list);
+            }
+            promise.resolve();
+        });
+
+        return promise;
+    };
 
     fb.query_dataflow_resource = function (resource, list) {
-        jQuery.get(resource,
-            function(data) {
-                var res = data;
-                dataflow_resources[dataflow_resources.length] = resource;
-                for (i = 0; i < res.length; i++) {
-                    dataflows[res[i]] = dataflow_resources.length - 1;
-                }
-                if (list) {
-                    fb.update_dataflow_list(list);
-                }
+        var promise = jQuery.Deferred();
+
+        jQuery.get(resource, function(data) {
+            var res = data;
+            dataflow_resources[dataflow_resources.length] = resource;
+            for (i = 0; i < res.length; i++) {
+                dataflows[res[i]] = dataflow_resources.length - 1;
             }
-        );
-    }
+            if (list) {
+                fb.update_dataflow_list(list);
+            }
+            promise.resolve();
+        });
+
+        return promise;
+    };
 
     fb.update_dataflow_list = function (list) {
         var dataflow_select = document.getElementById(list);
@@ -815,16 +850,21 @@
                 dataflow_select.add(new Option(i, i), null);
             }
         }
-    }
+    };
 
     fb.query_data_resource = function (resource, list) {
+        var promise = jQuery.Deferred();
+
         jQuery.get(resource, function(data) {
             dh.add_repository(data);
             if (list) {
                 fb.update_datarepo_list(list);
             }
+            promise.resolve();
         });
-    }
+
+        return promise;
+    };
 
     fb.update_datarepo_list = function (list) {
         var datarepo_select = document.getElementById(list);
@@ -834,7 +874,7 @@
                 datarepo_select.add(new Option(i, i), null);
             }
         }
-    }
+    };
 
     //
     // renderers
@@ -852,13 +892,14 @@
                 fb.test_renderer(params);
             });
         }
-    }
+    };
 
     fb.load_renderer = function (renderer) {
+        var promise;
         if (loaded_renderers[renderer]) {
-            return loaded_renderers[renderer];
+            promise = loaded_renderers[renderer];
         } else {
-            var promise = jQuery.Deferred();
+            promise = jQuery.Deferred();
             loaded_renderers[renderer] = promise;
 
             var promises = [];
@@ -878,13 +919,41 @@
         }
  
         return promise;
-   }
+    };
+
+    fb.load_widget = function (widget) {
+        var promise;
+        if (loaded_widgets[widget]) {
+            promise = loaded_widgets[widget];
+        } else {
+            promise = jQuery.Deferred();
+            loaded_widgets[widget] = promise;
+
+            var promises = [];
+
+            var widget_data = available_widgets[widget];
+            var script_url = widget_data.resource + widget_data.filename;
+            jQuery.getScript(script_url).then(function() {
+                var requires = Iris.Widget[widget].about('requires');
+                for (var i=0; i<requires.length; i++) {
+                    promises.push(fb.load_library(requires[i]));
+                }
+
+                jQuery.when.apply(this, promises).then(function() {
+                    promise.resolve();
+                });
+            });
+        }
+
+        return promise;
+    };
 
     fb.load_library = function (library) {
+        var promise;
         if (loaded_libraries[library]) {
-            return loaded_libraries[library];
+            promise = loaded_libraries[library];
         } else {
-            var promise = jQuery.Deferred();
+            promise = jQuery.Deferred();
             loaded_libraries[library] = promise;
 
             var script_url = library_resource + library;
@@ -894,7 +963,7 @@
         }
 
         return promise;
-    }
+    };
 
     //
     // Data Flow Initial Version
