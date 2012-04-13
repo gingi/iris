@@ -3988,3 +3988,8 @@ function CDMI_EntityAPI(url) {
     }
 }
 
+if(typeof exports !== 'undefined') {
+    exports.CDMI_API = CDMI_API;
+    exports.CDMI_EntityAPI = CDMI_EntityAPI;
+}
+

@@ -1,6 +1,7 @@
 var target  = __dirname + '/../../root/js/iris.js';
 var documentStub = require(__dirname + '/stubs.js').documentStub;
-var jQueryStub = require(__dirname + '/stubs.js').jQueryStub;
+var jQueryStub = require('jQuery');
+var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var Iris = null;
 
 module.exports = {
@@ -9,7 +10,9 @@ module.exports = {
         var context = sandbox(target, {
             console: console,
             document: documentStub,
-            jQuery: jQueryStub
+            jQuery: jQueryStub,
+            XMLHttpRequest: xmlHttpRequest,
+            XDomainRequest: xmlHttpRequest
         });
         Iris = context.Iris;
         documentStub.Stub.clearDocument();
@@ -77,7 +80,7 @@ module.exports = {
         test.done();
     },
     
-    createWidget: function (test) {
+    createWidget2: function (test) {
         Iris.Widget.extend({
             about: { name: "KrazyGadget" }
         });
@@ -127,7 +130,6 @@ module.exports = {
         });
         test.done();
     },
-    
     rendererUsesDefaultValues: function (test) {
         var result;
         var renderer = Iris.Renderer.extend({
@@ -135,7 +137,7 @@ module.exports = {
                 defaults: { foo: "bar" }
             },
             render: function (settings) {
-                result = settings["foo"];
+                result = settings.foo;
             }
         });
         renderer.render({ foo: "goo" });
@@ -164,14 +166,64 @@ module.exports = {
         var result;
         var renderer = Iris.Renderer.extend({
             about: {
-                setDefaults: function () { return { foo: "bar" } }
+                setDefaults: function () { return { foo: "bar" }; }
             },
             render: function (settings) {
-                result = settings["foo"];
+                result = settings.foo;
             }
         });
         renderer.render();
         test.equal("bar", result, "'foo' should be set to the default");
         test.done();
+    },
+    dataHandlerShock: function (test) {
+        var dh = Iris._DataHandler;
+        test.ok(dh);
+        dh.initialize_data_storage();
+        dh.add_repository({
+            url:'http://shock.mcs.anl.gov/node',
+            id:'shock',
+            type:'shock'
+        });
+        test.ok(dh.repositories().hasOwnProperty('shock'));
+        dh.get_objects('metagenome', {
+            'data_repository': 'shock',
+            'query' : [ 'query', '1', 'type', 'metagenome', 'limit', '100' ]
+            }, function (arg) {
+                test.ok(dh.DataStore.hasOwnProperty('metagenome'));
+        }, "foo");
+        test.done();
+    },
+    dataHandlerCDMI: function (test) {
+        var api = require("../../root/js/cdmi.js").CDMI_EntityAPI;
+        var dh = Iris._DataHandler;
+        test.ok(dh);
+        dh.initialize_data_storage();
+        var types = "AlignmentTree Annotation AtomicRegulon Attribute Biomass BiomassCompound Compartment Complex Compound Contig ContigChunk ContigSequence CoregulatedSet Diagram EcNumber Experiment Family Feature Genome Identifier Media Model ModelCompartment OTU PairSet Pairing ProbeSet ProteinSequence Publication Reaction ReactionRule Reagent Requirement Role SSCell SSRow Scenario Source Subsystem SubsystemClass TaxonomicGrouping Variant Variation".split(' ');
+        for(i=0; i<types.length; i++) {
+            var type = types[i];
+            var argsWithoutId = ['type', type, 'offset', 0, 'limit', 100];
+            var lib = new api();
+            var fn   = dh.CDMI_get_function(type, argsWithoutId);
+            test.equal(typeof lib[fn], 'function');
+            var argsWihId     = ['type', type, 'offset', 0, 'limit', 100];
+            var args = dh.CDMI_get_args(type, argsWithoutId);
+            test.deepEqual(args[2], {});
+            test.equal(args.length, 3);
+        }
+        test.done();
+    },
+
+    irisRequire: function (test) {
+        var cb, err;
+        cb  = function () { test.ok(true); };
+        err = function () { test.ok(false); };
+        Iris.require("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", cb);
+        Iris.require("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", cb, err);
+        test.expect(2);
+        setTimeout(function () {
+            test.done();
+        }, 500);
     }
+
 };
