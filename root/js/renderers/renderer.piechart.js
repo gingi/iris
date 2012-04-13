@@ -35,7 +35,7 @@
                 name: "piechart",
                 author: "Tobias Paczian",
                 version: "1.0",
-                requires: ['d3.js', 'd3.geom.min.js', 'd3.layout.min.js'],
+                requires: ['d3.js', 'd3.layout.min.js'],
                 options: {
                     'width': 600,
                     'height': 600,
@@ -63,10 +63,12 @@
 
             var opt = options;
 
+/*
             var check = window.json.validate(opt, schema);
             if (!check['valid']) {
                 $.error(check['errors']);
             }
+*/
 
             var target = options.target;
             target.innerHTML = "";
