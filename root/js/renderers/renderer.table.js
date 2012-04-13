@@ -29,21 +29,18 @@
         }
     };
     Iris.Renderer.extend({
-        about: function () {
-            return {
-                name: "table",
-                author: "Tobias Paczian",
-                version: "1.0",
-                requires: ['dataTable.min.js'],
-                options: {
-                    'width': null,
-                    'height': null,
-                    'target': 'table_space',
-                    'data': 'exampleData()'
-                },
-                classes: [],
-                data_format: "list of list of 2-tuple of float"
-            }
+        about: {
+            name: "Table",
+            author: "Tobias Paczian",
+            version: "1.0",
+            requires: ['dataTable.min.js'],
+            options: {
+                'width': null,
+                'height': null,
+                'target': 'table_space',
+                'data': 'exampleData()'
+            },
+            dataFormat: "list of list of 2-tuple of float"
         },
         exampleData: function () {
             return {
@@ -57,21 +54,14 @@
                 header: ["col A", "col B", "col c"]
             };
         },
-        render: function (settings) {
+        render: function (options) {
 
-            var options = {
-                width: null,
-                height: null,
-                target: "table_space",
-                data: {}
-            };
-            $.extend(options, settings);
-
+/*
             var check = window.json.validate(options, schema);
             if (!check['valid']) {
                console.log(check['errors']);
             }
-
+*/
 
             var tdata = options.data.data;
             if (typeof(tdata) == 'string') {

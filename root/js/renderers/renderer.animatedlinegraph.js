@@ -35,21 +35,35 @@
     };
 
   var renderer = {
-        about: function() {
-            return {
-                name: "animatedlinegraph",
-                author: "Jim Thomason",
-                version: "1.0",
-                requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
-                options: {
-                    'bgColor': 'RGBColor()',
-                    'color': 'RGBColor()',
-                    'outlineColor': 'RGBColor()',
-                    'data': '[]'
-                },
-                classes: [],
-                data_format: "list of string"
-            }
+        about: {
+            name: "animatedlinegraph",
+            author: "Jim Thomason",
+            version: "1.0",
+            requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
+            options: {
+                bgColor: 'RGBColor()',
+                color: 'RGBColor()',
+                outlineColor: 'RGBColor()',
+                data: '[]'
+            },
+            defaults: {
+                width           : 400,
+                height          : 400,
+                speed           : 50,
+                animate         : 1,
+                xMin            : 0,
+                xMax            : 50,
+                yMin            : 0,
+                yMax            : 100,
+            },
+            setDefaults: function () {
+                return {
+                    bgColor         :  new RGBColor(255,255,255),
+                    outlineColor    :  new RGBColor(0,0,0),
+                };
+            },
+            classes: [],
+            dataFormat: "list of string"
         },
   exampleData : function () {
       return [
@@ -69,23 +83,7 @@
       ];
     },
 
-  render : function ( settings ) {
-
-        var options =     {
-            bgColor         :  new RGBColor(255,255,255),
-            outlineColor    :  new RGBColor(0,0,0),
-            width           : 400,
-            height          : 400,
-            speed           : 50,
-            animate         : 1,
-            xMin            : 0,
-            xMax            : 50,
-            yMin            : 0,
-            yMax            : 100,
-        };
-
-        jQuery.extend (options, settings);
-
+  render : function (options) {
         var target = options.target;
         var opt = options;
 
