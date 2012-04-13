@@ -18,18 +18,6 @@
                 format: "color",
                 required: true
             },
-            mincolor: {
-                type: 'array',
-                items: {
-                    type: 'integer'
-                }
-            },
-            maxcolor: {
-                type: 'array',
-                items: {
-                    type: 'integer'
-                }
-            },
             glyph: {
                 enum: ['circle']
             },
@@ -78,7 +66,7 @@
             name: "Scatterplot",
             author: "Andrew Olson",
             version: "1.0",
-            requires: [],
+            requires: ['RGBColor.js'],
             options: {
                 key: 'value',
                 target: 'test',
@@ -90,8 +78,6 @@
                 width: 800,
                 height: 400,
                 strokeStyle: "black",
-                minColor: [150, 150, 150],
-                maxColor: [0, 0, 0],
                 glyph: 'circle',
                 minRadius: 1,
 				maxRadius: 20,
@@ -106,6 +92,12 @@
 				scale: ['linear','linear','linear','linear'],
                 data: []
             },
+	        setDefaults: function () {
+	            return {
+	                minColor: new RGBColor(150,150,150),
+	                maxColor: new RGBColor(0,0,0)
+	            };
+	        },
         },
         exampleData: function() {
 			var sampleData = new Array();
@@ -142,10 +134,7 @@
 			if (opt.boundingBox) {
 				ctx.strokeRect(0, 0, canvas.width, canvas.height);
 			}
-            var colorRange = [
-            	opt.maxColor[0] - opt.minColor[0],
-				opt.maxColor[1] - opt.minColor[1],
-				opt.maxColor[2] - opt.minColor[2]];
+            var colorRange = opt.maxColor.subtract(opt.minColor);
 			var axes = new Array();
             for (var j = 0; j < data[0].length; j++) {
 				axes[j] = new Object();
@@ -197,10 +186,11 @@
 				doColor = true;
 				axes[opt.colorBy].toRGB = function(value) {
 					var ratio = (value - axes[opt.colorBy].min)/axes[opt.colorBy].range;
-	                var r = opt.minColor[0] + Math.floor(ratio * colorRange[0]);
-	                var g = opt.minColor[1] + Math.floor(ratio * colorRange[1]);
-	                var b = opt.minColor[2] + Math.floor(ratio * colorRange[2]);
-	                return "rgb(" + r + "," + g + "," + b + ")";
+	                var dotColor = new RGBColor(
+						opt.minColor.r + Math.floor(ratio * colorRange.r),
+	                	opt.minColor.g + Math.floor(ratio * colorRange.g),
+	                	opt.minColor.b + Math.floor(ratio * colorRange.b));
+	                return dotColor.asString();
 				}
 			}
 			var doScale = false;
