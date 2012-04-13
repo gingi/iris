@@ -2751,6 +2751,7 @@
             visThreshold    :  0.01,
             width           : 400,
             height          : 400,
+            //bounds :    new Rectangle(new Point(0,0), new Size(400,400))
         };
 
         jQuery.extend (options, settings);
@@ -2907,13 +2908,13 @@
 
         if (ctx) {
 
-            var graphBounds = renderer.getGraphBounds(canvas);
+            var graphBounds = options.bounds;
+            if (graphBounds == undefined) {
+                graphBounds = renderer.getGraphBounds(canvas);
+            }
 
             ctx.fillStyle = options.bgColor.asString();
             ctx.fillRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
-
-            ctx.strokeStyle = options.outlineColor.asString();
-            ctx.strokeRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
 
             for (var i = 0; i < options.data.length; i++) {
                 var region = options.data[i];
@@ -2936,13 +2937,17 @@
 
             };
 
-            var gutter = renderer.getYGutterBounds(canvas);
-            ctx.fillStyle = options.bgColor.asString();
-            ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
+            if (graphBounds.size.width != canvas.width || graphBounds.size.height != canvas.height) {
+                var gutter = renderer.getYGutterBounds(canvas);
+                ctx.fillStyle = options.bgColor.asString();
+                ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
 
+                canvas.addEventListener('mousemove', function(e) { renderer.mousemotion(e, options.data, renderer, canvas, graphBounds) }, false);
+                canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
+            }
 
-            canvas.addEventListener('mousemove', function(e) { renderer.mousemotion(e, options.data, renderer, canvas) }, false);
-            canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
+            ctx.strokeStyle = options.outlineColor.asString();
+            ctx.strokeRect(graphBounds.origin.x,graphBounds.origin.y,graphBounds.size.width,graphBounds.size.height);
 
         }
     },
@@ -2952,7 +2957,7 @@
         ctx.fillStyle = options.bgColor.asString();
         ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
     },
-    mousemotion : function (e, data, renderer, canvas) {
+    mousemotion : function (e, data, renderer, canvas, graphBounds) {
 
         var me = arguments.callee;
 
@@ -2963,8 +2968,6 @@
         if (e.offsetX == undefined || e.offsetY == undefined) {
             coords = new Point(e.layerX, e.layerY);
         }
-
-        var graphBounds = renderer.getGraphBounds(canvas);
 
         for (var i = 0; i < data.length; i++) {
             var region = data[i];
@@ -2981,7 +2984,7 @@
 
             if (regionRect.containsPoint(coords)) {
                 if (me.lastRect == undefined || regionRect.asString() != me.lastRect.asString()) {
-                    var thermometer = Iris.Renderer['RendererThermometer'];
+                    var thermometer = Iris.Renderer['thermometer'];
 
                     me.lastRect = regionRect;
                     thermometer.renderCanvas(
