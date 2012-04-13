@@ -50,7 +50,13 @@
         }
         return values;
     };
-    
+
+    Iris.require = function (resource, successCb, errorCb) {
+        var promise = Iris._FrameBuilder.load_library(resource);
+        promise.then(successCb, errorCb);
+        return promise;
+    }
+
     function capitalize(string) {
         if (string == null || string == "") return string;
         return string[0].toUpperCase() + string.slice(1);
@@ -333,7 +339,7 @@
 // DataHandler
 (function () {
     var dh = Iris._DataHandler = {};
-    
+
     // global variables
     var DataStore = dh.DataStore = [];
     var TypeData;
@@ -344,6 +350,18 @@
 
     // set up / reset the DataHandler, adding initial repositories
 
+    // get / set
+    dh.repository = function (name, value) {
+        if( typeof value !== 'undefined' &&
+            typeof name  !== 'undefined' ) {
+            return DataRepositories[name] = value;
+        } else if( typeof name !== 'undefined' ) {
+            return DataRepositories[name];
+        } else {
+            return DataRepositories;
+        }
+    }
+    dh.repositories = function () { return dh.repository(); }
 
     dh.initialize_data_storage = function (repositories) {
         DataStore = [];
@@ -387,42 +405,49 @@
         }
 
         if (new_data) {
-	    
-	    var repo_type = 'default';
-	    if (data_repository && data_repository.type) {
-		repo_type = data_repository.type;
-	    }
-	    
-	    switch (repo_type) {
-	    case 'default':
-		if (!new_data.length) {
-                    new_data = [{
-			'type': type,
-			'data': [new_data]
-                    }];
-		}
-		if (typeof(new_data[0]) != 'object') {
-		    var dataids = [];
-		    for (i=0; i<new_data.length; i++) {
-			dataids.push( { 'id': new_data[i] } );
-		    }
-		    new_data = [ { 'type': type, 'data': dataids } ];
-		}
-		break;
-	    case 'shock':
-		var parsed = [];
-		new_data = new_data.D;
-		for (i=0; i<new_data.length; i++) {
-		    parsed.push(new_data[i].attributes);
-		}
-		new_data = [ { 'type': type, 'data': parsed } ];
-		break;
-	    }
-
-	    for (var i = 0; i < new_data.length; i++) {
+            var data_repository_id, data_repository;
+            data_repository_id = new_data.data_repository;
+            if (typeof data_repository_id !== 'undefined') {
+                data_repository = DataRepositories[data_repository_id];
+            } else {
+                data_repository = DataRepositoryDefault;
+            }
+            var repo_type = 'default';
+            if (data_repository && data_repository.type) {
+                repo_type = data_repository.type;
+            }
+            switch (repo_type) {
+                case 'default':
+                    if (!new_data.length) {
+                        new_data = [{
+                            'type': type,
+                            'data': [new_data]
+                        }];
+                    }
+                    if (typeof(new_data[0]) != 'object') {
+                        var dataids = [];
+                        for (i=0; i<new_data.length; i++) {
+                            dataids.push( { 'id': new_data[i] } );
+                        }
+                        new_data = [ { 'type': type, 'data': dataids } ];
+                    }
+                    break;
+                case 'shock':
+                    var parsed = [];
+                    new_data = new_data.D;
+                    for (i=0; i<new_data.length; i++) {
+                        parsed.push(new_data[i].attributes);
+                    }
+                    new_data = [ { 'type': type, 'data': parsed } ];
+                    break;
+                case 'cdmi':
+                    new_data = [ { 'type': type, 'data': data } ];
+                    break; 
+            }
+            for (var i = 0; i < new_data.length; i++) {
                 if (new_data[i].type) {
-		    var type = new_data[i].type;
-		    if (!TypeData['types'][type]) {
+                    var type = new_data[i].type;
+                    if (!TypeData['types'][type]) {
                         DataStore[type] = [];
                         TypeData['type_count']++;
                         TypeData['types'][type] = 0;
@@ -451,6 +476,10 @@
             if (repository.default ||DataRepositoryDefault == null) {
                 DataRepositoryDefault = DataRepositories[repository.id];
             }
+        }
+        if(repository.hasOwnProperty('type') &&
+           repository.type === 'cdmi' ) {
+            repository.promise = Iris.require("/js/cdmi.js");
         }
     };
 
@@ -492,7 +521,7 @@
                 reader.onload = (function(theFile) {
                     return function(e) {
                         var new_data = JSON.parse(e.target.result);
-                        load_data(new_data);
+                        dh.load_data(new_data);
                         callback_function.call(null, callback_parameters);
                     };
                 })(f);
@@ -509,7 +538,7 @@
             CallbackList[type] = [
                 [callback_func, callback_params]
             ];
-            get_objects_from_repository(type, resource_params);
+            dh.get_objects_from_repository(type, resource_params);
         } else {
             if (CallbackList[type].in_progress) {
                 if (!CallbackList[type]['new_params']) {
@@ -533,24 +562,28 @@
     dh.get_objects_from_repository = function (type, resource_params) {
         var rest_params = "";
         var query_params = "";
-        var base_url = DataRepositoryDefault.url;
         var authentication = "";
+
+        var base_url = DataRepositoryDefault.url;
         if (DataRepositoryDefault.authentication) {
             authentication = "&" + DataRepositoryDefault.authentication;
         }
-	var repo_type = 'default';
-	var repo = DataRepositoryDefault;
-	if (DataRepositoryDefault.type) {
-	    repo_type = DataRepositoryDefault.type;
-	}
+        var repo_type = 'default';
+        var repo = DataRepositoryDefault;
+        if (DataRepositoryDefault.type) {
+            repo_type = DataRepositoryDefault.type;
+        }
 
         if (resource_params) {
-            if (resource_params.data_repository && DataRepositories[resource_params.data_repository]) {
-		repo = DataRepositories[resource_params.data_repository];
-		if (repo.type) {
-		    repo_type = repo.type;
-		}
+            if (resource_params.data_repository &&
+                DataRepositories[resource_params.data_repository]) {
+
+                repo = DataRepositories[resource_params.data_repository];
+                if (repo.type) {
+                    repo_type = repo.type;
+                }
                 base_url = DataRepositories[resource_params.data_repository].url;
+
                 if (DataRepositories[resource_params.data_repository].authentication) {
                     authentication = "&" + DataRepositories[resource_params.data_repository].authentication;
                 } else {
@@ -562,21 +595,75 @@
             }
             if (resource_params && resource_params.query) {
                 query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
-                for (var i = 2; i < resource_params.query.length - 1; i++) {
+                for (var i = 2; i < resource_params.query.length - 1; i+=2) {
                     query_params += "&" + resource_params.query[i] + "=" + resource_params.query[i + 1];
                 }
             }
         }
 
-	switch (repo_type) {
-	case 'default':
-            base_url += type + "/" + rest_params + query_params + authentication;
-	    break;
-	case 'shock':
-	    base_url += query_params + authentication;
-	    break;
-	}
-	    
+        switch (repo_type) {
+            case 'default':
+                base_url += type + "/" + rest_params + query_params + authentication;
+                do_ajax(base_url, type);
+                break;
+            case 'shock':
+                base_url += query_params + authentication;
+                do_ajax(base_url, type);
+                break;
+            case 'cdmi':
+                var lib  = CDMI_get_lib(type, resource_params);
+                var f    = CDMI_get_function(type, resource_params);
+                var args = CDMI_get_args(type, resource_params);
+                var cb = function (data) {
+                    dh.load_data(data, null, type);
+                };
+                lib[f].apply(this, args, cb);
+                break;
+        }
+    }
+
+    dh.CDMI_get_lib = function (type, resource_params) {
+        var config, ready;
+        config = dh.repository(type);
+        config.promise.then(function () {
+            ready = 1;
+        });
+        // FIXME - blocking until cdmi.js is loaded is really bad
+        while(!ready) { continue; }
+        return new CDMI_EntityAPI();
+    }
+
+    dh.CDMI_get_function = function (type, resource_params) {
+        var i;
+        var prefix = 'all_entities_', fn;
+        for(i=0; i<resource_params.length; i++) {
+            if(resource_params[i] === 'id') { 
+                prefix = 'get_entity_'; 
+            }
+        }
+        return prefix + type[0].toUpperCase() + type.slice(1);
+    }
+
+    dh.CDMI_get_args = function (type, resource_params) {
+        var i, key, value, final_params = {},
+            limit = 100, offset = 0;
+        for(i=0; i<resource_params.length; i+=2) {
+            key   = resource_params[i];
+            value = resource_params[i+1];
+            if(key === 'type') {
+                continue;
+            } else if(key === 'offset') {
+                offset = value;
+            } else if(key === 'limit') {
+                limit  = value;
+            } else {
+                final_params[key] = value;
+            }
+        }
+        return [offset, limit, final_params];
+    }
+
+    function do_ajax (base_url, type) { 
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
             xhr.open('GET', base_url, true);
@@ -584,11 +671,11 @@
             xhr = new XDomainRequest();
             xhr.open('GET', base_url);
         } else {
-            alert("your browser does not support CORS requests");
+            console.log("your browser does not support CORS requests");
             return;
         }
         xhr.onload = function() {
-            load_data(JSON.parse(xhr.responseText), null, type);
+            dh.load_data(JSON.parse(xhr.responseText), null, type);
             if (CallbackList[type]) {
                 CallbackList[type]['in_progress'] = 1;
                 for (i = 0; i < CallbackList[type].length; i++) {
@@ -605,12 +692,12 @@
         };
 
         xhr.onerror = function() {
-            alert("data retrieval failed");
+            console.log("data retrieval failed");
             return;
         };
 
         xhr.onabort = function() {
-            alert("data retrieval was aborted");
+            console.log("data retrieval was aborted");
             return;
         };
 
@@ -626,7 +713,7 @@
         type = type.toLowerCase();
         var old_script = document.getElementById('callback_script_' + type);
         document.getElementsByTagName('head')[0].removeChild(old_script);
-        load_data([{
+        dh.load_data([{
             'type': type,
             'data': new_data
         }]);
