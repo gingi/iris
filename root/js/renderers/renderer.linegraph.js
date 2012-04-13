@@ -1,7 +1,7 @@
 (function () {
 	var schema = {
 		properties: {
-			target: {type: 'string', required: true},
+			target: {type: 'object', required: true},
 			width: {type: 'integer'},
 			height: {type: 'integer'},
 			padding: {type: 'integer'},
