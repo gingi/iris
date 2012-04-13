@@ -110,13 +110,16 @@ module.exports = {
         test.doesNotThrow(function () {
             widget = Iris.Widget.extend();
         });
-        test.deepEqual([], widget.setup());
+        var setupReturn = widget.setup();
+        test.deepEqual([], setupReturn,
+            "setup() should have returned an empty array, but got " +
+            setupReturn);
         test.done();
     },
     
     widgetSetupReturnsArrayOrElse: function (test) {
         test.throws(function () {
-            var widget = Iris.Widget.extend({setup: "nonfunction"});
+            var widget = Iris.Widget.extend({ setup: "nonfunction" });
         });
         test.throws(function () {
             var widget = Iris.Widget.extend({ setup: function () { } });

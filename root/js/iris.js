@@ -200,12 +200,17 @@
      */
     var Widget = Iris.Widget = {};
     Widget.extend = function (spec) {
+        spec = (spec || {});
         var about;
         switch (typeof spec.about) {
             case 'function' : about = spec.about();  break;
             case 'object'   : about = spec.about;    break;
             default         : about = {};            break;
         };
+
+        if (spec.setup && typeof spec.setup !== 'function') {
+            throw "setup() must be a function returning a string.";
+        }
         
         var widget = Iris.extend({}, spec);
         Iris.extend(widget, {
@@ -235,7 +240,7 @@
                 });
                 return widgetInstance;
             },
-            setup: function (args) {},
+            setup: function (args) { return [] },
             display: function () {},
             getJSON: Iris.getJSON
         });
