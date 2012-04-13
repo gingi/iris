@@ -2,7 +2,7 @@
     var schema = {
         properties: {
             type : {
-                type : 'string',
+                type : 'object',
                 default : 'text'
             },
             name : {

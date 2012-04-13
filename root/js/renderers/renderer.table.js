@@ -2,7 +2,7 @@
     var schema = {
         properties: {
             target: {
-                type: 'string',
+                type: 'object',
                 required: true
             },
             data: {
@@ -69,7 +69,7 @@
 
             var check = window.json.validate(options, schema);
             if (!check['valid']) {
-                $.error(check['errors']);
+               console.log(check['errors']);
             }
 
 

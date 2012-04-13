@@ -2,7 +2,7 @@
     var schema = {
         properties: {
             target: {
-                type: 'string',
+                type: 'object',
                 required: true
             },
             width: {
