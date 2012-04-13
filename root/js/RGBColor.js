@@ -55,3 +55,11 @@ RGBColor.prototype.lightenBy = function(amount) {
 
     return darker;
 }
+
+RGBColor.prototype.subtract = function(c) {
+	return new RGBColor(
+		this.r - c.r,
+		this.g - c.g,
+		this.b - c.b
+	);
+}
