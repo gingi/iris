@@ -19,19 +19,30 @@
 		}
 	}
   var renderer = {
-  about : function () {
-      return {
+  about : {
       name: "heatmap",
       author: "Jim Thomason",
       version: "1.0",
       requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
       options: {
-            'bgColor': 'RGBColor()',
-		    'color': 'RGBColor()',
-    		'data': '[]'
+            bgColor: 'RGBColor()',
+		    color: 'RGBColor()',
+    		data: '[]'
     	},
+        defaults: {
+            visThreshold    :  0.01,
+            width           : 400,
+            height          : 400,
+        },
+        setDefaults: function () {
+            return {
+                bgColor         :  new RGBColor(255,255,255),
+                color           :  new RGBColor(255,0,0),
+                outlineColor    :  new RGBColor(0,0,0),
+            };
+        },
       classes: [ ],
-      data_format: "list of string" }
+      dataFormat: "list of string"
     },
   exampleData : function () {
       return [
@@ -2739,22 +2750,10 @@
 ];
     },
 
-  render : function ( settings ) {
+  render : function (options) {
 
         jQuery.get('/js/renderers/renderer.thermometer.js');
 
-
-        var options =     {
-            bgColor         :  new RGBColor(255,255,255),
-            color           :  new RGBColor(255,0,0),
-            outlineColor    :  new RGBColor(0,0,0),
-            visThreshold    :  0.01,
-            width           : 400,
-            height          : 400,
-            //bounds :    new Rectangle(new Point(0,0), new Size(400,400))
-        };
-
-        jQuery.extend (options, settings);
 
         var target = options.target;
         var opt = options;
@@ -2938,12 +2937,12 @@
             };
 
             if (graphBounds.size.width != canvas.width || graphBounds.size.height != canvas.height) {
-                var gutter = renderer.getYGutterBounds(canvas);
-                ctx.fillStyle = options.bgColor.asString();
-                ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
+            var gutter = renderer.getYGutterBounds(canvas);
+            ctx.fillStyle = options.bgColor.asString();
+            ctx.fillRect(gutter.origin.x,gutter.origin.y,gutter.size.width,gutter.size.height);
 
                 canvas.addEventListener('mousemove', function(e) { renderer.mousemotion(e, options.data, renderer, canvas, graphBounds) }, false);
-                canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
+            canvas.addEventListener('mouseout', function(e) { renderer.mouseout(e, renderer, canvas, options) }, false);
             }
 
             ctx.strokeStyle = options.outlineColor.asString();
@@ -2984,7 +2983,7 @@
 
             if (regionRect.containsPoint(coords)) {
                 if (me.lastRect == undefined || regionRect.asString() != me.lastRect.asString()) {
-                    var thermometer = Iris.Renderer['thermometer'];
+                    var thermometer = Iris.Renderer.Thermometer;
 
                     me.lastRect = regionRect;
                     thermometer.renderCanvas(

@@ -9,7 +9,6 @@ script(type="text/javascript", src="#{js}")
 script(type="text/javascript")
     $(function () {
         var renderer = Iris.Renderer["#{name}"];
-        console.log(renderer);
         renderer.render({
             target: document.getElementById("renderMe"),
             data: renderer.exampleData()
