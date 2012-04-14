@@ -1,8 +1,8 @@
 (function() {
     var widget = Iris.Widget.extend({
         about: {
-            name: "Parallel Coordinate Plot",
-            key: "pcoords",
+            title: "Parallel Coordinate Plot",
+            name: "pcoords",
             author: "Andrew Olson",
             requires: [],
             renderers: {

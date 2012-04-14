@@ -3,8 +3,8 @@
     widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "JSON Browser",
-                key: "data",
+                title: "JSON Browser",
+                name: "data",
                 author: "Andrew Olson",
                 requires: []
             };
