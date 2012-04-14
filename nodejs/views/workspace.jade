@@ -9,7 +9,7 @@ block scripts
 	script(type="text/javascript", src="/js/d3.js")
 	script(type="text/javascript", src="/js/iris.js")
 	- each widget in list
-		script(type="text/javascript", src="#{widget.filename}")
+		script(type="text/javascript", src="#{widget.js}")
 	script
 		var widgetCounter = 1;
 		var widgets = {};
@@ -29,7 +29,6 @@ block scripts
 				$(elem).removeClass('active');
 			} else {
 				var divId = addWidgetDiv();
-				console.log("WidgetID",widgetId);
 				var widget = Iris.Widget[widgetId];
 				if (!widget) {
 					throw "Cannot find widget named " + widgetId + "!";
@@ -53,4 +52,4 @@ block scripts
 			li(class="nav-header") Widgets
 			- each widget in list
 				li
-					a(href="#", onclick="displayWidget(this.parentNode, '#{widget.name}')") #{widget.name}
+					a(href="#", onclick="displayWidget(this.parentNode, '#{widget.name}')") #{widget.title}

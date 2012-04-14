@@ -1,8 +1,9 @@
 (function () {
-    widget = Iris.Widget.extend({
+     widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "RendererDemo",
+                title: "Renderer Demo",
+                name: "rendererdemo",
                 author: "Tobias Paczian",
                 requires: [ ]
             };
@@ -10,8 +11,7 @@
     });
 
     widget.setup = function () {
-	var promise = this.loadRenderer('template');
-	return [ promise ];
+    	return [ this.loadRenderer('template') ];
     }
 
     widget.display = function (div, args) {

@@ -2,8 +2,8 @@
     var widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "Manhattan Plot",
-                key: "manhattan",
+                title: "Manhattan Plot",
+                name: "manhattan",
                 author: "Andrew Olson",
                 requires: [],
                 renderers: {

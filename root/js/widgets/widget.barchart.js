@@ -2,8 +2,8 @@
     widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "Bar Chart",
-                key: "barchart",
+                title: "Bar Chart",
+                name: "barchart",
                 author: "Jer-Ming Chia",
                 requires: [ "d3.js" ],
             };
@@ -92,7 +92,7 @@
         var yAxis = d3.svg.axis().scale(y).ticks(5).orient("left");
 
         // define svg element
-        d3.select("#" + widget.targetElement + " .chart").remove();
+        d3.select("#" + element.id + " .chart").remove();
 
         svg = d3.select("#" + element.id)
             .append("svg")

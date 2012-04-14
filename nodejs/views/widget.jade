@@ -6,11 +6,12 @@ link(rel="stylesheet", href="/css/widgets.css")
 block scripts
     script(type="text/javascript", src="/js/jquery.js")
     script(type="text/javascript", src="/js/iris.js")
-    script(type="text/javascript", src="#{filename}")
+    script(type="text/javascript", src="/js/d3.js")
+    script(type="text/javascript", src="#{js}")
     script(type="text/javascript")
         $(function () {
-            Iris.Widget["#{name}"]
-                .create(document.getElementById("#{name}"));
+            var w = Iris.Widget["#{name}"];
+            w.create(document.getElementById("#{name}Div"));
         });
 
-div(id="#{name}", style="position: relative; min-width:500px")
+div(id="#{name}Div", style="position: relative; min-width:500px")

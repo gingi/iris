@@ -2,8 +2,8 @@
     widget = Iris.Widget.extend({
         about: function () {
             return {
-                name: "Comparative Map",
-                key: "chord",
+                name: "chord",
+                title: "Comparative Map",
                 author: "Jer-Ming Chia",
                 requires: [ "d3.js" ],
             };
