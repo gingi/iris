@@ -122,7 +122,7 @@ module.exports = {
     
     widgetSetupReturnsArrayOrElse: function (test) {
         test.throws(function () {
-            var widget = Iris.Widget.extend({ setup: "nonfunction" });
+            var widget = Iris.Widget.extend({setup: "nonfunction"});
         });
         test.throws(function () {
             var widget = Iris.Widget.extend({ setup: function () { } });

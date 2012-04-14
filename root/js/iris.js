@@ -201,6 +201,14 @@
         });
     };
 
+	Iris.validate = function (obj, schema) {
+		if (window.json.validate) {
+			return window.json.validate(obj, schema);
+		}
+		if (revalidator !== undefined) {
+			return revalidator.validate(obj, schema);
+		}
+	}
     /* ===================================================
      * Iris.Widget
      */
@@ -284,6 +292,16 @@
             }
             
             // validate(args);
+			if (renderer.about.schema) {
+				var check = Iris.validate(settings, renderer.about.schema);
+				if (check['valid']) {
+					console.log("automatic validation", renderer.about.name);
+					return tmpRender(settings);
+				} else {
+					console.log(check['errors']);
+					return check['errors'];
+				}
+			}
             return tmpRender(settings);
         };
         return renderer;

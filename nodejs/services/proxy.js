@@ -83,23 +83,23 @@ function widgetList(startCallback, itemCallback, listCallback) {
                 continue;
             }
             about.name.replace(' ', '');
-            widgets.push(itemCallback(file, about.name));
+            widgets.push(itemCallback(file, about));
         }
         listCallback(widgets);
     });
 }
 
-/*
 app.get('/widget', function (request, response) {
     widgetList(
         function () {
             response.writeHead(200, { 'Content-Type': 'application/json' });
         },
-        function (file, name) {
+        function (file, about) {
             return {
-                name : name,
+                name     : about.name,
+                title    : about.title,
                 filename : file,
-                example : iris.uri() + '/widget/' + name
+                example  : iris.uri() + '/widget/' + about.name
             };
         },
         function (widgets) {
@@ -107,27 +107,6 @@ app.get('/widget', function (request, response) {
             response.end();
         }
     );
-});
-*/
-
-app.get('/widget', function (request, response) {
-    var i, f, widgets = [];
-    fs.readdir(WIDGET_JS_DIR, function (err, files) {
-        response.writeHead(200, { 'Content-Type': 'application/json' });
-        for (i in files) {
-            f = files[i];
-            if (f.match(/^widget\.\w+\.js$/)) {
-                var name = files[i].split('.', 3)[1];
-                widgets[widgets.length] = {
-                    name: name,
-                    filename: files[i],
-                    example: iris.uri() + "/widget/" + name
-                };
-            }
-        }
-        response.write(JSON.stringify(widgets));
-        response.end();
-    });
 });
 
 function aboutModule(filename, key) {
@@ -137,7 +116,6 @@ function aboutModule(filename, key) {
 }
 
 app.get('/widget/:widget', function (req, res) {
-    // TODO: Should this be configured at a more stateful level, e.g., session?
     var layout = req.query.layout !== null && req.query.layout == 'on';
     var widget;
     if (req.params.widget.match(/[^\s\w\d\.:\/]/)) {
@@ -174,10 +152,9 @@ app.get('/widget/:widget', function (req, res) {
                 fileNotFound(res);
             } else {
                 routes.widget(req, res, {
-                    title: "widget",
-                    widget: widget.name,
-                    filename: filename,
-                    name: name,
+                    title: about.title,
+                    js: httpPath,
+                    name: about.name,
                     requires : requires
                 });
             }
@@ -256,11 +233,12 @@ app.get('/renderer/:renderer', function (req, res) {
 app.get('/workspace', function (req, res) {
     widgetList(
         function () {},
-        function (file, name) {
+        function (file, about) {
             return {
-                name : name,
-                filename : WIDGET_HTTPPATH + "/" + file,
-                example : iris.uri() + '/widget/' + name
+                name    : about.name,
+                title   : about.title,
+                js      : WIDGET_HTTPPATH + "/" + file,
+                example : iris.uri() + '/widget/' + about.name
             };
         },
         function (widgets) {
