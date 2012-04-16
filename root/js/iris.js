@@ -204,9 +204,12 @@
 	Iris.validate = function (obj, schema) {
 		if (window.json.validate) {
 			return window.json.validate(obj, schema);
-		}
-		if (revalidator !== undefined) {
-			return revalidator.validate(obj, schema);
+		} else {
+			if (revalidator !== undefined) {
+				return revalidator.validate(obj, schema);
+			} else {
+				return {valid: false, errors: ['validate function not defined']};
+			}
 		}
 	}
     /* ===================================================
