@@ -23,7 +23,9 @@
                 target: 'test',
                 data: 'exampleData()'
                 },
-            dataFormat: "list of string"
+                classes: [],
+                dataFormat: "list of string"
+            };
         },
         exampleData: function() {
             var json = {

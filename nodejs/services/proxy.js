@@ -21,8 +21,7 @@ function serverIris() {
             extend: function (spec) {
                 about = typeof spec.about === 'function'
                     ? spec.about() : spec.about;
-                var key = (about.key || about.name.toLowerCase());
-                registrants[key] = about;
+                registrants[about.name] = about;
                 return {};
             }
         };
@@ -141,6 +140,7 @@ app.get('/widget/:widget', function (req, res) {
         var basename = 'widget.' + req.params.widget + '.js';
         var filename = WIDGET_JS_DIR + '/' + basename;
         var httpPath = WIDGET_HTTPPATH + '/' + basename;
+        console.log(req.params.widget);
         var about = aboutModule(filename, req.params.widget);
         var name = req.params.widget, requires = [];
         if (about &&
@@ -151,6 +151,7 @@ app.get('/widget/:widget', function (req, res) {
             if (!exists) {
                 fileNotFound(res);
             } else {
+                console.log("about", about);
                 routes.widget(req, res, {
                     title: about.title,
                     js: httpPath,
@@ -260,10 +261,14 @@ for (var serviceName in iris.endpoints) {
     var endpoint = iris.endpoints[serviceName];
     for (var p = 0; p < endpoint.paths.length; p++) {
         var endpointPath = endpoint.paths[p];
-        app.get(endpointPath + "*", function (req, res) {
-            iris.httpGET(res, serviceName, req.url)
-        })
+        app.get(endpointPath + "*", proxyPath(serviceName));
     }
+}
+
+function proxyPath(serviceName) {
+    return function (request, response) {
+        iris.httpGET(response, serviceName, request.url);
+    };
 }
 
 iris.startService();

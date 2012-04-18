@@ -1,6 +1,5 @@
 var target  = __dirname + '/../../root/js/iris.js';
 var documentStub = require(__dirname + '/stubs.js').documentStub;
-var jQueryStub = require('jQuery');
 var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var Iris = null;
 
@@ -10,7 +9,7 @@ module.exports = {
         var context = sandbox(target, {
             console: console,
             document: documentStub,
-            jQuery: jQueryStub,
+            jQuery: require('jQuery'),
             XMLHttpRequest: xmlHttpRequest,
             XDomainRequest: xmlHttpRequest
         });
@@ -85,7 +84,7 @@ module.exports = {
             about: { name: "KrazyGadget" }
         });
         var widget = Iris.Widget.KrazyGadget.create();
-        test.equals("KrazyGadget", widget.about("name"));
+        test.equals("KrazyGadget", widget.about.name);
         test.done();
     },
     
@@ -130,6 +129,7 @@ module.exports = {
         });
         test.done();
     },
+    
     rendererUsesDefaultValues: function (test) {
         var result;
         var renderer = Iris.Renderer.extend({
@@ -137,7 +137,7 @@ module.exports = {
                 defaults: { foo: "bar" }
             },
             render: function (settings) {
-                result = settings.foo;
+                result = settings["foo"];
             }
         });
         renderer.render({ foo: "goo" });
