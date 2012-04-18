@@ -210,6 +210,7 @@
     };
 
     exports.httpGET = function (response, serviceName, path) {
+        console.log(serviceName, endpoints[serviceName].port, path);
         http.get({
             port: endpoints[serviceName].port,
             path: path

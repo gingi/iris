@@ -3988,8 +3988,12 @@ function CDMI_EntityAPI(url) {
     }
 }
 
-if(typeof exports !== 'undefined') {
+if (typeof exports !== 'undefined') {
     exports.CDMI_API = CDMI_API;
     exports.CDMI_EntityAPI = CDMI_EntityAPI;
+    // Allow override of XHR for Node functionality
+    exports.setXhr = function (xhr) {
+        XMLHttpRequest = xhr;
+    }
 }
 

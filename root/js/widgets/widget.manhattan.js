@@ -53,17 +53,17 @@
         ctxi = canvasi.getContext('2d');
 
         var study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
-        var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
+        var species = (args.hasOwnProperty('species')) ? args['species'] : 'athaliana';
 
         // fetch the list of chromosomes and their lengths
 		totalLen = 0;
-        widget.getJSON("/species/" + species + "/chromosomes", function(json) {
-            for (var i = 0; i < json.length; i++) {
-                chrLengths[i] = json[i][1];
-                totalLen += json[i][1];
+        widget.getJSON("/species/" + species + "/chromosomes", function (json) {
+            for (var chr in json) {
+                chrLengths[chr] = json[chr];
+                totalLen += parseInt(json[chr]);
             }
             // fetch the max score for this study
-            widget.getJSON("/gwas/" + study + "/maxscore", function(json) {
+            widget.getJSON("/gwas/" + study + "/maxscore", function (json) {
                 globalMax = Math.ceil(json[0][0]);
                 drawManhattan(study);
             });
@@ -84,9 +84,9 @@
 
         var offset = XGUTTER;
         var ysize = ctx.canvas.height;
-        for (var i = 0; i < chrLengths.length; i++) {
-            var xsize = (ctx.canvas.width - XGUTTER) * (chrLengths[i] / totalLen) - XGUTTER;
-            doScatter(ctx, study, i + 1, offset, xsize, ysize, chrLengths[i]);
+        for (var chr in chrLengths) {
+            var xsize = (ctx.canvas.width - XGUTTER) * (chrLengths[chr] / totalLen) - XGUTTER;
+            doScatter(ctx, study, chr, offset, xsize, ysize, chrLengths[chr]);
             offset += xsize + XGUTTER;
         }
     }
@@ -134,7 +134,7 @@
 
     function doScatter(ctx, study, chr, offset, xsize, ysize, chrLen) {
         var path = "/gwas/" + study + "/scatter" + "?chr=" + chr + "&b1=" + Math.floor(xsize / sc) + "&b2=" + Math.floor(ysize / sc) + "&x1=" + chrLen + "&x2=" + globalMax;
-        widget.getJSON(path, function(json) {
+        widget.getJSON(path, function (json) {
             var xrange = chrLen;
             var yrange = globalMax;
             var xfactor = xsize / xrange;

@@ -196,7 +196,7 @@
             data: [],
             success: callback,
             error: function (event, request, settings) {
-                console.warn("AJAX error! ", event, request, settings);
+                console.warn("AJAX error on URI [" + path + "]", request, settings);
             }
         });
     };
@@ -243,9 +243,6 @@
             },
             create: function (element, args) {
                 var widgetInstance = {
-                    about: function (name) {
-                        return about[name];
-                    }
                 };
                 Iris.extend(widgetInstance, widget);
                 var promises = widgetInstance.setup(args);
