@@ -14,18 +14,16 @@
     Iris.Renderer.extend({
 
         about: {
-                name: "jsonpretty",
-                author: "Andrew Olson,Jer-Ming Chia",
-                version: "1.0",
-                requires: [],
-                options: {
+            name: "jsonpretty",
+            author: "Andrew Olson,Jer-Ming Chia",
+            version: "1.0",
+            requires: [],
+            options: {
                 key: 'value',
                 target: 'test',
                 data: 'exampleData()'
-                },
-                classes: [],
-                dataFormat: "list of string"
-            };
+            },
+            dataFormat: "list of string"
         },
         exampleData: function() {
             var json = {
