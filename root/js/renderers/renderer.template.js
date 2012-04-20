@@ -7,11 +7,8 @@
             },
             data: {
                 required: true,
-                type: 'array',
-                items: {
-                    type: 'string'
-                }
-            }
+                type: 'string',
+			}
         }
     };
     Iris.Renderer.extend({
@@ -21,17 +18,12 @@
             version: "1.0",
             requires: [],
             defaults: {
-                key: "value",
-                target: "test"
-            },
-            setDefaults: function () {
-                // Callback for defaults loaded at render time.
-                return {};
-            },
-            dataFormat: "list of string"
+                fontname: "arial",
+				fontsize: "10pt"
+            }
         },
         exampleData: function () {
-            return ["A", "B", "C"];
+            return "Hello World";
         },
         render: function (options) {
 
@@ -44,14 +36,7 @@
                 $.error(check['errors']);
             }
 
-            target.innerHTML = "";
-
-            var html = "";
-            var data = options.data;
-            for (i = 0; i < data.length; i++) {
-                html += data[i];
-            }
-            target.innerHTML = html;
+            target.innerHTML = "<p style='font-name: "+options.fontname+"; font-size: "+options.fontsize+";'>"+options.data+"</p>";
         }
     });
 }).call(this);
