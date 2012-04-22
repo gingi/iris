@@ -9,6 +9,13 @@ function Rectangle(origin,size) {
     this.size = size;
 }
 
+Rectangle.invert = function() {
+    return new Rectangle(
+        this.height,
+        this.width
+    );
+}
+
 Rectangle.fromString = function (string) {
     var results;
     if (results = string.match(/{{(.+),\s*(.+)},\s*{(.+),\s*(.+)}}/)) {
