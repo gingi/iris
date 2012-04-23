@@ -39,7 +39,7 @@
             name: "animatedlinegraph",
             author: "Jim Thomason",
             version: "1.0",
-            requires: ['rectangle.js', 'point.js', 'size.js', 'RGBColor.js'],
+            requires: ['geometry/rectangle.js', 'geometry/point.js', 'geometry/size.js', 'RGBColor.js'],
             options: {
                 bgColor: 'RGBColor()',
                 color: 'RGBColor()',
