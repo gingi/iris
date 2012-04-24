@@ -156,7 +156,8 @@ app.get('/widget/:widget', function (req, res) {
                     title: about.title,
                     js: httpPath,
                     name: about.name,
-                    requires : requires
+                    requires: requires,
+                    layout: layout
                 });
             }
         });
