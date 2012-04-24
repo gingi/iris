@@ -4,7 +4,7 @@
             name: "network",
             author: "Paul and Jer-Ming",
             version: "1.0",
-            requires: ['d3.js'],
+            requires: ['d3.v2.js'],
             options: {
                 'key': 'value',
                 'target': 'test',
@@ -54,7 +54,16 @@
             var svg = d3.select(target)
                 .append('svg:svg')
                 .attr('width', options.width)
-                .attr('height', options.height);
+                .attr('height', options.height)
+                .attr('pointer-events', 'all')
+                .append('svg:g')
+                .call(d3.behavior.zoom().on('zoom', zoom))
+                .append('svg:g');
+
+            svg.append('svg:rect')
+                .attr('width', options.width)
+                .attr('height', options.height)
+                .attr('fill', 'white');
 
             // lines go first so they are on bottom of svg (lower z-index in html lingo)
             svg.selectAll('line')
@@ -133,8 +142,16 @@
                 'user-select'        : 'none'
             });
 
+            function zoom() {
+                console.log("zoom/pan", d3.event.translate, d3.event.scale);
+                svg.attr("transform",
+                         "translate(" + d3.event.translate + ")"
+                         + " scale(" + d3.event.scale + ")");
+            }
+
             var padding = 10;
             function drag() {
+                console.log('drag', d3.event.x, d3.event.y);
                 d3.select(this)
                     .attr('transform', function(d) {
                         d.x = Math.max(padding, Math.min(options.width  - padding, d3.event.x));
@@ -153,6 +170,8 @@
                         // translate will move the node
                         return "translate(" + d.x + "," + d.y + ")";
                     });
+
+                return false;
             }
         },
 
