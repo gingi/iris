@@ -9,7 +9,21 @@ function Rectangle(origin,size) {
     this.size = size;
 }
 
-Rectangle.fromString = function (string) {
+Rectangle.prototype.invert = function() {
+    return new Rectangle(
+        this.height,
+        this.width
+    );
+}
+
+Rectangle.prototype.insetRect = function(dx,dy) {
+    return new Rectangle(
+        new Point(this.origin.x + dx / 2, this.origin.y + dy / 2),
+        new Size(this.size.width - dx, this.size.height - dy)
+    );
+}
+
+Rectangle.prototype.fromString = function (string) {
     var results;
     if (results = string.match(/{{(.+),\s*(.+)},\s*{(.+),\s*(.+)}}/)) {
         return new Rectangle(
