@@ -171,21 +171,21 @@
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
-    jQuery.ajax({
-        url: "/service",
-        dataType: 'json',
-        async: false,
-        success: function (service) {
-            dataServiceURI = service.dataServiceURI;
-        }
-    });
+//     jQuery.ajax({
+//         url: "http://ui-dev.kbase.us/service",
+//         dataType: 'json',
+//         async: false,
+//         success: function (service) {
+//             dataServiceURI = service.dataServiceURI;
+//         }
+//     });
 
-    jQuery.getJSON("/service/list", function (services) {
-        for (var i = 0; i < services.length; i++) {
-            var service = services[i];
-            services[service.path] = service.uri;
-        }
-    });
+//     jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
+//         for (var i = 0; i < services.length; i++) {
+//             var service = services[i];
+//             services[service.path] = service.uri;
+//         }
+//     });
     
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
@@ -196,7 +196,7 @@
             data: [],
             success: callback,
             error: function (event, request, settings) {
-                console.warn("AJAX error on URI [" + path + "]", request, settings);
+                console.warn("AJAX error! ", event, request, settings);
             }
         });
     };
@@ -243,6 +243,9 @@
             },
             create: function (element, args) {
                 var widgetInstance = {
+                    about: function (name) {
+                        return about[name];
+                    }
                 };
                 Iris.extend(widgetInstance, widget);
                 var promises = widgetInstance.setup(args);
@@ -274,9 +277,8 @@
         spec = (spec || {});
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
-        if (renderer.about["name"]) {
-            var name = Iris.normalizeName(renderer.about["name"]);
-            Iris.Renderer[name] = renderer;
+        if (renderer.about.name) {
+            Iris.Renderer[renderer.about.name] = renderer;
         }
 
         var tmpRender = renderer.render;
@@ -325,33 +327,6 @@
         Iris._FrameBuilder.init_dragobject(arg1, arg2, arg3);
     };
 
-    /* ===================================================
-     * Iris.TestData
-     */
-    Iris.TestData = [
-        [
-            [[0, 0], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
-            [[0, 0], [1, 0], [2, 5], [3, 0], [4, 5], [5, 0], [6, 5]],
-            [[0, 0], [1, 0], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
-        ],
-    
-        {
-            header: ["firstname", "lastname", "email"],
-            data: [
-                ["Peter", "Lustig", "plustig@you.wish"],
-                ["Hans", "Meier", "hmeier@google.com"],
-                ["Stevie", "Wonder", "stevie.wonder@mohnbroetchen.de"],
-                ["Mahatma", "Ghandi", "mghandi@nirvana.org"]
-            ]
-        },
-
-        [
-            ["apples", 20],
-            ["oranges", 30],
-            ["pineapples", 40],
-            ["pears", 5]
-        ]
-    ];
 }).call(this);
 
 // DataHandler
@@ -359,10 +334,10 @@
     var dh = Iris._DataHandler = {};
 
     // global variables
-    var DataStore = dh.DataStore = [];
+    dh.DataStore = [];
+    dh.DataRepositories = [];
     var TypeData;
     var CallbackList;
-    var DataRepositories;
     var DataRepositoriesCount;
     var DataRepositoryDefault;
 
@@ -372,32 +347,31 @@
     dh.repository = function (name, value) {
         if( typeof value !== 'undefined' &&
             typeof name  !== 'undefined' ) {
-            return DataRepositories[name] = value;
+            return dh.DataRepositories[name] = value;
         } else if( typeof name !== 'undefined' ) {
-            return DataRepositories[name];
+            return dh.DataRepositories[name];
         } else {
-            return DataRepositories;
+            return dh.DataRepositories;
         }
     }
     dh.repositories = function () { return dh.repository(); }
 
     dh.initialize_data_storage = function (repositories) {
-        DataStore = [];
+        dh.DataStore = [];
         TypeData = [];
         TypeData['types'] = [];
         TypeData['type_count'] = 0;
         CallbackList = [];
-        DataRepositories = [];
+        dh.DataRepositories = [];
         DataRepositoriesCount = 0;
         DataRepositoryDefault = null;
 
         if (repositories) {
             for (var i = 0; i < repositories.length; i++) {
-                DataRepositories[repositories[i].id] = repositories[i];
+                dh.DataRepositories[repositories[i].id] = repositories[i];
                 DataRepositoriesCount++;
                 if (DataRepositoriesCount == 1) {
-                    DataRepositoryDefault =
-                        DataRepositories[repositories[i].id];
+                    DataRepositoryDefault = dh.DataRepositories[repositories[i].id];
                 }
             }
         }
@@ -408,7 +382,7 @@
     // given a JSON data structure, loads it into the DataStore
 
 
-    dh.load_data = function (id_or_data, no_clear, type) {
+    dh.load_data = function (id_or_data, no_clear, type, repo_type) {
         var new_data;
         if (typeof(id_or_data) == 'string') {
             var elem = document.getElementById(id);
@@ -423,17 +397,6 @@
         }
 
         if (new_data) {
-            var data_repository_id, data_repository;
-            data_repository_id = new_data.data_repository;
-            if (typeof data_repository_id !== 'undefined') {
-                data_repository = DataRepositories[data_repository_id];
-            } else {
-                data_repository = DataRepositoryDefault;
-            }
-            var repo_type = 'default';
-            if (data_repository && data_repository.type) {
-                repo_type = data_repository.type;
-            }
             switch (repo_type) {
                 case 'default':
                     if (!new_data.length) {
@@ -459,14 +422,18 @@
                     new_data = [ { 'type': type, 'data': parsed } ];
                     break;
                 case 'cdmi':
-                    new_data = [ { 'type': type, 'data': data } ];
+		var parsed = [];
+		for (i in new_data) {
+		  parsed.push(new_data[i]);
+		}
+                    new_data = [ { 'type': type, 'data': parsed } ];
                     break; 
             }
             for (var i = 0; i < new_data.length; i++) {
                 if (new_data[i].type) {
                     var type = new_data[i].type;
                     if (!TypeData['types'][type]) {
-                        DataStore[type] = [];
+                        dh.DataStore[type] = [];
                         TypeData['type_count']++;
                         TypeData['types'][type] = 0;
                         if (new_data[i].type_description) {
@@ -474,214 +441,191 @@
                         }
                     }
                     for (var h = 0; h < new_data[i].data.length; h++) {
-                        if (!DataStore[type][new_data[i].data[h].id]) {
+                        if (!dh.DataStore[type][new_data[i].data[h].id]) {
                             TypeData['types'][type]++;
                         }
-                        DataStore[type][new_data[i].data[h].id] = new_data[i].data[h];
+                        dh.DataStore[type][new_data[i].data[h].id] = new_data[i].data[h];
                     }
                 }
             }
         }
     };
 
-    // adds / replaces a repository in the DataRepositories list
+    // adds / replaces a repository in the dh.DataRepositories list
 
 
     dh.add_repository = function (repository) {
-        if (repository && repository.id) {
-            DataRepositories[repository.id] = repository;
-            DataRepositoriesCount++;
-            if (repository.default ||DataRepositoryDefault == null) {
-                DataRepositoryDefault = DataRepositories[repository.id];
-            }
-        }
-        if(repository.hasOwnProperty('type') &&
-           repository.type === 'cdmi' ) {
-            repository.promise = Iris.require("/js/cdmi.js");
-        }
+      if (repository && repository.id) {
+	dh.DataRepositories[repository.id] = repository;
+	DataRepositoriesCount++;
+	if (repository.default ||DataRepositoryDefault == null) {
+	  DataRepositoryDefault = dh.DataRepositories[repository.id];
+	}
+      }
+      if (repository.hasOwnProperty('type') && repository.type === 'cdmi' ) {
+	Iris.require("cdmi.js").then( function () { 
+	    var API = {
+	      "API": new CDMI_API(repository.url),
+	      "EntityAPI": new CDMI_EntityAPI(repository.url)
+	    };
+	    var apiName, api, fn, API_functions = {
+	      "API": [],
+	      "EntityAPI": []
+	    },
+	      fns = [];
+	      for (apiName in API) {
+		if (API.hasOwnProperty(apiName)) {
+		  api = API[apiName];
+		  for (fn in api) {
+		    if (api.hasOwnProperty(fn) && typeof api[fn] === 'function' && !fn.match(/_async/)) {
+		      API_functions[fn] = apiName;
+		      fns.push(fn);
+		    }
+		  }
+		}
+	      }
+	      repository.api = API;
+	      repository.api_functions = API_functions;
+	      repository.resources = fns;
+	  });
+      }
     };
-
-    // removes a repository from the DataRepositories list
-
-
+    
+    // removes a repository from the dh.DataRepositories list
+    
+    
     dh.remove_repository = function (id) {
-        if (id && DataRepositories[id]) {
-            DataRepositories[id] = null;
-            DataRepositoriesCount--;
-            if (DataRepositoryCount == 1) {
-                for (var i in DataRepositories) {
-                    DataRepositoryDefault = DataRepositories[i];
-                }
-            }
-        }
+      if (id && dh.DataRepositories[id]) {
+	dh.DataRepositories[id] = null;
+	DataRepositoriesCount--;
+	if (DataRepositoryCount == 1) {
+	  for (var i in dh.DataRepositories) {
+	    DataRepositoryDefault = dh.DataRepositories[i];
+	  }
+	}
+      }
     };
-
+    
     // sets the default repository
-
-
+    
+    
     dh.default_repository = function (id) {
-        if (id && DataRepositories[id]) {
-            DataRepositoryDefault = DataRepositories[id];
-        }
+      if (id && dh.DataRepositories[id]) {
+	DataRepositoryDefault = dh.DataRepositories[id];
+      }
+      return DataRepositoryDefault;
     };
-
+    
     // event handler for an input type file element, which interprets the selected file(s)
     // as JSON data and loads them into the DataStore
-
-
+    
+    
     dh.file_upload = function (evt, callback_function, callback_parameters) {
-        var files = evt.target.files;
-
-        if (files.length) {
-            for (var i = 0; i < files.length; i++) {
-                var f = files[i];
-                var reader = new FileReader();
-                reader.onload = (function(theFile) {
-                    return function(e) {
-                        var new_data = JSON.parse(e.target.result);
-                        dh.load_data(new_data);
-                        callback_function.call(null, callback_parameters);
-                    };
-                })(f);
-                reader.readAsText(f);
-            }
-        }
+      var files = evt.target.files;
+      
+      if (files.length) {
+	for (var i = 0; i < files.length; i++) {
+	  var f = files[i];
+	  var reader = new FileReader();
+	  reader.onload = (function(theFile) {
+	      return function(e) {
+		var new_data = JSON.parse(e.target.result);
+		dh.load_data(new_data);
+		callback_function.call(null, callback_parameters);
+	      };
+	    })(f);
+	  reader.readAsText(f);
+	}
+      }
     };
-
+    
     // client side data requestor
     // initiates data retrieval from a resource, saving callback functions /
     // paramters
     dh.get_objects = function (type, resource_params, callback_func, callback_params) {
-        if (!CallbackList[type]) {
-            CallbackList[type] = [
-                [callback_func, callback_params]
-            ];
-            dh.get_objects_from_repository(type, resource_params);
-        } else {
-            if (CallbackList[type].in_progress) {
-                if (!CallbackList[type]['new_params']) {
-                    CallbackList[type]['new_params'] = [type, resource_params];
-                    CallbackList[type]['new_list'] = [];
-                }
-                CallbackList[type].new_list[CallbackList[type].new_list.length] = [callback_func, callback_params];
-            } else {
-                CallbackList[type][CallbackList[type].length] = [callback_func, callback_params];
-            }
-        }
-        return 0;
+      if (!CallbackList[type]) {
+	CallbackList[type] = [ [callback_func, callback_params] ];
+	dh.get_objects_from_repository(type, resource_params);
+      } else {
+	if (CallbackList[type].in_progress) {
+	  if (!CallbackList[type]['new_params']) {
+	    CallbackList[type]['new_params'] = [type, resource_params];
+	    CallbackList[type]['new_list'] = [];
+	  }
+	  CallbackList[type].new_list[CallbackList[type].new_list.length] = [callback_func, callback_params];
+	} else {
+	  CallbackList[type][CallbackList[type].length] = [callback_func, callback_params];
+	}
+      }
+      return 0;
     };
-
+    
     // data retrieval function triggered by get_objects
     // queries the default DataRepository if none is defined in resource_params
     // sets requested query and REST parameters as well as authentication and initiates the asynchronous call
     // the data server needs to support CORS
-
-
+    
+    
     dh.get_objects_from_repository = function (type, resource_params) {
-        var rest_params = "";
-        var query_params = "";
-        var authentication = "";
-
-        var base_url = DataRepositoryDefault.url;
-        if (DataRepositoryDefault.authentication) {
-            authentication = "&" + DataRepositoryDefault.authentication;
-        }
-        var repo_type = 'default';
-        var repo = DataRepositoryDefault;
-        if (DataRepositoryDefault.type) {
-            repo_type = DataRepositoryDefault.type;
-        }
-
-        if (resource_params) {
-            if (resource_params.data_repository &&
-                DataRepositories[resource_params.data_repository]) {
-
-                repo = DataRepositories[resource_params.data_repository];
-                if (repo.type) {
-                    repo_type = repo.type;
-                }
-                base_url = DataRepositories[resource_params.data_repository].url;
-
-                if (DataRepositories[resource_params.data_repository].authentication) {
-                    authentication = "&" + DataRepositories[resource_params.data_repository].authentication;
-                } else {
-                    authentication = "";
-                }
-            }
-            if (resource_params.rest) {
-                rest_params += resource_params.rest.join("/");
-            }
-            if (resource_params && resource_params.query) {
-                query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
-                for (var i = 2; i < resource_params.query.length - 1; i+=2) {
-                    query_params += "&" + resource_params.query[i] + "=" + resource_params.query[i + 1];
-                }
-            }
-        }
-
-        switch (repo_type) {
-            case 'default':
-                base_url += type + "/" + rest_params + query_params + authentication;
-                do_ajax(base_url, type);
-                break;
-            case 'shock':
-                base_url += query_params + authentication;
-                do_ajax(base_url, type);
-                break;
-            case 'cdmi':
-                var lib  = CDMI_get_lib(type, resource_params);
-                var f    = CDMI_get_function(type, resource_params);
-                var args = CDMI_get_args(type, resource_params);
-                var cb = function (data) {
-                    dh.load_data(data, null, type);
-                };
-                lib[f].apply(this, args, cb);
-                break;
-        }
+      var rest_params = "";
+      var query_params = "";
+      var authentication = "";
+      
+      var base_url = DataRepositoryDefault.url;
+      if (DataRepositoryDefault.authentication) {
+	authentication = "&" + DataRepositoryDefault.authentication;
+      }
+      var repo_type = 'default';
+      var repo = DataRepositoryDefault;
+      if (DataRepositoryDefault.type) {
+	repo_type = DataRepositoryDefault.type;
+      }
+      
+      if (resource_params) {
+	if (resource_params.data_repository && dh.DataRepositories[resource_params.data_repository]) {
+	  
+	  repo = dh.DataRepositories[resource_params.data_repository];
+	  if (repo.type) {
+	    repo_type = repo.type;
+	  }
+	  base_url = dh.DataRepositories[resource_params.data_repository].url;
+	  
+	  if (dh.DataRepositories[resource_params.data_repository].authentication) {
+	    authentication = "&" + dh.DataRepositories[resource_params.data_repository].authentication;
+	  } else {
+	    authentication = "";
+	  }
+	}
+	if (resource_params.rest) {
+	  rest_params += resource_params.rest.join("/");
+	}
+	if (resource_params && resource_params.query) {
+	  query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
+	  for (var i = 2; i < resource_params.query.length - 1; i+=2) {
+	    query_params += "&" + resource_params.query[i] + "=" + resource_params.query[i + 1];
+	  }
+	}
+      }
+      
+      switch (repo_type) {
+        case 'default':
+          base_url += type + "/" + rest_params + query_params + authentication;
+          do_ajax(base_url, type, repo_type);
+          break;
+        case 'shock':
+          base_url += query_params + authentication;
+          do_ajax(base_url, type, repo_type);
+          break;
+        case 'cdmi':
+          var apiName = repo.api_functions[type];
+          var api = repo.api[apiName];
+	var data = api[type].apply(this, [0, 100, resource_params.query]);
+	dh.load_data(data, null, type, repo_type);
+	break;
+      }
     }
 
-    dh.CDMI_get_lib = function (type, resource_params) {
-        var config, ready;
-        config = dh.repository(type);
-        config.promise.then(function () {
-            ready = 1;
-        });
-        // FIXME - blocking until cdmi.js is loaded is really bad
-        while(!ready) { continue; }
-        return new CDMI_EntityAPI();
-    }
-
-    dh.CDMI_get_function = function (type, resource_params) {
-        var i;
-        var prefix = 'all_entities_', fn;
-        for(i=0; i<resource_params.length; i++) {
-            if(resource_params[i] === 'id') { 
-                prefix = 'get_entity_'; 
-            }
-        }
-        return prefix + type[0].toUpperCase() + type.slice(1);
-    }
-
-    dh.CDMI_get_args = function (type, resource_params) {
-        var i, key, value, final_params = {},
-            limit = 100, offset = 0;
-        for(i=0; i<resource_params.length; i+=2) {
-            key   = resource_params[i];
-            value = resource_params[i+1];
-            if(key === 'type') {
-                continue;
-            } else if(key === 'offset') {
-                offset = value;
-            } else if(key === 'limit') {
-                limit  = value;
-            } else {
-                final_params[key] = value;
-            }
-        }
-        return [offset, limit, final_params];
-    }
-
-    function do_ajax (base_url, type) { 
+    function do_ajax (base_url, type, repo_type) { 
         var xhr = new XMLHttpRequest();
         if ("withCredentials" in xhr) {
             xhr.open('GET', base_url, true);
@@ -693,7 +637,7 @@
             return;
         }
         xhr.onload = function() {
-            dh.load_data(JSON.parse(xhr.responseText), null, type);
+	  dh.load_data(JSON.parse(xhr.responseText), null, type, repo_type);
             if (CallbackList[type]) {
                 CallbackList[type]['in_progress'] = 1;
                 for (i = 0; i < CallbackList[type].length; i++) {
@@ -761,8 +705,8 @@
 
     dh.delete_object = function (type, id) {
         type = type.toLowerCase();
-        if (DataStore[type][id]) {
-            DataStore[type][id] = null;
+        if (dh.DataStore[type][id]) {
+            dh.DataStore[type][id] = null;
             TypeData['types'][type]--;
             if (TypeData['types'][type] == 0) {
                 delete_object_type(type);
@@ -788,7 +732,7 @@
         if (TypeData['types'][type]) {
             TypeData['types'][type] = null;
             TypeData['type_count']--;
-            DataStore[type] = null;
+            dh.DataStore[type] = null;
         }
     };
 }).call(this); // END DataHandler
@@ -800,24 +744,25 @@
 
     var renderer_resources     = [];
     Iris._FrameBuilder.renderer_resources = renderer_resources;
-
     var available_renderers    = {};
     var loaded_renderers       = {};
     Iris._FrameBuilder.available_renderers = available_renderers;
 
     var widget_resources     = [];
     Iris._FrameBuilder.widget_resources = widget_resources;
-
     var available_widgets    = {};
     var loaded_widgets       = {};
     Iris._FrameBuilder.available_widgets = available_widgets;
 
-    var loaded_libraries       = {};
-
     var dataflow_resources     = [];
-    var dataflows              = [];
+    Iris._FrameBuilder.dataflow_resources = dataflow_resources;
+    var available_dataflows    = {};
+    var loaded_dataflows       = [];
+    Iris._FrameBuilder.available_dataflows = available_dataflows;
+    fb.dataflows = {};
 
     var library_resource = null;
+    var loaded_libraries       = {};
 
     var PageLayout;
 
@@ -829,8 +774,6 @@
     // initialization
     //
 
-
-//    fb.init = function (rendererResources, widgetResources, dataResources, dataflowResources, libraryResource, layout, viewports) {
     fb.init = function (settings) {
         var promise = jQuery.Deferred();
         var promises = [];
@@ -900,9 +843,11 @@
         jQuery.getJSON(resource, function (data) {
             renderer_resources.push(resource);
             for (i = 0; i < data.length; i++) {
-                var rend = data[i];
-                rend.resource = resource;
-                available_renderers[data[i].name] = rend;
+	      var rend = {};
+	      rend.resource = resource;
+	      rend.name = data[i].substring(data[i].indexOf(".") + 1, data[i].lastIndexOf("."));
+	      rend.filename = data[i];
+	      available_renderers[rend.name] = rend;
             }
             if (list) {
                 fb.update_renderer_list(list);
@@ -928,10 +873,12 @@
 
         jQuery.getJSON(resource, function (data) {
             widget_resources.push(resource);
-            for (i = 0; i < data.length; i++) {
-                var widget = data[i];
-                widget.resource = resource;
-                available_widgets[data[i].name] = widget;
+            for (ii=0; ii < data.length; ii++) {
+	      var widget = {};
+	      widget.resource = resource;
+	      widget.name = data[ii].substring(data[ii].indexOf(".") + 1, data[ii].lastIndexOf("."));
+	      widget.filename = data[ii];
+	      available_widgets[widget.name] = widget;
             }
             if (list) {
                 fb.update_widget_list(list);
@@ -945,11 +892,11 @@
     fb.query_dataflow_resource = function (resource, list) {
         var promise = jQuery.Deferred();
 
-        jQuery.get(resource, function(data) {
+        jQuery.getJSON(resource, function(data) {
             var res = data;
             dataflow_resources[dataflow_resources.length] = resource;
             for (i = 0; i < res.length; i++) {
-                dataflows[res[i]] = dataflow_resources.length - 1;
+                available_dataflows[res[i]] = dataflow_resources.length - 1;
             }
             if (list) {
                 fb.update_dataflow_list(list);
@@ -971,24 +918,24 @@
     };
 
     fb.query_data_resource = function (resource, list) {
-        var promise = jQuery.Deferred();
-
-        jQuery.get(resource, function(data) {
-            dh.add_repository(data);
-            if (list) {
-                fb.update_datarepo_list(list);
-            }
-            promise.resolve();
-        });
-
-        return promise;
+      var promise = jQuery.Deferred();
+      jQuery.getJSON(resource).then(function(data) {
+	  dh.add_repository(data);
+	  promise.resolve();
+	}, function(jqXHR, textStatus, errorThrown) {
+	  if (textStatus === 'parsererror') {
+	    parserError(res_url);
+	  }
+	});
+      
+      return promise;
     };
 
     fb.update_datarepo_list = function (list) {
         var datarepo_select = document.getElementById(list);
         if (datarepo_select) {
             datarepo_select.options.length = 0;
-            for (i in DataRepositories) {
+            for (i in dh.DataRepositories) {
                 datarepo_select.add(new Option(i, i), null);
             }
         }
@@ -1095,200 +1042,282 @@
         return promise;
     };
 
+    fb.load_dataflow = function (dataflow) {
+        var promise;
+        if (loaded_dataflows[dataflow]) {
+            promise = loaded_dataflows[dataflow];
+        } else {
+            promise = jQuery.Deferred();
+            loaded_dataflows[dataflow] = promise;
+
+            var res_url = dataflow_resources[available_dataflows[dataflow]] + dataflow;
+            jQuery.getJSON(res_url).then(function(data) {
+		fb.dataflows[dataflow] = data;
+                promise.resolve();
+            }, function(jqXHR, textStatus, errorThrown) {
+                if (textStatus === 'parsererror') {
+		  parserError(res_url);
+                }
+            });
+        }
+
+        return promise;
+    };
+
+    fb.get_dataflow = function (dataflow) {
+      return jQuery.extend(true, {}, fb.dataflows[dataflow]);
+    }
+
     //
     // Data Flow Initial Version
     //
 
-
     fb.data_flow = function (flow) {
-        if (flow.current_step < flow.steps.length) {
-            var curr_step = flow.steps[flow.current_step];
-            switch (curr_step.action) {
-            case "get":
-                // gets multiple ids of a resource
-                var data_complete = 1;
-                var ids;
-                if (curr_step.input_ids.length) {
-                    ids = curr_step.input_ids;
-                } else {
-                    ids = flow.steps[curr_step.input_ids].input_ids;
-                }
-                for (i = 0; i < curr_step.input_ids.length; i++) {
-                    if (!dh.DataStore[curr_step.resource] || !dh.DataStore[curr_step.resource][curr_step.input_ids[i]]) {
-                        data_complete = 0;
-                        get_objects(curr_step.resource, {
-                            "rest": [curr_step.input_ids[i]],
-                            "data_repository": curr_step.input_data_resource
-                        }, data_flow, flow);
-                        break;
-                    }
-                }
-                if (data_complete) {
-                    flow.current_step++;
-                    data_flow(flow);
-                }
-                break;
-            case "merge":
-                // merges multiple ids of resource subselections into a single table
-                var ids;
-                if (curr_step.input_ids.length) {
-                    ids = curr_step.input_ids;
-                } else {
-                    if (typeof curr_step.input_ids == 'number') {
-                        ids = flow.steps[curr_step.input_ids].input_ids;
-                    }
-                }
-                var data = [];
-                switch (curr_step.merge_type) {
-                case "append_column":
-                    for (h = 0; h < ids.length; h++) {
-                        eval("for (i=0; i<dh.DataStore[curr_step.resource][ids[h]]." + curr_step.data + ".length; i++) {if (! data[dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "]) { data[dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "] = []; } data[dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "][h] = dh.DataStore[curr_step.resource][ids[h]]." + curr_step.data + "[i]" + curr_step.subselect + "; }");
-                    }
-                    var matrix = [];
-                    for (i in data) {
-                        var row = [i];
-                        for (h = 0; h < data[i].length; h++) {
-                            row[row.length] = data[i][h];
-                        }
-                        matrix[matrix.length] = row;
-                    }
-                    break;
-                case "single_column":
-                    for (h = 0; h < ids.length; h++) {
-                        eval("for (i=0; i<dh.DataStore[curr_step.resource][ids[h]]." + curr_step.data + ".length; i++) {data[dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "] = dh.DataStore[curr_step.resource][ids[h]]." + curr_step.data + "[i]" + curr_step.subselect + "; data[dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "].unshift(dh.DataStore[curr_step.resource][ids[h]]." + curr_step.merge_on + "); }");
-                    }
-                    var matrix = data;
-                    break;
-                case "join":
-                    var length_a = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][0];
-                    for (i in dh.DataStore[curr_step.resource_a][curr_step.input_ids.a]) {
-                        var merger = i;
-                        if (curr_step.merge_on_a != "i") {
-                            eval("merger = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][i]" + curr_step.merge_on_a + ";");
-                        }
-                        data[merger] = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][i];
-                    }
-                    for (i in dh.DataStore[curr_step.resource_b][curr_step.input_ids.b]) {
-                        var merger = i;
-                        if (curr_step.merge_on_b != "i") {
-                            eval("merger = dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i]" + curr_step.merge_on_b + ";");
-                        }
-                        if (!data[merger]) {
-                            data[merger] = [];
-                            for (h = 0; h < length_a; h++) {
-                                data[merger].push(" ");
-                            }
-                        }
-                        for (h = 0; h < dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i].length; h++) {
-                            data[merger].push(dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i][h]);
-                        }
-                    }
-                    var matrix = [];
-                    for (i in data) {
-                        var row = [];
-                        for (h = 0; h < data[i].length; h++) {
-                            row[row.length] = data[i][h];
-                        }
-                        matrix[matrix.length] = row;
-                    }
-                    break;
-                }
-                if (!dh.DataStore[curr_step.name]) {
-                    dh.DataStore[curr_step.name] = [];
-                }
-                dh.DataStore[curr_step.name][curr_step.id] = matrix;
-                flow.current_step++;
-                data_flow(flow);
-                break;
-            case "subselect":
-                switch (curr_step.type) {
-                case "column_list":
-                    var matrix = [];
-                    for (i = 0; i < dh.DataStore[curr_step.resource][curr_step.input_id].length; i++) {
-                        var row = [];
-                        for (h = 0; h < curr_step.filter.length; h++) {
-                            if (curr_step.filter[h]) {
-                                row[row.length] = dh.DataStore[curr_step.resource][curr_step.input_id][i][h];
-                            }
-                        }
-                        matrix[matrix.length] = row;
-                    }
-                    if (!dh.DataStore[curr_step.name]) {
-                        dh.DataStore[curr_step.name] = [];
-                    }
-                    dh.DataStore[curr_step.name][curr_step.id] = matrix;
-                    break;
-                }
-                flow.current_step++;
-                data_flow(flow);
-                break;
-            case "group":
-                var data = [];
-                for (i = 0; i < dh.DataStore[curr_step.resource][curr_step.input_id].length; i++) {
-                    if (data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]]) {
-                        var j = 0;
-                        for (h = 0; h < dh.DataStore[curr_step.resource][curr_step.input_id][i].length; h++) {
-                            if (curr_step.result_columns[h]) {
-                                switch (curr_step.group_functions[j]) {
-                                case "sum":
-                                    if (dh.DataStore[curr_step.resource][curr_step.input_id][i][h] == null) {
-                                        dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = 0;
-                                    } else {
-                                        if (typeof dh.DataStore[curr_step.resource][curr_step.input_id][i][h] != 'number') {
-                                            dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = parseFloat(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
-                                        }
-                                    }
-                                    data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]][j] += dh.DataStore[curr_step.resource][curr_step.input_id][i][h];
-                                    break;
-                                }
-                                j++;
-                            }
-                        }
-                    } else {
-                        var row = [];
-                        var j = 0;
-                        for (h = 0; h < dh.DataStore[curr_step.resource][curr_step.input_id][i].length; h++) {
-                            if (curr_step.result_columns[h]) {
-                                if (curr_step.group_functions[j] == "sum") {
-                                    if (dh.DataStore[curr_step.resource][curr_step.input_id][i][h] == null) {
-                                        dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = 0;
-                                    } else {
-                                        if (typeof dh.DataStore[curr_step.resource][curr_step.input_id][i][h] != 'number') {
-                                            dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = parseFloat(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
-                                        }
-                                    }
-                                }
-                                row.push(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
-                                j++;
-                            }
-                        }
-                        data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]] = row;
-                    }
-                }
-                var matrix = [];
-                for (var k in data) {
-                    var row = [];
-                    for (h = 0; h < data[k].length; h++) {
-                        row.push(data[k][h]);
-                    }
-                    matrix.push(row);
-                }
-                if (!dh.DataStore[curr_step.name]) {
-                    dh.DataStore[curr_step.name] = [];
-                }
-                dh.DataStore[curr_step.name][curr_step.id] = matrix;
-                flow.current_step++;
-                data_flow(flow);
-                break;
-            case "renderer":
-                eval(curr_step.name + "(" + curr_step.params + ")");
-                flow.current_step++;
-                data_flow(flow);
-                break;
-            }
-        }
-    };
+      if (! flow.promise) {
+	flow.promise = jQuery.Deferred();
+      }
+      
+      // check if the data flow has remaining steps
+      if (flow.current_step < flow.steps.length) {
+	
+	// get the current step
+	var curr_step = flow.steps[flow.current_step];
+	
+	// check if any parameters need to filled in for the current step
+	if (flow.internal_params && flow.internal_params[flow.current_step]) {
+	  for (i in flow.internal_params[flow.current_step]) {
+	    curr_step[i] = flow.params[flow.internal_params[flow.current_step][i]];
+	  }
+	}
+	
+	// check which action needs to be executed
+	switch (curr_step.action) {
+	case "get":  // gets multiple ids of a resource
+	  fbdf_get(curr_step, flow);
+	  break;
+	case "merge":  // merges multiple ids of resource subselections into a single table
+	  fbdf_merge(curr_step, flow);
+	  break;
+	case "subselect": // select parts of a table, i.e. a list of columns
+	  fbdf_subselect(curr_step, flow);
+	  break;
+	case "group": // group a table by a certain column
+	  fbdf_group(curr_step, flow);
+	  break;
+	case "renderer": // loads a renderer into a DOM element with passed params
+	  fbdf_renderer(curr_step, flow);
+	  break;
+	case "clear_data": // deletes data from the dh.DataStore
+	  fbdf_clear_data(curr_step, flow);
+	  break;
+	case "prepend_data": // prepends data to a table
+	  fbdf_prepend_data(curr_step, flow);
+	  break;
+	}
+      } else {
+	flow.promise.resolve();
+      }
+      return flow.promise;
+    }
 
+    //
+    // data flow actions
+    //
+    function fbdf_get (curr_step, flow) {
+      var data_complete = 1;
+      var ids;
+      if (curr_step.input_ids.length) {
+	ids = curr_step.input_ids;
+      } else {
+	ids = flow.input_ids;
+      }
+      for (i=0; i<curr_step.input_ids.length; i++) {
+	if (! dh.DataStore[curr_step.resource] || ! dh.DataStore[curr_step.resource][curr_step.input_ids[i]]) {
+	  data_complete = 0;
+	  dh.get_objects(curr_step.resource, { "rest": [ curr_step.input_ids[i] ], "data_repository": curr_step.input_data_resource }, fb.data_flow, flow);
+	  break;
+	}
+      }
+      if (data_complete) {
+	flow.current_step++;
+	fb.data_flow(flow);
+      }
+      return false;
+    }
+    
+    function fbdf_merge (curr_step, flow) {
+      var ids;
+      if (curr_step.input_ids.length) {
+	ids = curr_step.input_ids;
+      } else {
+	if (typeof curr_step.input_ids == 'number') {
+	  ids = flow.steps[curr_step.input_ids].input_ids;
+	}
+      }
+      var data = [];
+      switch (curr_step.merge_type) {
+      case "append_column":
+	for (h=0; h<ids.length; h++) {
+	  eval( "for (i=0; i<dh.DataStore[curr_step.resource][ids[h]]."+curr_step.data+".length; i++) {if (! data[dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"]) { data[dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"] = []; } data[dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"][h] = dh.DataStore[curr_step.resource][ids[h]]."+curr_step.data+"[i]"+curr_step.subselect+"; }");
+	}
+	var matrix = [];
+	for (i in data) {
+	  var row = [ i ];
+	  for (h=0; h<data[i].length; h++) {
+	    row[row.length] = data[i][h];
+	  }
+	  matrix[matrix.length] = row;
+	}
+	break;
+      case "single_column":
+	for (h=0; h<ids.length; h++) {
+	  eval( "for (i=0; i<dh.DataStore[curr_step.resource][ids[h]]."+curr_step.data+".length; i++) {data[dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"] = dh.DataStore[curr_step.resource][ids[h]]."+curr_step.data+"[i]"+curr_step.subselect+"; data[dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"].unshift(dh.DataStore[curr_step.resource][ids[h]]."+curr_step.merge_on+"); }");
+	}
+	var matrix = data;
+	break;
+      case "join":
+	var length_a = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][0];
+	for (i in dh.DataStore[curr_step.resource_a][curr_step.input_ids.a]) {
+	  var merger = i;
+	  if (curr_step.merge_on_a != "i") {
+	    eval("merger = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][i]"+curr_step.merge_on_a+";");
+	  }
+	  data[merger] = dh.DataStore[curr_step.resource_a][curr_step.input_ids.a][i];
+	}
+	for (i in dh.DataStore[curr_step.resource_b][curr_step.input_ids.b]) {
+	  var merger = i;
+	  if (curr_step.merge_on_b != "i") {
+	    eval("merger = dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i]"+curr_step.merge_on_b+";");
+	  }
+	  if (! data[merger]) {
+	    data[merger] = [];
+	    for (h=0; h<length_a;h++) {
+	      data[merger].push(" ");
+	    }
+	  }
+	  for (h=0; h<dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i].length; h++) {
+	    data[merger].push(dh.DataStore[curr_step.resource_b][curr_step.input_ids.b][i][h]);
+	  }
+	}
+	var matrix = [];
+	for (i in data) {
+	  var row = [];
+	  for (h=0; h<data[i].length; h++) {
+	    row[row.length] = data[i][h];
+	  }
+	  matrix[matrix.length] = row;
+	}
+	break;
+      }
+      if (! dh.DataStore[curr_step.name]) {
+	dh.DataStore[curr_step.name] = [];
+      }
+      dh.DataStore[curr_step.name][curr_step.id] = matrix;	
+      flow.current_step++;
+      fb.data_flow(flow);
+      return false;
+    }
+    
+    function fbdf_subselect (curr_step, flow) {
+      switch (curr_step.type) {
+      case "column_list":
+	var matrix = [];
+	for (i=0; i<dh.DataStore[curr_step.resource][curr_step.input_id].length;i++) {
+	  var row = [];
+	  for (h=0; h<curr_step.filter.length;h++) {
+	    if (curr_step.filter[h]) {
+	      row[row.length] = dh.DataStore[curr_step.resource][curr_step.input_id][i][h];
+	    }
+	  }
+	  matrix[matrix.length] = row;
+	}
+	if (! dh.DataStore[curr_step.name]) {
+	  dh.DataStore[curr_step.name] = [];
+	}
+	dh.DataStore[curr_step.name][curr_step.id] = matrix;
+	break;
+      }
+      flow.current_step++;
+      fb.data_flow(flow);
+      return false;
+    }
+    
+    function fbdf_group (curr_step, flow) {
+      var data = [];
+      for (i=0;i<dh.DataStore[curr_step.resource][curr_step.input_id].length;i++) {
+	if (data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]]) {
+	  var j = 0;
+	  for (h=0;h<dh.DataStore[curr_step.resource][curr_step.input_id][i].length;h++) {
+	    if (curr_step.result_columns[h]) {
+	      switch (curr_step.group_functions[j]) {
+	      case "sum":
+		if (dh.DataStore[curr_step.resource][curr_step.input_id][i][h] == null) {
+		  dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = 0;
+		} else {
+		  if (typeof dh.DataStore[curr_step.resource][curr_step.input_id][i][h] != 'number') {
+		    dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = parseFloat(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
+		  }
+		}
+		data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]][j] += dh.DataStore[curr_step.resource][curr_step.input_id][i][h];
+		break;
+	      }
+	      j++;
+	    }
+	  }
+	} else {
+	  var row = [];
+	  var j = 0;
+	  for (h=0;h<dh.DataStore[curr_step.resource][curr_step.input_id][i].length;h++) {
+	    if (curr_step.result_columns[h]) {
+	      if (curr_step.group_functions[j] == "sum") {
+		if (dh.DataStore[curr_step.resource][curr_step.input_id][i][h] == null) {
+		  dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = 0;
+		} else {
+		  if (typeof dh.DataStore[curr_step.resource][curr_step.input_id][i][h] != 'number') {
+		    dh.DataStore[curr_step.resource][curr_step.input_id][i][h] = parseFloat(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
+		  }
+		}
+	      }
+	      row.push(dh.DataStore[curr_step.resource][curr_step.input_id][i][h]);
+	      j++;
+	    }
+	  }
+	  data[dh.DataStore[curr_step.resource][curr_step.input_id][i][curr_step.group_column]] = row;
+	}
+      }
+      var matrix = [];
+      for (var k in data) {
+	var row = [];
+	for (h=0;h<data[k].length;h++) {
+	  row.push(data[k][h]);
+	}
+	matrix.push(row);
+      }
+      if (! dh.DataStore[curr_step.name]) {
+	dh.DataStore[curr_step.name] = [];
+      }
+      dh.DataStore[curr_step.name][curr_step.id] = matrix;
+      flow.current_step++;
+      fb.data_flow(flow);
+      return false;
+    }
+    
+    function fbdf_clear_data (curr_step, flow) {
+      for (i=0; i<curr_step.data.length; i++) {
+	dh.DataStore[curr_step.data[i][0]][curr_step.data[i][1]] = null;
+      }
+      flow.current_step++;
+      fb.data_flow(flow);  
+      return false;
+    }
+    
+    function fbdf_prepend_data(curr_step, flow) {
+      var data = dh.DataStore[curr_step.resource][curr_step.input_id].unshift(curr_step.data);
+      flow.current_step++;
+      fb.data_flow(flow);
+      return false;
+    }
+    
     //
     // helper functions
     //
