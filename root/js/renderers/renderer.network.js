@@ -93,7 +93,7 @@
                     return nodeHash.ids[d.source].y;
                 }).attr('y2', function(d) {
                     return nodeHash.ids[d.target].y;
-                }).style('stroke', 'black');
+                }).style('stroke', '#747170');
 
             // TODO: make sure there are nodes for the type
             for (var type in data.types) {
@@ -139,9 +139,23 @@
                 var text = g.append('svg:text')
                     .attr('text-anchor', 'middle')
                     .attr('pointer-events', 'none')
-                    .attr('fill', 'black')
-                    .attr('font-size', 6)
-                    .attr('opacity', '1')
+                    .attr('fill', function(d,i){
+                    	if (d.type === 'map'){
+                    		return '#FFFFFF';
+                    	}else{
+                    		return 'black';
+                    	}
+                    })
+					.attr("dy", function(d,i){
+						if (d.type === 'compound'){
+							return -(info.attrs.r+1)
+						}else{
+							return +2;
+						}
+						
+					})
+                    .attr('font-size', 5)
+                    .attr('opacity', '0.8')
                     .text(function(d) {
                         if (d.label) {
                             return d.label;
@@ -244,7 +258,7 @@
                 shape: 'circle',
                 attrs: {
                     r: 5,
-                    fill: 'blue'
+                    fill: '#3288BD'
                 }
             },
             enzyme: {
@@ -252,7 +266,7 @@
                 attrs: {
                     width: 30,
                     height: 15,
-                    fill: 'green'
+                    fill: '#99D594'
                 }
             },
             map: {
@@ -262,7 +276,7 @@
                     height: 20,
                     rx: 4,
                     ry: 4,
-                    fill: 'red'
+                    fill: '#D53E4F'
                 }
             }
         },
