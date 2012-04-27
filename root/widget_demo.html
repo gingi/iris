@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title></title>
+    
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.16.custom.min.js" ></script>
+    <script type="text/javascript" src="jquery.layout.min-1.2.0.js" ></script>
+
+    <script type="text/javascript" src="DataHandler.js"></script>
+    <script type="text/javascript" src="FrameBuilderDemo.js"></script>
+
+    <script type="text/javascript" src="jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="ComponentTable.css">
+
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.8.16.custom.css" >
+
+    <style>
+      .color0 { fill: none; stroke-width: 1.5px; stroke: purple; }
+      .color1 { fill: none; stroke-width: 1.5px; stroke: blue; }
+      .color2 { fill: none; stroke-width: 1.5px; stroke: green; }
+      .selected { fill: none; stroke-width: 2.5px; stroke: red; }
+      .axis-text { font-family: Arial; font-size: 8px; }
+      #chart2 .axis-text { font-size: 10px }
+      .rule line { stroke: #eee; shape-rendering: crispEdges; }
+      .rule line.axis { stroke: #000; }
+    </style>
+  </head>
+  
+  <body onload="init_framebuilder([ 'http://dev.metagenomics.anl.gov/api_new.cgi/widget/' ],[ 'http://dev.metagenomics.anl.gov/api_new.cgi/' ]);">
+    <div class="ui-layout-north" id="north-div"></div>
+    <div class="ui-layout-south"><img src="graph.gif" style="height: 48px;"><img src="table.png" style="height: 48px;"><img src="piechart.png" style="height: 48px;"><hr style="height: 1px;"><div style="border: 1px solid black; width: 48px; height: 48px; text-align: center;"><img src="genome.jpg"><span style="font-family: Arial; font-size: 9px;">444123.3</span></div></div>
+    <div class="ui-layout-east">
+      <div id="pie" style="width: 100%; height: 100%;" onclick="check_drop();"></div>
+    </div>
+    <div class="ui-layout-west">
+      <table>
+	<tr><td>widgets</td><td><select id="widget_select"></select><input type="button" value="test" onclick="test_widget({ 'target': 'loaded_data', 'widget': document.getElementById('widget_select').options[document.getElementById('widget_select').selectedIndex].value });"></td></tr>
+	<tr><td colspan=2 id="widget_options"></td></tr>
+	<tr><td>data sources</td><td><select id="data_source_select"></select><input type="button" value="select" onclick="select_data_source()"></td></tr>
+	<tr><td>data types</td><td><select id="data_type_select"></select><input type="button" value="select" onclick="load_data_ids()"></td></tr>
+	<tr><td>data ids</td><td><select id="data_id_select" multiple onclick="choose_id();"></select></td></tr>
+	<tr><td>data id</td><td><input type="text" id="data_id_text"><input type="button" value="load" onclick="get_data_for_id()"></td></tr>
+      </table>
+      <input type="button" value="test data flow" onclick="data_flow(example_flow);"><br><br><input type="button" id="drag_button" value="selection disabled" onclick="if(dragEnabled){dragEnabled=0;this.value='selection disabled';}else{dragEnabled=1;this.value='selection enabled';}">
+    </div>
+    <div class="ui-layout-center"><div id="loaded_data"></div></div>
+  </body> 
+</html>
