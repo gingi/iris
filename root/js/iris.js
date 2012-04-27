@@ -253,7 +253,7 @@
                     throw "setup() needs to return an array";
                 }
                 jQuery.when.apply(this, promises).then(function () {
-                    widgetInstance.display(element, arguments);
+                    widgetInstance.display(element, args);
                 });
                 return widgetInstance;
             },
