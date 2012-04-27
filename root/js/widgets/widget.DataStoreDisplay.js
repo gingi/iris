@@ -142,6 +142,20 @@
       };
       select_disp.appendChild(btn7);
 
+      var btn8 = document.createElement("input");
+      btn8.setAttribute("type", "button");
+      btn8.setAttribute("class", "btn");
+      btn8.setAttribute("value", "open in new window");
+      btn8.onclick = function () {
+	var win = window.open('', 'download');
+	win.document.open('application/json');
+	win.document.write('[ { "type": "'+select_list.options[select_list.selectedIndex].value+'", "data": [ '+JSON.stringify(Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value]) + ' ] } ]');
+	win.document.close();
+	
+      };
+      select_disp.appendChild(btn8);
+
+
 //       var span2 = document.createElement("span");
 //       span2.innerHTML = "<br><b>available attributes</b><br>";
 //       select_disp.appendChild(span2);
