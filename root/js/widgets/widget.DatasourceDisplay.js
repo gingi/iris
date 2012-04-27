@@ -86,6 +86,10 @@
 	}	
       };
 
+      var span4 = document.createElement("span");
+      span4.innerHTML = "<b>load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
+      select_disp.appendChild(span4);
+      
     };
       
 })();
