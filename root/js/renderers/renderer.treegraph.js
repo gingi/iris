@@ -102,27 +102,3 @@
     });
   
  }).call(this);
-
-
-/* [ [ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "Escherichia coli", "Escherichia coli K-12", "Escherichia coli str. K-12 substr. MG1655" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "Escherichia coli", "Escherichia coli K-12", "Escherichia coli BW2952" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "Escherichia coli", "Escherichia coli 53638" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "Escherichia fergusonii", "Escherichia fergusonii ATCC 35469" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "Escherichia albertii", "Escherichia albertii TW07627" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Sodalis", "Sodalis glossinidius", "Sodalis glossinidius str. 'morsitans'" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "unclassified Enterobacteriaceae", "ant, tsetse, mealybug, aphid, etc. endosymbionts", "aphid secondary symbionts", "Candidat"us Hamiltonella", "Candidatus Hamiltonella defensa", "Candidatus Hamiltonella defensa 5AT (Acyrthosiphon pisum)" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Buchnera", "Buchnera aphidicola", "Buchnera aphidicola (Schizaphis graminum)", "Buchnera aphidicola str. Sg (Schizaphis graminum)" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Proteus", "Proteus mirabilis", "Proteus mirabilis HI4320" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Vibrionales", "Vibrionaceae", "Vibrio", "Vibrio shilonii", "Vibrio shilonii AK1" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Aeromonadales", "Aeromonadaceae", "Tolumonas", "Tolumonas auensis", "Tolumonas auensis DSM 9187" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Moritellaceae", "Moritella", "Moritella sp. PE36" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Ferrimonadaceae", "Ferrimonas", "Ferrimonas balearica", "Ferrimonas balearica DSM 9799" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Shewanellaceae", "Shewanella", "Shewanella amazonensis", "Shewanella amazonensis SB2B" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Shewanellaceae", "Shewanella", "Shewanella loihica", "Shewanella loihica PV-4" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Pseudoalteromonadaceae", "Pseudoalteromonas", "Pseudoalteromonas atlantica", "Pseudoalteromonas atlantica T6c" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Alteromonadaceae", "Glaciecola", "Glaciecola sp. HTCC2999" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Alteromonadaceae", "Alteromonas", "Alteromonas macleodii", "Alteromonas macleodii str. 'Deep ecotype'" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Colwelliaceae", "Colwellia", "Colwellia psychrerythraea", "Colwellia psychrerythraea 34H" ],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Pseudoalteromonadaceae", "Pseudoalteromonas", "Pseudoalteromonas tunicata", "Pseudoalteromonas tunicata D2"],
-[ "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Idiomarinaceae", "Idiomarina", "Idiomarina baltica", "Idiomarina baltica OS145" ],
-["Bacteria", "Proteobacteria", "Gammaproteobacteria", "Alteromonadales", "Idiomarinaceae", "Idiomarina", "Idiomarina loihiensis", "Idiomarina loihiensis L2TR" ] ] */
