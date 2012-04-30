@@ -597,7 +597,7 @@
 	  }
 	}
 	if (resource_params.rest) {
-	  rest_params += resource_params.rest.join("/");
+	  rest_params += resource_params.rest.join("/") + "/";
 	}
 	if (resource_params && resource_params.query) {
 	  query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
@@ -619,7 +619,7 @@
         case 'cdmi':
           var apiName = repo.api_functions[type];
           var api = repo.api[apiName];
-	var data = api[type].apply(this, [0, 100, resource_params.query]);
+	var data = api[type].apply(this, resource_params.query);
 	dh.load_data(data, null, type, repo_type);
 	break;
       }
