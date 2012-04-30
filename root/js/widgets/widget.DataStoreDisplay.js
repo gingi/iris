@@ -128,6 +128,43 @@
       };
       select_disp.appendChild(btn4);
 
+      var span2 = document.createElement("span");
+      span2.innerHTML = "<br><b>available attributes</b><br>";
+      select_disp.appendChild(span2);
+
+      var att_list = document.createElement("select");
+      att_list.setAttribute("id", "data_store_att_select");
+      select_disp.appendChild(att_list);
+
+      var btn5 = document.createElement("a");
+      btn5.setAttribute("href", "#");
+      btn5.setAttribute("class", "btn btn-small");
+      btn5.innerHTML = "<i class='icon-refresh'></i>";
+      btn5.onclick = function () {
+	var obj = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
+	att_list.options.length = 0;
+	var opts = "<option>-</option>";
+	for (i in obj) {
+	  opts += "<option>"+i+"</option>";
+	}
+	att_list.innerHTML = opts;
+      };
+      select_disp.appendChild(btn5);
+
+      var btn6 = document.createElement("input");
+      btn6.setAttribute("type", "button");
+      btn6.setAttribute("class", "btn");
+      btn6.setAttribute("value", "show");
+      btn6.onclick = function () {
+	rend_disp.innerHTML = "";
+	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value][att_list.options[att_list.selectedIndex].value];
+	if (typeof(d) == "object") {
+	  d = jQuery.extend(true, {}, d);	  
+	}
+	Iris.Renderer.jsonpretty.render( { target: rend_disp, data: d } );
+      };
+      select_disp.appendChild(btn6);
+
       var span3 = document.createElement("span");
       span3.innerHTML = "<br><br>";
       select_disp.appendChild(span3);
@@ -137,8 +174,12 @@
       btn7.setAttribute("class", "btn");
       btn7.setAttribute("value", "show in current renderer");
       btn7.onclick = function () {
+	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
+	if (att_list.selectedIndex > 0) {
+	  d = d[att_list.options[att_list.selectedIndex].value];
+	}
 	rend_disp.innerHTML = "";
-	Iris.Renderer[rend_sel.options[rend_sel.selectedIndex].value].render( { target: rend_disp, data: Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value] } );
+	Iris.Renderer[rend_sel.options[rend_sel.selectedIndex].value].render( { target: rend_disp, data: d } );
       };
       select_disp.appendChild(btn7);
 
@@ -147,51 +188,20 @@
       btn8.setAttribute("class", "btn");
       btn8.setAttribute("value", "open in new window");
       btn8.onclick = function () {
+	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
+	if (att_list.selectedIndex > 0) {
+	  d = d[att_list.options[att_list.selectedIndex].value];
+	}
+	if (! d["id"]) {
+	  d = { id: id_list.options[id_list.selectedIndex].value, data: d };
+	}
 	var win = window.open('', 'download');
 	win.document.open('application/json');
-	win.document.write('[ { "type": "'+select_list.options[select_list.selectedIndex].value+'", "data": [ '+JSON.stringify(Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value]) + ' ] } ]');
+	win.document.write('[ { "type": "'+select_list.options[select_list.selectedIndex].value+'", "data": [ '+JSON.stringify(d) + ' ] } ]');
 	win.document.close();
 	
       };
       select_disp.appendChild(btn8);
-
-
-//       var span2 = document.createElement("span");
-//       span2.innerHTML = "<br><b>available attributes</b><br>";
-//       select_disp.appendChild(span2);
-
-      // var att_list = document.createElement("select");
-//       att_list.setAttribute("id", "data_store_att_select");
-//       select_disp.appendChild(att_list);
-
-//       var btn5 = document.createElement("a");
-//       btn5.setAttribute("href", "#");
-//       btn5.setAttribute("class", "btn btn-small");
-//       btn5.innerHTML = "<i class='icon-refresh'></i>";
-//       btn5.onclick = function () {
-// 	var obj = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
-// 	att_list.options.length = 0;
-// 	var opts = "";
-// 	for (i in obj) {
-// 	  opts += "<option>"+i+"</option>";
-// 	}
-// 	att_list.innerHTML = opts;
-//       };
-//       select_disp.appendChild(btn5);
-
-//       var btn6 = document.createElement("input");
-//       btn6.setAttribute("type", "button");
-//       btn6.setAttribute("class", "btn");
-//       btn6.setAttribute("value", "show");
-//       btn6.onclick = function () {
-// 	rend_disp.innerHTML = "";
-// 	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value][att_list.options[att_list.selectedIndex].value];
-// 	if (typeof(d) == "object") {
-// 	  d = jQuery.extend(true, {}, d);	  
-// 	}
-// 	Iris.Renderer.jsonpretty.render( { target: rend_disp, data: d } );
-//       };
-//       select_disp.appendChild(btn6);
 
     };
       
