@@ -30,7 +30,8 @@
     };
     Iris.Renderer.extend({
         about: {
-            name: "Table",
+            name: "table",
+	    title: "Table",
             author: "Tobias Paczian",
             version: "1.0",
             requires: ['dataTable.min.js'],
@@ -62,6 +63,10 @@
                console.log(check['errors']);
             }
 */
+
+	  if (options.data.length) {
+	    options.data = { header: options.data[0], data: options.data };
+	  }
 
             var tdata = options.data.data;
             if (typeof(tdata) == 'string') {
@@ -110,46 +115,60 @@
                 }
                 return drag_data;
             }
-            oTable[0].onmousedown = function(ev) {
-                if (dragEnabled) {
-                    ev = ev || window.event;
-                    var mpos = mouseCoords(ev);
-                    var selectedData = [];
-                    var startSelect = ev.target;
-                    var startSelectY = mpos.y;
-                }
-            };
-            oTable[0].onmouseup = function(ev) {
-                if (dragEnabled) {
-                    if (dragData) {
-                        make_table(target, header, dragData);
-                        startSelect = null;
-                        disableDrag();
-                    }
+	    if (options.onclick_function && typeof(options.onclick_function) == 'function') {
+	      oTable[0].style.cursor = "pointer";
+	      oTable[0].onclick = function(ev) {
+		ev = ev || window.event;
+		if (ev.target.tagName == "TD") {
+		  var selrow = ev.target.parentNode;
+		  var row_data = [];
+		  for (i=0;i<selrow.childNodes.length;i++) {
+		    row_data.push(selrow.childNodes[i].innerHTML);
+		  }
+		  options.onclick_function.call(null, { row: row_data, cell: ev.target.innerHTML });
+		}
+	      }
+	    }
+	    //            oTable[0].onmousedown = function(ev) {
+//                 if (dragEnabled) {
+//                     ev = ev || window.event;
+//                     var mpos = mouseCoords(ev);
+//                     var selectedData = [];
+//                     var startSelect = ev.target;
+//                     var startSelectY = mpos.y;
+//                 }
+//            };
+//            oTable[0].onmouseup = function(ev) {
+                // if (dragEnabled) {
+//                     if (dragData) {
+//                         make_table(target, header, dragData);
+//                         startSelect = null;
+//                         disableDrag();
+//                     }
 
-                    if (startSelect) {
-                        ev = ev || window.event;
-                        var mpos = mouseCoords(ev);
-                        if (startSelectY < mpos.y) {
-                            var cnode = startSelect.parentNode;
-                            selectedData.push(cnode);
-                            while (cnode != ev.target.parentNode) {
-                                cnode = cnode.nextSibling;
-                                selectedData.push(cnode);
-                            }
-                        } else {
-                            var cnode = ev.target.parentNode;
-                            selectedData.push(cnode);
-                            while (cnode != startSelect.parentNode) {
-                                cnode = cnode.nextSibling;
-                                selectedData.push(cnode);
-                            }
-                        }
-                        dragData = oTable.createDragData(selectedData);
-                        startSelect = null;
-                    }
-                }
-            };
+//                     if (startSelect) {
+//                         ev = ev || window.event;
+//                         var mpos = mouseCoords(ev);
+//                         if (startSelectY < mpos.y) {
+//                             var cnode = startSelect.parentNode;
+//                             selectedData.push(cnode);
+//                             while (cnode != ev.target.parentNode) {
+//                                 cnode = cnode.nextSibling;
+//                                 selectedData.push(cnode);
+//                             }
+//                         } else {
+//                             var cnode = ev.target.parentNode;
+//                             selectedData.push(cnode);
+//                             while (cnode != startSelect.parentNode) {
+//                                 cnode = cnode.nextSibling;
+//                                 selectedData.push(cnode);
+//                             }
+//                         }
+//                         dragData = oTable.createDragData(selectedData);
+//                         startSelect = null;
+//                     }
+//                 }
+//            };
         }
     });
 }).call(this);
