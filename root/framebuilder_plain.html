@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>Frame Builder Demo</title>
+    
+    <script type="text/javascript" src="jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="framebuilder.css" >
+    <script type="text/javascript" src="DataHandler.js"></script>
+    <script type="text/javascript" src="FrameBuilder.js"></script>
+
+  </head>
+  
+  <body onload="init_framebuilder([ 'http://dev.metagenomics.anl.gov/api_new.cgi/renderer/' ],
+		[ 'http://dev.metagenomics.anl.gov/api_new.cgi/' ],
+		[ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ],
+		'http://dev.metagenomics.anl.gov/api_new.cgi/js/',
+		null,
+		['layout_center', 'layout_east']);">
+
+    <table>
+      <tr>
+	<td>
+	  <div class="ui-layout-center" id="layout_center" style="width: 600px; height: 580px; border: 1px solid black; padding: 5px;"></div>
+	</td>
+	<td>
+	  <div class="ui-layout-east" id="layout_east" style="width: 600px; height: 580px; border: 1px solid black; padding: 5px;"></div>
+	</td>
+      </tr>
+      <tr>
+	<td colspan=2>
+	  <div class="ui-layout-south" id="layout_south">
+	    <img src="graph.gif" style="height: 48px;" onload="init_dragobject(this, 'renderer.linegraph.js', 'renderer');"><img src="table.png" style="height: 48px;" onload="init_dragobject(this, 'renderer.table.js', 'renderer');"><img src="piechart.png" style="height: 48px;" id="piechart_drag" onload="init_dragobject(this, 'renderer.piechart.js', 'renderer');"><img src="graph.gif" style="height: 48px;" onload="init_dragobject(this, 'renderer.resourceSelector.js', 'renderer');">
+	    <hr style="height: 1px;">
+	    <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data, 'data');">
+	    <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data2, 'data');">
+	    <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data3, 'data');">
+	  </div>
+	</td>
+      </tr>
+    </table>
+
+  </body> 
+</html>
