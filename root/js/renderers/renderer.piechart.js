@@ -50,22 +50,22 @@
         },
         render: function (options) {
 
-            var check = window.json.validate(options, schema);
-            if (!check['valid']) {
-                $.error(check['errors']);
-            }
+//             var check = window.json.validate(options, schema);
+//             if (!check['valid']) {
+//                 $.error(check['errors']);
+//             }
 
             var target = options.target;
             target.innerHTML = "";
 
 
-            target.onclick = function() {
-                if (fb_dragData) {
-                    opt.data = fb_dragData;
-                    $('div').RendererPiechart.render(opt);
-                    fb_dragData = null;
-                }
-            }
+//             target.onclick = function() {
+//                 if (fb_dragData) {
+//                     opt.data = fb_dragData;
+//                     $('div').RendererPiechart.render(opt);
+//                     fb_dragData = null;
+//                 }
+//             }
 
             var w = options.width;
             var h = options.height;
