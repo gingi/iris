@@ -55,7 +55,7 @@
       var flow_list = "";
       var loaded = Iris._FrameBuilder.available_dataflows;
       for (i in loaded) {
-	flow_list += "<option>"+i+"</option>";
+	flow_list += "<option title='"+Iris._FrameBuilder.dataflows[i].description+"'>"+i+"</option>";
       }
       var flow_select = document.createElement("select");
       flow_select.setAttribute("id", "loaded_dataflows");
