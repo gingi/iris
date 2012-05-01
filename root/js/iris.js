@@ -171,21 +171,21 @@
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
-//     jQuery.ajax({
-//         url: "http://ui-dev.kbase.us/service",
-//         dataType: 'json',
-//         async: false,
-//         success: function (service) {
-//             dataServiceURI = service.dataServiceURI;
-//         }
-//     });
+    jQuery.ajax({
+        url: "http://ui-dev.kbase.us/service",
+        dataType: 'json',
+        async: false,
+        success: function (service) {
+            dataServiceURI = service.dataServiceURI;
+        }
+    });
 
-//     jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
-//         for (var i = 0; i < services.length; i++) {
-//             var service = services[i];
-//             services[service.path] = service.uri;
-//         }
-//     });
+    jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
+        for (var i = 0; i < services.length; i++) {
+            var service = services[i];
+            services[service.path] = service.uri;
+        }
+    });
     
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
@@ -253,7 +253,7 @@
                     throw "setup() needs to return an array";
                 }
                 jQuery.when.apply(this, promises).then(function () {
-                    widgetInstance.display(element, arguments);
+                    widgetInstance.display(element, args);
                 });
                 return widgetInstance;
             },
@@ -597,9 +597,15 @@
 	  }
 	}
 	if (resource_params.rest) {
-	  rest_params += resource_params.rest.join("/");
+	  rest_params += resource_params.rest.join("/") + "/";
 	}
-	if (resource_params && resource_params.query) {
+	if (repo_type == 'shock') {
+	  if (! resource_params.query) {
+	    resource_params.query = [];
+	  }
+	  resource_params.query.unshift("query", "1", "type", type);
+	}
+	if (resource_params && resource_params.query) {	  
 	  query_params += "?" + resource_params.query[0] + "=" + resource_params.query[1];
 	  for (var i = 2; i < resource_params.query.length - 1; i+=2) {
 	    query_params += "&" + resource_params.query[i] + "=" + resource_params.query[i + 1];
@@ -619,7 +625,7 @@
         case 'cdmi':
           var apiName = repo.api_functions[type];
           var api = repo.api[apiName];
-	var data = api[type].apply(this, [0, 100, resource_params.query]);
+	var data = api[type].apply(this, resource_params.query);
 	dh.load_data(data, null, type, repo_type);
 	break;
       }
@@ -1086,7 +1092,11 @@
 	// check if any parameters need to filled in for the current step
 	if (flow.internal_params && flow.internal_params[flow.current_step]) {
 	  for (i in flow.internal_params[flow.current_step]) {
-	    curr_step[i] = flow.params[flow.internal_params[flow.current_step][i]];
+	    var param_val = flow.parameter_examples[flow.internal_params[flow.current_step][i]];
+	    if (flow.params[flow.internal_params[flow.current_step][i]]) {
+	      param_val = flow.params[flow.internal_params[flow.current_step][i]];
+	    }
+	    curr_step[i] = param_val;
 	  }
 	}
 	

@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Frame Builder Demo</title>
+    
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.16.custom.min.js" ></script>
+    <script type="text/javascript" src="jquery.layout.min-1.2.0.js" ></script>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.8.16.custom.css" >
+    <link rel="stylesheet" type="text/css" href="framebuilder.css" >
+    <script type="text/javascript" src="DataHandler.js"></script>
+    <script type="text/javascript" src="FrameBuilder.js"></script>
+    <script type="text/javascript" src="WidgetExample.js"></script>
+
+  </head>
+  
+  <body onload="init_framebuilder([ 'http://dev.metagenomics.anl.gov/api_new.cgi/renderer/' ],
+		[ 'http://dev.metagenomics.anl.gov/api_new.cgi/' ],
+		[ 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/' ],
+		'http://dev.metagenomics.anl.gov/api_new.cgi/js/',
+		{ applyDefaultStyles: true,
+		north__resizable: false,
+		north__closable: false,
+		north__size: 1,
+		north__applyDefaultStyles: false,
+		west__fxName: 'none',
+		west__size: 350,
+		west__initClosed: true,
+		south__size: 150,
+		east__size: 700 }, ['layout_center', 'layout_east']);add_repository({'url':'http://shock.mcs.anl.gov/node','id':'shock','type':'shock'});">
+
+    <div class="ui-layout-center" id="layout_center"></div>
+    <div class="ui-layout-north" id="layout_north"></div>
+    <div class="ui-layout-south" id="layout_south">
+      <img src="graph.gif" style="height: 48px;" onload="init_dragobject(this, 'renderer.linegraph.js', 'renderer');"><img src="table.png" style="height: 48px;" onload="init_dragobject(this, 'renderer.table.js', 'renderer');"><img src="piechart.png" style="height: 48px;" id="piechart_drag" onload="init_dragobject(this, 'renderer.piechart.js', 'renderer');"><img src="graph.gif" style="height: 48px;" onload="init_dragobject(this, 'renderer.resourceSelector.js', 'renderer');">
+      <input type="button" onclick="show_test_widget();" value="shock example">
+      <hr style="height: 1px;">
+      <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data, 'data');" onclick="check_compatibility(this);">
+      <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data2, 'data');" onclick="check_compatibility(this);">
+      <img style="height: 48px; padding: 5px;" src="genome.jpg" onload="init_dragobject(this, test_data3, 'data');" onclick="check_compatibility(this);">
+    </div>
+    <div class="ui-layout-east" id="layout_east"></div>
+    <div class="ui-layout-west" id="layout_west"></div>
+
+  </body> 
+</html>
