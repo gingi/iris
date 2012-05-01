@@ -11,7 +11,7 @@
     });
 
     widget.setup = function () {
-    	return [ this.loadRenderer('jsonpretty') ];
+      return [ this.loadRenderer('jsonpretty'), this.load_all_flows() ];
     }
 
     widget.display = function (div, args) {
@@ -50,12 +50,46 @@
       };
       
       select_disp.appendChild(button);
-
-      // var span1 = document.createElement("span");
-//       span1.innerHTML = "<br><br><table><tr><td><b>action</b></td><td><select id='dataflow_action'><option>merge</option><option>group</option></select></td></tr><tr><td><b>input resource</b></td><td><input type='text' id='dataflow_resource></td></tr><tr><td><b>input id</b></td><td><input type='text' id='dataflow_input_ids'></td></tr><tr><td><b>output resource</b></td><td><input type='text' id='dataflow_name'></td></tr><tr><td><b>output id</b></td><td><input type='text' id='dataflow_id'></td></tr></table><table id='merge_table'><tr><td><b>data</b></td><td><input type='text' id='dataflow_data'></td></tr><tr><td><b>subselect</b></td><td><input type='text' id='dataflow_subselect'></td></tr><tr><td><b>merge on</b></td><td><input type='text' id='dataflow_merge_on'></td></tr><tr><td><b>merge type</b></td><td><select id='dataflow_merge_type'><option>append column</option><option>single column</option><option>join</option></select></td></tr></table><br><input type='button' class='btn' value='create flow step'>";
       
-//       select_disp.appendChild(span1);
+      var span1 = document.createElement("span");
+      var flow_list = "";
+      var loaded = Iris._FrameBuilder.available_dataflows;
+      for (i in loaded) {
+	flow_list += "<option>"+i+"</option>";
+      }
+      var flow_select = document.createElement("select");
+      flow_select.setAttribute("id", "loaded_dataflows");
+      flow_select.innerHTML = flow_list;
+      span1.innerHTML = "<br><b>available dataflows<b><br>";
+      span1.appendChild(flow_select)
+      var flow_button = document.createElement("input");
+      flow_button.setAttribute("type", "button");
+      flow_button.setAttribute("value", "execute");
+      flow_button.setAttribute("class", "btn");
+      flow_button.onclick = function () {
+	Iris._FrameBuilder.data_flow(Iris._FrameBuilder.get_dataflow(flow_select.options[flow_select.selectedIndex].value)).then( function () {
+	    rend_disp.innerHTML = "";
+	    alert("data flow execution complete");
+	  });
+      }
+      span1.appendChild(flow_button);
+            
+      select_disp.appendChild(span1);
 
     };
+
+    widget.load_all_flows = function () {
+      var avail = Iris._FrameBuilder.available_dataflows;
+      var promise = jQuery.Deferred();
+      var promises = [];
+      for (i in avail) {
+	promises.push(Iris._FrameBuilder.load_dataflow(i));
+      }
+      jQuery.when.apply(this, promises).then(function() {
+	  promise.resolve();
+	});
+      
+      return promise;
+    }
       
 })();
