@@ -74,15 +74,15 @@
     Iris.init = function () {
         if (initPromise == null) {
             initPromise = Iris._FrameBuilder.init({
-                renderer_resources: [ '/renderer/' ],
-                data_resources: [ '/service/list' ], 
-                dataflow_resources: [ '/service/list' ],
-                library_resource: '/js/',
-                widget_resources: [ '/widget/' ],
-                layout: null,
-                viewports: null
-            });
-        }
+            renderer_resources: [ '/renderer/' ],
+            data_resources: [ '/service/list' ], 
+            dataflow_resources: [ '/service/list' ],
+            library_resource: '/js/',
+            widget_resources: [ '/widget/' ],
+            layout: null,
+            viewports: null
+        });
+    }
         return initPromise;
     }
     
