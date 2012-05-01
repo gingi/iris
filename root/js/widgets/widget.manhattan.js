@@ -5,13 +5,14 @@
                 title: "Manhattan Plot",
                 name: "manhattan",
                 author: "Andrew Olson",
-                requires: [],
-                renderers: {
-                    default: "scatterplot.js"
-                },
+                requires: []
             }
         }
     });
+
+	widget.setup = function () {
+		return [ ]; //this.loadRenderer('piechart') ];
+	}
 
     var ctx;
     var ctxi;
@@ -34,6 +35,9 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
+	var goDiv;
+	var study;
+
     widget.display = function(element, args) {
         args = (args || {});
         var div = $(element);
@@ -45,6 +49,9 @@
         div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
+		div.append('<div id="' + element.id + '_gohist">');
+		goDiv = document.getElementById(element.id + "_gohist");
+		
         // div.parent.height = canvasHeight;
         // div.parent.width = canvasWidth;
 
@@ -53,8 +60,10 @@
         ctx = canvas.getContext('2d');
         ctxi = canvasi.getContext('2d');
 
-        var study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
+        study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'athaliana';
+
+//		Iris.Renderer.piechart.render( { target: goDiv, data: getGOData()});
 
         // fetch the list of chromosomes and their lengths
 		totalLen = 0;
@@ -70,6 +79,16 @@
             });
         });
     };
+
+	function getGoData(limits) {
+		var url = "/gwas/" + study + "/GO";
+		if (limits) {
+			url += "?w=" + limits;
+		}
+		widget.getJSON(url, function (json) {
+			return json;
+		});
+	}
 
     function drawManhattan(study, cvs) {
         // get the canvas
@@ -100,30 +119,35 @@
         var gutters = (chrLengths.length + 1) * XGUTTER;
         var nt2px = (ctxi.canvas.width - gutters) / totalLen;
         var aPos, bPos;
-        for (i = 0; i < chrLengths.length; i++) {
-            var chrXsize = nt2px * chrLengths[i];
+		var chrNames = new Array();
+		for (var chr in chrLengths) {
+			chrNames.push(chr);
+		}
+        for (i = 0; i < chrNames.length; i++) {
+			var chr = chrNames[i];
+            var chrXsize = nt2px * chrLengths[chr];
             if (a >= offset - XGUTTER && a <= offset + chrXsize) {
-                aChr = i + 1;
-                aPos = Math.floor(chrLengths[i] * Math.max(a - offset, 0) / chrXsize);
+                aChr = i;
+                aPos = Math.floor(chrLengths[chr] * Math.max(a - offset, 0) / chrXsize);
             }
             if (b >= offset && b <= offset + chrXsize + XGUTTER) {
-                bChr = i + 1;
-                bPos = Math.ceil(chrLengths[i] * Math.max(b - offset, 0) / chrXsize);
+                bChr = i;
+                bPos = Math.ceil(chrLengths[chr] * Math.max(b - offset, 0) / chrXsize);
             }
             offset += chrXsize + XGUTTER;
         }
-        if (aChr <= bChr && aChr > 0) {
+        if (aChr <= bChr) {
             if (aChr === bChr) {
-                chrRange[0] = [aChr, aPos, bPos];
+                chrRange[0] = [chrNames[aChr], aPos, bPos];
             } else if (aChr === bChr - 1) {
-                chrRange[0] = [aChr, aPos, chrLengths[aChr - 1]];
-                chrRange[1] = [bChr, 0, bPos];
+                chrRange[0] = [chrNames[aChr], aPos, chrLengths[chrNames[aChr]]];
+                chrRange[1] = [chrNames[bChr], 0, bPos];
             } else {
-                chrRange[0] = [aChr, aPos, chrLengths[aChr - 1]];
+                chrRange[0] = [chrNames[aChr], aPos, chrLengths[chrNames[aChr]]];
                 for (i = 1; i < bChr - aChr; i++) {
-                    chrRange[i] = [aChr + i, 0, chrLengths[aChr + i - 1]];
+                    chrRange[i] = [chrNames[aChr + i], 0, chrLengths[chrNames[aChr + i]]];
                 }
-                chrRange[bChr - aChr] = [bChr, 0, bPos];
+                chrRange[bChr - aChr] = [chrNames[bChr], 0, bPos];
             }
         }
     }
@@ -136,6 +160,9 @@
     function doScatter(ctx, study, chr, offset, xsize, ysize, chrLen) {
         var path = "/gwas/" + study + "/scatter" + "?chr=" + chr + "&b1=" + Math.floor(xsize / sc) + "&b2=" + Math.floor(ysize / sc) + "&x1=" + chrLen + "&x2=" + globalMax;
         widget.getJSON(path, function (json) {
+			if (! json) {
+				return;
+			}
             var xrange = chrLen;
             var yrange = globalMax;
             var xfactor = xsize / xrange;
@@ -258,6 +285,7 @@
                 tool.started = false;
                 ctxi.clearRect(0, 0, ctxi.canvas.width, ctxi.canvas.height);
                 console.log([scoreB, scoreA, chrRangeString]);
+//				Iris.Renderer.piechart.render( { target: goDiv, data: getGOData("chr='2'")});
                 // getManager().notify(containerNode.id, [scoreB, scoreA, chrRangeString]);
             }
         };
