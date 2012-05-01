@@ -1,12 +1,10 @@
 (function () {
      widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                title: "Renderer Demo",
-                name: "RendererDemo",
-                author: "Tobias Paczian",
-                requires: [ ]
-            };
+        about: {
+            title: "Renderer Demo",
+            name: "RendererDemo",
+            author: "Tobias Paczian",
+            requires: [ ]
         }
     });
 
