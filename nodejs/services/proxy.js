@@ -151,7 +151,6 @@ app.get('/widget/:widget', function (req, res) {
             if (!exists) {
                 fileNotFound(res);
             } else {
-                console.log("about", about);
                 routes.widget(req, res, {
                     title: about.title,
                     js: httpPath,
