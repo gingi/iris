@@ -171,21 +171,21 @@
     // FIXME: Does this really have to be synchronous?
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
-//     jQuery.ajax({
-//         url: "http://ui-dev.kbase.us/service",
-//         dataType: 'json',
-//         async: false,
-//         success: function (service) {
-//             dataServiceURI = service.dataServiceURI;
-//         }
-//     });
+    jQuery.ajax({
+        url: "http://ui-dev.kbase.us/service",
+        dataType: 'json',
+        async: false,
+        success: function (service) {
+            dataServiceURI = service.dataServiceURI;
+        }
+    });
 
-//     jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
-//         for (var i = 0; i < services.length; i++) {
-//             var service = services[i];
-//             services[service.path] = service.uri;
-//         }
-//     });
+    jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
+        for (var i = 0; i < services.length; i++) {
+            var service = services[i];
+            services[service.path] = service.uri;
+        }
+    });
     
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
