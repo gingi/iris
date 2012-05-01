@@ -67,6 +67,23 @@
         return string.split(/\s/).join('');
     };
     
+    var alreadyInitialized = false;
+    function initState() {
+        if (alreadyInitialized) {
+            return;
+        }
+        alreadyInitialized = true;
+        return Iris._FrameBuilder.init({
+            renderer_resources: [ '/renderer/' ],
+            data_resources: [ '/service/list' ], 
+            dataflow_resources: [ '/service/list' ],
+            library_resource: '/js/',
+            widget_resources: [ '/widget/' ],
+            layout: null,
+            viewports: null
+        });
+    }
+    
     var EventCallbacks;
     var eventSplitter = /\s+/;
     var observable = function () {
@@ -172,15 +189,15 @@
     // With 'async: true', this gets evaluated after the rendering
     // --Shiran
     jQuery.ajax({
-        url: "http://ui-dev.kbase.us/service",
+        url: "/service",
         dataType: 'json',
         async: false,
         success: function (service) {
             dataServiceURI = service.dataServiceURI;
         }
     });
-
-    jQuery.getJSON("http://ui-dev.kbase.us/service/list", function (services) {
+    
+    jQuery.getJSON("/service/list", function (services) {
         for (var i = 0; i < services.length; i++) {
             var service = services[i];
             services[service.path] = service.uri;
@@ -217,6 +234,7 @@
      */
     var Widget = Iris.Widget = {};
     Widget.extend = function (spec) {
+        var initPromise = initState();
         spec = (spec || {});
         var about;
         switch (typeof spec.about) {
@@ -231,12 +249,20 @@
         
         var widget = Iris.extend({}, spec);
         Iris.extend(widget, {
+            renderers: {},
             target: function (target) {
                 widget.targetElement = target;
                 return widget;
             },
-            loadRenderer: function (args) {
-                return Iris._FrameBuilder.load_renderer(args);
+            loadRenderer: function (name) {
+                return initPromise.done(function () {
+                    var promise = Iris._FrameBuilder.load_renderer(name);
+                    promise.done(function () {
+                        widget.renderers[name] =
+                             Iris._FrameBuilder.loaded_renderers[name];
+                    });
+                    return promise;
+                });
             },
             getData: function (args) {
                 return Iris._DataHandler.get_objects(args);
@@ -277,6 +303,7 @@
         spec = (spec || {});
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
+        console.log(renderer.about);
         if (renderer.about.name) {
             Iris.Renderer[renderer.about.name] = renderer;
         }
@@ -748,23 +775,18 @@
     var fb = Iris._FrameBuilder = {};
     var dh = Iris._DataHandler;
 
-    var renderer_resources     = [];
-    Iris._FrameBuilder.renderer_resources = renderer_resources;
-    var available_renderers    = {};
-    var loaded_renderers       = {};
-    Iris._FrameBuilder.available_renderers = available_renderers;
+    var renderer_resources  = fb.renderer_resources  = [];
+    var available_renderers = fb.available_renderers = {};
+    var loaded_renderers    = {};
 
-    var widget_resources     = [];
-    Iris._FrameBuilder.widget_resources = widget_resources;
-    var available_widgets    = {};
-    var loaded_widgets       = {};
-    Iris._FrameBuilder.available_widgets = available_widgets;
+    var widget_resources    = fb.widget_resources    = [];
+    var available_widgets   = fb.available_widgets   = {};
+    var loaded_widgets      = {};
 
-    var dataflow_resources     = [];
-    Iris._FrameBuilder.dataflow_resources = dataflow_resources;
-    var available_dataflows    = {};
-    var loaded_dataflows       = [];
-    Iris._FrameBuilder.available_dataflows = available_dataflows;
+    var dataflow_resources  = fb.dataflow_resources  = [];
+    var available_dataflows = fb.available_dataflows = {};
+    var loaded_dataflows    = [];
+
     fb.dataflows = {};
 
     var library_resource = null;
@@ -783,6 +805,9 @@
     fb.init = function (settings) {
         var promise = jQuery.Deferred();
         var promises = [];
+        var handleResource = function (dPromise) {
+            promises.push(dPromise);
+        };
 
         var layout = settings.layout;
         if (layout) {
@@ -794,28 +819,28 @@
         var rendererResources = settings.renderer_resources;
         if (rendererResources) {
             for (i in rendererResources) {
-                promises.push(fb.query_renderer_resource(rendererResources[i]));
+                handleResource(fb.query_renderer_resource(rendererResources[i]));
             }
         }
 
         var widgetResources = settings.widget_resources;
         if (widgetResources) {
             for (i in widgetResources) {
-                promises.push(fb.query_widget_resource(widgetResources[i]));
+                handleResource(fb.query_widget_resource(widgetResources[i]));
             }
         }
 
         var dataResources = settings.data_resources;
         if (dataResources) {
             for (i in dataResources) {
-                promises.push(fb.query_data_resource(dataResources[i]));
+                handleResource(fb.query_data_resource(dataResources[i]));
             }
         }
 
         var dataflowResources = settings.dataflow_resources;
         if (dataflowResources) {
             for (i in dataflowResources) {
-                promises.push(fb.query_dataflow_resource(dataflowResources[i]));
+                handleResource(fb.query_dataflow_resource(dataflowResources[i]));
             }
         }
 
@@ -848,11 +873,12 @@
 
         jQuery.getJSON(resource, function (data) {
             renderer_resources.push(resource);
-            for (i = 0; i < data.length; i++) {
+            for (var i = 0; i < data.length; i++) {
 	      var rend = {};
 	      rend.resource = resource;
-	      rend.name = data[i].substring(data[i].indexOf(".") + 1, data[i].lastIndexOf("."));
-	      rend.filename = data[i];
+          var filename = data[i].filename;
+	      rend.name = filename.substring(filename.indexOf(".") + 1, filename.lastIndexOf("."));
+	      rend.filename = filename;
 	      available_renderers[rend.name] = rend;
             }
             if (list) {
@@ -882,8 +908,9 @@
             for (ii=0; ii < data.length; ii++) {
 	      var widget = {};
 	      widget.resource = resource;
-	      widget.name = data[ii].substring(data[ii].indexOf(".") + 1, data[ii].lastIndexOf("."));
-	      widget.filename = data[ii];
+          var filename = data[ii].filename;
+	      widget.name = filename.substring(filename.indexOf(".") + 1, filename.lastIndexOf("."));
+	      widget.filename = filename;
 	      available_widgets[widget.name] = widget;
             }
             if (list) {
@@ -992,7 +1019,6 @@
                 }
             });
         }
- 
         return promise;
     };
 
