@@ -1086,7 +1086,11 @@
 	// check if any parameters need to filled in for the current step
 	if (flow.internal_params && flow.internal_params[flow.current_step]) {
 	  for (i in flow.internal_params[flow.current_step]) {
-	    curr_step[i] = flow.params[flow.internal_params[flow.current_step][i]];
+	    var param_val = flow.parameter_examples[flow.internal_params[flow.current_step][i]];
+	    if (flow.params[flow.internal_params[flow.current_step][i]]) {
+	      param_val = flow.params[flow.internal_params[flow.current_step][i]];
+	    }
+	    curr_step[i] = param_val;
 	  }
 	}
 	
