@@ -42,11 +42,14 @@
       select_list.onchange = function () {
 	var repo = Iris._DataHandler.default_repository(select_list.options[select_list.selectedIndex].value);
 	if (repo.resources) {
+	  repo.resources.sort();
 	  var opts = "";
 	  for (i=0; i<repo.resources.length; i++) {
 	    opts += "<option>"+repo.resources[i]+"</option>";
 	  }
 	  document.getElementById('data_source_resource_select').innerHTML = opts;
+	} else {
+	  document.getElementById('data_source_resource_select').options.length = 0;
 	}
       };
 
@@ -77,7 +80,15 @@
       
       document.getElementById('data_source_pull_button').onclick = function () {
 	if (document.getElementById('data_source_pull_resource').value) {
-	  Iris._DataHandler.get_objects( document.getElementById('data_source_pull_resource').value, { rest: JSON.parse(document.getElementById('data_source_pull_rest').value), query: JSON.parse(document.getElementById('data_source_pull_cgi').value) }, function () {
+	  var rest_params = null;
+	  if (document.getElementById('data_source_pull_rest').value != "[]") {
+	    rest_params = JSON.parse(document.getElementById('data_source_pull_rest').value);
+	  }
+	  var query_params = null;
+	  if (document.getElementById('data_source_pull_cgi').value != "[]") {
+	    query_params = JSON.parse(document.getElementById('data_source_pull_cgi').value);
+	  }
+	  Iris._DataHandler.get_objects( document.getElementById('data_source_pull_resource').value, { rest: rest_params, query: query_params }, function () {
 	      alert('data loaded');
 	    } );
 	 
