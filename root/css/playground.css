@@ -77,19 +77,19 @@
 }
 
 .paginate_disabled_previous {
-	background-image: url('back_disabled.jpg');
+	background-image: url('/img/back_disabled.jpg');
 }
 
 .paginate_enabled_previous {
-	background-image: url('back_enabled.jpg');
+	background-image: url('/img/back_enabled.jpg');
 }
 
 .paginate_disabled_next {
-	background-image: url('forward_disabled.jpg');
+	background-image: url('/img/forward_disabled.jpg');
 }
 
 .paginate_enabled_next {
-	background-image: url('forward_enabled.jpg');
+	background-image: url('/img/forward_enabled.jpg');
 }
 
 table.display {
@@ -127,23 +127,23 @@ table.display td.center {
 }
 
 .sorting_asc {
-	background: url('sort_asc.png') no-repeat center right;
+	background: url('/img/sort_asc.png') no-repeat center right;
 }
 
 .sorting_desc {
-	background: url('sort_desc.png') no-repeat center right;
+	background: url('/img/sort_desc.png') no-repeat center right;
 }
 
 .sorting {
-	background: url('sort_both.png') no-repeat center right;
+	background: url('/img/sort_both.png') no-repeat center right;
 }
 
 .sorting_asc_disabled {
-	background: url('sort_asc_disabled.png') no-repeat center right;
+	background: url('/img/sort_asc_disabled.png') no-repeat center right;
 }
 
 .sorting_desc_disabled {
-	background: url('sort_desc_disabled.png') no-repeat center right;
+	background: url('/img/sort_desc_disabled.png') no-repeat center right;
 }
 
 table.display tr.odd.gradeA {
