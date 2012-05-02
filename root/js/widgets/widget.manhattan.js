@@ -37,7 +37,7 @@
 	var goDiv1;
 	var goDiv2;
 	var study;
-
+	var tooSmall = 0.03;
 	var GOWidth;
 
     widget.display = function(element, args) {
@@ -94,9 +94,26 @@
 			url += "?w=" + limits;
 		}
 		widget.getJSON(url, function (json) {
-			Iris.Renderer.piechart.render( {target: goDiv1, data: json, width: GOWidth, height: GOWidth, radius: Math.floor(GOWidth/2)})
-			
 			Iris.Renderer.table.render( { target: goDiv2, width: GOWidth, height: GOWidth, data: {data: json, header: ["GOSlim term", "Genes"]}});
+			// combine tiny slices of the pie into an "Other" category
+			var sum=0;
+			for( var i=0; i<json.length; i++) {
+				sum += json[i][1];
+			}
+			var cutoff = sum*tooSmall;
+			var pieData = new Array();
+			var other=0;
+			for (var i=0; i<json.length; i++) {
+				if (json[i][1] < cutoff) {
+					other += json[i][1];
+				} else {
+					pieData.push(json[i]);
+				}
+			}
+			if (other > 0) {
+				pieData.push(["Others", other]);
+			}
+			Iris.Renderer.piechart.render( {target: goDiv1, data: pieData, width: GOWidth, height: GOWidth, radius: Math.floor(GOWidth/2)})
 		});
 	}
 
