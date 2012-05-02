@@ -11,7 +11,7 @@
     });
 
 	widget.setup = function () {
-		return [ this.loadRenderer('piechart') ];
+		return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
 	}
 
     var ctx;
@@ -35,7 +35,8 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
-	var goDiv;
+	var goDiv1;
+	var goDiv2;
 	var study;
 
     widget.display = function(element, args) {
@@ -51,8 +52,10 @@
         div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
-		myDiv.append('<div id="' + element.id + '_gohist">');
-		goDiv = document.getElementById(element.id + "_gohist");
+		myDiv.append('<div id="' + element.id + '_goPie" style="position:absolute;left:0;top:' + canvasHeight + ';z-index:0;">');
+		myDiv.append('<div id="' + element.id + '_goTable" style="position:absolute;left:500;top:' + canvasHeight + ';z-index:0;">');
+		goDiv1 = document.getElementById(element.id + "_goPie");
+		goDiv2 = document.getElementById(element.id + "_goTable");
 		
         // div.parent.height = canvasHeight;
         // div.parent.width = canvasWidth;
@@ -89,7 +92,9 @@
 			url += "?w=" + limits;
 		}
 		widget.getJSON(url, function (json) {
-			Iris.Renderer.piechart.render( { target: goDiv, radius: 200, data: json});
+			Iris.Renderer.piechart.render( {target: goDiv1, data: json, radius: 200})
+			
+			Iris.Renderer.table.render( { target: goDiv2, data: {data: json, header: ["GOSlim term", "Genes"]}});
 		});
 	}
 
