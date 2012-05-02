@@ -1,12 +1,10 @@
 (function() {
     widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                title: "Bar Chart",
-                name: "barchart",
-                author: "Jer-Ming Chia",
-                requires: [ "d3.js" ],
-            };
+        about: {
+            title: "Phenotype Histogram",
+            name: "PhenotypeHistogram",
+            author: "Jer-Ming Chia",
+            requires: [ "d3.js" ],
         }
     });
     var svg;
