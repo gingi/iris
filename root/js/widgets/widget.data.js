@@ -49,9 +49,10 @@
     //     renderer: "Syntax"
     // });
 
-   display : function (div, args) {
+    display: function(div, args) {
+        args = (args || {});
         div.innerHTML = '';
-        var path = args.hasOwnProperty('path') ? args['path'] : '/species/at/chromosomes';
+        var path = args.hasOwnProperty('path') ? args['path'] : '/species/athaliana/chromosomes';
         if (args.hasOwnProperty('API')) {
             uriPrefix = args['API'];
         } else {
@@ -89,7 +90,7 @@
             button.setAttribute("type", "button");
             button.setAttribute('value', 'load');
             button.onclick = function() {
-                widget.display({
+                widget.display(div, {
                     API: sel.value,
                     path: input.value
                 })
@@ -104,12 +105,8 @@
     });
 
     function syntaxHighlight(json) {
-        json = json
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-        return json
-    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
             var cls = 'number';
             if (/^"/.test(match)) {
                 if (/:$/.test(match)) {

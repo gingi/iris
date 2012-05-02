@@ -10,8 +10,10 @@ block scripts
     script(type="text/javascript", src="#{js}")
     script(type="text/javascript")
         $(function () {
-            var w = Iris.Widget["#{name}"];
-            w.create(document.getElementById("#{name}Div"));
+            Iris.init().then(function () {
+                var w = Iris.Widget["#{name}"];
+                w.create(document.getElementById("#{name}Div"));
+            });
         });
 
 div(id="#{name}Div", style="position: relative; min-width:500px")
