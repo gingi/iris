@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Renderer Playground</title>
+    
+    <!--basic javascript files-->
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="iris.js"></script>
+
+    <!--slightly adjusted bootstrap style-->
+    <link rel="stylesheet" type="text/css" href="playground.css">
+
+    <!--initialization-->
+    <script type="text/javascript">
+      $(function () {
+      Iris._FrameBuilder.init( { renderer_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/renderer/" ], data_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi" ], dataflow_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/" ], library_resource: "./", widget_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/widget/" ], layout: null, viewports: null } ).then( function () {
+      Iris._DataHandler.add_repository({ url: "http://shock-dev.kbase.us:8000/node", id: "shock", type: "shock"});
+      Iris._DataHandler.add_repository({ id: "cdmi", type: "cdmi", url: "http://bio-data-1.mcs.anl.gov/services/cdmi_api"});
+      Iris._DataHandler.default_repository("MG-RAST");
+
+      Iris._FrameBuilder.load_widget("RendererDisplay").then( function () {
+      Iris.Widget.RendererDisplay.create({ renderer: document.getElementById("render_space"), selector: document.getElementById("renderer_select_space") });
+      });
+
+      Iris._FrameBuilder.load_widget("DatasourceDisplay").then( function () {
+      Iris.Widget.DatasourceDisplay.create({ renderer: document.getElementById("render_space"), selector: document.getElementById("datasource_select_space")}, { canned: true });
+      });
+
+      Iris._FrameBuilder.load_widget("DataDemo").then( function () {
+      Iris.Widget.DataDemo.create({ renderer: document.getElementById("render_space"), selector: document.getElementById("datastore_select_space") });
+      });
+      
+      });
+      });
+    </script>
+
+  </head>
+  
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a href="#" class="brand">Simple Renderer Playground</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container-fluid">
+  
+      <div class="row-fluid">
+	
+	<!--sidebar-->
+	<div class="span3">
+	  
+	  <!--renderer selection-->
+	  <div class="row">
+	    <h3>Renderer Examples</h3>
+	    <p>Select a renderer to load. It will initially display with test data provided by the individual renderer itself.</p>
+	    <div id="renderer_select_space"></div>
+
+	  </div>
+	  
+	  <!--datasource selection-->
+	  <div class="row">
+	    <h3>Datasource Examples</h3>
+	    <p>Select a datasource to view its resources.</p>
+	    
+	    <div id="datasource_select_space"></div>
+	    
+	  </div>
+	  
+	  <!--loaded data display-->
+	  <div class="row">
+	    <h3>Dataflow Examples</h3>
+	    <p>Below are examples of data transformation.</p>
+	    
+	    <div id="datastore_select_space"></div>
+	    
+	  </div>
+	  
+	</div>
+	
+	<!--content-->
+	<div class="span9">
+	  
+	  <!--render space-->
+	  <div id="render_space" class="well"></div>
+	  
+	</div>
+      </div>
+    </div>
+  </body>
+</html>
