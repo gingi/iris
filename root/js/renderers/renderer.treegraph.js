@@ -22,7 +22,7 @@
 	return  dataobj;
       },
 	render : function( options ) {
-
+	
 	if (options.data.length) {
 	  options.data = renderer.array_to_tree(options.data);
 	}
