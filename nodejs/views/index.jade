@@ -2,7 +2,7 @@ script(type="text/javascript",src="/js/jquery.js")
 script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
 script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
 style
-    .btn {
+    .btn-demo {
         padding: 12px 20px;
         min-width: 160px;
     }
@@ -26,19 +26,19 @@ script
 
     .btn-row
         .btn-wrapper
-            a(class="btn btn-primary btn-large",
+            a(class="btn btn-demo btn-primary btn-large",
               href="/workspace",
               title="Workspace Demo",
               data-content="View multiple predefined widgets inline."
             ) Workspace Demo
         .btn-wrapper
-            a(class="btn btn-primary btn-large",
+            a(class="btn btn-demo btn-primary btn-large",
               href="/RendererPlaygroundSimple.html",
               title="Renderer Playground",
               data-content="Connect to real data sources, apply transformations, and visualize data using the available renderers."
             ) Renderer Playground
         .btn-wrapper
-            a(class="btn btn-primary btn-large",
+            a(class="btn btn-demo btn-primary btn-large",
               href="/simple",
               title="Renderer Library",
               data-content="Navigate through the renderer library with sample data."
@@ -46,7 +46,7 @@ script
         
     .btn-row
         .btn-wrapper
-            a(class="btn",
+            a(class="btn btn-demo",
               href="/RendererPlayground.html",
               title="Advanced Renderer Playground",
               data-content="An advanced version of the Renderer Playground, gives more tools for querying and transforming the data."
