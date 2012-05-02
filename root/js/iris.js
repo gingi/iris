@@ -263,9 +263,7 @@
             },
             create: function (element, args) {
                 var widgetInstance = {
-                    about: function (name) {
-                        return about[name];
-                    }
+                    about: about
                 };
                 Iris.extend(widgetInstance, widget);
                 var promises = widgetInstance.setup(args);
@@ -867,7 +865,8 @@
             for (var i = 0; i < data.length; i++) {
 	      var rend = {};
 	      rend.resource = resource;
-          var filename = data[i].filename;
+          var filename =
+              typeof data[i] === 'string' ? data[i] : data[i].filename;
 	      rend.name = filename.substring(filename.indexOf(".") + 1, filename.lastIndexOf("."));
 	      rend.filename = filename;
 	      available_renderers[rend.name] = rend;
@@ -899,7 +898,7 @@
             for (ii=0; ii < data.length; ii++) {
 	      var widget = {};
 	      widget.resource = resource;
-          var filename = data[ii].filename;
+          var filename = typeof data[ii] === 'string' ? data[ii] : data[ii].filename;
 	      widget.name = filename.substring(filename.indexOf(".") + 1, filename.lastIndexOf("."));
 	      widget.filename = filename;
 	      available_widgets[widget.name] = widget;
@@ -1026,7 +1025,7 @@
             var widget_data = available_widgets[widget];
             var script_url = widget_data.resource + widget_data.filename;
             jQuery.getScript(script_url).then(function () {
-                var requires = Iris.Widget[widget].about.requires;
+                var requires = (Iris.Widget[widget].about.requires || []);
                 for (var i=0; i<requires.length; i++) {
                     promises.push(fb.load_library(requires[i]));
                 }
