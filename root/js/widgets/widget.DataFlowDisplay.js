@@ -2,10 +2,10 @@
      widget = Iris.Widget.extend({
         about: function () {
             return {
-                title: "Datas-Flow Display",
+                title: "Data Flow Display",
                 name: "DataFlowDisplay",
                 author: "Tobias Paczian",
-                requires: [ ]
+                requires: []
             };
         }
     });

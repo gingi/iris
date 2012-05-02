@@ -14,6 +14,7 @@
     var phenotypes;
 
     widget.display = function (target, args) {
+        args = (args || {});
         element = target;
         var trait = (args.hasOwnProperty('trait')) ? args['trait'] : 'B11';
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
