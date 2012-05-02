@@ -1,14 +1,40 @@
+script(type="text/javascript",src="/js/jquery.js")
+script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
+script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
 style
     .btn-large {
         margin: 0px 10px;
         padding: 12px 20px;
     }
+script
+    $(function () {
+        $(".btn").popover();
+    });
 
 .masthead(style="text-align:center")
     h1= title
     p(class="lead") A visualization playground for the DOE Knowledgbase Project
 
     p(style="display:block")
-        a(class="btn btn-primary btn-large", href="/workspace") Workspace Demo
-        a(class="btn btn-primary btn-large", href="/RendererPlaygroundSimple.html") Renderer Playground
-        a(class="btn btn-primary btn-large", href="/simple") Renderer Browser
+        a(class="btn btn-primary btn-large",
+          href="/workspace",
+          title="Workspace Demo",
+          data-content="View multiple predefined widgets inline."
+        ) Workspace Demo
+        a(class="btn btn-primary btn-large",
+          href="/RendererPlaygroundSimple.html",
+          title="Renderer Playground",
+          data-content="Connect to real data sources, apply transformations, and visualize data using the available renderers."
+        ) Renderer Playground
+        a(class="btn btn-primary btn-large",
+          href="/simple",
+          title="Renderer Library",
+          data-content="Navigate through the renderer library with sample data."
+        ) Renderer Library
+        
+    p(style="display:block")
+        a(class="btn",
+          href="/RendererPlayground.html",
+          title="Advanced Renderer Playground",
+          data-content="An advanced version of the Renderer Playground, gives more tools for querying and transforming the data."
+        ) Playground for Grownups
