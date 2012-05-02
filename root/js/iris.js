@@ -627,6 +627,19 @@
           var api = repo.api[apiName];
 	var data = api[type].apply(this, resource_params.query);
 	dh.load_data(data, null, type, repo_type);
+	if (CallbackList[type]) {
+	  CallbackList[type]['in_progress'] = 1;
+	  for (i = 0; i < CallbackList[type].length; i++) {
+	    CallbackList[type][i][0].call(null, CallbackList[type][i][1]);
+	  }
+	  if (CallbackList[type].new_params) {
+	    var new_params = CallbackList[type].new_params;
+	    CallbackList[type] = CallbackList[type].new_list;
+	    get_objects_from_repository(new_params[0], new_params[1]);
+	  } else {
+	    CallbackList[type] = null;
+	  }
+	}
 	break;
       }
     }
