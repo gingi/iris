@@ -11,7 +11,7 @@
     });
 
 	widget.setup = function () {
-		return [ ]; //this.loadRenderer('piechart') ];
+		return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
 	}
 
     var ctx;
@@ -35,13 +35,16 @@
     var mincolor = new Array();
     var maxcolor = new Array();
 
-	var goDiv;
+	var goDiv1;
+	var goDiv2;
 	var study;
 
     widget.display = function(element, args) {
         args = (args || {});
-        var div = $(element);
-        div.text('');
+		
+        var myDiv = $(element);
+        myDiv.text('');
+		var div = myDiv.append('<div id="' + element.id + '_man">');
         containerNode = div;
         var canvasHeight = Math.max(div.parent().height(), 250);
         var canvasWidth = Math.max(div.width(), 100);
@@ -49,8 +52,10 @@
         div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
-		div.append('<div id="' + element.id + '_gohist">');
-		goDiv = document.getElementById(element.id + "_gohist");
+		myDiv.append('<div id="' + element.id + '_goPie" style="position:absolute;left:0;top:' + canvasHeight + ';z-index:0;">');
+		myDiv.append('<div id="' + element.id + '_goTable" style="position:absolute;left:500;top:' + canvasHeight + ';z-index:0;">');
+		goDiv1 = document.getElementById(element.id + "_goPie");
+		goDiv2 = document.getElementById(element.id + "_goTable");
 		
         // div.parent.height = canvasHeight;
         // div.parent.width = canvasWidth;
@@ -63,7 +68,7 @@
         study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'athaliana';
 
-//		Iris.Renderer.piechart.render( { target: goDiv, data: getGOData()});
+		renderGO();
 
         // fetch the list of chromosomes and their lengths
 		totalLen = 0;
@@ -80,13 +85,16 @@
         });
     };
 
-	function getGoData(limits) {
+
+	function renderGO(limits) {
 		var url = "/gwas/" + study + "/GO";
 		if (limits) {
 			url += "?w=" + limits;
 		}
 		widget.getJSON(url, function (json) {
-			return json;
+			Iris.Renderer.piechart.render( {target: goDiv1, data: json, radius: 200})
+			
+			Iris.Renderer.table.render( { target: goDiv2, data: {data: json, header: ["GOSlim term", "Genes"]}});
 		});
 	}
 
@@ -285,9 +293,22 @@
                 tool.started = false;
                 ctxi.clearRect(0, 0, ctxi.canvas.width, ctxi.canvas.height);
                 console.log([scoreB, scoreA, chrRangeString]);
-//				Iris.Renderer.piechart.render( { target: goDiv, data: getGOData("chr='2'")});
+				renderGO(build_where([scoreB, scoreA, chrRange]));
                 // getManager().notify(containerNode.id, [scoreB, scoreA, chrRangeString]);
             }
         };
     }
+	
+	function build_where(json) {
+		var where = json[0] + ' <= score <= ' + json[1] + ' and (';
+		for (var i=0; i < json[2].length; i++) {
+			if (i>0) {
+				where += ' or ';
+			}
+			where += '( chr == \'' + json[2][i][0] + '\' and ' + json[2][i][1] + ' <= pos <= ' + json[2][i][2] + ')';
+		}
+		where += ')';
+		return encodeURIComponent(where);
+	}
+	
 })();
