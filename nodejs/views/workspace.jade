@@ -1,55 +1,57 @@
 link(rel="stylesheet", href="/css/widgets.css")
 
 block scripts
-	style
-		ul.workspace { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px }
+    style
+        ul.workspace { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px }
 
-	script(type="text/javascript", src="/js/jquery.js")
-	script(type="text/javascript", src="/js/jquery-ui.js")
-	script(type="text/javascript", src="/js/d3.js")
-	script(type="text/javascript", src="/js/iris.js")
-	- each widget in list
-		script(type="text/javascript", src="#{widget.js}")
-	script
-		var widgetCounter = 1;
-		var widgets = {};
-		function addWidgetDiv() {
-			var newDivId = "workspace" + widgetCounter++;
-			$("#container").append(
-				'<li><div id="' + newDivId +
-				'" style="position:relative;min-width:500px"></div></li>'
-			);
-			$("#" + newDivId).draggable({containment:"#container", delay:1000, scroll:false});
-			return newDivId;
-		}
-		function displayWidget(elem, widgetId) {
-			if ($(elem).hasClass('active')) {
-				var widgetDiv = widgets[widgetId];
-				$("#" + widgetDiv).remove();
-				$(elem).removeClass('active');
-			} else {
-				var divId = addWidgetDiv();
-				var widget = Iris.Widget[widgetId];
-				if (!widget) {
-					throw "Cannot find widget named " + widgetId + "!";
-				}
-				widget.create(document.getElementById(divId));
-				$(elem).addClass('active');
-				widgets[widgetId] = divId;
-			}
-		}
-		
-	script
-		$(function() {
-		});
+    script(type="text/javascript", src="/js/jquery.js")
+    script(type="text/javascript", src="/js/jquery-ui.js")
+    script(type="text/javascript", src="/js/d3.js")
+    script(type="text/javascript", src="/js/iris.js")
+    - each widget in list
+        script(type="text/javascript", src="#{widget.js}")
+    script
+        var widgetCounter = 1;
+        var widgets = {};
+        function addWidgetDiv() {
+            var newDivId = "workspace" + widgetCounter++;
+            $("#container").append(
+                '<li><div id="' + newDivId +
+                '" style="position:relative;min-width:500px"></div></li>'
+            );
+            $("#" + newDivId).draggable({containment:"#container", delay:1000, scroll:false});
+            return newDivId;
+        }
+        function displayWidget(elem, widgetId) {
+            if ($(elem).hasClass('active')) {
+                var widgetDiv = widgets[widgetId];
+                $("#" + widgetDiv).remove();
+                $(elem).removeClass('active');
+            } else {
+                var divId = addWidgetDiv();
+                var widget = Iris.Widget[widgetId];
+                if (!widget) {
+                    throw "Cannot find widget named " + widgetId + "!";
+                }
+                Iris.init().then(function () {
+                    widget.create(document.getElementById(divId));
+                });
+                $(elem).addClass('active');
+                widgets[widgetId] = divId;
+            }
+        }
+        
+    script
+        $(function() {
+        });
 
 .span8
-	h3 Workspace
-	ul(id="container", class="workspace")
+    h3 Workspace
+    ul(id="container", class="workspace")
 .span4
-	div(class="well", style="padding:8px 0")
-		ul(class="nav nav-list")
-			li(class="nav-header") Widgets
-			- each widget in list
-				li
-					a(href="#", onclick="displayWidget(this.parentNode, '#{widget.name}')") #{widget.title}
+    div(class="well", style="padding:8px 0")
+        ul(class="nav nav-list")
+            li(class="nav-header") Widgets
+            - each widget in list
+                li
+                    a(href="#", onclick="displayWidget(this.parentNode, '#{widget.name}')") #{widget.title}
