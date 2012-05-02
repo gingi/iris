@@ -1,16 +1,4 @@
 (function() {
-    var schema = {
-        properties: {
-            target: {
-                type: 'object',
-                required: true
-            },
-            data: {
-                required: true,
-                type: 'string',
-			}
-        }
-    };
     Iris.Renderer.extend({
         about: {
             name: "template",
@@ -20,23 +8,25 @@
             defaults: {
                 fontname: "arial",
 				fontsize: "10pt"
+            },
+            schema: {
+                properties: {
+                    target: {
+                        type: 'object',
+                        required: true
+                    },
+                    data: {
+                        required: true,
+                        type: 'string',
+        			}
+                }
             }
         },
         exampleData: function () {
             return "Hello World";
         },
-        render: function (options) {
-
-            var target = options.target;
-            var opt = options;
-
-            var check = window.json.validate(opt, schema);
-            if (!check['valid']) {
-                console.log(check['errors']);
-                $.error(check['errors']);
-            }
-
-            target.innerHTML = "<p style='font-name: "+options.fontname+"; font-size: "+options.fontsize+";'>"+options.data+"</p>";
+        render: function (args) {
+            args.target.innerHTML = "<p style='font-name: "+args.fontname+"; font-size: "+args.fontsize+";'>"+args.data+"</p>";
         }
     });
 }).call(this);

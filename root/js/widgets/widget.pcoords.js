@@ -24,6 +24,7 @@
     var maxcolor = new Array();
 
     widget.display = function (element, args) {
+        args = (args || {});
         var div = $(element);
         div.text('');
         containerNode = div;

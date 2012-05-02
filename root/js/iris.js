@@ -9,6 +9,9 @@
     var Iris = root.Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
+    var Widget = Iris.Widget = {};
+    var Renderer = Iris.Renderer = {};
+    
     
     // Utility fuctions
     Iris.each = function (array, func) {
@@ -67,12 +70,7 @@
         return string.split(/\s/).join('');
     };
     
-    var alreadyInitialized = false;
-    function initState() {
-        if (alreadyInitialized) {
-            return;
-        }
-        alreadyInitialized = true;
+    Iris.init = function () {
         return Iris._FrameBuilder.init({
             renderer_resources: [ '/renderer/' ],
             data_resources: [ '/service/list' ], 
@@ -232,9 +230,7 @@
     /* ===================================================
      * Iris.Widget
      */
-    var Widget = Iris.Widget = {};
     Widget.extend = function (spec) {
-        var initPromise = initState();
         spec = (spec || {});
         var about;
         switch (typeof spec.about) {
@@ -255,14 +251,8 @@
                 return widget;
             },
             loadRenderer: function (name) {
-                return initPromise.done(function () {
-                    var promise = Iris._FrameBuilder.load_renderer(name);
-                    promise.done(function () {
-                        widget.renderers[name] =
-                             Iris._FrameBuilder.loaded_renderers[name];
-                    });
-                    return promise;
-                });
+                var promise = Iris._FrameBuilder.load_renderer(name);
+                return promise;
             },
             getData: function (args) {
                 return Iris._DataHandler.get_objects(args);
@@ -297,13 +287,10 @@
     /* ===================================================
      * Iris.Renderer
      */
-    var Renderer = Iris.Renderer = {};
-
     Renderer.extend = function (spec) {
         spec = (spec || {});
         var renderer = Iris.extend({}, spec);
         Iris.extend(renderer, Renderer);
-        console.log(renderer.about);
         if (renderer.about.name) {
             Iris.Renderer[renderer.about.name] = renderer;
         }
@@ -321,7 +308,7 @@
             }
             
             // validate(args);
-			if (renderer.about.schema) {
+			if (renderer.about.schema != null) {
 				var check = Iris.validate(settings, renderer.about.schema);
 				if (check['valid']) {
 					console.log("automatic validation", renderer.about.name);
@@ -993,25 +980,25 @@
     };
 
     fb.load_renderer = function (renderer) {
-        var promise;
+        var lrPromise;
         if (loaded_renderers[renderer]) {
-            promise = loaded_renderers[renderer];
+            lrPromise = loaded_renderers[renderer];
         } else {
-            promise = jQuery.Deferred();
-            loaded_renderers[renderer] = promise;
+            lrPromise = jQuery.Deferred();
+            loaded_renderers[renderer] = lrPromise;
 
             var promises = [];
 
             var rend_data = available_renderers[renderer];
             var script_url = rend_data.resource + rend_data.filename;
-            jQuery.getScript(script_url).then(function() {
+            jQuery.getScript(script_url, function () {
                 var requires = Iris.Renderer[renderer].about.requires;
                 for (var i=0; i<requires.length; i++) {
                     promises.push(fb.load_library(requires[i]));
                 }
 
                 jQuery.when.apply(this, promises).then(function() {
-                    promise.resolve();
+                    lrPromise.resolve();
                 });
             }, function(jqXHR, textStatus, errorThrown) {
                 if (textStatus === 'parsererror') {
@@ -1019,7 +1006,7 @@
                 }
             });
         }
-        return promise;
+        return lrPromise;
     };
 
     fb.load_widget = function (widget) {
@@ -1034,7 +1021,7 @@
 
             var widget_data = available_widgets[widget];
             var script_url = widget_data.resource + widget_data.filename;
-            jQuery.getScript(script_url).then(function() {
+            jQuery.getScript(script_url, function () {
                 var requires = Iris.Widget[widget].about('requires');
                 for (var i=0; i<requires.length; i++) {
                     promises.push(fb.load_library(requires[i]));
