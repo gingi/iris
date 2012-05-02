@@ -35,13 +35,14 @@
             name: "piechart",
             author: "Tobias Paczian",
             version: "1.0",
-            requires: ['d3.js'],
+            requires: ['d3.js', 'd3/colorbrewer/colorbrewer.js'],
             defaults: {
                 width: 600,
                 height: 600,
                 radius: 290,
                 target: 'pie_space',
-                data: 'exampleData()'
+                data: 'exampleData()',
+                padding: 50
             },
             dataFormat: schema.properties.data.description
         },
@@ -50,29 +51,17 @@
         },
         render: function (options) {
 
-//             var check = window.json.validate(options, schema);
-//             if (!check['valid']) {
-//                 $.error(check['errors']);
-//             }
-
             var target = options.target;
             target.innerHTML = "";
-
-
-//             target.onclick = function() {
-//                 if (fb_dragData) {
-//                     opt.data = fb_dragData;
-//                     $('div').RendererPiechart.render(opt);
-//                     fb_dragData = null;
-//                 }
-//             }
-
             var w = options.width;
             var h = options.height;
-            var r = options.radius;
-            var color = d3.scale.category20c();
+            var r = options.radius-options.padding;
+            var color = d3.scale.ordinal().range(colorbrewer.RdYlBu[9]);
 
             var data = [];
+            options.data.sort(function (a, b) {
+                return b[1] - a[1];
+            });
             for (i = 0; i < options.data.length; i++) {
                 data.push({
                     "label": options.data[i][0] + " (" + options.data[i][1] + ")",
@@ -83,7 +72,7 @@
                 .append("svg:svg").data([data])
                     .attr("width", w).attr("height", h)
                 .append("svg:g")
-                    .attr("transform", "translate(" + r + "," + r + ")");
+                    .attr("transform", "translate(" + w/2 + "," + h/2 + ")");
 
             var arc = d3.svg.arc().outerRadius(r);
 
@@ -100,12 +89,13 @@
             }).attr("d", arc);
 
             arcs.append("svg:text").attr("transform", function(d) {
-                d.innerRadius = 0;
-                d.outerRadius = r;
-                return "translate(" + arc.centroid(d) + ")";
+                d.innerRadius = r;
+                d.outerRadius = r*2;
+                d.angle = (d.endAngle + d.startAngle) / 2;
+                return "translate(" + arc.centroid(d) + ")rotate("+(d.angle * 180 / Math.PI - 90)+")";
             }).attr("text-anchor", "middle").text(function(d, i) {
                 return data[i].label;
-            });
+            }).attr("font-size", "10");
         }
     });
 }).call(this);
