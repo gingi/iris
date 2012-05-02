@@ -1021,8 +1021,8 @@
 
             var widget_data = available_widgets[widget];
             var script_url = widget_data.resource + widget_data.filename;
-            jQuery.getScript(script_url, function () {
-                var requires = Iris.Widget[widget].about('requires');
+            jQuery.getScript(script_url).then(function () {
+                var requires = Iris.Widget[widget].about.requires;
                 for (var i=0; i<requires.length; i++) {
                     promises.push(fb.load_library(requires[i]));
                 }
