@@ -29,7 +29,7 @@
 	  version: "1.0",
 	  requires: ['d3.js'],
 	  defaults: {
-	width: 800,
+    	width: 200,
 	    height: 350,
 	    padding: 40,
 	    target: "chart",
@@ -77,7 +77,7 @@
 		  return options.height - y(d[1]);
 		})
 	      .attr("fill", function(d) {
-		  return "rgb(0, 0, 150)";
+		  return "rgb(150, 150, 150)";
 		})
 	      .attr("title", function(d) {
 		  return d[0];

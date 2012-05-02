@@ -70,16 +70,20 @@
         return string.split(/\s/).join('');
     };
     
+    var initPromise = null;
     Iris.init = function () {
-        return Iris._FrameBuilder.init({
-            renderer_resources: [ '/renderer/' ],
-            data_resources: [ '/service/list' ], 
-            dataflow_resources: [ '/service/list' ],
-            library_resource: '/js/',
-            widget_resources: [ '/widget/' ],
-            layout: null,
-            viewports: null
-        });
+        if (initPromise == null) {
+            initPromise = Iris._FrameBuilder.init({
+                renderer_resources: [ '/renderer/' ],
+                data_resources: [ '/service/list' ], 
+                dataflow_resources: [ '/service/list' ],
+                library_resource: '/js/',
+                widget_resources: [ '/widget/' ],
+                layout: null,
+                viewports: null
+            });
+        }
+        return initPromise;
     }
     
     var EventCallbacks;
