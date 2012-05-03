@@ -71,22 +71,24 @@
     };
     
     var initPromise = null;
+	var revalidPromise = null;
     Iris.init = function () {
         if (initPromise == null) {
             initPromise = Iris._FrameBuilder.init({
-            renderer_resources: [ '/renderer/' ],
-            data_resources: [
-                'http://dev.metagenomics.anl.gov/api_new.cgi'
-            ], 
-            dataflow_resources: [
-                 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
-            ],
-            library_resource: '/js/',
-            widget_resources: [ '/widget/' ],
-            layout: null,
-            viewports: null
-        });
-    }
+	            renderer_resources: [ '/renderer/' ],
+	            data_resources: [
+	                'http://dev.metagenomics.anl.gov/api_new.cgi'
+	            ], 
+	            dataflow_resources: [
+	                 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
+	            ],
+	            library_resource: '/js/',
+	            widget_resources: [ '/widget/' ],
+	            layout: null,
+	            viewports: null
+	        });
+	    }
+		revalidPromise = Iris.require('revalidator.js');
         return initPromise;
     }
     
@@ -225,15 +227,10 @@
     };
 
 	Iris.validate = function (obj, schema) {
-        console.log(obj, schema);
-		if (window.json.validate) {
+		if (revalidPromise !== null) {
 			return window.json.validate(obj, schema);
 		} else {
-			if (revalidator !== undefined) {
-				return revalidator.validate(obj, schema);
-			} else {
-				return {valid: false, errors: ['validate function not defined']};
-			}
+			return {valid: false, errors: ['validate function not defined']};
 		}
 	}
     /* ===================================================
@@ -314,18 +311,16 @@
                 }
             }
             
-            // FIXME: When there's an issue, just breaks on window.json.validate
-            // if (renderer.about.schema != null) {
-            //                 console.log("Validating",renderer.about);
-            //     var check = Iris.validate(settings, renderer.about.schema);
-            //     if (check['valid']) {
-            //         console.log("automatic validation", renderer.about.name);
-            //         return tmpRender(settings);
-            //     } else {
-            //         console.log(check['errors']);
-            //         return check['errors'];
-            //     }
-            // }
+            if (renderer.about.schema != null) {
+                var check = Iris.validate(settings, renderer.about.schema);
+                if (check['valid']) {
+                    console.log("automatic validation", renderer.about.name);
+                    return tmpRender(settings);
+                } else {
+                    console.log(check['errors']);
+                    return check['errors'];
+                }
+            }
             return tmpRender(settings);
         };
         return renderer;
