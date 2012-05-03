@@ -80,7 +80,7 @@
 //       };
 
       var span2 = document.createElement('span');
-      span2.innerHTML = "<br><b>Pull data a from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>Resource Type</th></tr><tr><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>Identifier</th></tr><tr><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>Other Parameters</th></tr><tr><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='Pull' class='btn'></td></tr></table>";
+      span2.innerHTML = "<br><b>Pull data a from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>Resource Type</th></tr><tr><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>Identifier</th></tr><tr><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>Attributes</th></tr><tr><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='Pull' class='btn'></td></tr></table>";
       if (canned) {
 	span2.setAttribute("style", "display: none;");
       }
