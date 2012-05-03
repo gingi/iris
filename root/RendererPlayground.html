@@ -13,7 +13,7 @@
     <!--initialization-->
     <script type="text/javascript">
       $(function () {
-      Iris._FrameBuilder.init( { renderer_resources: [ "/renderer/" ], data_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi" ], dataflow_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/" ], library_resource: "./js/", widget_resources: [ "/widget/" ], layout: null, viewports: null } ).then( function () {
+      Iris._FrameBuilder.init( { renderer_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/renderer/" ], data_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi" ], dataflow_resources: [ "http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/" ], library_resource: "./js/", widget_resources: [ "/widget/" ], layout: null, viewports: null } ).then( function () {
       Iris._DataHandler.add_repository({ url: "http://shock-dev.kbase.us:8000/node", id: "shock", type: "shock"});
       Iris._DataHandler.add_repository({ id: "cdmi", type: "cdmi", url: "http://bio-data-1.mcs.anl.gov/services/cdmi_api"});
       Iris._DataHandler.default_repository("MG-RAST");
