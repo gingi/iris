@@ -30,12 +30,12 @@
 	div.appendChild(rend_disp);
       }
 
-      select_disp.innerHTML += "<input type='text' id='dataflow_command'>";
+      select_disp.innerHTML += "<input class='span2' type='text' id='dataflow_command'>";
       
-      var button = document.createElement("input");
-      button.setAttribute("type", "button");
-      button.setAttribute("class", "btn");
-      button.setAttribute("value", "execute");
+      var button = document.createElement("a");
+      button.setAttribute("href", "#");
+      button.setAttribute("class", "btn btn-small");
+      button.innerHTML = "<i class='icon-forward'></i>";
       button.onclick = function () {
 	var flow = { current_step: 0,
 		   params: {},
@@ -58,14 +58,15 @@
 	flow_list += "<option title='"+Iris._FrameBuilder.dataflows[i].description+"'>"+i+"</option>";
       }
       var flow_select = document.createElement("select");
+      flow_select.setAttribute("class", "span2");
       flow_select.setAttribute("id", "loaded_dataflows");
       flow_select.innerHTML = flow_list;
-      span1.innerHTML = "<br><b>available dataflows<b><br>";
+      span1.innerHTML = "<br><b>Available Data Flows<b><br>";
       span1.appendChild(flow_select)
-      var flow_button = document.createElement("input");
-      flow_button.setAttribute("type", "button");
-      flow_button.setAttribute("value", "execute");
-      flow_button.setAttribute("class", "btn");
+      var flow_button = document.createElement("a");
+      flow_button.setAttribute("href", "#");
+      flow_button.setAttribute("class", "btn btn-small");
+      flow_button.innerHTML = "<i class='icon-forward'></i>";
       flow_button.onclick = function () {
 	Iris._FrameBuilder.data_flow(Iris._FrameBuilder.get_dataflow(flow_select.options[flow_select.selectedIndex].value)).then( function () {
 	    rend_disp.innerHTML = "";
