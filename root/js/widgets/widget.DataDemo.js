@@ -33,7 +33,7 @@
       var btn1 = document.createElement("input");
       btn1.setAttribute("type", "button");
       btn1.setAttribute("class", "btn");
-      btn1.setAttribute("value", "abundance profile .biom -> table");
+      btn1.setAttribute("value", "Abundance Profile ⇒ Table");
       btn1.onclick = function () {
 	Iris._FrameBuilder.load_dataflow('abundance_profile').then( function () {
 	    Iris._FrameBuilder.data_flow(Iris._FrameBuilder.get_dataflow('abundance_profile')).then( function () {
@@ -53,7 +53,7 @@
       btn2.setAttribute("class", "btn");
       btn2.setAttribute("id", "button2");
       btn2.setAttribute("style", "display: none;");
-      btn2.setAttribute("value", "abundance table -> family tree");
+      btn2.setAttribute("value", "Abundance Table ⇒ Family Tree");
       btn2.onclick = function () {
 	Iris._FrameBuilder.load_dataflow('table_group').then( function () {
 	    Iris._FrameBuilder.data_flow(Iris._FrameBuilder.get_dataflow('table_group')).then( function () {
