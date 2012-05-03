@@ -76,7 +76,7 @@
             initPromise = Iris._FrameBuilder.init({
             renderer_resources: [ '/renderer/' ],
             data_resources: [
-                'http://dev.metagenomics.anl.gov/api_new.cgi/data/'
+                'http://dev.metagenomics.anl.gov/api_new.cgi'
             ], 
             dataflow_resources: [
                  'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
