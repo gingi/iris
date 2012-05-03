@@ -75,8 +75,12 @@
         if (initPromise == null) {
             initPromise = Iris._FrameBuilder.init({
             renderer_resources: [ '/renderer/' ],
-            data_resources: [ '/service/list' ], 
-            dataflow_resources: [ '/service/list' ],
+            data_resources: [
+                'http://dev.metagenomics.anl.gov/api_new.cgi/data/'
+            ], 
+            dataflow_resources: [
+                 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
+            ],
             library_resource: '/js/',
             widget_resources: [ '/widget/' ],
             layout: null,
