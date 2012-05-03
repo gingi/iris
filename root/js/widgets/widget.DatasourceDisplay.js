@@ -34,7 +34,7 @@
 	div.appendChild(rend_disp);
       }
 
-      select_disp.innerHTML += "<b>available sources</b><br>";
+      select_disp.innerHTML += "<b>Available Data Sources</b><br>";
       
       select_list = document.createElement("select");
       select_list.setAttribute("id", "data_source_list_select");
@@ -61,7 +61,7 @@
       select_disp.appendChild(select_list);
       
       var span3 = document.createElement('span');
-      span3.innerHTML = "<br><br><b>available resources</b><br><select id='data_source_resource_select' onchange='document.getElementById(\"data_source_pull_resource\").value=this.options[this.selectedIndex].value;'></select><br>";
+      span3.innerHTML = "<br><br><b>Available Resource Types</b><br><select id='data_source_resource_select' onchange='document.getElementById(\"data_source_pull_resource\").value=this.options[this.selectedIndex].value;'></select><br>";
       select_disp.appendChild(span3);
 
       select_list.onchange();
@@ -80,7 +80,7 @@
 //       };
 
       var span2 = document.createElement('span');
-      span2.innerHTML = "<br><b>pull data from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>resource</th><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>REST</th><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>query</th><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='pull' class='btn'></td></tr></table>";
+      span2.innerHTML = "<br><b>Pull data a from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>Resource Type</th></tr><tr><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>Identifier</th></tr><tr><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>Other Parameters</th></tr><tr><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='Pull' class='btn'></td></tr></table>";
       if (canned) {
 	span2.setAttribute("style", "display: none;");
       }
@@ -101,12 +101,12 @@
 	    } );
 	 
 	} else {
-	  alert('you must at least specify a resource');
+	  alert('You must at least specify a resource');
 	}	
       };
 
       var span4 = document.createElement("span");
-      span4.innerHTML = "<br><b>load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
+      span4.innerHTML = "<br><b>Load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
       if (canned) {
 	span4.setAttribute("style", "display: none;");
       }
@@ -114,7 +114,7 @@
 
       if (canned) {
 	var span5 = document.createElement("span");
-	span5.innerHTML = "<br><b>example queries</b><br>";
+	span5.innerHTML = "<br><b>Example Predefined Queries</b><br>";
 	var canned_queries_select = document.createElement("select");
 	canned_queries_select.innerHTML = "<option value=1>CDMI genome list</option><option value=2>SHOCK metagenomes</option><option value=3>MG-RAST abundance profile</option>";
 	var canned_button = document.createElement("input");
