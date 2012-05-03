@@ -1,17 +1,18 @@
 link(rel="stylesheet", type="text/css", href="/css/iris.css")
 script(type="text/javascript", src="/js/jquery.js")
 script(type="text/javascript", src="/js/iris.js")
-script(type="text/javascript", src="/js/revalidator.js")
 each require in requires
   script(type="text/javascript", src="/js/#{require}")
 
 script(type="text/javascript", src="#{js}")
 script(type="text/javascript")
     $(function () {
-        var renderer = Iris.Renderer["#{name}"];
-        renderer.render({
-            target: document.getElementById("renderMe"),
-            data: renderer.exampleData()
+        Iris.init().then(function () {
+            var renderer = Iris.Renderer["#{name}"];
+            renderer.render({
+                target: document.getElementById("renderMe"),
+                data: renderer.exampleData()
+            });
         });
     });
 
