@@ -30,10 +30,11 @@
 	div.appendChild(rend_disp);
       }
 
-      select_disp.innerHTML += "<b>loaded types</b><br>";
+      select_disp.innerHTML += "<b>Loaded Resource Types</b><br>";
       
       select_list = document.createElement("select");
       select_list.setAttribute("id", "data_store_list_select");
+      select_list.setAttribute("class", "span2");
 
       var btn = document.createElement("a");
       btn.setAttribute("href", "#");
@@ -47,10 +48,10 @@
 	}
       };
 
-      var btn2 = document.createElement('input');
-      btn2.setAttribute('type', 'button');
-      btn2.setAttribute('value', 'show');
-      btn2.setAttribute('class', 'btn');
+      var btn2 = document.createElement("a");
+      btn2.setAttribute("href", "#");
+      btn2.setAttribute("class", "btn");
+      btn2.innerHTML = "<i class='icon-play'></i>";
       btn2.onclick = function () {
 	rend_disp.innerHTML = "";
 	var rend_table = document.createElement("div");
@@ -95,11 +96,12 @@
       select_disp.appendChild(btn2);
 
       var span1 = document.createElement("span");
-      span1.innerHTML = "<br><b>available ids</b><br>";
+      span1.innerHTML = "<br><b>Available Identifiers</b><br>";
       select_disp.appendChild(span1);
 
       var id_list = document.createElement("select");
       id_list.setAttribute("id", "data_store_id_select");
+      id_list.setAttribute("class", "span2");
       select_disp.appendChild(id_list);
 
       var btn3 = document.createElement("a");
@@ -117,10 +119,10 @@
       };
       select_disp.appendChild(btn3);
 
-      var btn4 = document.createElement("input");
-      btn4.setAttribute("type", "button");
+      var btn4 = document.createElement("a");
+      btn4.setAttribute("href", "#");
       btn4.setAttribute("class", "btn");
-      btn4.setAttribute("value", "show");
+      btn4.innerHTML = "<i class='icon-play'></i>";
       btn4.onclick = function () {
 	rend_disp.innerHTML = "";
 	var objdata = jQuery.extend(true, {}, Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value]);
@@ -129,11 +131,12 @@
       select_disp.appendChild(btn4);
 
       var span2 = document.createElement("span");
-      span2.innerHTML = "<br><b>available attributes</b><br>";
+      span2.innerHTML = "<br><b>Available Attributes</b><br>";
       select_disp.appendChild(span2);
 
       var att_list = document.createElement("select");
       att_list.setAttribute("id", "data_store_att_select");
+      att_list.setAttribute("class", "span2");
       select_disp.appendChild(att_list);
 
       var btn5 = document.createElement("a");
@@ -151,10 +154,10 @@
       };
       select_disp.appendChild(btn5);
 
-      var btn6 = document.createElement("input");
-      btn6.setAttribute("type", "button");
+      var btn6 = document.createElement("a");
+      btn6.setAttribute("href", "#");
       btn6.setAttribute("class", "btn");
-      btn6.setAttribute("value", "show");
+      btn6.innerHTML = "<i class='icon-play'></i>";
       btn6.onclick = function () {
 	rend_disp.innerHTML = "";
 	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value][att_list.options[att_list.selectedIndex].value];
@@ -172,7 +175,7 @@
       var btn7 = document.createElement("input");
       btn7.setAttribute("type", "button");
       btn7.setAttribute("class", "btn");
-      btn7.setAttribute("value", "show in current renderer");
+      btn7.setAttribute("value", "Show in Current Renderer");
       btn7.onclick = function () {
 	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
 	if (att_list.selectedIndex > 0) {
@@ -186,7 +189,7 @@
       var btn8 = document.createElement("input");
       btn8.setAttribute("type", "button");
       btn8.setAttribute("class", "btn");
-      btn8.setAttribute("value", "open in new window");
+      btn8.setAttribute("value", "Open in New Window");
       btn8.onclick = function () {
 	var d = Iris._DataHandler.DataStore[select_list.options[select_list.selectedIndex].value][id_list.options[id_list.selectedIndex].value];
 	if (att_list.selectedIndex > 0) {

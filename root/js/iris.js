@@ -225,6 +225,7 @@
     };
 
 	Iris.validate = function (obj, schema) {
+        console.log(obj, schema);
 		if (window.json.validate) {
 			return window.json.validate(obj, schema);
 		} else {
@@ -313,17 +314,18 @@
                 }
             }
             
-            // validate(args);
-			if (renderer.about.schema != null) {
-				var check = Iris.validate(settings, renderer.about.schema);
-				if (check['valid']) {
-					console.log("automatic validation", renderer.about.name);
-					return tmpRender(settings);
-				} else {
-					console.log(check['errors']);
-					return check['errors'];
-				}
-			}
+            // FIXME: When there's an issue, just breaks on window.json.validate
+            // if (renderer.about.schema != null) {
+            //                 console.log("Validating",renderer.about);
+            //     var check = Iris.validate(settings, renderer.about.schema);
+            //     if (check['valid']) {
+            //         console.log("automatic validation", renderer.about.name);
+            //         return tmpRender(settings);
+            //     } else {
+            //         console.log(check['errors']);
+            //         return check['errors'];
+            //     }
+            // }
             return tmpRender(settings);
         };
         return renderer;
