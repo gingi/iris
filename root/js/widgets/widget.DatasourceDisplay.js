@@ -11,13 +11,18 @@
     });
 
     widget.setup = function () {
-    	return [ this.loadRenderer('table') ];
+      return [ this.loadRenderer('jsonpretty') ];
     }
 
     widget.display = function (div, args) {
       var rend_disp;
       var select_disp;
       var select_list;
+
+      var canned = false;
+      if (args) {
+	canned = args.canned;
+      }
 
       if (div.selector) {
 	select_disp = div.selector;
@@ -46,11 +51,11 @@
 	  var opts = "";
 	  for (i=0; i<repo.resources.length; i++) {
 	    opts += "<option>"+repo.resources[i]+"</option>";
-	  }
-	  document.getElementById('data_source_resource_select').innerHTML = opts;
+	  }	  
 	} else {
-	  document.getElementById('data_source_resource_select').options.length = 0;
+	  opts = "<option value=''>- not defined by datasource -</option>";
 	}
+	document.getElementById('data_source_resource_select').innerHTML = opts;
       };
 
       select_disp.appendChild(select_list);
@@ -76,6 +81,9 @@
 
       var span2 = document.createElement('span');
       span2.innerHTML = "<br><b>pull data from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>resource</th><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>REST</th><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>query</th><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='pull' class='btn'></td></tr></table>";
+      if (canned) {
+	span2.setAttribute("style", "display: none;");
+      }
       select_disp.appendChild(span2);
       
       document.getElementById('data_source_pull_button').onclick = function () {
@@ -98,8 +106,47 @@
       };
 
       var span4 = document.createElement("span");
-      span4.innerHTML = "<b>load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
+      span4.innerHTML = "<br><b>load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
+      if (canned) {
+	span4.setAttribute("style", "display: none;");
+      }
       select_disp.appendChild(span4);
+
+      if (canned) {
+	var span5 = document.createElement("span");
+	span5.innerHTML = "<br><b>example queries</b><br>";
+	var canned_queries_select = document.createElement("select");
+	canned_queries_select.innerHTML = "<option value=1>CDMI genome list</option><option value=2>SHOCK metagenomes</option><option value=3>MG-RAST abundance profile</option>";
+	var canned_button = document.createElement("input");
+	canned_button.setAttribute("type", "button");
+	canned_button.setAttribute("value", "get data");
+	canned_button.setAttribute("class", "btn");
+	canned_button.onclick = function () {
+	  rend_disp.innerHTML = "";
+	  switch (canned_queries_select.options[canned_queries_select.selectedIndex].value) {
+	  case "1":
+	  Iris._DataHandler.get_objects( "all_entities_Genome", { data_repository: "cdmi", query: [0, 1000, [ "id", "scientific-name" ]] }, function () {
+	      Iris.Renderer.jsonpretty.render( { target: rend_disp, data: jQuery.extend(true, {},Iris._DataHandler.DataStore["all_entities_Genome"]) });
+	    } );
+	  break;
+	  case "2":
+	  Iris._DataHandler.get_objects( "metagenome", { data_repository: "shock", query: [ "limit", "100" ] }, function () {
+	      Iris.Renderer.jsonpretty.render( { target: rend_disp, data: jQuery.extend(true, {},Iris._DataHandler.DataStore["metagenome"]) });
+	    } );
+
+	  break;
+	  case "3":
+	  Iris._DataHandler.get_objects( "abundance_profile", { data_repository: "MG-RAST", rest: [ "mgm4440026.3" ] }, function () {
+	      Iris.Renderer.jsonpretty.render( { target: rend_disp, data: jQuery.extend(true, {}, Iris._DataHandler.DataStore["abundance_profile"]["mgm4440026.3"] )});
+	    } );
+
+	  break;
+	  }
+	};
+	span5.appendChild(canned_queries_select);
+	span5.appendChild(canned_button);
+	select_disp.appendChild(span5);
+      }
       
     };
       
