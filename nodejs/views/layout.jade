@@ -42,13 +42,14 @@ body
                         a(href="/about") About
                     li
                         a(href="/contact") Contact
-                    li
-                        a(class="ajaxWatch", title="AJAX requests", href="#")
-                           i(class="icon-list")
                 form(action="", class="navbar-form pull-right")
                     input(class="input-small", type="text", placeholder="Username")
                     input(class="input-small", type="password", placeholder="Password")
                     button(class="btn", type="submit") Sign in
+                ul(class="nav pull-right")
+                    li
+                        a(href="#", class="ajaxSpinner")
+                         span(class="badge badge-info ajaxWatch", title="Requests") ready
     
     .container
         .content
