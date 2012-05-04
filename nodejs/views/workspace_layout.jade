@@ -43,6 +43,11 @@ body
                         a(href="/about") About
                     li
                         a(href="/contact") Contact
+                    li
+                        a(class="ajaxWatch",
+                          href="#",
+                          title="AJAX requests")
+                            i.icon-list.icon-white
                 form(action="", class="navbar-form pull-right")
                     input(class="input-small", type="text", placeholder="Username")
                     input(class="input-small", type="password", placeholder="Password")
@@ -52,38 +57,10 @@ body
         .content
             .row
                 .span12
-                    a(class="tasks",
-                      href="#",
-                      title="AJAX requests")
-                        i.icon-list
                     script(type="text/javascript",src="/js/jquery.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
-                    script
-                        var requests = new Object();
-                        $(function () {
-                            $(".tasks").popover({placement:'bottom', content: Iris.currentTasks()});
-                            $(".tasks").ajaxStart(function() {
-                                console.log("started");
-                                $(this).popover('show');
-                            });
-                            $(".tasks").ajaxSend(function(e, jqxhr, settings) {
-                                console.log("sent", settings.url);
-                                requests[settings.url] = "sent";
-                                $(this).data('popover').options.content = requests;
-                                $(this).popover('show');
-                            });
-                            $(".tasks").ajaxComplete(function(e, jqxhr, settings) {
-                                console.log("completed",settings.url);
-                                requests[settings.url] = "done";
-                                $(this).data('popover').options.content = requests;
-                                $(this).popover('show');
-                            });
-                            $(".tasks").ajaxStop(function() {
-                                console.log("stopped",requests);
-                                $(this).popover('hide');
-                            });
-                        });
+                    script(type="text/javascript",src="/js/ajaxWatcher.js")
             .row
                 body!= body
         footer()
