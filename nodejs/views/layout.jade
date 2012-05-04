@@ -51,5 +51,17 @@ body
         .content
             .row
                 .span12
+                    a(class="tasks",
+                      href="#",
+                      title="AJAX requests",
+                      data-content="nothing to see here")
+                        i.icon-list
+                    script(type="text/javascript",src="/js/jquery.js")
+                    script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
+                    script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
+                    script
+                        $(function () {
+                            $(".tasks").popover({placement:'bottom'});
+                        });
                     body!= body
         footer()
