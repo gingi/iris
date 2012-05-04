@@ -1,10 +1,12 @@
 var delay = 2000;
+var delay2 = 5000;
+var nothingToSee = "none";
 var aWatch;
 var requestStatus = new Object();
 var requestTimeout = new Object();
 $(function () {
 	aWatch = $(".ajaxWatch");
-	aWatch.popover({placement:'bottom', content: requestStatus});
+	aWatch.popover({placement:'bottom', content: statusReport });
 	aWatch.ajaxStart(function() {
 		requestStatus = {};
 		requestTimeout = {};
@@ -14,26 +16,39 @@ $(function () {
 		requestStatus[settings.url] = "sent";
 		requestTimeout[settings.url] = window.setTimeout(statusReport,delay);
 	});
-	$(".ajaxWatch").ajaxError(function(e, jqxhr, settings) {
+	aWatch.ajaxError(function(e, jqxhr, settings) {
 		requestStatus[settings.url] = "error";
 		window.clearTimeout(requestTimeout[settings.url]);
 		statusReport();
 	});
-	$(".ajaxWatch").ajaxComplete(function(e, jqxhr, settings) {
+	aWatch.ajaxComplete(function(e, jqxhr, settings) {
 		requestStatus[settings.url] = "done";
 		window.clearTimeout(requestTimeout[settings.url]);
 	});
-	$(".ajaxWatch").ajaxStop(function() {
+	aWatch.ajaxStop(function() {
 		statusReport();
 		aWatch.spin(false);
-		$(this).popover('hide');
+		var cleanupTimout = window.setTimeout(function() {
+			cleanup();
+			statusReport();
+		},delay2);
 	});
 });
 
-function statusReport() {
-	var div = $(document.createElement('div'));
-	var display = 'hide';
+
+function cleanup() {
 	for (var req in requestStatus) {
+		if (requestStatus[req] === "done") {
+			delete requestStatus[req];
+		}
+	}
+}
+function statusReport() {
+	var display = 'hide';
+	var div = $(document.createElement('div'));
+	var n = 0;
+	for (var req in requestStatus) {
+		n++;
 		var span = $(document.createElement('p'));
 		div.append(span);
 		span.append("<b>" + requestStatus[req] + "</b> " + req);
@@ -48,6 +63,10 @@ function statusReport() {
 			default:
 		}
 	}
-	aWatch.data('popover').options.content = div.html();
+	if (n>0) {
+		aWatch.data('popover').options.content = div.html();
+	} else {
+		aWatch.data('popover').options.content = nothingToSee;
+	}
 	aWatch.popover(display);
 }
