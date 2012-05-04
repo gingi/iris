@@ -42,6 +42,11 @@ body
                         a(href="/about") About
                     li
                         a(href="/contact") Contact
+                    li
+                        a(class="ajaxWatch",
+                          href="#",
+                          title="AJAX requests")
+                            i.icon-list.icon-white
                 form(action="", class="navbar-form pull-right")
                     input(class="input-small", type="text", placeholder="Username")
                     input(class="input-small", type="password", placeholder="Password")
@@ -51,17 +56,9 @@ body
         .content
             .row
                 .span12
-                    a(class="tasks",
-                      href="#",
-                      title="AJAX requests",
-                      data-content="nothing to see here")
-                        i.icon-list
                     script(type="text/javascript",src="/js/jquery.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
-                    script
-                        $(function () {
-                            $(".tasks").popover({placement:'bottom'});
-                        });
+                    script(type="text/javascript",src="/js/ajaxWatcher.js")
                     body!= body
         footer()
