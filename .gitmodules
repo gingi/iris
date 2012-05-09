@@ -9,7 +9,7 @@
 	url = https://github.com/mbostock/d3.git
 [submodule "fastbit/src/fastbit"]
 	path = fastbit/src/fastbit
-	url = git@github.com:gingi/fastbit
+	url = https://github.com/gingi/fastbit
 [submodule "examples"]
 	path = examples
-	url = git@github.com:gingi/iris-examples
+	url = https://github.com/gingi/iris-examples
