@@ -1,6 +1,8 @@
 var delay = 2000;
 var delay2 = 5000;
+var delay3 = 500;
 var aWatch;
+var aWatchTally;
 var spinner;
 var requestStatus = new Object();
 var requestTimeout = new Object();
@@ -10,12 +12,14 @@ var nothingToSee = "none";
 jQuery(document).ready(function ($) {
 	spinner = $(".ajaxSpinner");
 	aWatch = $(".ajaxWatch");
+	aWatchTally = $(".ajaxWatchTally");
 	aWatch.popover({placement:'bottom', content: statusReport });
 	aWatch.ajaxStart(function() {
 		requestStatus = {};
 		requestTimeout = {};
 		activeRequests = 0;
 		errors = 0;
+		aWatchTally.show();
 		spinner.spin({ lines: 8, length: 2, width: 2, radius: 3, left: -20 });
 	});
 	aWatch.ajaxSend(function(e, jqxhr, settings) {
@@ -23,7 +27,7 @@ jQuery(document).ready(function ($) {
 			spinner.spin({ lines: 8, length: 2, width: 2, radius: 3, left: -20 });
 		}
 		activeRequests++;
-		aWatch.html("running "+activeRequests);
+		aWatchTally.html("loading "+activeRequests);
 		requestStatus[settings.url] = "sent";
 		requestTimeout[settings.url] = window.setTimeout(statusReport,delay);
 	});
@@ -36,7 +40,7 @@ jQuery(document).ready(function ($) {
 	});
 	aWatch.ajaxComplete(function(e, jqxhr, settings) {
 		activeRequests--;
-		aWatch.html("running "+activeRequests);
+//		aWatch.html("running "+activeRequests);
 		requestStatus[settings.url] = "done";
 		window.clearTimeout(requestTimeout[settings.url]);
 	});
@@ -44,9 +48,10 @@ jQuery(document).ready(function ($) {
 		statusReport();
 		spinner.spin(false);
 		if (errors > 0) {
-			aWatch.html("error "+errors);
+			aWatchTally.html("error "+errors);
 		} else {
-			aWatch.html("ready");
+			aWatchTally.html("ready");
+			var resetTimout = window.setTimeout(function(){aWatchTally.hide()},delay3);
 		}
 		var cleanupTimout = window.setTimeout(function() {
 			cleanup();
