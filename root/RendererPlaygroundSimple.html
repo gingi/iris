@@ -6,6 +6,11 @@
     <!--basic javascript files-->
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/iris.js"></script>
+    <script type="text/javascript" src="/js/bootstrap/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="/js/bootstrap/bootstrap-popover.js"></script>
+    <script type="text/javascript" src="/js/spin.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.spin.js"></script>
+	<script type="text/javascript" src="/js/ajaxWatcher.js"></script>
 
     <!--slightly adjusted bootstrap style-->
     <link rel="stylesheet" type="text/css" href="/css/playground.css">
@@ -41,6 +46,13 @@
       <div class="navbar-inner">
         <div class="container">
           <a href="#" class="brand">Simple Renderer Playground</a>
+            <ul class="nav pull-right">
+               <li>
+                 <a href="#", class="ajaxSpinner">
+                    <span class="badge badge-info ajaxWatchTally ajaxWatch", title="Requests"></span>
+				 </a>
+				</li>
+			</ul>
         </div>
       </div>
     </div>
