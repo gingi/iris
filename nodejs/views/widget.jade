@@ -5,9 +5,7 @@ link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
 block scripts
-    script(type="text/javascript", src="/js/jquery.js")
-    script(type="text/javascript", src="/js/iris.js")
-    script(type="text/javascript", src="/js/d3.js")
+    script(type="text/javascript", src="/js/require.js", data-main="/js/iris")
     script(type="text/javascript", src="#{js}")
     script(type="text/javascript")
         $(function () {

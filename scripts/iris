@@ -17,6 +17,7 @@ IRIS_USAGE='iris [options] <command> [<arguments>]
     
 Available commands:
     check       Ensure that Iris is ready to go
+    env         Get/Set the environment
     examples    Install example data
     help        This command
     install     Install dependencies required by Iris
@@ -342,7 +343,7 @@ LOG_HEADER
 }
 
 # ---------------------------------------------------------------------------
-# IRIS INSTALL
+# IRIS HELP
 # ---------------------------------------------------------------------------
 _help_help="iris help [<command>]
 
@@ -370,6 +371,44 @@ HELP
     cat <<HELP
 $IRIS_USAGE
 HELP
+}
+
+# ---------------------------------------------------------------------------
+# IRIS ENV
+# ---------------------------------------------------------------------------
+_help_env="iris env [<environment>]
+
+Get or set the Iris environment. The environment indicates whether Iris is used 
+in production or development mode. With no argument, just lists the current 
+environment. With an argument, sets that environment and any associated parameters.
+
+<environment> can be:
+
+    dev         Use a development environment
+    prod        Use a production environment"
+function iris_cmd_env {
+    local env=$1
+    if [ -n "$env" ]; then
+        cd $IRIS_HOME/root/js
+        case $env in
+            dev)
+                rm -f iris.js
+                ln -s iris-dev.js iris.js
+                ;;
+            prod)
+                rm -f iris.js
+                echo "Compressing core Javascript..."
+                cat src/core.js src/framebuilder.js src/datahandler.js > iris.js
+                ;;
+            *)
+                echo "The environment '$env' is not supported"
+                exit 1
+                ;;
+        esac
+        echo "Set the environment to '$env'"
+    else
+        echo "The current environment is"
+    fi
 }
 
 # ---------------------------------------------------------------------------
