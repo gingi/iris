@@ -1,13 +1,15 @@
 link(rel="stylesheet", type="text/css", href="/css/jquery-ui.css")
 link(rel="stylesheet", type="text/css", href="/css/iris.css")
-script(type="text/javascript", src="/js/iris.js")
+script(type="text/javascript", src="/js/jquery.js")
+script(type="text/javascript", src="/js/require.js", data-main="/js/iris")
+script(type="text/javascript", src="/js/revalidator.js")
 script(type="text/javascript")
     $(function () {
         Iris.init().then(function () {
-            Iris._FrameBuilder.load_widget('RendererDemo').then( function () {
-                Iris.Widget.RendererDemo.create(document.getElementById("widget1"));
+                Iris._FrameBuilder.load_widget('RendererDemo').then( function () {
+                    Iris.Widget.RendererDemo.create(document.getElementById("widget1"));
+                });
             });
         });
-    });
 
 .toast(id="widget1")

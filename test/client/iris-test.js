@@ -1,5 +1,5 @@
 var target  = __dirname + '/../../root/js/iris.js';
-var documentStub = require(__dirname + '/stubs.js').documentStub;
+var jsdom = require('jsdom');
 var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var Iris = null;
 
@@ -8,13 +8,13 @@ module.exports = {
         var sandbox = require('nodeunit').utils.sandbox;
         var context = sandbox(target, {
             console: console,
-            document: documentStub,
+            document: jsdom,
+            window: jsdom.createWindow(),
             jQuery: require('jQuery'),
             XMLHttpRequest: xmlHttpRequest,
             XDomainRequest: xmlHttpRequest
         });
         Iris = context.Iris;
-        documentStub.Stub.clearDocument();
         callback();
     },
 
