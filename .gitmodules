@@ -7,9 +7,9 @@
 [submodule "external/d3"]
 	path = external/d3
 	url = https://github.com/mbostock/d3.git
-[submodule "fastbit/src/fastbit"]
-	path = fastbit/src/fastbit
-	url = https://github.com/gingi/fastbit
 [submodule "examples"]
 	path = examples
 	url = https://github.com/gingi/iris-examples
+[submodule "fastbit"]
+	path = fastbit
+	url = https://github.com/warelab/shanje
