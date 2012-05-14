@@ -1,12 +1,87 @@
 style
-    .btn-large {
-        margin: 0px 10px;
-        padding: 12px 20px;
-    }
+	.btn-large {
+		margin: 0px 10px;
+		padding: 12px 20px;
+	}
+	#diagram .modal-body {
+		width: 800px;
+		height: 580px;
+		max-height: 580px;
+	}
+	.modal-body p {
+		width: 500px;
+		margin: 0 auto;
+	}
+	#diagram {
+		text-align: center;
+	}
+	.thumbnails .thumbnail {
+		min-height: 350px;
+	}
+	.thumbnail p {
+		visibility: hidden;
+		height: 0;
+	}
+script(type="text/javascript", src="/js/bootstrap/bootstrap-modal.js")
+script
+	jQuery(function () {
+		$(".thumbnails .thumbnail").on("click", "a", function (evt) {
+			$("#diagram").modal('toggle')
+				.css({
+					width: 'auto',
+					height: 'auto',
+					'margin-left': function () {
+						return -($(this).width() / 2);
+					},
+					'margin-top': function () {
+						return -($(this).height() / 2);
+					}
+				});
+			var img = $(this).find("img");
+			$("#diagram .modal-body")
+				.html($(this).html())
+				.append($("<p></p>").append(img.data("caption")));
+			$("#diagram .modal-header h3")
+				.html($(this).find("img").attr("title"));
+		});
+		$(".thumbnails .thumbnail").each(function () {
+			var img = $(this).find("img");
+			$(this)
+				.append($("<h5></h5>").html(img.attr("title")))
+				.append($("<p></p>").text(img.data("caption")));
+		});
+	});
 
 .masthead(style="text-align:center")
-    h1= title
-    p(class="lead") Infrastructure diagram
-      a(href="/img/inf-diagram.png", class="thumbnail")
-        img(src="/img/inf-diagram.png")
-
+	h1= title
+	ul(class="thumbnails")
+		li(class="span6")
+			.thumbnail
+				a(href="#")
+					img(src="/img/about/infrastructure.png",
+						title="Infrastructure Diagram",
+						data-caption="The overall web architecture, including the service-oriented server component as well as the client-side middleware.")
+		li(class="span6")
+			.thumbnail
+				a(href="#")
+					img(src="/img/about/client-components.png",
+						title="Client Components",
+						data-caption="A UML representation of the structural components making up the client middleware and their relationships")
+		li(class="span6")
+			.thumbnail
+				a(href="#")
+					img(src="/img/about/transformations.png",
+						title="Transformations and Data Flows",
+						data-caption="Widgets make use of transformations to reduce and format data for rendering. Transformations can be chained and named into more complex data flows.")
+		li(class="span6")
+			.thumbnail
+				a(href="#")
+					img(src="/img/about/widget-example.png",
+						title="Widget Example",
+						data-caption="An example widget workflow showing <em>phylum distributions</em>. The widget controller requests a list of available metagenomes. The <code>DataHandler</code> component then fetches the data asynchronously, saving the data as a model on the browser. The widget then applies the necessary transformations, reducing the data to a table format that can be readily browsed. After a user selects a particular phylum data set, the widget in turns requests that data from the service via the <code>Data Handler</code>. The response is then saved as a model and transformed for visual display.")
+.modal.hide(id="diagram")
+	.modal-header
+		button.close(data-dismiss="modal")×
+		h3 Diagram
+	.modal-body
+	.modal-footer
