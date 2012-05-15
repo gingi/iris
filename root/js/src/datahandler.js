@@ -1,5 +1,5 @@
-(function () {
-    var dh = Iris._DataHandler = {};
+define(function () {
+    var dh = {};
 
     // global variables
     dh.DataStore = [];
@@ -422,4 +422,5 @@
             dh.DataStore[type] = null;
         }
     };
-}).call(this);
+    return dh;
+});
