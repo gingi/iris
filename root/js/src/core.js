@@ -1,12 +1,12 @@
 /*
-* iris.js
+* core.js
 *
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-(function () {
-    var root = this;
-    var Iris = root.Iris = {};
+define(["./datahandler", "./framebuilder"],
+	function (DataHandler, FrameBuilder) {
+    var Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
     var Widget = Iris.Widget = {};
@@ -55,7 +55,7 @@
     };
 
     Iris.require = function (resource, successCb, errorCb) {
-        var promise = Iris._FrameBuilder.load_library(resource);
+        var promise = FrameBuilder.load_library(resource);
         promise.then(successCb, errorCb);
         return promise;
     }
@@ -74,7 +74,7 @@
 	var revalidPromise = null;
     Iris.init = function () {
         if (initPromise == null) {
-            initPromise = Iris._FrameBuilder.init({
+            initPromise = FrameBuilder.init({
 	            renderer_resources: [ '/renderer/' ],
 	            data_resources: [
 	                'http://dev.metagenomics.anl.gov/api_new.cgi'
@@ -257,7 +257,7 @@
                 return widget;
             },
             loadRenderer: function (name) {
-                var promise = Iris._FrameBuilder.load_renderer(name);
+                var promise = FrameBuilder.load_renderer(name);
                 return promise;
             },
             getData: function (args) {
@@ -341,7 +341,7 @@
      */
     var Event = Iris.Event = observable();
     Event.DragDrop = function (arg1, arg2, arg3) {
-        Iris._FrameBuilder.init_dragobject(arg1, arg2, arg3);
+    	FrameBuilder.init_dragobject(arg1, arg2, arg3);
     };
 
     return Iris;

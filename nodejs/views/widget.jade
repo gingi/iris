@@ -8,7 +8,7 @@ block scripts
     script(type="text/javascript", src="/js/require.js", data-main="/js/iris")
     script(type="text/javascript", src="#{js}")
     script(type="text/javascript")
-        $(function () {
+        require(["iris"], function (Iris) {
             Iris.init().then(function () {
                 var w = Iris.Widget["#{name}"];
                 w.create(document.getElementById("#{name}Div"));

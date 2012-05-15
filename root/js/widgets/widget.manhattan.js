@@ -1,4 +1,10 @@
-(function() {
+require.config({
+    paths: {
+        jQuery: 'jquery',
+    }
+});
+
+define(["iris"], function (Iris) {
     var widget = Iris.Widget.extend({
         about: function () {
             return {
@@ -329,4 +335,4 @@
 		return encodeURIComponent(where);
 	}
 	
-})();
+});

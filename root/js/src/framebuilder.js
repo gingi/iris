@@ -1,6 +1,5 @@
-(function () {
-    var fb = Iris._FrameBuilder = {};
-    var dh = Iris._DataHandler;
+define(["./datahandler"], function (dh) {
+    var fb = {};
 
     var renderer_resources  = fb.renderer_resources  = [];
     var available_renderers = fb.available_renderers = {};
@@ -661,4 +660,5 @@
 
         throw error;
     }
-}).call(this);
+    return fb;
+});
