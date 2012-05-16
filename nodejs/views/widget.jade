@@ -5,13 +5,16 @@ link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
 block scripts
-    script(type="text/javascript", src="/js/require.js", data-main="/js/iris")
-    script(type="text/javascript", src="#{js}")
+    script(type="text/javascript",
+        src="/js/require-jquery.js",
+        data-main="/js/main.js")
     script(type="text/javascript")
-        require(["iris"], function (Iris) {
+        require(["iris", "#{js}"], function (Iris) {
+            console.log("widget.jade");
             Iris.init().then(function () {
-                var w = Iris.Widget["#{name}"];
-                w.create(document.getElementById("#{name}Div"));
+                console.log("Creating widget #{name}");
+                Iris.Widget["#{name}"]
+                    .create(document.getElementById("#{name}Div"));
             });
         });
 

@@ -1,17 +1,10 @@
-require.config({
-    paths: {
-        jQuery: 'jquery',
-    }
-});
-
-define(["iris"], function (Iris) {
+define(["iris", "jquery"], function (Iris, jQuery) {
     var widget = Iris.Widget.extend({
         about: function () {
             return {
                 title: "Manhattan Plot",
                 name: "manhattan",
-                author: "Andrew Olson",
-                requires: []
+                author: "Andrew Olson"
             }
         }
     });

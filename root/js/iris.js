@@ -1,9 +1,6 @@
-require.config({
-    paths: {
-        jQuery: 'jquery'
+define(['core', 'framebuilder', 'datahandler'],
+    function (Iris) {
+        Iris.init();
+        return Iris;
     }
-});
-
-define(['app'], function (Iris) {
-    Iris.init();
-});
+);
