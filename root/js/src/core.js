@@ -4,8 +4,8 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["datahandler", "framebuilder", "jquery"],
-function (DataHandler, FrameBuilder, jQuery) {
+define(["datahandler", "framebuilder", "jquery", "revalidator"],
+function (DataHandler, FrameBuilder, jQuery, revalidator) {
     console.log("core");
     var Iris = {};
     var dataServiceURI;
@@ -65,7 +65,6 @@ function (DataHandler, FrameBuilder, jQuery) {
     };
     
     var initPromise = null;
-	var revalidPromise = null;
     Iris.init = function () {
         if (initPromise == null) {
             initPromise = FrameBuilder.init({
@@ -82,7 +81,6 @@ function (DataHandler, FrameBuilder, jQuery) {
 	            viewports: null
 	        });
 	    }
-		revalidPromise = Iris.require('revalidator.js');
         return initPromise;
     }
     
@@ -221,11 +219,7 @@ function (DataHandler, FrameBuilder, jQuery) {
     };
 
 	Iris.validate = function (obj, schema) {
-		if (revalidPromise !== null) {
-			return window.json.validate(obj, schema);
-		} else {
-			return {valid: false, errors: ['validate function not defined']};
-		}
+		return revalidator.validate(obj, schema);
 	}
     /* ===================================================
      * Iris.Widget

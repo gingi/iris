@@ -1,5 +1,4 @@
-define(["iris", "d3"], function (Iris, d3) {
-    console.log("barchart", d3);
+define(["iris", "d3"], function (Iris) {
     var schema = {
         properties: {
             target: {
