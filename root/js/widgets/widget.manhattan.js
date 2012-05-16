@@ -1,4 +1,4 @@
-define(["iris", "jquery"], function (Iris, jQuery) {
+define(["iris", "jquery", "renderers/renderer.table", "renderers/renderer.piechart"], function (Iris, jQuery) {
     var widget = Iris.Widget.extend({
         about: function () {
             return {
@@ -8,10 +8,6 @@ define(["iris", "jquery"], function (Iris, jQuery) {
             }
         }
     });
-
-	widget.setup = function () {
-		return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
-	}
 
     var ctx;
     var ctxi;

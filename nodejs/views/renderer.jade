@@ -1,11 +1,10 @@
 link(rel="stylesheet", type="text/css", href="/css/iris.css")
-script(type="text/javascript", src="/js/iris.js")
-each require in requires
-  script(type="text/javascript", src="/js/#{require}")
 
-script(type="text/javascript", src="#{js}")
+script(type="text/javascript", src="/js/require-jquery.js",
+    data-main="/js/main.js")
 script(type="text/javascript")
-    $(function () {
+    require(["iris", "#{js}"], function (Iris) {
+        console.log("renderer.jade");
         Iris.init().then(function () {
             var renderer = Iris.Renderer["#{name}"];
             renderer.render({

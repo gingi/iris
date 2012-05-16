@@ -4,18 +4,15 @@
 link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
-block scripts
-    script(type="text/javascript",
-        src="/js/require-jquery.js",
-        data-main="/js/main.js")
-    script(type="text/javascript")
-        require(["iris", "#{js}"], function (Iris) {
-            console.log("widget.jade");
-            Iris.init().then(function () {
-                console.log("Creating widget #{name}");
-                Iris.Widget["#{name}"]
-                    .create(document.getElementById("#{name}Div"));
-            });
+script(type="text/javascript", src="/js/require-jquery.js",
+    data-main="/js/main.js")
+script(type="text/javascript")
+    require(["iris", "#{js}"], function (Iris) {
+        console.log("widget.jade");
+        Iris.init().then(function () {
+            Iris.Widget["#{name}"]
+                .create(document.getElementById("#{name}Div"));
         });
+    });
 
 div(id="#{name}Div", style="position: relative; min-width:500px")

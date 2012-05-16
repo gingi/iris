@@ -1,4 +1,4 @@
-(function () {
+define(["iris", "d3", "colorbrewer"], function (Iris) {
     var schema = {
         properties: {
             target: {
@@ -35,7 +35,6 @@
             name: "piechart",
             author: "Tobias Paczian",
             version: "1.0",
-            requires: ['d3.js', 'd3/colorbrewer/colorbrewer.js'],
             defaults: {
                 width: 600,
                 height: 600,
@@ -98,4 +97,4 @@
             }).attr("font-size", "10");
         }
     });
-}).call(this);
+});
