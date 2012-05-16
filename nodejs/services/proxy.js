@@ -11,27 +11,11 @@ var RENDERER_JS_DIR = JS_DIR + '/renderers';
 var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 var WIDGET_HTTPPATH = '/js/widgets';
-
-var Iris;
-function serverIris() {
-    if (typeof Iris == 'undefined') {
-        Iris = this.Iris = {};
-        var registrants = {};
-        Iris.interceptor = {
-            extend: function (spec) {
-                about = typeof spec.about === 'function'
-                    ? spec.about() : spec.about;
-                registrants[about.name] = about;
-                return {};
-            }
-        };
-        Iris.registrant = function (key) {
-            return registrants[key];
-        };
-        Iris.Widget = Iris.Renderer = Iris.interceptor;
-    }
-    return Iris;
-}
+var requirejs = require('requirejs');
+requirejs.config({
+    nodeRequire: require,
+    baseUrl: JS_DIR
+});
 
 function directoryContents(response, dir) {
     fs.readdir(dir, function (err, files) {
@@ -77,11 +61,7 @@ function widgetList(startCallback, itemCallback, listCallback) {
             if (!matches) {
                 continue;
             }
-            var about = aboutModule(WIDGET_JS_DIR + '/' + file, matches[1]);
-            if (!about) {
-                continue;
-            }
-            about.name.replace(' ', '');
+            var about = { name: "tmp", title: "tmp" };
             widgets.push(itemCallback(file, about));
         }
         listCallback(widgets);
@@ -109,9 +89,10 @@ app.get('/widget', function (request, response) {
 });
 
 function aboutModule(filename, key) {
-    Iris = (Iris || serverIris());
-    require(filename);
-    return Iris.registrant(key);
+    requirejs([filename], function (module) {
+        console.log(module.about);
+    });
+    return about;
 }
 
 app.get('/widget/:widget', function (req, res) {
@@ -140,22 +121,15 @@ app.get('/widget/:widget', function (req, res) {
         var basename = 'widget.' + req.params.widget + '.js';
         var filename = WIDGET_JS_DIR + '/' + basename;
         var httpPath = WIDGET_HTTPPATH + '/' + basename;
-        console.log(req.params.widget);
-        var about = aboutModule(filename, req.params.widget);
-        var name = req.params.widget, requires = [];
-        if (about &&
-            about.hasOwnProperty('requires') ) {
-            requires = about['requires']
-        }
+        var name = req.params.widget;
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
                 routes.widget(req, res, {
-                    title: about.title,
+                    title: "Some Title",
                     js: httpPath,
-                    name: about.name,
-                    requires: requires,
+                    name: name,
                     layout: layout
                 });
             }
@@ -204,19 +178,10 @@ app.get('/renderer/:renderer', function (req, res) {
             }
         });
     } else {
-        if (!this.Iris) {
-            serverIris();
-        }
         var basename = 'renderer.' + req.params.renderer + '.js';
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
-        require(filename);
-        var renderer = Iris.registrant(req.params.renderer);
-        var name = req.params.renderer, requires = [];
-        if (renderer && renderer.hasOwnProperty('requires')) {
-            requires = renderer['requires'];
-            name = renderer['name'];
-        }
+        var name = req.params.renderer;
         path.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
@@ -224,7 +189,6 @@ app.get('/renderer/:renderer', function (req, res) {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",
                     name: name,
-                    requires : requires
                 });
             }
         });

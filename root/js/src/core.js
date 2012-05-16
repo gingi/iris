@@ -4,14 +4,14 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["./datahandler", "./framebuilder"],
-	function (DataHandler, FrameBuilder) {
+define(["datahandler", "framebuilder", "jquery"],
+function (DataHandler, FrameBuilder, jQuery) {
+    console.log("core");
     var Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
     var Widget = Iris.Widget = {};
     var Renderer = Iris.Renderer = {};
-    
     
     // Utility fuctions
     Iris.each = function (array, func) {
@@ -53,12 +53,6 @@ define(["./datahandler", "./framebuilder"],
         }
         return values;
     };
-
-    Iris.require = function (resource, successCb, errorCb) {
-        var promise = FrameBuilder.load_library(resource);
-        promise.then(successCb, errorCb);
-        return promise;
-    }
 
     function capitalize(string) {
         if (string == null || string == "") return string;
