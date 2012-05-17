@@ -13,6 +13,7 @@ deploy-services:
 	echo '#!/bin/sh\n./scripts/iris start' > ./start_service
 	echo '#!/bin/sh\n./scripts/iris stop' > ./stop_service	
 	chmod +x start_service stop_service
+	mkdir -p $(SERVICE_DIR)
 	cp -r . $(SERVICE_DIR)/
 	
 	
