@@ -65,7 +65,7 @@ module.exports = {
                 // Make sure array has data
                 test.ok(data.length > 1);
                 // Test for a sample object (this may change later)
-                test.ok(data.indexOf['LDV'] > -1);
+                test.ok(data.indexOf('LDV') > -1);
                 test.done();
             });
 
