@@ -201,25 +201,6 @@ module.exports = {
         }, "foo");
         test.done();
     },
-    dataHandlerCDMI: function (test) {
-        var api = require("../../root/js/cdmi.js").CDMI_EntityAPI;
-        var dh = Iris._DataHandler;
-        test.ok(dh);
-        dh.initialize_data_storage();
-        var types = "AlignmentTree Annotation AtomicRegulon Attribute Biomass BiomassCompound Compartment Complex Compound Contig ContigChunk ContigSequence CoregulatedSet Diagram EcNumber Experiment Family Feature Genome Identifier Media Model ModelCompartment OTU PairSet Pairing ProbeSet ProteinSequence Publication Reaction ReactionRule Reagent Requirement Role SSCell SSRow Scenario Source Subsystem SubsystemClass TaxonomicGrouping Variant Variation".split(' ');
-        for(i=0; i<types.length; i++) {
-            var type = types[i];
-            var argsWithoutId = ['type', type, 'offset', 0, 'limit', 100];
-            var lib = new api();
-            var fn   = dh.CDMI_get_function(type, argsWithoutId);
-            test.equal(typeof lib[fn], 'function');
-            var argsWihId     = ['type', type, 'offset', 0, 'limit', 100];
-            var args = dh.CDMI_get_args(type, argsWithoutId);
-            test.deepEqual(args[2], {});
-            test.equal(args.length, 3);
-        }
-        test.done();
-    },
 
     irisRequire: function (test) {
         var cb, err;

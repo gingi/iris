@@ -3,10 +3,10 @@
 var nodeunit = require('nodeunit');
 var reporter = nodeunit.reporters.default;
 reporter.run([
-    // 'server/service-base-test.js',
+    'server/service-base-test.js',
     // 'server/proxy-test.js', // FIXME: Tries to start a service?
-    // 'client/renderer-test.js',
-    // 'client/widget-test.js',
-    'client/iris-test.js',
-    // 'client/widget-template-test.js',
+    'client/renderer-test.js',
+    'client/widget-test.js',
+    'client/iris-test.js'
+    // 'client/widget-template-test.js'
 ]);
