@@ -34,24 +34,24 @@ module.exports = {
     },
 
     testServiceURL: function(test) {
-	options.port = 4747;
-	options.path = '/service';
-	var req = http.get(options, function(res) {
-	    test.equals(res.statusCode,200);
-	    test.done();
-	});
-	req.end();
+    options.port = 4747;
+    options.path = '/service';
+    var req = http.get(options, function(res) {
+        test.equals(res.statusCode,200);
+        test.done();
+    });
+    req.end();
 
     },
 
     testServiceListURL: function(test) {
-	options.port = 4747;
-	options.path = '/service/list';
-	var req = http.get(options, function(res) {
-	    test.equals(res.statusCode,200);
-	    test.done();
-	});
-	req.end();
+    options.port = 4747;
+    options.path = '/service/list';
+    var req = http.get(options, function(res) {
+        test.equals(res.statusCode,200);
+        test.done();
+    });
+    req.end();
     },
 
     testPhenotypes: function(test) {
@@ -59,9 +59,9 @@ module.exports = {
         var req = http.get(options, function(res) {
             test.equals(res.statusCode,200);
             res.on('data', function(data) {
-	    	data = JSON.parse(data);
+                data = JSON.parse(data);
                 test.ok(Array.isArray(data));
-		test.ok(data.length > 1);
+                test.ok(data.length > 1);
                 test.done();
             });
 
