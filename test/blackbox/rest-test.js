@@ -31,5 +31,28 @@ module.exports = {
         });
         req.end();        
 
+    },
+
+    testServiceURL: function(test) {
+	options.port = 4747;
+	options.path = '/service';
+	var req = http.get(options, function(res) {
+	    test.equals(res.statusCode,200);
+	    test.done();
+	});
+	req.end();
+
+    },
+
+    testServiceListURL: function(test) {
+	options.port = 4747;
+	options.path = '/service/list';
+	var req = http.get(options, function(res) {
+	    test.equals(res.statusCode,200);
+	    test.done();
+	});
+	req.end();
     }
+
+
 };
