@@ -12,7 +12,7 @@ deploy-services:
 	./scripts/iris install jquery
 	cp ./conf/services-sample.json ./conf/services.json
 	echo '#!/bin/sh\n./scripts/iris start' > ./start_service
-	echo 'mongod -dbpath $(MONGO_DIR)' >> ./start_service
+	echo 'nohup mongod -dbpath $(MONGO_DIR) &' >> ./start_service
 	echo '#!/bin/sh\n./scripts/iris stop' > ./stop_service	
 	echo 'killall mongod' >> ./stop_service
 	chmod +x start_service stop_service
