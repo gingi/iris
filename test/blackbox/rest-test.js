@@ -52,7 +52,21 @@ module.exports = {
 	    test.done();
 	});
 	req.end();
-    }
+    },
 
+    testPhenotypes: function(test) {
+        options.path = '/phenotypes';
+        var req = http.get(options, function(res) {
+            test.equals(res.statusCode,200);
+            res.on('data', function(data) {
+	    	data = JSON.parse(data);
+                test.ok(Array.isArray(data));
+		test.ok(data.length > 1);
+                test.done();
+            });
+
+        });
+        req.end();
+    }
 
 };
