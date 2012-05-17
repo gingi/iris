@@ -60,8 +60,12 @@ module.exports = {
             test.equals(res.statusCode,200);
             res.on('data', function(data) {
                 data = JSON.parse(data);
+                // Make sure we return an array
                 test.ok(Array.isArray(data));
+                // Make sure array has data
                 test.ok(data.length > 1);
+                // Test for a sample object (this may change later)
+                test.ok(data.indexOf['LDV'] > -1);
                 test.done();
             });
 
