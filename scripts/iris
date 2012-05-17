@@ -80,13 +80,14 @@ function _iris_pid {
 
 function _svc_pidfile {
     local svc=$1
+    echo "Looking for service $svc" > /dev/stderr
     echo $SVCPIDFILE | sed "s/%%/$svc/"
 }
 
 function _start_services {
     local svc=$1
     if [ ! -e "$SVC_CONF" ]; then
-        echo "Service configuration [$SVC_CONF] cannot be found!"
+        echo "Service configuration [$SVC_CONF] cannot be found!" 2> /dev/stderr
         iris_cmd_help
         exit 1
     fi
@@ -446,6 +447,10 @@ Lists available service currently configured with Iris (not *running* services).
 See also: 'iris status'"
 function iris_cmd_services {
     local name=$1
+    if [ ! -e "$SVC_CONF" ]; then
+        echo "File $SVC_CONF does not exist!" > /dev/stderr
+        exit 1
+    fi
     local hostname=$(_json_lookup $SVC_CONF "settings hostname")
     [ -z "$hostname" ] && hostname=$DEFAULT_HOSTNAME
     local services
