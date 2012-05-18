@@ -2,7 +2,6 @@
 
 var UNIT_TESTS = [
     'server/service-base-test.js',
-    // 'server/proxy-test.js', // FIXME: Tries to start a service?
     'client/renderer-test.js',
     'client/widget-test.js',
     'client/iris-test.js',
@@ -11,6 +10,7 @@ var UNIT_TESTS = [
 
 var INTEGRATION_TESTS = [
     'blackbox/rest-test.js'
+    //, 'server/proxy-test.js' // FIXME: Tries to start a service?
 ];
 
 var testType = process.argv[2];
