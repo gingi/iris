@@ -527,13 +527,15 @@ argument, runs all component checks.
 The following modules are supported:
 
     unit        Only run the Iris unit tests
-    files       Only check file structure"
+    files       Only check file structure
+    integration Only run Iris integration tests"
 function iris_cmd_check {
     local component=$1
     
     if [ -n "$component" ]; then
         if [ "$component" != "unit" -a \
-             "$component" != "files" ]; then
+             "$component" != "files" -a \
+             "$component" != "integration" ]; then
              _error "'$component' is not a valid check component"
              iris_cmd_help check
          fi
@@ -590,12 +592,14 @@ function iris_cmd_check {
         fi
     fi
     
-    if [ "$component" == "all" -o "$component" == "unit" ]; then
+    if [ "$component" == "all" -o \
+         "$component" == "unit" -o \
+         "$component" == "integration" ]; then
     
         # NODEUNIT
         export NODE_PATH=$NODEDIR/node_modules
         cd $IRIS_HOME/test/
-        ./testjs
+        ./testjs $@
     fi
 }
 
