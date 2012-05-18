@@ -1,5 +1,4 @@
 define(["../iris.js", "renderers/renderer.barchart"], function (Iris) {
-    console.log("widget.template");
     Iris.Widget.extend({
         about: {
             name: "template",
