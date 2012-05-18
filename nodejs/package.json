@@ -9,7 +9,7 @@
     , "mongodb"          : ">= 0.9.9"
     , "restler"          : ">= 2.0.0"
     , "requirejs"        : ">= 1.0.8"
-	, "revalidator"      : ">= 0.1.0"
+    , "revalidator"      : ">= 0.1.0"
     , "nodeunit"         : ">= 0.7.4"
     , "http-proxy"       : ">= 0.8.0"
     , "jQuery"           : ">= 1.6.3"
