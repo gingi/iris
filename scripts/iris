@@ -40,31 +40,37 @@ function _error {
     echo $@
 }
 
-declare -a _json_cache=[]
 function _json_flatten {
     jsonfile=$1
     key=$2
     fields=$3
-    perl -MJSON -e "
-        my \$d = decode_json(join '',<STDIN>)->{$key};
-        print
-            join(\"\n\",
-                map {
-                    my \$j=\$_; join(\"\t\",
-                        map { \$j->{\$_} } qw/$fields/
-                    )
-                } @\$d), \"\n\"
-    " < $jsonfile
+    cat $jsonfile | node -e '
+        var p = process;
+        var f = p.argv[2].split(" ");
+        p.stdin.resume();
+        p.stdin.on("data", function (j) { 
+            var o = JSON.parse(j);
+            o[p.argv[1]].forEach(function (e) {
+                console.log(f.map(function (l) { return e[l]; }).join(" "));
+            });
+        });
+    ' $key "$fields"
 }
 
 function _json_lookup {
     jsonfile=$1
     fields=$2
-    perl -MJSON -e "
-         my \$d = decode_json(join '',<STDIN>);
-         for (qw/$fields/) { \$d = \$d->{\$_} };
-         print \"\$d\n\";
-    " < $jsonfile
+    cat $jsonfile | node -e '
+        var f = process.argv[1].split(" ");
+        process.stdin.resume();
+        process.stdin.on("data", function (j) {
+            var o = JSON.parse(j);
+            for (i in f) {
+                o = o[f[i]];
+            }
+            console.log(o);
+        });
+    ' "$fields"
 }
 
 function _running_pid {
@@ -80,7 +86,6 @@ function _iris_pid {
 
 function _svc_pidfile {
     local svc=$1
-    echo "Looking for service $svc" > /dev/stderr
     echo $SVCPIDFILE | sed "s/%%/$svc/"
 }
 
@@ -451,7 +456,7 @@ function iris_cmd_services {
         echo "File $SVC_CONF does not exist!" > /dev/stderr
         exit 1
     fi
-    local hostname=$(_json_lookup $SVC_CONF "settings hostname")
+    local hostname=$(_json_lookup $SVC_CONF 'settings hostname')
     [ -z "$hostname" ] && hostname=$DEFAULT_HOSTNAME
     local services
     if [ -n "$name" ]; then
