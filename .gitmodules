@@ -12,4 +12,4 @@
 	url = https://github.com/gingi/iris-examples
 [submodule "fastbit"]
 	path = fastbit
-	url = https://github.com/warelab/shanje
+	url = https://github.com/warelab/snapdragon
