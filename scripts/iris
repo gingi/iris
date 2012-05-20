@@ -42,9 +42,9 @@ function _error {
 }
 
 function _json_flatten {
-    jsonfile=$1
-    key=$2
-    fields=$3
+    local jsonfile=$1
+    local key=$2
+    local fields=$3
     cat $jsonfile | node -e '
         var p = process;
         var f = p.argv[2].split(" ");
@@ -59,8 +59,8 @@ function _json_flatten {
 }
 
 function _json_lookup {
-    jsonfile=$1
-    fields=$2
+    local jsonfile=$1
+    local fields=$2
     cat $jsonfile | node -e '
         var f = process.argv[1].split(" ");
         process.stdin.resume();
@@ -75,7 +75,7 @@ function _json_lookup {
 }
 
 function _running_pid {
-    pidfile=$1
+    local pidfile=$1
     if [ -e "$pidfile" ]; then
         xargs ps u -p < $pidfile | awk '!/PID/ {print $2}'
     fi
@@ -133,7 +133,7 @@ function _start_services {
 }
 
 function _start_all_iris {
-    pid=`_iris_pid`
+    local pid=`_iris_pid`
     if [ -n "$pid" ]; then
         echo "Iris is already running (pid `cat $PIDFILE`)"
     else
@@ -208,7 +208,7 @@ _help_start="iris start [<service>]
 Starts Iris services. With no arguments, starts all services.
     <service>   Start a specific service"
 function iris_cmd_start {
-    svc=$1
+    local svc=$1
     if [ -n "$svc" ]; then
         if [ -z "`iris_cmd_services $svc`" ]; then
             echo "Service $svc is not a valid service!"
@@ -235,7 +235,7 @@ _help_stop="iris stop [<service>]
 Stops Iris services. With no arguments, stops all of Iris.
     <service>   Stop a specific service"
 function iris_cmd_stop {
-    svc=$1
+    local svc=$1
     if [ -n "$svc" ]; then
         if [ -z "`iris_cmd_services $svc`" ]; then
             echo "Service $svc is not a valid service!"
@@ -298,7 +298,7 @@ function iris_cmd_install {
         shift
     done
 
-    component=$1
+    local component=$1
     if [ -n "$component" ]; then
         if [ "$component" != 'fastbit' -a \
              "$component" != 'jquery' -a \
@@ -358,7 +358,7 @@ command.
 
     <command>   Specific command to get help for"
 function iris_cmd_help {
-    cmd=$1
+    local cmd=$1
     if [ -n "$cmd" ]; then
         if [ -z "$(declare -f iris_cmd_$cmd)" ]; then
             echo "There's no command called '$cmd'"
@@ -448,7 +448,7 @@ Shows the status of running services.
     
 See also: 'iris services'"
 function iris_cmd_status {
-    svc=$1
+    local svc=$1
     if [ -n "$svc" ]; then
         local service=`iris_cmd_services $svc`
         if [ -z "$service" ]; then
