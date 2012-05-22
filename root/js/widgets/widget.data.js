@@ -1,13 +1,10 @@
-(function() {
+define(["iris"], function(Iris) {
     var widget = {};
     widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                title: "JSON Browser",
-                name: "data",
-                author: "Andrew Olson",
-                requires: []
-            };
+        about: {
+            title: "JSON Browser",
+            name: "data",
+            author: "Andrew Olson",
         },
     // widget.view({
     //     dataPath: '/service/list',
@@ -126,5 +123,6 @@
     function getJSON(path, callback) {
         $.getJSON(uriPrefix + path, callback);
     }
-
-})();
+    
+    return widget;
+});

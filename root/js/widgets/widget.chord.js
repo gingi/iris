@@ -1,12 +1,9 @@
-(function () {
-    widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                name: "chord",
-                title: "Comparative Map",
-                author: "Jer-Ming Chia",
-                requires: [ "d3.js" ],
-            };
+define(["iris", "d3"], function (Iris) {
+    var widget = Iris.Widget.extend({
+        about: {
+            name: "chord",
+            title: "Comparative Map",
+            author: "Jer-Ming Chia"
         }
     });
     var svg;
@@ -104,4 +101,6 @@
             }).transition().style("opacity", opacity);
         };
     }
-})();
+    
+    return widget;
+});

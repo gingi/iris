@@ -4,9 +4,8 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["datahandler", "framebuilder", "jquery", "revalidator"],
-function (DataHandler, FrameBuilder, jQuery, revalidator) {
-    console.log("core");
+define(["datahandler", "framebuilder", "jquery"],
+function (DataHandler, FrameBuilder, jQuery) {
     var Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
@@ -219,7 +218,7 @@ function (DataHandler, FrameBuilder, jQuery, revalidator) {
     };
 
 	Iris.validate = function (obj, schema) {
-		return revalidator.validate(obj, schema);
+		return window.json.validate(obj, schema);
 	}
     /* ===================================================
      * Iris.Widget

@@ -1,5 +1,5 @@
-define(["../iris.js", "renderers/renderer.barchart"], function (Iris) {
-    Iris.Widget.extend({
+define(["iris", "renderers/renderer.barchart"], function (Iris) {
+    return Iris.Widget.extend({
         about: {
             name: "template",
             title: "Template Widget",
@@ -13,5 +13,4 @@ define(["../iris.js", "renderers/renderer.barchart"], function (Iris) {
             });
         }
     });
-    return Iris;
 });

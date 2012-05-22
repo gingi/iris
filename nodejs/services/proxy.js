@@ -12,10 +12,6 @@ var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 var WIDGET_HTTPPATH = '/js/widgets';
 var requirejs = require('requirejs');
-requirejs.config({
-    nodeRequire: require,
-    baseUrl: JS_DIR
-});
 
 function directoryContents(response, dir) {
     fs.readdir(dir, function (err, files) {
@@ -48,10 +44,31 @@ app.get('/404', function (req, res) {
                           message: 'Now go back to where ya came from.'});
 });
 
+requirejs.define('iris', function () {
+    var extendShim = { extend: function (obj) { return obj; } };
+    return {
+        Widget: extendShim,
+        Renderer: extendShim
+    };
+});
+
+// RequireJS shim for non-AMD dependencies
+function shim(dependency) {
+    requirejs.define(dependency, function () { return {} });
+}
+
+shim('d3');
+requirejs.onError = function (error) {
+    console.error("Parse error in widget " + error.moduleName);
+    console.error("   Error:    " + error.originalError);
+    console.error("   Filename: " + error.fileName);
+};
+
 function widgetList(startCallback, itemCallback, listCallback) {
     var i, file, name, widgets = [];
     fs.readdir(WIDGET_JS_DIR, function (err, files) {
         startCallback();
+        var widgetPaths = {};
         for (i = 0; i < files.length; i++) {
             file = files[i];
             if (file.match(/^\./)) {
@@ -61,8 +78,20 @@ function widgetList(startCallback, itemCallback, listCallback) {
             if (!matches) {
                 continue;
             }
-            var about = { name: "tmp", title: "tmp" };
-            widgets.push(itemCallback(file, about));
+            var widgetName = matches[1];
+            widgetPaths["widgets/" + widgetName] =
+                "widgets/widget." + widgetName;
+        }
+        console.log(widgetPaths);
+        requirejs.config({
+            nodeRequire: require,
+            baseUrl: JS_DIR,
+            paths: widgetPaths,
+        });
+        for (w in widgetPaths) {
+            requirejs([w], function (module) {
+                widgets.push(itemCallback(widgetPaths[w], module.about));
+            });
         }
         listCallback(widgets);
     });
@@ -77,7 +106,6 @@ app.get('/widget', function (request, response) {
             return {
                 name     : about.name,
                 title    : about.title,
-                filename : file,
                 example  : iris.uri() + '/widget/' + about.name
             };
         },
