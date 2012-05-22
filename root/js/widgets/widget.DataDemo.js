@@ -1,12 +1,9 @@
-(function () {
+define(["iris"], function (Iris) {
      widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                title: "Data Demonstration",
-                name: "DataDemo",
-                author: "Tobias Paczian",
-                requires: [ ]
-            };
+        about: {
+            title: "Data Demonstration",
+            name: "DataDemo",
+            author: "Tobias Paczian",
         }
     });
 
@@ -64,5 +61,5 @@
       select_disp.appendChild(btn2);
 
     };
-      
-})();
+    return widget;
+});
