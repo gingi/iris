@@ -1,5 +1,4 @@
-define(["core", "datahandler"], function (Iris, dh) {
-    console.log("framebuilder");
+define(["./core", "./datahandler"], function (Iris, dh) {
     var fb = {};
 
     var renderer_resources  = fb.renderer_resources  = [];

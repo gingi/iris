@@ -4,7 +4,7 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["datahandler", "framebuilder", "jquery"],
+define(["src/datahandler", "src/framebuilder", "jquery"],
 function (DataHandler, FrameBuilder, jQuery) {
     var Iris = {};
     var dataServiceURI;
@@ -63,24 +63,21 @@ function (DataHandler, FrameBuilder, jQuery) {
         return string.split(/\s/).join('');
     };
     
-    var initPromise = null;
     Iris.init = function () {
-        if (initPromise == null) {
-            initPromise = FrameBuilder.init({
-	            renderer_resources: [ '/renderer/' ],
-	            data_resources: [
-	                'http://dev.metagenomics.anl.gov/api_new.cgi'
-	            ], 
-	            dataflow_resources: [
-	                 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
-	            ],
-	            library_resource: '/js/',
-	            widget_resources: [ '/widget/' ],
-	            layout: null,
-	            viewports: null
-	        });
-	    }
-        return initPromise;
+    	console.log("Initializing the FrameBuilder");
+		FrameBuilder.init({
+			renderer_resources: [ '/renderer/' ],
+			data_resources: [
+				'http://dev.metagenomics.anl.gov/api_new.cgi'
+			], 
+			dataflow_resources: [
+				 'http://dev.metagenomics.anl.gov/api_new.cgi/dataflow/'
+			],
+			library_resource: '/js/',
+			widget_resources: [ '/widget/' ],
+			layout: null,
+			viewports: null
+		});
     }
     
     var EventCallbacks;
