@@ -5,23 +5,23 @@ var Iris = null;
 
 module.exports = {
     setUp: function (callback) {
-    	var requirejs = require('requirejs');
-    	requirejs(target, function (Iris) {
-    		this.Iris = Iris;
-    	});
-    	
-//         var sandbox = require('nodeunit').utils.sandbox;
-//         var context = sandbox(target, {
-//             console: console,
-//             document: jsdom,
-//             window: jsdom.createWindow(),
-//             jQuery: require('jQuery'),
-//             require: requirejs,
-//             define: requirejs.define,
-//             XMLHttpRequest: xmlHttpRequest,
-//             XDomainRequest: xmlHttpRequest
-//         });
-//         Iris = context;
+        var requirejs = require('requirejs');
+        requirejs(target, function (Iris) {
+            this.Iris = Iris;
+        });
+        
+		// var sandbox = require('nodeunit').utils.sandbox;
+		// var context = sandbox(target, {
+		//     console: console,
+		//     document: jsdom,
+		//     window: jsdom.createWindow(),
+		//     jQuery: require('jQuery'),
+		//     require: requirejs,
+		//     define: requirejs.define,
+		//     XMLHttpRequest: xmlHttpRequest,
+		//     XDomainRequest: xmlHttpRequest
+		// });
+		// Iris = context;
         callback();
     },
 

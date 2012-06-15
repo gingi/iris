@@ -404,7 +404,7 @@ function iris_cmd_env {
             prod)
                 rm -f iris.js
                 echo "Compressing core Javascript..."
-                cat src/core.js src/framebuilder.js src/datahandler.js > iris.js
+                echo "[FIXME: Not doing anything yet]"
                 ;;
             *)
                 echo "The environment '$env' is not supported"
