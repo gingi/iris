@@ -4,66 +4,31 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["src/datahandler", "src/framebuilder", "jquery"],
-function (DataHandler, FrameBuilder, jQuery) {
+define(["src/util", "src/datahandler", "src/framebuilder", "jquery"],
+function (Util, DataHandler, FrameBuilder, jQuery) {
     var Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
     var Widget = Iris.Widget = {};
     var Renderer = Iris.Renderer = {};
-    
-    // Utility fuctions
-    Iris.each = function (array, func) {
-        for (var i = 0; i < array.length; i++) {
-            func(array[i]);
-        }
-        return array;
-    };
-
-    Iris.extend = function (object) {
-        Iris.each(Array.prototype.slice.apply(arguments), function (source) {
-            for (var property in source) {
-                if (!object[property]) {
-                    object[property] = source[property];
-                }
-            }
-        });
-        return object;
-    };
-    
-    Iris.keys = function (object) {
-        if (object !== Object(object)) throw new TypeError('Invalid object');
-        var keys = [];
-        for (var key in object) {
-            if (object.hasOwnProperty(key)) {
-                keys[keys.length] = key;
-            }
-        }
-        return keys;
-    };
-
-    // Retrieve the values of an object's properties.
-    Iris.values = function (object) {
-        var values = [];
-        for (var key in this) {
-            if (object.hasOwnProperty(key)) {
-                values[values.length] = object[key];
-            }
-        }
-        return values;
-    };
-
-    function capitalize(string) {
-        if (string == null || string == "") return string;
-        return string[0].toUpperCase() + string.slice(1);
-    }
-    
-    Iris.normalizeName = function (string) {
-        // var capitalized = capitalize(string);
-        return string.split(/\s/).join('');
-    };
-    
+        
     Iris.init = function () {
+        jQuery.ajax({
+			url: "/service",
+			dataType: 'json',
+			async: false,
+			success: function (service) {
+				dataServiceURI = service.dataServiceURI;
+			}
+		});
+		
+		jQuery.getJSON("/service/list", function (services) {
+			for (var i = 0; i < services.length; i++) {
+				var service = services[i];
+				services[service.path] = service.uri;
+			}
+		});
+		
     	console.log("Initializing the FrameBuilder");
 		FrameBuilder.init({
 			renderer_resources: [ '/renderer/' ],
@@ -110,9 +75,10 @@ function (DataHandler, FrameBuilder, jQuery) {
                 return this;
             },
 
-            // Remove one or many callbacks. If `context` is null, removes all callbacks
-            // with that function. If `callback` is null, removes all callbacks for the
-            // event. If `events` is null, removes all bound callbacks for all events.
+			// Remove one or many callbacks. If `context` is null, removes all
+			// callbacks with that function. If `callback` is null, removes all
+			// callbacks for the event. If `events` is null, removes all bound
+			// callbacks for all events.
             off: function (events, callback, context) {
                 var event, node, tail, cb, ctx;
 
@@ -123,8 +89,8 @@ function (DataHandler, FrameBuilder, jQuery) {
                     return this;
                 }
 
-                // Loop through the listed events and contexts, splicing them out of the
-                // linked list of callbacks if appropriate.
+				// Loop through the listed events and contexts, splicing them
+				// out of the linked list of callbacks if appropriate.
                 events = events
                     ? events.split(eventSplitter)
                     : Iris.keys(EventCallbacks);
@@ -147,10 +113,11 @@ function (DataHandler, FrameBuilder, jQuery) {
                 return this;
             },
 
-            // Trigger one or many events, firing all bound callbacks. Callbacks are
-            // passed the same arguments as `trigger` is, apart from the event name
-            // (unless you're listening on `"all"`, which will cause your callback to
-            // receive the true name of the event as the first argument).
+			// Trigger one or many events, firing all bound callbacks. Callbacks
+			// are passed the same arguments as `trigger` is, apart from the
+			// event name (unless you're listening on `"all"`, which will cause
+			// your callback to receive the true name of the event as the first
+			// argument).
             trigger: function (events) {
                 var event, node, calls, tail, args, all, rest;
                 if (!EventCallbacks) return this;
@@ -158,8 +125,9 @@ function (DataHandler, FrameBuilder, jQuery) {
                 events = events.split(eventSplitter);
                 rest = Array.prototype.slice.call(arguments, 1);
 
-                // For each event, walk through the linked list of callbacks twice,
-                // first to trigger the event, then to trigger any `"all"` callbacks.
+				// For each event, walk through the linked list of callbacks
+				// twice, first to trigger the event, then to trigger any
+				// `"all"` callbacks.
                 while (event = events.shift()) {
                     if (node = EventCallbacks[event]) {
                         tail = node.tail;
@@ -180,25 +148,6 @@ function (DataHandler, FrameBuilder, jQuery) {
             }
         };
     };
-    
-    // FIXME: Does this really have to be synchronous?
-    // With 'async: true', this gets evaluated after the rendering
-    // --Shiran
-    jQuery.ajax({
-        url: "/service",
-        dataType: 'json',
-        async: false,
-        success: function (service) {
-            dataServiceURI = service.dataServiceURI;
-        }
-    });
-    
-    jQuery.getJSON("/service/list", function (services) {
-        for (var i = 0; i < services.length; i++) {
-            var service = services[i];
-            services[service.path] = service.uri;
-        }
-    });
     
     Iris.dataURI = function (path) { return dataServiceURI + path; };
     Iris.getJSON = function (path, callback) {
