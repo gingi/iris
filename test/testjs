@@ -2,8 +2,8 @@
 
 var UNIT_TESTS = [
 	// 'server/service-base-test.js',
-	// 'client/renderer-test.js',
-	// 'client/widget-test.js',
+	'client/renderer-test.js',
+	'client/widget-test.js',
 	'client/iris-test.js',
 	'client/util-test.js',
     // 'client/widget-template-test.js',
