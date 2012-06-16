@@ -44,6 +44,10 @@ define(function () {
         }
         return values;
     };
+    
+	Util.validate = function (obj, schema) {
+		return window.json.validate(obj, schema);
+	}
 
     function capitalize(string) {
         if (string == null || string == "") return string;
