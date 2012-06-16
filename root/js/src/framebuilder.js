@@ -1,4 +1,4 @@
-define(["./core", "./datahandler"], function (Iris, dh) {
+define(["jquery", "./core", "./datahandler"], function (jQuery, Iris, dh) {
     var fb = {};
 
     var renderer_resources  = fb.renderer_resources  = [];
