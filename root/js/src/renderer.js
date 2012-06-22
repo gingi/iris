@@ -3,6 +3,7 @@ define(["src/util"], function (Util) {
     Renderer.extend = function (spec) {
         spec = (spec || {});
         var renderer = Util.extend({}, spec);
+        renderer.about = (renderer.about || {});
         Util.extend(renderer, Renderer);
         if (renderer.about.name) {
             Renderer[renderer.about.name] = renderer;
@@ -11,14 +12,12 @@ define(["src/util"], function (Util) {
         var tmpRender = renderer.render;
         renderer.render = function (settings) {
             settings = (settings || {});
-            if (renderer.about) {
-                if (renderer.about.defaults) {
-                    Util.extend(settings, renderer.about.defaults);
-                }
-                if (renderer.about.setDefaults) {
-                    Util.extend(settings, renderer.about.setDefaults());
-                }
-            }
+			if (renderer.about.defaults) {
+				Util.extend(settings, renderer.about.defaults);
+			}
+			if (renderer.about.setDefaults) {
+				Util.extend(settings, renderer.about.setDefaults());
+			}
             
             if (renderer.about.schema != null) {
                 var check = Util.validate(settings, renderer.about.schema);

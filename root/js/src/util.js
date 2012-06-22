@@ -1,4 +1,4 @@
-define(function () {
+define(["jquery"], function (jQuery) {
 	var Util = {};
 
     Util.each = function (array, func) {
@@ -8,21 +8,8 @@ define(function () {
         return array;
     };
 
-	/**
-	 * extend(target, source):
-	 *     Extends the target object with properties in source.
-	 */   
-    Util.extend = function (target) {
-        Util.each(Array.prototype.slice.apply(arguments), function (source) {
-            for (var property in source) {
-                if (!target[property]) {
-                    target[property] = source[property];
-                }
-            }
-        });
-        return target;
-    };
-    
+	Util.extend = jQuery.extend;
+	
     Util.keys = function (object) {
         if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
@@ -57,7 +44,7 @@ define(function () {
     Util.normalizeName = function (string) {
         // var capitalized = capitalize(string);
         return string.split(/\s/).join('');
-    };
+    };    
 	
 	return Util;
 });

@@ -4,6 +4,9 @@ var requirejs = require('requirejs');
 requirejs.config({
 	baseUrl: __dirname + '/../../root/js',
 	nodeRequire: require,
+	paths: {
+		jquery: require('jquery'),
+	},
 });
 
 requirejs([target], function (Widget) {
@@ -14,6 +17,18 @@ requirejs([target], function (Widget) {
 	
 		tearDown: function (callback) {
 			callback();
+		},
+
+		simpleWidgetPattern: function (test) {
+			var widget = Widget.extend({
+				about: { name: "Widget1" },
+			});
+			test.done();
+		},
+		
+		twoRendererWidgetPattern: function (test) {
+			var widget = Widget.extend();
+			test.done();
 		},
 	
 		createWithNoParamsThrowsOnDisplay: function (test) {

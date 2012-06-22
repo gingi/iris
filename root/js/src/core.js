@@ -6,7 +6,7 @@
 
 define(["src/util", "src/framebuilder", "jquery"],
 function (Util, FrameBuilder, jQuery) {
-    var Iris = Util.extend({}, Util);
+    var Iris = Util.extend(Util);
     var dataServiceURI;
     var services = Iris.services = {};
     var Widget = Iris.Widget = {};
@@ -28,8 +28,8 @@ function (Util, FrameBuilder, jQuery) {
 				services[service.path] = service.uri;
 			}
 		});
-		
-    	console.log("Initializing the FrameBuilder");
+
+		/* FIXME: How to handle this?		
 		FrameBuilder.init({
 			renderer_resources: [ '/renderer/' ],
 			data_resources: [
@@ -43,6 +43,7 @@ function (Util, FrameBuilder, jQuery) {
 			layout: null,
 			viewports: null
 		});
+		*/
     }
         
     Iris.dataURI = function (path) { return dataServiceURI + path; };
@@ -67,6 +68,15 @@ function (Util, FrameBuilder, jQuery) {
         var model = {};
         Iris.extend(model, observable());
         return model;
+    };
+    
+	Iris.renderer = function (name) {
+		name = "renderers/renderer." + name;
+    	var rendObject = require(name);
+    	
+    	// FIXME: Add hooks
+    	Util.extend(rendObject, {});
+    	return rendObject.create();
     };
     
     return Iris;
