@@ -3,6 +3,14 @@ var requirejs = require('requirejs');
 
 var testHash = { a: 9, b: 3, c: 27 };
 
+requirejs.config({
+	baseUrl: __dirname + '/../../root/js',
+	nodeRequire: require,
+	paths: {
+		jquery: require('jquery'),
+	},
+});
+
 requirejs([target], function (Util) {
 	module.exports = {
 		each: function (test) {
@@ -33,7 +41,7 @@ requirejs([target], function (Util) {
 				fn: function () { return this.n * 5 },
 			};
 			test.equals(60, obj.fn());
-			var obj2 = Util.extend({ n: 7 }, obj);
+			var obj2 = Util.extend(obj, { n: 7 });
 			test.equals(35, obj2.fn());
 			
 			Util.extend(obj2, { fn2: function () { return 365 } });
