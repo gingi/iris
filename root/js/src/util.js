@@ -1,5 +1,5 @@
-define(["jquery"], function (jQuery) {
-	var Util = {};
+define(function () {
+    var Util = {};
 
     Util.each = function (array, func) {
         for (var i = 0; i < array.length; i++) {
@@ -8,8 +8,17 @@ define(["jquery"], function (jQuery) {
         return array;
     };
 
-	Util.extend = jQuery.extend;
-	
+    Util.extend = function (object) {
+        Util.each(arguments, function (src) {
+            for (var key in src) {
+                if (!object.hasOwnProperty(key)) {
+                    object[key] = src[key];
+                }
+            }
+        });
+        return object;
+    };
+    
     Util.keys = function (object) {
         if (object !== Object(object)) throw new TypeError('Invalid object');
         var keys = [];
@@ -32,19 +41,19 @@ define(["jquery"], function (jQuery) {
         return values;
     };
     
-	Util.validate = function (obj, schema) {
-		return window.json.validate(obj, schema);
-	}
+    Util.validate = function (obj, schema) {
+        return window.json.validate(obj, schema);
+    }
 
     function capitalize(string) {
         if (string == null || string == "") return string;
         return string[0].toUpperCase() + string.slice(1);
     }
-    
+
     Util.normalizeName = function (string) {
         // var capitalized = capitalize(string);
         return string.split(/\s/).join('');
     };    
-	
-	return Util;
+    
+    return Util;
 });

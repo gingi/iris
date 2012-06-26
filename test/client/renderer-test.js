@@ -1,14 +1,6 @@
 var target = __dirname + '/../../root/js/src/renderer.js';
 var requirejs = require('requirejs');
 
-requirejs.config({
-	baseUrl: __dirname + '/../../root/js',
-	nodeRequire: require,
-	paths: {
-		jquery: require('jquery'),
-	},
-});
-
 requirejs([target], function (Renderer) {
 	module.exports = {
 		setUp: function (callback) {

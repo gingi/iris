@@ -1,13 +1,5 @@
-var target  = __dirname + '/../../root/js/iris.js';
+var target    = __dirname + '/../../root/js/iris.js';
 var requirejs = require('requirejs');
-
-requirejs.config({
-	baseUrl: __dirname + '/../../root/js',
-	nodeRequire: require,
-	paths: {
-		jquery: require('jquery'),
-	},
-});
 
 requirejs([target], function (Iris) {
 	module.exports = {
@@ -173,6 +165,7 @@ requirejs([target], function (Iris) {
 			test.equal("bar", result, "'foo' should be set to the default");
 			test.done();
 		},
+		
 		dataHandlerShock: function (test) {
 			var dh = Iris._DataHandler;
 			test.ok(dh);
@@ -191,5 +184,5 @@ requirejs([target], function (Iris) {
 			}, "foo");
 			test.done();
 		},	
-	}
+	};
 });

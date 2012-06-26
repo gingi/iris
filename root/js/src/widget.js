@@ -1,10 +1,11 @@
 define(["src/core"], function (Iris) {
-	var Widget = Iris.Widget = Iris.extend({
+	var Widget = Iris.Widget = {
 		renderers: {},
 		target: function (target) {
 			widget.targetElement = target;
 			return widget;
 		},
+		view: function () {},
 		create: function (element, args) {
 			var widgetInstance = {
 				about: about
@@ -15,7 +16,8 @@ define(["src/core"], function (Iris) {
 		},
 		setup: function (args) { return [] },
 		display: function () {},
-	});
+		extend: Iris.extend
+	};
 
     return Widget;
 });
