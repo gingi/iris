@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 var UNIT_TESTS = [
-	// 'server/service-base-test.js',
-	'client/renderer-test.js',
-	'client/widget-test.js',
-	'client/iris-test.js',
-	'client/util-test.js',
+    // 'server/service-base-test.js',
+    'client/util-test.js',
+    'client/renderer-test.js',
+    'client/widget-test.js',
+    'client/iris-test.js',
     // 'client/widget-template-test.js',
 ];
 
@@ -35,6 +35,14 @@ if (testType == null) {
     }
 }
 
+var requirejs = require('requirejs');
+requirejs.config({
+	baseUrl: __dirname + '/../root/js',
+	nodeRequire: require,
+	paths: {
+		jquery: require('jquery')
+	},
+});
 
 var nodeunit = require('nodeunit');
 var reporter = nodeunit.reporters.default;
