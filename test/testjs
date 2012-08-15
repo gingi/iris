@@ -45,5 +45,5 @@ requirejs.config({
 });
 
 var nodeunit = require('nodeunit');
-var reporter = nodeunit.reporters.default;
-reporter.run(tests);
+var reporter = nodeunit.reporters.html;
+reporter.run(tests, {});

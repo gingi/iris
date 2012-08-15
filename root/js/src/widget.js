@@ -15,7 +15,7 @@ define(["src/core"], function (Iris) {
 			return widgetInstance;
 		},
 		setup: function (args) { return [] },
-		display: function () {},
+		display: function () { throw Error("No renderers defined"); },
 		extend: Iris.extend
 	};
 
