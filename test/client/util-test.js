@@ -33,13 +33,17 @@ requirejs([target], function (Util) {
 				fn: function () { return this.n * 5 },
 			};
 			test.equals(60, obj.fn());
-			var obj2 = Util.extend({ n: 7 }, obj);
+			var obj2 = Util.extend(obj, { n: 7 });
 			test.equals(35, obj2.fn(),
 				"Expected the returned object to be extended");
 
 			Util.extend(obj2, { fn2: function () { return 365 } });
 			test.equals(365, obj2.fn2(),
 				"Expected the input object to be extended in a void context");
+				
+			Util.extend(obj2, { fn: function () { return this.n * 4 } });
+			test.equals(28, obj2.fn(),
+				"Expected extend to override default behavior");
 				
 			test.equals(60, obj.fn(),
 				"Expected the original object to remain unchanged");

@@ -11,9 +11,7 @@ define(function () {
     Util.extend = function (object) {
         Util.each(arguments, function (src) {
             for (var key in src) {
-                if (!object.hasOwnProperty(key)) {
-                    object[key] = src[key];
-                }
+				object[key] = src[key];
             }
         });
         return object;
