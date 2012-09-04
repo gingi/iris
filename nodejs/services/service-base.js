@@ -6,14 +6,16 @@
     var confFile;
     var service = null;
     var configuration;
-    
+	var liveServer = null;
+
     // Module dependencies
     var express = require('express')
       , routes = require(NODE_HOME + '/routes')
       , gzip = require('connect-gzip')
-      , app = express.createServer(gzip.gzip())
+      , app = express(gzip.gzip())
       , http = require('http')
-      , util = require('util');
+      , util = require('util')
+	  , path = require('path');
 
     // Private utility functions
     function absolutePath(filename) {
@@ -38,7 +40,7 @@
 
     function uri() {
         return 'http://' +
-            service.hostname + ':' + app.address().port;
+            service.hostname + ':' + liveServer.address().port;
     }
     
     function setEndpoints() {
@@ -163,10 +165,16 @@
         app.configure(function () {
             app.set('views', NODE_HOME + '/views');
             app.set('view engine', 'jade');
-            app.use(express.static(NODE_HOME + '/../root'));
-            app.register('.html', require('jade'));
+		    app.use(express.favicon());
+		    app.use(express.logger());
+		    app.use(express.bodyParser());
+		    app.use(express.methodOverride());
+		    app.use(express.cookieParser('your secret here'));
+		    app.use(express.session());
+		    app.use(app.router);
+		    app.use(express.static(path.join(IRIS_HOME, 'root')));
+            app.engine('html', require('ejs').renderFile);
         });
-        app.set('view options', { pretty: true });        
     };
 
     // Finds a configured service endpoint based on a set of criteria
@@ -203,7 +211,7 @@
 
     exports.startService = function () {
         if (!process.env.NODE_TEST_MODE) {
-            app.listen(configuration.appPort);
+            liveServer = app.listen(configuration.appPort);
             console.log("service-address %s", uri());
             console.log("service-mode %s", app.settings.env);
         }

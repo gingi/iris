@@ -1,7 +1,7 @@
-!!! 5
+doctype 5
 html(lang="en")
 head
-    title Iris - #{title}
+    title Iris
     link(rel="stylesheet", href="/css/bootstrap.css")
     style
         html, body { background-color: #eee; }
@@ -34,22 +34,12 @@ body
     .navbar.navbar-fixed-top
         .navbar-inner
             .container
-                a(class="brand", href="/") Kbase
+                a(class="brand", href="/") Iris
                 ul(class="nav")
-                    li(class="active")
-                        a(href="/") Home
                     li
-                        a(href="/about") About
+                        a(href="/widget/manhattan") Manhattan
                     li
-                        a(href="/contact") Contact
-                form(action="", class="navbar-form pull-right")
-                    input(class="input-small", type="text", placeholder="Username")
-                    input(class="input-small", type="password", placeholder="Password")
-                    button(class="btn", type="submit") Sign in
-                ul(class="nav pull-right")
-                    li
-                        a(href="#", class="ajaxSpinner")
-                         span(class="badge badge-info ajaxWatch", title="Requests")
+                        a(href="/widget/pcoords") Pcoords
     
     .container
         .content
@@ -61,5 +51,5 @@ body
                     script(type="text/javascript",src="/js/spin.min.js")
                     script(type="text/javascript",src="/js/jquery.spin.js")
                     script(type="text/javascript",src="/js/ajaxWatcher.js")
-                    body!= body
+                    block content
         footer()
