@@ -1,49 +1,12 @@
 #!/usr/bin/env node
 
-var UNIT_TESTS = [
-    // 'server/service-base-test.js',
-    'client/util-test.js',
+var nodeunit = require('nodeunit');
+var reporter = nodeunit.reporters.default;
+reporter.run([
+    'server/service-base-test.js',
+    // 'server/proxy-test.js', // FIXME: Tries to start a service?
     'client/renderer-test.js',
     'client/widget-test.js',
     'client/iris-test.js',
-    // 'client/widget-template-test.js',
-];
-
-var INTEGRATION_TESTS = [
-    'blackbox/rest-test.js'
-    //, 'server/proxy-test.js' // FIXME: Tries to start a service?
-];
-
-var testType = process.argv[2];
-var tests;
-
-if (testType == null) {
-    tests = UNIT_TESTS.concat(INTEGRATION_TESTS);
-} else {
-    switch (testType) {
-        case 'unit':
-            tests = UNIT_TESTS;
-            break;
-        case 'integration':
-            tests = INTEGRATION_TESTS;
-            break;
-        default:
-            console.error(
-                "Tests of type [" + testType + "] are not supported!"
-            );
-            process.exit(1);
-    }
-}
-
-var requirejs = require('requirejs');
-requirejs.config({
-	baseUrl: __dirname + '/../root/js',
-	nodeRequire: require,
-	paths: {
-		jquery: require('jquery')
-	},
-});
-
-var nodeunit = require('nodeunit');
-var reporter = nodeunit.reporters.html;
-reporter.run(tests, {});
+    'client/widget-template-test.js'
+]);
