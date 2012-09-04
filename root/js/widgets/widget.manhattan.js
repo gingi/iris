@@ -1,13 +1,18 @@
-define(["iris", "jquery", "renderers/renderer.table", "renderers/renderer.piechart"], function (Iris, jQuery) {
+(function() {
     var widget = Iris.Widget.extend({
         about: function () {
             return {
                 title: "Manhattan Plot",
                 name: "manhattan",
-                author: "Andrew Olson"
+                author: "Andrew Olson",
+                requires: []
             }
         }
     });
+
+	widget.setup = function () {
+		return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
+	}
 
     var ctx;
     var ctxi;
@@ -324,4 +329,4 @@ define(["iris", "jquery", "renderers/renderer.table", "renderers/renderer.piecha
 		return encodeURIComponent(where);
 	}
 	
-});
+})();
