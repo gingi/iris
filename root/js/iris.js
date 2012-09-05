@@ -73,19 +73,19 @@
     var initPromise = null;
 	var revalidPromise = null;
     Iris.init = function () {
-        //         if (initPromise == null) {
-        //             initPromise = Iris._FrameBuilder.init({
-        //                 renderer_resources: [ '/renderer/' ],
-        //                 data_resources: [ '/' ], 
-        //                 dataflow_resources: [ '/' ],
-        //                 library_resource: '/js/',
-        //                 widget_resources: [ '/widget/' ],
-        //                 layout: null,
-        //                 viewports: null
-        //             });
-        //         }
-        // revalidPromise = Iris.require('revalidator.js');
-        //         return initPromise;
+        if (initPromise == null) {
+            initPromise = Iris._FrameBuilder.init({
+                renderer_resources: [ '/renderer/' ],
+                data_resources:     [ ], 
+                dataflow_resources: [ ],
+                library_resource:     '/js/',
+                widget_resources:   [ '/widget/' ],
+                layout: null,
+                viewports: null
+            });
+        }
+        revalidPromise = Iris.require('revalidator.js');
+        return initPromise;
     }
     
     var EventCallbacks;
@@ -909,8 +909,8 @@
 	      var widget = {};
 	      widget.resource = resource;
           var filename = typeof data[ii] === 'string' ? data[ii] : data[ii].filename;
-	      widget.name = filename.substring(filename.indexOf(".") + 1, filename.lastIndexOf("."));
-	      widget.filename = filename;
+	      widget.name = data[ii].name;
+	      widget.filename = "widget." + widget.name + ".js";
 	      available_widgets[widget.name] = widget;
             }
             if (list) {
@@ -957,7 +957,7 @@
 	  promise.resolve();
 	}, function(jqXHR, textStatus, errorThrown) {
 	  if (textStatus === 'parsererror') {
-	    parserError(res_url);
+	    parserError(resource);
 	  }
 	});
       
