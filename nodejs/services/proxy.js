@@ -106,7 +106,8 @@ app.get('/widget', function (request, response) {
             return {
                 name     : about.name,
                 title    : about.title,
-                example  : iris.uri() + '/widget/' + about.name
+                example  : iris.uri() + '/widget/' + about.name,
+                filename : about.name
             };
         },
         function (widgets) {
