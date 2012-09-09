@@ -145,13 +145,13 @@
     exports.app         = app;
     // chromosome lengths for each species
     exports.chromosomes = {
-        at: [
-            [1, 30427671],
-            [2, 19698289],
-            [3, 23459830],
-            [4, 18585056],
-            [5, 26975502]
-        ]
+        at: {
+            1: 30427671,
+            2: 19698289,
+            3: 23459830,
+            4: 18585056,
+            5: 26975502
+        }
     };
     exports.routes      = routes;
     exports.endpoints   = endpoints;
