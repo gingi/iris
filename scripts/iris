@@ -334,6 +334,7 @@ LOG_HEADER
             echo "Compiling Fastbit... (Hang on. This might take a while.)"
         # Install FastBit
         cd $IRIS_HOME/fastbit
+		git submodule update --init 2>&1 >> $INSTALL_LOG
         ./configure --prefix $IRIS_HOME 2>&1 >> $INSTALL_LOG
         make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break
         make check 2>&1 >> $INSTALL_LOG
