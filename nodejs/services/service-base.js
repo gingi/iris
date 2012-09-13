@@ -165,7 +165,7 @@
         app.configure(function () {
             app.set('views', NODE_HOME + '/views');
             app.set('view engine', 'jade');
-		    app.use(express.favicon());
+            app.use(express.favicon(path.join(IRIS_HOME, 'root', 'favicon.ico')));
 		    app.use(express.logger());
 		    app.use(express.bodyParser());
 		    app.use(express.methodOverride());
