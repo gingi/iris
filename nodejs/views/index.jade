@@ -1,25 +1,7 @@
 extends layout
 
-style
-    .btn-demo {
-        padding: 12px 20px;
-        min-width: 160px;
-    }
-    .btn-wrapper {
-        display: table-cell;
-        min-width: 210px;
-    }
-    .btn-row {
-        margin: 0 auto 10px;
-        text-align: center;
-        display: table;
-    }
-script
-    $(function () {
-        $(".btn").popover();
-    });
-
 block content
-    .masthead(style="text-align:center")
-        h1 Iris
-        p(class="lead") Iris
+    .hero-unit
+        img(src="/img/iris-logo.png", width="100px",align="left",style="margin-right:20px")
+        h1(style="font-family:'Rockwell'") Iris
+        p A web application for exploration of biological data
