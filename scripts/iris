@@ -2,7 +2,7 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IRIS_HOME=${IRIS_HOME:-`cd $SCRIPTDIR/.. && pwd -P`}
-NODEDIR=$IRIS_HOME/nodejs
+NODEDIR=$IRIS_HOME
 CONFDIR=$IRIS_HOME/conf
 SVC_DIR=$NODEDIR/services
 SVC_CONF=$CONFDIR/services.json
@@ -317,7 +317,7 @@ LOG_HEADER
     if [ "$component" == "all" -o "$component" == "node" ]; then
         [ "$verbose" -eq 1 ] && echo "Installing Node modules..."
         # Install Node.js dependencies
-        cd $IRIS_HOME/nodejs
+        cd $NODEDIR
         npm install 2>&1 >> $INSTALL_LOG
     fi
     

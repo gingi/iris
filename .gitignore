@@ -1,5 +1,5 @@
 *~
-/nodejs/node_modules
+/node_modules/*
 /bin
 /share
 /include
