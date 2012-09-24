@@ -6,11 +6,15 @@ var url = require('url');
 var httpProxy = require('http-proxy');
 var fs = require('fs');
 var path = require('path');
-var JS_DIR = iris.IRIS_HOME + '/root/js';
-var RENDERER_JS_DIR = JS_DIR + '/renderers';
+
+var DOCSROOT =        path.join(iris.IRIS_HOME, 'public');
+var JS_DIR =          path.join(DOCSROOT,       'js');
+var RENDERER_JS_DIR = path.join(JS_DIR,         'renderers');
+var WIDGET_JS_DIR   = path.join(JS_DIR,         'widgets');
+
 var RENDERER_HTTPPATH = '/js/renderers';
-var WIDGET_JS_DIR   = JS_DIR + '/widgets';
 var WIDGET_HTTPPATH = '/js/widgets';
+
 var requirejs = require('requirejs');
 
 function directoryContents(response, dir) {
@@ -89,9 +93,9 @@ function widgetList(startCallback, itemCallback, listCallback) {
             paths: widgetPaths,
         });
         for (w in widgetPaths) {
-            requirejs([w], function (module) {
-                widgets.push(itemCallback(widgetPaths[w], module.about));
-            });
+            // requirejs([w], function (module) {
+            //     widgets.push(itemCallback(widgetPaths[w], module.about));
+            // });
         }
         listCallback(widgets);
     });
@@ -135,7 +139,7 @@ app.get('/widget/:widget', function (req, res) {
     if (req.params.widget.match(/.js$/)) {
         // Send the file
         var filename = WIDGET_JS_DIR + '/' + req.params.widget;
-        path.exists(filename, function (exists) {
+        fs.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
@@ -148,10 +152,10 @@ app.get('/widget/:widget', function (req, res) {
         });
     } else {
         var basename = 'widget.' + req.params.widget + '.js';
-        var filename = WIDGET_JS_DIR + '/' + basename;
+        var filename = path.join(WIDGET_JS_DIR, basename);
         var httpPath = WIDGET_HTTPPATH + '/' + basename;
         var name = req.params.widget;
-        path.exists(filename, function (exists) {
+        fs.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
@@ -195,7 +199,7 @@ app.get('/renderer/:renderer', function (req, res) {
     if (req.params.renderer.match(/.js$/)) {
         // Send the file
         var filename = RENDERER_JS_DIR + '/' + req.params.renderer;
-        path.exists(filename, function (exists) {
+        fs.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {
@@ -211,7 +215,7 @@ app.get('/renderer/:renderer', function (req, res) {
         var filename = RENDERER_JS_DIR + '/' + basename;
         var httpPath = RENDERER_HTTPPATH + '/' + basename;
         var name = req.params.renderer;
-        path.exists(filename, function (exists) {
+        fs.exists(filename, function (exists) {
             if (!exists) {
                 fileNotFound(res);
             } else {

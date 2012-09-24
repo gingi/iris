@@ -1,8 +1,9 @@
 (function () {
+    var path = require('path');
 
-    var NODE_HOME = __dirname + '/..';
-    var DEFAULT_SERVICE_CONF = NODE_HOME + '/../conf/services.json';
-    var IRIS_HOME = NODE_HOME + '/..';
+    var IRIS_HOME = path.join(__dirname, '/..');
+    var DEFAULT_SERVICE_CONF = path.join(IRIS_HOME, 'conf', 'services.json');
+    var DOCSROOT = path.join(IRIS_HOME, 'public');
     var confFile;
     var service = null;
     var configuration;
@@ -10,12 +11,11 @@
 
     // Module dependencies
     var express = require('express')
-      , routes = require(NODE_HOME + '/routes')
+      , routes = require(path.join(IRIS_HOME, 'routes'))
       , gzip = require('connect-gzip')
       , app = express(gzip.gzip())
       , http = require('http')
-      , util = require('util')
-	  , path = require('path');
+      , util = require('util');
 
     // Private utility functions
     function absolutePath(filename) {
@@ -145,13 +145,13 @@
     exports.app         = app;
     // chromosome lengths for each species
     exports.chromosomes = {
-        at: [
-            [1, 30427671],
-            [2, 19698289],
-            [3, 23459830],
-            [4, 18585056],
-            [5, 26975502]
-        ]
+        at: {
+            1: 30427671,
+            2: 19698289,
+            3: 23459830,
+            4: 18585056,
+            5: 26975502
+        }
     };
     exports.routes      = routes;
     exports.endpoints   = endpoints;
@@ -163,16 +163,16 @@
             app = app;
         }
         app.configure(function () {
-            app.set('views', NODE_HOME + '/views');
+            app.set('views', path.join(IRIS_HOME, 'views'));
             app.set('view engine', 'jade');
-		    app.use(express.favicon());
+            app.use(express.favicon(path.join(DOCSROOT, 'favicon.ico')));
 		    app.use(express.logger());
 		    app.use(express.bodyParser());
 		    app.use(express.methodOverride());
 		    app.use(express.cookieParser('your secret here'));
 		    app.use(express.session());
 		    app.use(app.router);
-		    app.use(express.static(path.join(IRIS_HOME, 'root')));
+		    app.use(express.static(DOCSROOT));
             app.engine('html', require('ejs').renderFile);
         });
     };
