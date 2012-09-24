@@ -1,18 +1,16 @@
 (function() {
     var widget = Iris.Widget.extend({
-        about: function () {
-            return {
-                title: "Manhattan Plot",
-                name: "manhattan",
-                author: "Andrew Olson",
-                requires: []
-            }
+        about: {
+			title: "Manhattan Plot",
+            name: "manhattan",
+            author: "Andrew Olson",
+            requires: []
         }
     });
 
-	widget.setup = function () {
-		return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
-	}
+	// widget.setup = function () {
+	// 	return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
+	// }
 
     var ctx;
     var ctxi;
@@ -68,7 +66,7 @@
         ctxi = canvasi.getContext('2d');
 
         study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
-        var species = (args.hasOwnProperty('species')) ? args['species'] : 'athaliana';
+        var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
 		renderGO();
 
