@@ -4,17 +4,10 @@
 link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
-block scripts
-    script(type="text/javascript", src="/js/jquery.js")
-    script(type="text/javascript", src="/js/iris.js")
-    script(type="text/javascript", src="/js/d3.js")
-    script(type="text/javascript", src="#{js}")
-    script(type="text/javascript")
-        $(function () {
-            Iris.init().then(function () {
-                var w = Iris.Widget["#{name}"];
-                w.create(document.getElementById("#{name}Div"));
-            });
-        });
+script(type="text/javascript", data-main="/js/app", src="/js/require.js")
+script(type="text/javascript")
+    require(["iris", "widgets/#{name}"], function (Iris, widget) {
+        widget.display(document.getElementById("widget"));
+    });
 
-div(id="#{name}Div", style="position: relative; min-width:500px")
+div(id="widget", style="position: relative; min-width:500px")

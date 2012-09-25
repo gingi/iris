@@ -4,12 +4,11 @@
 * Copyright 2012 Ware Lab, Cold Spring Harbor Laboratory
 */
 
-define(["src/util", "src/framebuilder", "jquery"],
+define(["app/util", "app/framebuilder", "jquery"],
 function (Util, FrameBuilder, jQuery) {
-    var Iris = Util.extend(Util);
+    var Iris = {};
     var dataServiceURI;
     var services = Iris.services = {};
-    var Widget = Iris.Widget = {};
     var Renderer = Iris.Renderer = {};
         
     Iris.init = function () {
@@ -66,18 +65,17 @@ function (Util, FrameBuilder, jQuery) {
     var Model = Iris.Model = {};
     Model.create = function (spec) {
         var model = {};
-        Iris.extend(model, observable());
+        Util.extend(model, observable());
         return model;
     };
     
 	Iris.renderer = function (name) {
-		name = "renderers/renderer." + name;
     	var rendObject = require(name);
     	
-    	// FIXME: Add hooks
     	Util.extend(rendObject, {});
     	return rendObject.create();
     };
     
+    Iris.extend = Util.extend;
     return Iris;
 });

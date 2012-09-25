@@ -1,16 +1,9 @@
-(function() {
-    var widget = Iris.Widget.extend({
-        about: {
-			title: "Manhattan Plot",
-            name: "manhattan",
-            author: "Andrew Olson",
-            requires: []
-        }
-    });
-
-	// widget.setup = function () {
-	// 	return [ this.loadRenderer('table'), this.loadRenderer('piechart') ];
-	// }
+define(["iris", "app/widget"], function (Iris, widget) {
+    widget.about = {
+		title: "Manhattan Plot",
+        name: "manhattan",
+        author: "Andrew Olson"
+    };
 
     var ctx;
     var ctxi;
@@ -38,7 +31,7 @@
 	var tooSmall = 0.03;
 	var GOWidth;
 
-    widget.display = function(element, args) {
+    widget.display = function (element, args) {
         args = (args || {});
 		var myDiv = $(element);
 		myDiv.append('<div id="' + element.id + '_man">');
@@ -72,26 +65,25 @@
 
         // fetch the list of chromosomes and their lengths
 		totalLen = 0;
-        widget.getJSON("/species/" + species + "/chromosomes", function (json) {
+        Iris.getJSON("/species/" + species + "/chromosomes", function (json) {
             for (var chr in json) {
                 chrLengths[chr] = json[chr];
                 totalLen += parseInt(json[chr]);
             }
             // fetch the max score for this study
-            widget.getJSON("/gwas/" + study + "/maxscore", function (json) {
+            Iris.getJSON("/gwas/" + study + "/maxscore", function (json) {
                 globalMax = Math.ceil(json[0][0]);
                 drawManhattan(study);
             });
         });
     };
 
-
 	function renderGO(limits) {
 		var url = "/gwas/" + study + "/GO";
 		if (limits) {
 			url += "?w=" + limits;
 		}
-		widget.getJSON(url, function (json) {
+		Iris.getJSON(url, function (json) {
 			Iris.Renderer.table.render( { target: goDiv2, width: GOWidth, height: GOWidth, data: {data: json, header: ["GOSlim term", "Genes"]}});
 			// combine tiny slices of the pie into an "Other" category
 			var sum=0;
@@ -184,7 +176,7 @@
 
     function doScatter(ctx, study, chr, offset, xsize, ysize, chrLen) {
         var path = "/gwas/" + study + "/scatter" + "?chr=" + chr + "&b1=" + Math.floor(xsize / sc) + "&b2=" + Math.floor(ysize / sc) + "&x1=" + chrLen + "&x2=" + globalMax;
-        widget.getJSON(path, function (json) {
+        Iris.getJSON(path, function (json) {
 			if (! json) {
 				return;
 			}
@@ -326,5 +318,6 @@
 		where += ')';
 		return encodeURIComponent(where);
 	}
-	
-})();
+
+    return widget;
+});

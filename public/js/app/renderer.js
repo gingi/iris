@@ -1,4 +1,4 @@
-define(["src/util"], function (Util) {
+define(["app/util"], function (Util) {
 	var Renderer = {};
     Renderer.extend = function (spec) {
         spec = (spec || {});
