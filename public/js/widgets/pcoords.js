@@ -1,15 +1,13 @@
-(function() {
-    var widget = Iris.Widget.extend({
-        about: {
-            title: "Parallel Coordinate Plot",
-            name: "pcoords",
-            author: "Andrew Olson",
-            requires: [],
-            renderers: {
-                default: "syntax.js"
-            },
-        }
-    });
+define(["iris", "app/widget"], function (Iris, widget) {
+    widget.about = {
+        title: "Parallel Coordinate Plot",
+        name: "pcoords",
+        author: "Andrew Olson",
+        requires: [],
+        renderers: {
+            default: "syntax.js"
+        },
+    };
 
     var tool = new Object();
     tool.started = false;
@@ -75,7 +73,7 @@
         // and their min and max values
         var table =
             args.hasOwnProperty('table') ? args['table'] : 'sbi_vs_avec';
-        widget.getJSON("/pcoords/" + table + "/ranges", function(json) {
+        Iris.getJSON("/pcoords/" + table + "/ranges", function(json) {
             // TODO: add event handlers
             var ysize = ctx.canvas.height - PADDING_TOP - PADDING_BOTTOM;
             var xsize = (ctx.canvas.width - 2 * PADDING_SIDES -
@@ -138,7 +136,7 @@
         if (layer === "focus") {
             url += '&w=' + buildSQL();
         }
-        widget.getJSON(url, function(json) {
+        Iris.getJSON(url, function(json) {
             ctx.fillStyle = "black";
             if (layer === "focus") {
                 //yellow-orange
@@ -194,4 +192,6 @@
             }
         });
     };
-})();
+    
+    return widget;
+});

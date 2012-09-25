@@ -3,6 +3,7 @@ exports.index = function(req, res) {
 };
 
 exports.widget = function(req, res, args) {
+    console.log("Rendinger widget with args ", args);
     args['title'] = args['widget'];
     res.render('widget', args);
 };

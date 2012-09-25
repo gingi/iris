@@ -1,4 +1,5 @@
-define(["src/core"], function (Iris) {
+define(["app/core"], function (Iris) {
+    console.log("Defining Iris.Widget");
 	var Widget = Iris.Widget = {
 		renderers: {},
 		target: function (target) {
@@ -6,18 +7,10 @@ define(["src/core"], function (Iris) {
 			return widget;
 		},
 		view: function () {},
-		create: function (element, args) {
-			var widgetInstance = {
-				about: about
-			};
-			Util.extend(widgetInstance, widget);
-			widgetInstance.display(element, args);
-			return widgetInstance;
-		},
 		setup: function (args) { return [] },
 		display: function () { throw Error("No renderers defined"); },
-		extend: Iris.extend
-	};
+    };
+    Widget.create = Widget.display;
 
     return Widget;
 });

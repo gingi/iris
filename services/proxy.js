@@ -68,57 +68,7 @@ requirejs.onError = function (error) {
     console.error("   Filename: " + error.fileName);
 };
 
-function widgetList(startCallback, itemCallback, listCallback) {
-    var i, file, name, widgets = [];
-    fs.readdir(WIDGET_JS_DIR, function (err, files) {
-        startCallback();
-        var widgetPaths = {};
-        for (i = 0; i < files.length; i++) {
-            file = files[i];
-            if (file.match(/^\./)) {
-                continue;
-            }
-            var matches = file.match(/^widget\.(\w+)\.js$/);
-            if (!matches) {
-                continue;
-            }
-            var widgetName = matches[1];
-            widgetPaths["widgets/" + widgetName] =
-                "widgets/widget." + widgetName;
-        }
-        console.log(widgetPaths);
-        requirejs.config({
-            nodeRequire: require,
-            baseUrl: JS_DIR,
-            paths: widgetPaths,
-        });
-        for (w in widgetPaths) {
-            // requirejs([w], function (module) {
-            //     widgets.push(itemCallback(widgetPaths[w], module.about));
-            // });
-        }
-        listCallback(widgets);
-    });
-}
-
 app.get('/widget', function (request, response) {
-    widgetList(
-        function () {
-            response.writeHead(200, { 'Content-Type': 'application/json' });
-        },
-        function (file, about) {
-            return {
-                name     : about.name,
-                title    : about.title,
-                example  : iris.uri() + '/widget/' + about.name,
-                filename : about.name
-            };
-        },
-        function (widgets) {
-            response.write(JSON.stringify(widgets));
-            response.end();
-        }
-    );
 });
 
 function aboutModule(filename, key) {
@@ -130,7 +80,7 @@ function aboutModule(filename, key) {
 
 app.get('/widget/:widget', function (req, res) {
     var layout = req.query.layout !== null && req.query.layout == 'on';
-    var widget;
+    console.log("GET: [" + req.params.widget + "]");
     if (req.params.widget.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);
         res.end("Illegal URL format.");
@@ -151,22 +101,7 @@ app.get('/widget/:widget', function (req, res) {
             }
         });
     } else {
-        var basename = 'widget.' + req.params.widget + '.js';
-        var filename = path.join(WIDGET_JS_DIR, basename);
-        var httpPath = WIDGET_HTTPPATH + '/' + basename;
-        var name = req.params.widget;
-        fs.exists(filename, function (exists) {
-            if (!exists) {
-                fileNotFound(res);
-            } else {
-                routes.widget(req, res, {
-                    title: "Some Title",
-                    js: httpPath,
-                    name: name,
-                    layout: layout
-                });
-            }
-        });
+        routes.widget(req, res, { name: req.params.widget });
     }
 });
 

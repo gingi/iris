@@ -9,6 +9,7 @@ define(function () {
     };
 
     Util.extend = function (object) {
+        console.log("Extending object", object);
         Util.each(arguments, function (src) {
             for (var key in src) {
 				object[key] = src[key];
