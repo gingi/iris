@@ -10,6 +10,6 @@
 [submodule "examples"]
 	path = examples
 	url = https://github.com/gingi/iris-examples
-[submodule "fastbit"]
-	path = fastbit
-	url = https://github.com/warelab/snapdragon
+[submodule "external/snapdragon"]
+	path = external/snapdragon
+	url = https://bitbucket.org/garden/snapdragon
