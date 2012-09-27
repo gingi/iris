@@ -1,6 +1,6 @@
 var iris   = require('./service-base.js');
 var app    = iris.app;
-var child  = require('child_process');
+var spawn  = require('child_process').spawn;
 
 var revalidator = require('revalidator');
 
@@ -74,16 +74,27 @@ function runCommand(executable, response, args) {
 	args['d'] = (args.hasOwnProperty('d')) ?
         iris.config.FASTBIT_DATADIR + '/' + args['d'] :
         iris.config.FASTBIT_DATADIR;
-	for (var k in args) {
-		cmd += ' -' + k +' "'+args[k] + '"';
-	}
-    console.log(cmd);
-    child.exec(cmd, { maxBuffer: 10000 * 1024 }, function (error, stdout, stderr) {
+    var spawnArgs = [];
+    for (var k in args) {
+        spawnArgs.push('-' + k);
+        spawnArgs.push(args[k]);
+    }
+    var fb = spawn(cmd, spawnArgs);
+
+    fb.stdout.on('data', function (data) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
-        response.write(stdout);
-        response.end();
-        if (stderr) {
-            console.log("Fastbit error (" + executable + "): ", stderr);
+        response.write(data);
+    });
+    
+    fb.on('close', function (data) { response.end(); });
+    fb.stderr.on('data', function (data) {
+        console.log("Fastbit stderr (" + executable + "):", data);
+    });
+    
+    fb.on('exit', function (code, signal) {
+        if (signal != null) {
+            response.writeHead(500, { 'Content-Type': 'application/json' });
+            response.write("500: Fastbit runtime error (" + signal + ")");
         }
     });
 }
