@@ -2,6 +2,7 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IRIS_HOME=${IRIS_HOME:-`cd $SCRIPTDIR/.. && pwd -P`}
+SNAPDRAGON_HOME=${SNAPDRAGON_HOME:-$IRIS_HOME/external/snapdragon}
 NODEDIR=$IRIS_HOME
 CONFDIR=$IRIS_HOME/conf
 SVC_DIR=$NODEDIR/services
@@ -332,8 +333,8 @@ LOG_HEADER
     if [ "$component" == "all" -o "$component" == "snapdragon" ]; then
         [ "$verbose" -eq 1 ] &&
             echo "Compiling Snapdragon... (Hang on. This might take a while.)"
-        # Install FastBit
-        cd $IRIS_HOME/snapdragon
+        # Install Snapdragon
+        cd $SNAPDRAGON_HOME
 		git submodule update --init 2>&1 >> $INSTALL_LOG
         ./configure --prefix $IRIS_HOME 2>&1 >> $INSTALL_LOG
         make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break
