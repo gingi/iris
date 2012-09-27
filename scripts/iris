@@ -2,6 +2,7 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IRIS_HOME=${IRIS_HOME:-`cd $SCRIPTDIR/.. && pwd -P`}
+SNAPDRAGON_HOME=${SNAPDRAGON_HOME:-$IRIS_HOME/external/snapdragon}
 NODEDIR=$IRIS_HOME
 CONFDIR=$IRIS_HOME/conf
 SVC_DIR=$NODEDIR/services
@@ -277,7 +278,7 @@ The following components are available:
 
     node        Various modules required by Node.js
     jquery      Compiles the jQuery library
-    fastbit     Compiles the Fastbit library and Iris extensions for Fastbit"
+    snapdragon  Compiles the Snapdragon library"
 function iris_cmd_install {
     local verbose=1
     while getopts "q" opt; do
@@ -293,7 +294,7 @@ function iris_cmd_install {
 
     component=$1
     if [ -n "$component" ]; then
-        if [ "$component" != 'fastbit' -a \
+        if [ "$component" != 'snapdragon' -a \
              "$component" != 'jquery' -a \
              "$component" != 'node' ]; then
             echo "Install component '$component' is not recognized!"
@@ -329,11 +330,11 @@ LOG_HEADER
         make 2>&1 >> $INSTALL_LOG
     fi
     
-    if [ "$component" == "all" -o "$component" == "fastbit" ]; then
+    if [ "$component" == "all" -o "$component" == "snapdragon" ]; then
         [ "$verbose" -eq 1 ] &&
-            echo "Compiling Fastbit... (Hang on. This might take a while.)"
-        # Install FastBit
-        cd $IRIS_HOME/fastbit
+            echo "Compiling Snapdragon... (Hang on. This might take a while.)"
+        # Install Snapdragon
+        cd $SNAPDRAGON_HOME
 		git submodule update --init 2>&1 >> $INSTALL_LOG
         ./configure --prefix $IRIS_HOME 2>&1 >> $INSTALL_LOG
         make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break
