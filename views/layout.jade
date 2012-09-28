@@ -30,10 +30,7 @@ head
             margin-left: 0;
             padding-left: 19px;
         }
-    script(type="text/javascript",src="/js/lib/jquery.js")
-    script(type="text/javascript",src="/js/lib/bootstrap/bootstrap-tooltip.js")
-    script(type="text/javascript",src="/js/lib/bootstrap/bootstrap-popover.js")
-    script(type="text/javascript",src="/js/lib/ajaxWatcher.js")
+    script(type="text/javascript",src="/js/require.js", data-main="/js/frontpage")
     block scripts
 body
     .navbar.navbar-fixed-top
@@ -42,13 +39,14 @@ body
                 a(class="brand", href="/") Iris
                 ul(class="nav")
                     li
-                        a(href="/widget/manhattan") Manhattan
+                        a(href="#", data-content="/widget/manhattan?nolayout") Manhattan
                     li
-                        a(href="/widget/pcoords") Pcoords
+                        a(href="#", data-content="/widget/pcoords?nolayout") Pcoords
     
     .container
         .content
             .row
                 .span12
-                    block content
+                    #content
+                        block content
         footer()

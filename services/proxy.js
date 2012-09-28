@@ -79,7 +79,7 @@ function aboutModule(filename, key) {
 }
 
 app.get('/widget/:widget', function (req, res) {
-    var layout = req.query.layout === null || req.query.layout != 'off';
+    var layout = req.query.nolayout == null;
     if (req.params.widget.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);
         res.end("Illegal URL format.");

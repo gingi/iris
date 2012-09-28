@@ -61,7 +61,7 @@ define(["iris", "app/widget"], function (Iris, widget) {
         study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
-		renderGO();
+        // renderGO();
 
         // fetch the list of chromosomes and their lengths
 		totalLen = 0;
@@ -78,6 +78,7 @@ define(["iris", "app/widget"], function (Iris, widget) {
         });
     };
 
+    /*
 	function renderGO(limits) {
 		var url = "/gwas/" + study + "/GO";
 		if (limits) {
@@ -106,7 +107,8 @@ define(["iris", "app/widget"], function (Iris, widget) {
 			Iris.Renderer.piechart.render( {target: goDiv1, data: pieData, width: GOWidth, height: GOWidth, radius: Math.floor(GOWidth/2)})
 		});
 	}
-
+    */
+    
     function drawManhattan(study, cvs) {
         // get the canvas
         ctx.strokeStyle = "black";
