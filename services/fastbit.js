@@ -69,7 +69,7 @@ var schema = {
 	}
 }
 
-function runCommand(executable, response, args) {
+function runCommand(executable, request, response, args) {
     var cmd = iris.config.BINDIR + '/' + executable;
 	args['d'] = (args.hasOwnProperty('d')) ?
         iris.config.FASTBIT_DATADIR + '/' + args['d'] :
@@ -81,11 +81,16 @@ function runCommand(executable, response, args) {
     }
     var fb = spawn(cmd, spawnArgs);
 
+    console.log("Executing command '" + cmd + "' with args [" + spawnArgs.join(' ') + "]");
+    response.writeHead(200, { 'Content-Type': 'application/json' });
     fb.stdout.on('data', function (data) {
-        response.writeHead(200, { 'Content-Type': 'application/json' });
         response.write(data);
     });
     
+    // User cancels request
+    request.connection.on('end', function () { fb.kill() });
+    
+    // Normal command completion
     fb.on('close', function (data) { response.end(); });
     fb.stderr.on('data', function (data) {
         console.log("Fastbit stderr (" + executable + "):", data);
@@ -107,7 +112,7 @@ app.get('/:command', function (req, res) {
 	var command = req.params.command;
 	var check = revalidator.validate(req.query, schema[command]);
 	if (check['valid']) {
-		runCommand(command, res, req.query);
+		runCommand(command, req, res, req.query);
 	} else {
 		res.json(check['errors']);
 	}
