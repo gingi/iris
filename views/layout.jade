@@ -30,6 +30,11 @@ head
             margin-left: 0;
             padding-left: 19px;
         }
+    script(type="text/javascript",src="/js/lib/jquery.js")
+    script(type="text/javascript",src="/js/lib/bootstrap/bootstrap-tooltip.js")
+    script(type="text/javascript",src="/js/lib/bootstrap/bootstrap-popover.js")
+    script(type="text/javascript",src="/js/lib/ajaxWatcher.js")
+    block scripts
 body
     .navbar.navbar-fixed-top
         .navbar-inner
@@ -45,11 +50,5 @@ body
         .content
             .row
                 .span12
-                    script(type="text/javascript",src="/js/jquery.js")
-                    script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
-                    script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")
-                    script(type="text/javascript",src="/js/spin.min.js")
-                    script(type="text/javascript",src="/js/jquery.spin.js")
-                    script(type="text/javascript",src="/js/ajaxWatcher.js")
                     block content
         footer()

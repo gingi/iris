@@ -1,1 +1,1 @@
-../../external/jquery/dist/jquery.min.js
+../../../external/jquery/dist/jquery.min.js

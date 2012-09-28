@@ -87,8 +87,7 @@ function runCommand(executable, request, response, args) {
         response.write(data);
     });
     
-    // User cancels request
-    request.connection.on('end', function () { fb.kill() });
+    request.connection.on('end', function () { fb.kill(); });
     
     // Normal command completion
     fb.on('close', function (data) { response.end(); });
