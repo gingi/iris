@@ -1,5 +1,4 @@
 define(["app/core"], function (Iris) {
-    console.log("Defining Iris.Widget");
 	var Widget = Iris.Widget = {
 		renderers: {},
 		target: function (target) {

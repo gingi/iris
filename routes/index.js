@@ -3,15 +3,15 @@ exports.index = function(req, res) {
 };
 
 exports.widget = function(req, res, args) {
-    args['title'] = args['widget'];
-    res.render('widget', args);
+    var view = args.layout ? 'widget-layout' : 'widget';
+    res.render(view, args);        
 };
 
 exports.renderer = function (req, res, args) {
     res.render('renderer', args);
 }
 
-exports.about = function(req, res, message) {
+exports.about = function (req, res, message) {
     res.render('index', { title: message });
 };
 

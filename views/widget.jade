@@ -1,13 +1,13 @@
-- var width = 1100
-- var height = 500
-
 link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
-script(type="text/javascript", data-main="/js/app", src="/js/require.js")
-script(type="text/javascript")
-    require(["iris", "widgets/#{name}"], function (Iris, widget) {
-        widget.display(document.getElementById("widget"));
-    });
+block scripts
+    script(type="text/javascript", data-main="/js/app", src="/js/require.js")
+    script(type="text/javascript")
+        require(["iris", "widgets/#{name}"], function (Iris, widget) {
+            widget.display(document.getElementById("widget"));
+        });
 
-div(id="widget", style="position: relative; min-width:500px")
+block content
+    div(id="widget", style="position: relative; min-width:500px")
+    

@@ -79,8 +79,7 @@ function aboutModule(filename, key) {
 }
 
 app.get('/widget/:widget', function (req, res) {
-    var layout = req.query.layout !== null && req.query.layout == 'on';
-    console.log("GET: [" + req.params.widget + "]");
+    var layout = req.query.layout === null || req.query.layout != 'off';
     if (req.params.widget.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);
         res.end("Illegal URL format.");
@@ -101,7 +100,7 @@ app.get('/widget/:widget', function (req, res) {
             }
         });
     } else {
-        routes.widget(req, res, { name: req.params.widget });
+        routes.widget(req, res, { layout: layout, name: req.params.widget });
     }
 });
 
@@ -164,24 +163,8 @@ app.get('/renderer/:renderer', function (req, res) {
 });
 
 app.get('/workspace', function (req, res) {
-    widgetList(
-        function () {},
-        function (file, about) {
-            return {
-                name    : about.name,
-                title   : about.title,
-                js      : WIDGET_HTTPPATH + "/" + file,
-                example : iris.uri() + '/widget/' + about.name
-            };
-        },
-        function (widgets) {
-        	routes.workspace(req, res, widgets);
-        }
-    );
-});
-
-app.get('/viewport', function (req, res) {
-    routes.viewport(req, res);
+    var widgets = [];
+	routes.workspace(req, res, widgets);
 });
 
 app.get('/simple', function (req, res) {
@@ -189,6 +172,7 @@ app.get('/simple', function (req, res) {
 });
 
 // Proxy endpoints
+// TODO: Every service sets up its own endpoints
 for (var serviceName in iris.endpoints) {
     var endpoint = iris.endpoints[serviceName];
     for (var p = 0; p < endpoint.paths.length; p++) {
