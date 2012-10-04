@@ -13,6 +13,7 @@ SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
 DEFAULT_HOSTNAME=0.0.0.0
 WHOAMI=`whoami`
+HEADING_COLOR=2
 
 IRIS_USAGE='iris [options] <command> [<arguments>]
     
@@ -117,7 +118,7 @@ function _start_services {
             local pidfile=`_svc_pidfile $name`
             local pid=`_running_pid $pidfile`
             NODE_PORT=$port node \
-                $SVC_DIR/$nodefile $CONFDIR/$conffile $name > "$log" &
+                $SVC_DIR/$nodefile $CONFDIR/$conffile $name "$log" &
             echo $! > $pidfile
         done
         wait
@@ -394,6 +395,12 @@ function iris_cmd_open {
     open `_service_url $service`
 }
 
+function _status_header {
+    tput setaf $HEADING_COLOR
+    _status_line 'SERVICE' 'PID' 'URL'
+    tput sgr0
+}
+
 # ---------------------------------------------------------------------------
 # IRIS STATUS
 # ---------------------------------------------------------------------------
@@ -412,7 +419,7 @@ function iris_cmd_status {
             echo "Service '$svc' is not a valid service!"
             iris_cmd_help status 
         fi
-        _status_line "SERVICE" "PID" "URL"
+        _status_header
         _service_status $service
     else
         pid=`_iris_pid`
@@ -427,7 +434,7 @@ function iris_cmd_status {
             local pid=$(_running_pid $(_svc_pidfile ${service[1]}))
             if [ -n "$pid" ]; then
                 if [ -z "$service_running" ]; then
-                    _status_line "SERVICE" "PID" "URL"
+                    _status_header
                     local service_running=1
                 fi
                 _service_status ${service[@]}
@@ -459,13 +466,23 @@ function iris_cmd_services {
              'port name nodefile config hostname')
     fi
     
-    [ -z "$services" ] && return
+    if [ -z "$services" ]; then
+        [ -n "$name" ] && _error "Service '$name' was not found"
+        return
+    fi
+    local outfmt="%-5s %-18s %-20s %-25s %s\n"
+    # If called directly from command-line, show header
+    if [ "$cmd" == "services" ]; then
+        tput setaf $HEADING_COLOR
+        printf "$outfmt" PORT NAME FILE CONF ADDRESS
+        tput sgr0
+    fi
     echo "$services" | while read line; do
         local svc=($line)
         if [ -z "${svc[4]}" ]; then
             svc[4]=$hostname
         fi
-        printf "%-5d %-18s %-20s %-25s %s\n" ${svc[@]}
+        printf "$outfmt" ${svc[@]}
     done
 }
 

@@ -1,5 +1,5 @@
 var IRIS_HOME   = __dirname + '/../..';
-var SERVICE_DIR = IRIS_HOME + '/nodejs/services';
+var SERVICE_DIR = IRIS_HOME + '/services';
 var target = SERVICE_DIR + '/service-base.js';
 process.env.IRIS_SERVICE_CONF = __dirname + '/../fixtures/services-test.json';
 process.argv = [

@@ -10,7 +10,7 @@ var Db = require('mongodb').Db,
     Server = require('mongodb').Server;
 
 if (!iris.config.MONGO_DB) {
-    console.log("iris.config.MONGO_DB needs to be configured");
+    iris.log("iris.config.MONGO_DB needs to be configured");
     return;
 }
 
