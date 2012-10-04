@@ -1,3 +1,7 @@
-div(class="alert alert-error")
-    h4(class="alert-heading") #{heading}
-    #{message}
+extends layout
+
+block content
+    div(class="alert alert-error")
+        block errorContent
+            h4(class="alert-heading")= #{heading}
+            #{message}

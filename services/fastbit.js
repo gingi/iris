@@ -81,7 +81,7 @@ function runCommand(executable, request, response, args) {
     }
     var fb = spawn(cmd, spawnArgs);
 
-    console.log("Executing command '" + cmd + "' with args [" + spawnArgs.join(' ') + "]");
+    iris.log("Executing command '" + cmd + "' with args [" + spawnArgs.join(' ') + "]");
     response.writeHead(200, { 'Content-Type': 'application/json' });
     fb.stdout.on('data', function (data) {
         response.write(data);
@@ -92,7 +92,7 @@ function runCommand(executable, request, response, args) {
     // Normal command completion
     fb.on('close', function (data) { response.end(); });
     fb.stderr.on('data', function (data) {
-        console.log("Fastbit stderr (" + executable + "):", data);
+        iris.log("Fastbit stderr (" + executable + "):", data);
     });
     
     fb.on('exit', function (code, signal) {

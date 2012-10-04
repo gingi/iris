@@ -44,7 +44,7 @@ app.get('/data/GWAS/:study', function(req, res) {
 
 app.get('/data/GWAS/:study/maxscore', function(req, res) {
     var cmd = config.binDir + '/fbsql -s "max(score)" -d ' + config.dataDir + '/GWAS/' + req.params.study;
-    console.log(cmd);
+    iris.log(cmd);
     var fbsql = exec(cmd, function(error, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ app.get('/data/GWAS/:study/maxscore', function(req, res) {
 // scatterplot rectangles for a GWAS study on given chromosome with at most b1 x b2 boxes
 app.get('/data/GWAS/:study/scatter', function(req, res) {
     var cmd = config.binDir + '/scatter -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"] + ' -c1 pos -c2 score' + ' -n1 0 -n2 0' + ' -b1 ' + req.query["b1"] + ' -b2 ' + req.query["b2"] + ' -x1 ' + req.query["x1"] + ' -x2 ' + req.query["x2"];
-    console.log(cmd);
+    iris.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -70,7 +70,7 @@ app.get('/data/GWAS/:study/scatter', function(req, res) {
 // scatterplot for GWAS study with no binning
 app.get('/data/GWAS/:study/scatter_nobinning', function(req, res) {
     var cmd = config.binDir + '/fbsql -s "pos,score" -d ' + config.dataDir + '/GWAS/' + req.params.study + '/' + req.query["chr"];
-    console.log(cmd);
+    iris.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -136,7 +136,7 @@ app.get('/data/phenotypes', function(req, res) {
 // GO term histogram (all genes)
 app.get('/histogram/GO', function(req, res) {
     var cmd = config.binDir + '/fbsql -s "GO_term,count(*)" -d ' + config.dataDir + '/gene2GO';
-    console.log(cmd);
+    iris.log(cmd);
     var fbsql = exec(cmd, function(error, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'
@@ -148,7 +148,7 @@ app.get('/histogram/GO', function(req, res) {
 // GO term histogram for a GWAS study (all snps)
 app.get('/histogram/GO/GWAS/:study', function(req, res) {
     var cmd = config.binDir + '/gwas2go -d ' + config.dataDir + ' -s ' + req.params.study;
-    console.log(cmd);
+    iris.log(cmd);
     var join = exec(cmd, function(err, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ app.get('/histogram/GO/GWAS/:study', function(req, res) {
 // GO term histogram for a GWAS study where snps are filtered by pos or score
 app.get('/histogram/GO/GWAS/:study/:where', function(req, res) {
     var cmd = config.binDir + '/gwas2go -d ' + config.dataDir + ' -s ' + req.params.study + ' -w "' + req.params.where + '"';
-    console.log(cmd);
+    iris.log(cmd);
     var join = exec(cmd, function(err, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'
@@ -171,7 +171,7 @@ app.get('/histogram/GO/GWAS/:study/:where', function(req, res) {
 
 app.get('/gene2GWAS', function(req, res) {
     var cmd = config.binDir + '/fbsql -d ' + config.dataDir + '/GWAS_snp_consequences -s "study_id,gene_stable_id,max(score)"';
-	console.log(cmd);
+	iris.log(cmd);
     var fbsql = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -200,7 +200,7 @@ app.get('/data/:d/pcoords', function(req, res) {
         cmd = cmd + ' -w "' + req.query["w"] + '"';
     }
 
-    console.log(cmd);
+    iris.log(cmd);
     var scatter = exec(cmd, {
         maxBuffer: 10000 * 1024
     }, function(error, stdout, stderr) {
@@ -213,7 +213,7 @@ app.get('/data/:d/pcoords', function(req, res) {
 
 app.get('/data/:d/ranges', function(req, res) {
     var cmd = config.binDir + "/ranges -d " + config.dataDir + "/" + req.params.d;
-    console.log(cmd);
+    iris.log(cmd);
     var ranges = exec(cmd, function(error, stdout, stderr) {
         res.writeHead(200, {
             'Content-Type': 'application/json'

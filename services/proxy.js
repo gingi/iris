@@ -1,9 +1,8 @@
 var iris = require('./service-base.js');
 var app = iris.app;
-iris.configureViews(app);
+iris.configureViews();
 var routes = iris.routes;
 var url = require('url');
-var httpProxy = require('http-proxy');
 var fs = require('fs');
 var path = require('path');
 
@@ -24,28 +23,15 @@ function directoryContents(response, dir) {
     });
 }
 
-function fileNotFound(res) {
-    res.writeHead(404);
-    res.end("File not found.");
-}
-
-function capitalize(word) {
-    return word[0].toUpperCase() + word.slice(1);
-}
-
 // Routes
 app.get('/', routes.index);
+
 app.get('/about', function (req, res) {
     res.render('about', { title : 'About' });
 });
+
 app.get('/contact', function (req, res) {
     res.render('contact', { title : 'Contact Us'});
-});
-
-app.get('/404', function (req, res) {
-    res.render('error', { title: 'Page not found',
-                          heading: 'Page not found',
-                          message: 'Now go back to where ya came from.'});
 });
 
 requirejs.define('iris', function () {
@@ -73,24 +59,25 @@ app.get('/widget', function (request, response) {
 
 function aboutModule(filename, key) {
     requirejs([filename], function (module) {
-        console.log(module.about);
+        iris.log(module.about);
     });
     return about;
 }
 
-app.get('/widget/:widget', function (req, res) {
+app.get('/widget/:widget', function (req, res, next) {
     var layout = req.query.nolayout == null;
-    if (req.params.widget.match(/[^\s\w\d\.:\/]/)) {
+    var widgetName = req.params.widget;
+    if (widgetName.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);
         res.end("Illegal URL format.");
         return;
     }
-    if (req.params.widget.match(/.js$/)) {
+    if (widgetName.match(/.js$/)) {
         // Send the file
-        var filename = WIDGET_JS_DIR + '/' + req.params.widget;
+        var filename = path.join(WIDGET_JS_DIR, widgetName);
         fs.exists(filename, function (exists) {
             if (!exists) {
-                fileNotFound(res);
+                res.send(404);
             } else {
                 fs.readFile(filename, function (err, data) {
                     res.writeHead(200);
@@ -100,7 +87,14 @@ app.get('/widget/:widget', function (req, res) {
             }
         });
     } else {
-        routes.widget(req, res, { layout: layout, name: req.params.widget });
+        // Check if widget exists
+        var filename = path.join(WIDGET_JS_DIR, widgetName + '.js');
+        fs.exists(filename, function (exists) {
+            if (!exists)
+                next();
+            else
+                routes.widget(req, res, { layout: layout, name: widgetName });
+        });
     }
 });
 
@@ -135,7 +129,7 @@ app.get('/renderer/:renderer', function (req, res) {
         var filename = RENDERER_JS_DIR + '/' + req.params.renderer;
         fs.exists(filename, function (exists) {
             if (!exists) {
-                fileNotFound(res);
+                res.send(404);
             } else {
                 fs.readFile(filename, function (err, data) {
                     res.writeHead(200);
@@ -151,7 +145,7 @@ app.get('/renderer/:renderer', function (req, res) {
         var name = req.params.renderer;
         fs.exists(filename, function (exists) {
             if (!exists) {
-                fileNotFound(res);
+                res.send(404);
             } else {
                 routes.renderer(req, res, {
                     js: httpPath, title: "Renderer",

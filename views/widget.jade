@@ -4,6 +4,14 @@ link(rel="stylesheet", href="/css/iris.css")
 block scripts
     script(type="text/javascript", data-main="/js/app", src="/js/require.js")
     script(type="text/javascript")
+        requirejs.onError = function (err) {
+            if (err.requireType == 'scripterror') {
+                require(["jquery"], function ($) {
+                    $("#content").html("Widget does not exist");
+                })
+            }
+            console.log("RequireJS error", err);
+        }
         require(["iris", "widgets/#{name}"], function (Iris, widget) {
             widget.display(document.getElementById("widget"));
         });
