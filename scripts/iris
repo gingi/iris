@@ -39,8 +39,12 @@ mkdir -p $LOGDIR
 # Private utility functions
 
 function _error {
-    tput bold; printf "Error: "; tput sgr0
-    echo $@
+    local message=$1
+    local details=$2
+    printf "\e[;1mError:\e[0m %s\n" "$message"
+    if [[ "$details" ]]; then
+        printf "\n\e[;1mDetails:\e[0m %s\n" "$details"
+    fi
 }
 
 function _json_flatten {
@@ -49,7 +53,8 @@ function _json_flatten {
     local key=$3
     local fields=$4
     local filter=$5
-    local resultval=$(cat $jsonfile | node -e '
+    local stderr=$(mktemp -t XXXX)
+    local jf_stdout=$(cat $jsonfile | node -e '
         var p = process, f = p.argv[2].split(" ");
         p.stdin.resume();
         p.stdin.on("data", function (j) { 
@@ -59,26 +64,38 @@ function _json_flatten {
                     console.log(f.map(function (l) { return e[l]; }).join(" "));
             });
         });
-    ' $key "$fields" $filter)
-    eval $__json_flatten_result="'$resultval'"
+        p.stdin.on("error", function (e) { console.error(e); });
+    ' $key "$fields" $filter 2> $stderr)
+    local jf_stderr=$(cat $stderr); rm $stderr
+    if [[ "$jf_stderr" ]]; then
+        _error "Could not understand contents of '$jsonfile'" "$jf_stderr"
+        exit 1
+    fi
+    eval $__json_flatten_result="'$jf_stdout'"
 }
 
 function _json_lookup {
     local __json_lookup_result=$1
     local jsonfile=$2
     local fields=$3
-    local resultval=$(cat $jsonfile | node -e '
+    local stderr=$(mktemp -t XXXX)
+    local jl_stdout=$(cat $jsonfile | node -e '
         var f = process.argv[1].split(" ");
         process.stdin.resume();
         process.stdin.on("data", function (j) {
             var o = JSON.parse(j);
-            for (i in f) {
-                o = o[f[i]];
-            }
+            for (i in f) { o = o[f[i]]; }
             console.log(o);
         });
-    ' "$fields")
-    eval $__json_lookup_result="'$resultval'"
+        process.stdin.on("error", function (e) { console.error(e) });
+    ' "$fields" 2>$stderr)
+    local jl_stderr=$(cat $stderr); rm $stderr
+    
+    if [[ "$jl_stderr" ]]; then
+        _error "Could not understand contents of '$jsonfile'" "$jl_stderr"
+        exit 1
+    fi
+    eval $__json_lookup_result="'$jl_stdout'"
 }
 
 function _running_pid {
@@ -517,7 +534,7 @@ function iris_cmd_services {
         'port name nodefile config hostname' "$name"
     
     if [ -z "$services" ]; then
-        [ -n "$name" ] && _error "Service '$name' was not found"
+        [ -n "$name" ] && _error "Service '$name' is not configured."
         return
     fi
     local outfmt='%-5s %-18s %-20s %-25s %s\n'
