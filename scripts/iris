@@ -13,6 +13,7 @@ SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
 DEFAULT_HOSTNAME=0.0.0.0
 WHOAMI=`whoami`
+HEADING_COLOR=2
 
 IRIS_USAGE='iris [options] <command> [<arguments>]
     
@@ -43,26 +44,30 @@ function _error {
 }
 
 function _json_flatten {
-    local jsonfile=$1
-    local key=$2
-    local fields=$3
-    cat $jsonfile | node -e '
-        var p = process;
-        var f = p.argv[2].split(" ");
+    local __json_flatten_result=$1
+    local jsonfile=$2
+    local key=$3
+    local fields=$4
+    local filter=$5
+    local resultval=$(cat $jsonfile | node -e '
+        var p = process, f = p.argv[2].split(" ");
         p.stdin.resume();
         p.stdin.on("data", function (j) { 
             var o = JSON.parse(j);
             o[p.argv[1]].forEach(function (e) {
-                console.log(f.map(function (l) { return e[l]; }).join(" "));
+                if (!p.argv[3] || e["name"] == p.argv[3])
+                    console.log(f.map(function (l) { return e[l]; }).join(" "));
             });
         });
-    ' $key "$fields"
+    ' $key "$fields" $filter)
+    eval $__json_flatten_result="'$resultval'"
 }
 
 function _json_lookup {
-    local jsonfile=$1
-    local fields=$2
-    cat $jsonfile | node -e '
+    local __json_lookup_result=$1
+    local jsonfile=$2
+    local fields=$3
+    local resultval=$(cat $jsonfile | node -e '
         var f = process.argv[1].split(" ");
         process.stdin.resume();
         process.stdin.on("data", function (j) {
@@ -72,7 +77,8 @@ function _json_lookup {
             }
             console.log(o);
         });
-    ' "$fields"
+    ' "$fields")
+    eval $__json_lookup_result="'$resultval'"
 }
 
 function _running_pid {
@@ -503,22 +509,18 @@ function iris_cmd_services {
         echo "File $SVC_CONF does not exist!" > /dev/stderr
         exit 1
     fi
-    local hostname=$(_json_lookup $SVC_CONF 'settings hostname')
+    local hostname;
+    _json_lookup hostname $SVC_CONF 'settings hostname'
     [ -z "$hostname" ] && hostname=$DEFAULT_HOSTNAME
     local services
-    if [ -n "$name" ]; then
-         services=$(_json_flatten $SVC_CONF services \
-             'port name nodefile config hostname' | awk "\$2 == \"$name\"")
-    else
-         services=$(_json_flatten $SVC_CONF services \
-             'port name nodefile config hostname')
-    fi
+    _json_flatten services $SVC_CONF services \
+        'port name nodefile config hostname' "$name"
     
     if [ -z "$services" ]; then
         [ -n "$name" ] && _error "Service '$name' was not found"
         return
     fi
-    local outfmt="%-5s %-18s %-20s %-25s %s\n"
+    local outfmt='%-5s %-18s %-20s %-25s %s\n'
     # If called directly from command-line, show header
     if [ "$cmd" == "services" ]; then
         tput setaf $HEADING_COLOR
