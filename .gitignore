@@ -1,9 +1,1 @@
-*~
-/node_modules/*
-/bin
-/share
-/include
-/lib
-/share
-/logs
-/conf/services.json
+node_modules/
