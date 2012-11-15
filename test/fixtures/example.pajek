@@ -1,0 +1,697 @@
+*Vertices 348
+1 "kb|netnode.AT5G60460.1"
+2 "kb|netnode.AT3G44220.1"
+3 "kb|netnode.AT5G45420"
+4 "kb|netnode.AT1G60600.1"
+5 "kb|netnode.AT3G13175.1"
+6 "kb|netnode.AT1G27700.1"
+7 "kb|netnode.AT5G12880.1"
+8 "kb|netnode.AT1G19450.1"
+9 "kb|netnode.AT1G62880.1"
+10 "kb|netnode.AT2G46890.1"
+11 "kb|netnode.AT2G45070.2"
+12 "kb|netnode.AT3G54010.1"
+13 "kb|netnode.AT1G75630.2"
+14 "kb|netnode.AT4G28720.1"
+15 "kb|netnode.AT4G31590.1"
+16 "kb|netnode.AT3G28080.2"
+17 "kb|netnode.AT2G36900.2"
+18 "kb|netnode.AT3G17440.1"
+19 "kb|netnode.AT2G02990.1"
+20 "kb|netnode.AT3G60600.1"
+21 "kb|netnode.AT5G02040.2"
+22 "kb|netnode.AT1G28490.2"
+23 "kb|netnode.AT4G13345.1"
+24 "kb|netnode.AT4G28040.1"
+25 "kb|netnode.AT1G14360.1"
+26 "kb|netnode.AT1G77130.1"
+27 "kb|netnode.AT4G35530.1"
+28 "kb|netnode.AT1G28230.1"
+29 "kb|netnode.AT5G07960.1"
+30 "kb|netnode.AT5G56540.1"
+31 "kb|netnode.AT3G19390.1"
+32 "kb|netnode.AT1G64150.1"
+33 "kb|netnode.AT1G14730.1"
+34 "kb|netnode.AT1G76670.1"
+35 "kb|netnode.AT5G43460.1"
+36 "kb|netnode.AT1G75220.1"
+37 "kb|netnode.AT3G10572.1"
+38 "kb|netnode.AT1G48140.1"
+39 "kb|netnode.AT1G80170.1"
+40 "kb|netnode.AT3G48740.1"
+41 "kb|netnode.AT5G54980.1"
+42 "kb|netnode.AT2G32380.1"
+43 "kb|netnode.AT5G11740.1"
+44 "kb|netnode.AT3G57090.1"
+45 "kb|netnode.AT4G00550.1"
+46 "kb|netnode.AT2G03120.1"
+47 "kb|netnode.AT5G22340.1"
+48 "kb|netnode.AT1G32410.2"
+49 "kb|netnode.AT3G08040.1"
+50 "kb|netnode.AT1G75020.1"
+51 "kb|netnode.AT2G48070.3"
+52 "kb|netnode.AT3G54010.1"
+53 "kb|netnode.AT3G20865.1"
+54 "kb|netnode.AT5G63850.1"
+55 "kb|netnode.AT4G16840.1"
+56 "kb|netnode.AT1G16240.1"
+57 "kb|netnode.AT1G44414.1"
+58 "kb|netnode.AT1G12390.1"
+59 "kb|netnode.AT2G43510.1"
+60 "kb|netnode.AT1G22750.3"
+61 "kb|netnode.AT1G77210.1"
+62 "kb|netnode.AT3G54010.2"
+63 "kb|netnode.AT4G03410.1"
+64 "kb|netnode.AT5G61340"
+65 "kb|netnode.AT5G16950.1"
+66 "kb|netnode.AT3G59080.1"
+67 "kb|netnode.AT4G34640.1"
+68 "kb|netnode.AT3G22570.1"
+69 "kb|netnode.AT3G27080.1"
+70 "kb|netnode.AT2G36100.1"
+71 "kb|netnode.AT3G56950.2"
+72 "kb|netnode.AT1G22750.1"
+73 "kb|netnode.AT2G33390.1"
+74 "kb|netnode.AT2G04100.1"
+75 "kb|netnode.AT2G44080.1"
+76 "kb|netnode.AT3G01550.1"
+77 "kb|netnode.AT2G16850.1"
+78 "kb|netnode.AT5G17700.1"
+79 "kb|netnode.AT5G40930.1"
+80 "kb|netnode.AT2G45660.1"
+81 "kb|netnode.AT1G56330.1"
+82 "kb|netnode.AT3G54820.1"
+83 "kb|netnode.AT1G50430.2"
+84 "kb|netnode.AT2G40160.2"
+85 "kb|netnode.AT1G47290.2"
+86 "kb|netnode.AT1G73190.1"
+87 "kb|netnode.AT1G52280.1"
+88 "kb|netnode.AT4G17340.1"
+89 "kb|netnode.AT3G48890.1"
+90 "kb|netnode.AT1G18720.1"
+91 "kb|netnode.AT5G10180.1"
+92 "kb|netnode.AT5G43970.1"
+93 "kb|netnode.AT4G08230.1"
+94 "kb|netnode.AT5G38170.1"
+95 "kb|netnode.AT3G54010.1"
+96 "kb|netnode.AT3G09085.1"
+97 "kb|netnode.AT5G67540.1"
+98 "kb|netnode.AT3G14410.1"
+99 "kb|netnode.AT1G16240.3"
+100 "kb|netnode.AT1G48140.2"
+101 "kb|netnode.AT1G55190.1"
+102 "kb|netnode.AT3G54010.1"
+103 "kb|netnode.AT3G54010.1"
+104 "kb|netnode.AT1G75020.2"
+105 "kb|netnode.AT3G17440.2"
+106 "kb|netnode.AT3G54010.2"
+107 "kb|netnode.AT4G08230.2"
+108 "kb|netnode.AT5G03180.1"
+109 "kb|netnode.AT5G39510.1"
+110 "kb|netnode.AT3G25585.1"
+111 "kb|netnode.AT5G20050.1"
+112 "kb|netnode.AT4G21620.1"
+113 "kb|netnode.AT5G47200.1"
+114 "kb|netnode.AT5G63770.2"
+115 "kb|netnode.AT2G25810.1"
+116 "kb|netnode.AT5G63770.1"
+117 "kb|netnode.AT3G46060.1"
+118 "kb|netnode.AT3G54020.1"
+119 "kb|netnode.AT5G22290"
+120 "kb|netnode.AT2G29980.2"
+121 "kb|netnode.AT5G56540.1"
+122 "kb|netnode.AT1G76520.2"
+123 "kb|netnode.AT1G04430.1"
+124 "kb|netnode.AT5G51150.1"
+125 "kb|netnode.AT2G47770.1"
+126 "kb|netnode.AT1G15880.1"
+127 "kb|netnode.AT1G16900.1"
+128 "kb|netnode.AT4G14950.1"
+129 "kb|netnode.AT5G42240.1"
+130 "kb|netnode.AT4G28040.2"
+131 "kb|netnode.AT4G39460.2"
+132 "kb|netnode.AT1G47260.1"
+133 "kb|netnode.AT5G40890.1"
+134 "kb|netnode.AT1G04430.2"
+135 "kb|netnode.AT1G44800.1"
+136 "kb|netnode.AT1G77350.1"
+137 "kb|netnode.AT4G17486.1"
+138 "kb|netnode.AT2G24290.1"
+139 "kb|netnode.AT1G32410.3"
+140 "kb|netnode.AT1G55910.1"
+141 "kb|netnode.AT4G10430.3"
+142 "kb|netnode.AT5G17170.1"
+143 "kb|netnode.AT3G27080.1"
+144 "kb|netnode.AT4G31600.1"
+145 "kb|netnode.AT4G09580.1"
+146 "kb|netnode.AT3G51510.1"
+147 "kb|netnode.AT2G01175.1"
+148 "kb|netnode.AT5G19570.1"
+149 "kb|netnode.AT1G10030.1"
+150 "kb|netnode.AT1G16950.1"
+151 "kb|netnode.AT4G35100.2"
+152 "kb|netnode.AT3G08040.2"
+153 "kb|netnode.AT1G48270.1"
+154 "kb|netnode.AT5G41800.1"
+155 "kb|netnode.AT4G16980.1"
+156 "kb|netnode.AT3G61870.1"
+157 "kb|netnode.AT1G21790.1"
+158 "kb|netnode.AT2G47030.1"
+159 "kb|netnode.AT1G12750.2"
+160 "kb|netnode.AT3G01050.1"
+161 "kb|netnode.AT5G16150.1"
+162 "kb|netnode.AT3G53610.1"
+163 "kb|netnode.AT4G01430.1"
+164 "kb|netnode.AT5G40890.2"
+165 "kb|netnode.AT2G19450.1"
+166 "kb|netnode.AT3G53610.2"
+167 "kb|netnode.AT5G06320.1"
+168 "kb|netnode.AT1G23880.1"
+169 "kb|netnode.AT1G01620.1"
+170 "kb|netnode.AT1G28710.3"
+171 "kb|netnode.AT5G67210.1"
+172 "kb|netnode.AT4G24990.1"
+173 "kb|netnode.AT2G45070.3"
+174 "kb|netnode.AT1G30840.2"
+175 "kb|netnode.AT1G27200"
+176 "kb|netnode.AT2G24180.1"
+177 "kb|netnode.AT1G16790.1"
+178 "kb|netnode.AT1G47290.1"
+179 "kb|netnode.AT3G53610.3"
+180 "kb|netnode.AT4G32140.1"
+181 "kb|netnode.AT2G39960.1"
+182 "kb|netnode.AT2G38330.1"
+183 "kb|netnode.AT1G26850.3"
+184 "kb|netnode.AT1G12750.1"
+185 "kb|netnode.AT5G07250.1"
+186 "kb|netnode.AT4G28040.3"
+187 "kb|netnode.AT2G20740.1"
+188 "kb|netnode.AT2G30390.1"
+189 "kb|netnode.AT5G16150.3"
+190 "kb|netnode.AT3G11397.1"
+191 "kb|netnode.AT4G38250.1"
+192 "kb|netnode.AT5G40260.2"
+193 "kb|netnode.AT1G28140.1"
+194 "kb|netnode.AT1G12240.1"
+195 "kb|netnode.AT4G14730"
+196 "kb|netnode.AT4G31130.1"
+197 "kb|netnode.AT5G02040.1"
+198 "kb|netnode.AT2G48070.1"
+199 "kb|netnode.AT5G51010.1"
+200 "kb|netnode.AT1G15080.1"
+201 "kb|netnode.AT2G20740.3"
+202 "kb|netnode.AT1G71090.1"
+203 "kb|netnode.AT1G33110.1"
+204 "kb|netnode.AT4G00370.1"
+205 "kb|netnode.AT4G11310.1"
+206 "kb|netnode.AT2G32580.1"
+207 "kb|netnode.AT5G27540.2"
+208 "kb|netnode.AT5G63780.1"
+209 "kb|netnode.AT2G14860.1"
+210 "kb|netnode.AT5G44550.1"
+211 "kb|netnode.AT1G27040.1"
+212 "kb|netnode.AT1G01620.2"
+213 "kb|netnode.AT1G79040.1"
+214 "kb|netnode.AT3G54010.2"
+215 "kb|netnode.AT3G54010.2"
+216 "kb|netnode.AT3G54010.2"
+217 "kb|netnode.AT3G58170.1"
+218 "kb|netnode.AT4G13500.1"
+219 "kb|netnode.AT3G21690.1"
+220 "kb|netnode.AT1G28490.1"
+221 "kb|netnode.AT5G40260.1"
+222 "kb|netnode.AT1G77350.2"
+223 "kb|netnode.AT2G30390.2"
+224 "kb|netnode.AT2G03505.1"
+225 "kb|netnode.AT4G35100.1"
+226 "kb|netnode.AT1G76520.1"
+227 "kb|netnode.AT1G52825.1"
+228 "kb|netnode.AT4G28040.5"
+229 "kb|netnode.AT4G30490.1"
+230 "kb|netnode.AT1G74520.1"
+231 "kb|netnode.AT3G50920.2"
+232 "kb|netnode.AT1G77210.2"
+233 "kb|netnode.AT3G29034.1"
+234 "kb|netnode.AT1G32410.4"
+235 "kb|netnode.AT5G45130.1"
+236 "kb|netnode.AT1G01230.1"
+237 "kb|netnode.AT2G29980.1"
+238 "kb|netnode.AT2G45070.1"
+239 "kb|netnode.AT2G40160.1"
+240 "kb|netnode.AT1G26850.1"
+241 "kb|netnode.AT1G33800.1"
+242 "kb|netnode.AT1G03630.1"
+243 "kb|netnode.AT3G24250"
+244 "kb|netnode.AT2G45070.4"
+245 "kb|netnode.AT4G24310.1"
+246 "kb|netnode.AT4G03410.2"
+247 "kb|netnode.AT1G62880.2"
+248 "kb|netnode.AT2G04690.2"
+249 "kb|netnode.AT2G17972.1"
+250 "kb|netnode.AT5G44550.1"
+251 "kb|netnode.AT5G26667"
+252 "kb|netnode.AT5G16150.2"
+253 "kb|netnode.AT5G08335.1"
+254 "kb|netnode.AT2G22510.1"
+255 "kb|netnode.AT2G33120.2"
+256 "kb|netnode.AT1G33230.1"
+257 "kb|netnode.AT5G53030.1"
+258 "kb|netnode.AT1G26850.2"
+259 "kb|netnode.AT3G13710.1"
+260 "kb|netnode.AT4G39460.1"
+261 "kb|netnode.AT1G27300.1"
+262 "kb|netnode.AT1G52220.1"
+263 "kb|netnode.AT5G53470.1"
+264 "kb|netnode.AT2G48070.2"
+265 "kb|netnode.AT3G18280.1"
+266 "kb|netnode.AT4G22212.1"
+267 "kb|netnode.AT5G50020.2"
+268 "kb|netnode.AT4G25570.1"
+269 "kb|netnode.AT2G04690.1"
+270 "kb|netnode.AT1G77380.1"
+271 "kb|netnode.AT1G12750.3"
+272 "kb|netnode.AT2G44280.1"
+273 "kb|netnode.AT4G23400.1"
+274 "kb|netnode.AT3G25585.2"
+275 "kb|netnode.AT1G17860.1"
+276 "kb|netnode.AT3G07950.1"
+277 "kb|netnode.AT1G28710.1"
+278 "kb|netnode.AT5G24130.1"
+279 "kb|netnode.AT3G20510.1"
+280 "kb|netnode.AT2G44280.2"
+281 "kb|netnode.AT1G65820.1"
+282 "kb|netnode.AT3G56950.1"
+283 "kb|netnode.AT1G32410.1"
+284 "kb|netnode.AT2G24040.1"
+285 "kb|netnode.AT1G63120.1"
+286 "kb|netnode.AT4G33360.3"
+287 "kb|netnode.AT2G02810.1"
+288 "kb|netnode.AT2G28900.1"
+289 "kb|netnode.AT2G01770.1"
+290 "kb|netnode.AT5G50020.1"
+291 "kb|netnode.AT5G58650.1"
+292 "kb|netnode.AT2G38050.1"
+293 "kb|netnode.AT2G36900.1"
+294 "kb|netnode.AT5G23550.1"
+295 "kb|netnode.AT3G54010.2"
+296 "kb|netnode.AT3G17930"
+297 "kb|netnode.AT3G25585.4"
+298 "kb|netnode.AT3G26085.1"
+299 "kb|netnode.AT2G44280.3"
+300 "kb|netnode.AT1G33170.1"
+301 "kb|netnode.AT1G28710.2"
+302 "kb|netnode.AT1G75630.1"
+303 "kb|netnode.AT5G67330.1"
+304 "kb|netnode.AT4G18205.1"
+305 "kb|netnode.AT1G30840.1"
+306 "kb|netnode.AT1G04340.1"
+307 "kb|netnode.AT3G46060.2"
+308 "kb|netnode.AT1G11850.2"
+309 "kb|netnode.AT3G55600.1"
+310 "kb|netnode.AT4G22214.1"
+311 "kb|netnode.AT2G20740.2"
+312 "kb|netnode.AT3G01660.1"
+313 "kb|netnode.AT5G17630.1"
+314 "kb|netnode.AT4G02725.1"
+315 "kb|netnode.AT4G39900.1"
+316 "kb|netnode.AT2G29390.1"
+317 "kb|netnode.AT1G27040.2"
+318 "kb|netnode.AT1G09330.1"
+319 "kb|netnode.AT5G27540.1"
+320 "kb|netnode.AT4G28040.4"
+321 "kb|netnode.AT1G53560.1"
+322 "kb|netnode.AT1G32410.5"
+323 "kb|netnode.AT5G11650.1"
+324 "kb|netnode.AT5G49540.1"
+325 "kb|netnode.AT1G65820.2"
+326 "kb|netnode.AT2G33120.1"
+327 "kb|netnode.AT4G32750.1"
+328 "kb|netnode.AT1G50430.1"
+329 "kb|netnode.AT3G54010.1"
+330 "kb|netnode.AT2G31490.1"
+331 "kb|netnode.AT4G40042.1"
+332 "kb|netnode.AT1G60600.2"
+333 "kb|netnode.AT5G19875.1"
+334 "kb|netnode.AT1G16240.2"
+335 "kb|netnode.AT5G18150.1"
+336 "kb|netnode.AT3G13520.1"
+337 "kb|netnode.AT1G03630.2"
+338 "kb|netnode.AT4G33360.1"
+339 "kb|netnode.AT3G16240.1"
+340 "kb|netnode.AT4G10430.1"
+341 "kb|netnode.AT3G46060.3"
+342 "kb|netnode.AT2G31440.1"
+343 "kb|netnode.AT3G26085.3"
+344 "kb|netnode.AT5G01075.1"
+345 "kb|netnode.AT4G17486.2"
+346 "kb|netnode.AT3G25220.1"
+347 "kb|netnode.AT4G30950.1"
+348 "kb|netnode.AT3G43520.1"
+*Edges
+119 343 1.0
+119 240 1.0
+119 16 1.0
+119 280 1.0
+119 231 1.0
+119 151 1.0
+119 208 1.0
+119 149 1.0
+119 228 1.0
+119 181 1.0
+119 301 1.0
+119 168 1.0
+119 159 1.0
+119 15 1.0
+119 259 1.0
+119 28 1.0
+119 293 1.0
+119 127 1.0
+119 241 1.0
+119 121 1.0
+119 178 1.0
+119 126 1.0
+119 288 1.0
+119 60 1.0
+119 91 1.0
+119 204 1.0
+119 237 1.0
+119 107 1.0
+119 82 1.0
+119 230 1.0
+119 331 1.0
+119 298 1.0
+119 317 1.0
+119 282 1.0
+119 185 1.0
+119 306 1.0
+119 57 1.0
+119 322 1.0
+119 255 1.0
+119 244 1.0
+119 157 1.0
+119 140 1.0
+119 32 1.0
+119 72 1.0
+119 29 1.0
+119 109 1.0
+119 101 1.0
+119 332 1.0
+119 153 1.0
+119 319 1.0
+119 96 1.0
+119 83 1.0
+119 191 1.0
+119 200 1.0
+119 227 1.0
+119 3 1.0
+119 187 1.0
+119 211 1.0
+119 169 1.0
+119 56 1.0
+119 19 1.0
+119 27 1.0
+119 128 1.0
+119 320 1.0
+119 93 1.0
+119 11 1.0
+119 78 1.0
+119 132 1.0
+119 74 1.0
+119 345 1.0
+119 142 1.0
+119 217 1.0
+119 248 1.0
+119 86 1.0
+119 22 1.0
+119 144 1.0
+119 213 1.0
+119 173 1.0
+119 104 1.0
+119 12 1.0
+119 148 1.0
+119 283 1.0
+119 256 1.0
+119 328 1.0
+119 48 1.0
+119 303 1.0
+119 156 1.0
+119 305 1.0
+119 37 1.0
+119 77 1.0
+119 274 1.0
+119 81 1.0
+119 284 1.0
+119 341 1.0
+119 272 1.0
+119 189 1.0
+119 323 1.0
+119 167 1.0
+119 171 1.0
+119 295 1.0
+119 52 1.0
+119 108 1.0
+119 31 1.0
+119 14 1.0
+119 312 1.0
+119 292 1.0
+119 143 1.0
+119 216 1.0
+119 310 1.0
+119 196 1.0
+119 59 1.0
+119 195 1.0
+119 225 1.0
+119 150 1.0
+119 45 1.0
+119 46 1.0
+119 152 1.0
+119 160 1.0
+119 73 1.0
+119 61 1.0
+119 51 1.0
+119 206 1.0
+119 186 1.0
+119 207 1.0
+119 97 1.0
+119 40 1.0
+119 100 1.0
+119 136 1.0
+119 69 1.0
+119 278 1.0
+119 120 1.0
+119 190 1.0
+119 307 1.0
+119 223 1.0
+119 273 1.0
+119 316 1.0
+119 64 1.0
+119 342 1.0
+119 194 1.0
+119 166 1.0
+119 71 1.0
+119 36 1.0
+119 235 1.0
+119 47 1.0
+119 347 1.0
+119 117 1.0
+119 79 1.0
+119 122 1.0
+119 42 1.0
+119 13 1.0
+119 302 1.0
+119 95 1.0
+119 234 1.0
+119 308 1.0
+119 313 1.0
+119 41 1.0
+119 245 1.0
+119 291 1.0
+119 202 1.0
+119 154 1.0
+119 314 1.0
+119 145 1.0
+119 236 1.0
+119 170 1.0
+119 192 1.0
+119 111 1.0
+119 215 1.0
+119 75 1.0
+119 182 1.0
+119 247 1.0
+119 103 1.0
+119 139 1.0
+119 304 1.0
+119 43 1.0
+119 276 1.0
+119 146 1.0
+119 261 1.0
+119 158 1.0
+119 290 1.0
+119 6 1.0
+119 58 1.0
+119 309 1.0
+119 68 1.0
+119 250 1.0
+119 176 1.0
+119 163 1.0
+119 198 1.0
+119 254 1.0
+119 70 1.0
+119 339 1.0
+119 222 1.0
+119 129 1.0
+119 242 1.0
+119 125 1.0
+119 118 1.0
+119 24 1.0
+119 87 1.0
+119 268 1.0
+119 286 1.0
+119 183 1.0
+119 266 1.0
+119 105 1.0
+119 327 1.0
+119 246 1.0
+119 35 1.0
+119 49 1.0
+119 269 1.0
+119 38 1.0
+119 299 1.0
+119 270 1.0
+119 212 1.0
+119 221 1.0
+119 184 1.0
+119 134 1.0
+119 335 1.0
+119 338 1.0
+119 114 1.0
+119 177 1.0
+119 252 1.0
+119 265 1.0
+119 324 1.0
+119 257 1.0
+119 20 1.0
+119 53 1.0
+119 115 1.0
+119 258 1.0
+119 172 1.0
+119 175 1.0
+119 174 1.0
+119 164 1.0
+119 54 1.0
+119 66 1.0
+119 348 1.0
+119 124 1.0
+119 89 1.0
+119 80 1.0
+119 287 1.0
+119 92 1.0
+119 219 1.0
+119 161 1.0
+119 133 1.0
+119 294 1.0
+119 76 1.0
+119 243 1.0
+119 113 1.0
+119 65 1.0
+119 271 1.0
+119 165 1.0
+119 209 1.0
+119 260 1.0
+119 277 1.0
+119 281 1.0
+119 220 1.0
+119 162 1.0
+119 7 1.0
+119 264 1.0
+119 141 1.0
+119 17 1.0
+119 275 1.0
+119 239 1.0
+119 233 1.0
+119 55 1.0
+119 25 1.0
+119 39 1.0
+119 180 1.0
+119 4 1.0
+119 85 1.0
+119 33 1.0
+119 99 1.0
+119 263 1.0
+119 330 1.0
+119 300 1.0
+119 5 1.0
+119 44 1.0
+119 8 1.0
+119 34 1.0
+119 315 1.0
+119 214 1.0
+119 337 1.0
+119 137 1.0
+119 336 1.0
+119 325 1.0
+119 205 1.0
+119 88 1.0
+119 267 1.0
+119 2 1.0
+119 50 1.0
+119 23 1.0
+119 251 1.0
+119 344 1.0
+119 63 1.0
+119 138 1.0
+119 203 1.0
+119 249 1.0
+119 289 1.0
+119 18 1.0
+119 321 1.0
+119 131 1.0
+119 253 1.0
+119 333 1.0
+119 226 1.0
+119 30 1.0
+119 199 1.0
+119 94 1.0
+119 197 1.0
+119 130 1.0
+119 193 1.0
+119 262 1.0
+119 84 1.0
+119 297 1.0
+119 10 1.0
+119 102 1.0
+119 188 1.0
+119 296 1.0
+119 224 1.0
+119 116 1.0
+119 218 1.0
+119 26 1.0
+119 201 1.0
+119 210 1.0
+119 326 1.0
+119 285 1.0
+119 9 1.0
+119 98 1.0
+119 329 1.0
+119 229 1.0
+119 340 1.0
+119 147 1.0
+119 90 1.0
+119 311 1.0
+119 238 1.0
+119 1 1.0
+119 346 1.0
+119 112 1.0
+119 106 1.0
+119 155 1.0
+119 123 1.0
+119 279 1.0
+119 135 1.0
+119 67 1.0
+119 62 1.0
+119 334 1.0
+119 318 1.0
+119 232 1.0
+119 110 1.0
+119 21 1.0
+119 179 1.0
