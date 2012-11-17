@@ -1,8 +1,8 @@
-var network = require(__dirname + '/../src/network.js');
+var graph = require(__dirname + '/../src/graph.js');
 
 exports.neighbors = function (test) {
-	var n1 = network.createNode();
-	var n2 = network.createNode();
+	var n1 = graph.createNode();
+	var n2 = graph.createNode();
 	test.equal(0, n1.neighbors().length);
 	test.equal(0, n2.neighbors().length);
 	n1.add(n2);
@@ -19,7 +19,7 @@ exports.neighbors = function (test) {
 }
 
 exports.metadata = function (test) {
-	var node = network.createNode();
+	var node = graph.createNode();
 	node.attribute('a', 'x');
 	node.attribute('b', 'y');
 	test.deepEqual({ a: 'x', b: 'y' }, node.meta());
