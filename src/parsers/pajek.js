@@ -1,12 +1,10 @@
 var optimist = require('optimist');
 var reader   = require('./line-reader');
+var graph    = require('../graph');
 
-var network = {};
+var network = null;
 
 exports.parse = function (filename) {
-	
-};
-
-exports.json = function () {
+    network = graph.createGraph();
 	return network;
-}
+};
