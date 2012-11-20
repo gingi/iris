@@ -55,6 +55,7 @@ requirejs.onError = function (error) {
 };
 
 app.get('/widget', function (request, response) {
+	// list the widgets
 });
 
 function aboutModule(filename, key) {
@@ -99,6 +100,7 @@ app.get('/widget/:widget', function (req, res, next) {
 });
 
 app.get('/renderer', function (request, response) {
+	// list the renderers
     var i, f, renderers = [];
     fs.readdir(RENDERER_JS_DIR, function (err, files) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -118,15 +120,17 @@ app.get('/renderer', function (request, response) {
     });
 });
 
-app.get('/renderer/:renderer', function (req, res) {
-    if (req.params.renderer.match(/[^\s\w\d\.:\/]/)) {
+app.get('/renderer/:renderer', function (req, res, next) {
+    var layout = req.query.nolayout == null;
+    var rendererName = req.params.renderer;
+    if (rendererName.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);
         res.end("Illegal URL format.");
         return;
     }
-    if (req.params.renderer.match(/.js$/)) {
+    if (rendererName.match(/.js$/)) {
         // Send the file
-        var filename = RENDERER_JS_DIR + '/' + req.params.renderer;
+        var filename = path.join(RENDERER_JS_DIR, rendererName);
         fs.exists(filename, function (exists) {
             if (!exists) {
                 res.send(404);
@@ -139,22 +143,17 @@ app.get('/renderer/:renderer', function (req, res) {
             }
         });
     } else {
-        var basename = 'renderer.' + req.params.renderer + '.js';
-        var filename = RENDERER_JS_DIR + '/' + basename;
-        var httpPath = RENDERER_HTTPPATH + '/' + basename;
-        var name = req.params.renderer;
+        // Check if renderer exists
+        var filename = path.join(RENDERER_JS_DIR, rendererName + '.js');
         fs.exists(filename, function (exists) {
-            if (!exists) {
-                res.send(404);
-            } else {
-                routes.renderer(req, res, {
-                    js: httpPath, title: "Renderer",
-                    name: name,
-                });
-            }
+            if (!exists)
+                next();
+            else
+                routes.renderer(req, res, { layout: layout, name: rendererName });
         });
     }
 });
+
 
 app.get('/workspace', function (req, res) {
     var widgets = [];

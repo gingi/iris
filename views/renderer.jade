@@ -1,17 +1,21 @@
-link(rel="stylesheet", type="text/css", href="/css/iris.css")
+link(rel="stylesheet", href="/css/renderers.css")
+link(rel="stylesheet", href="/css/iris.css")
 
-script(type="text/javascript", src="/js/require-jquery.js",
-    data-main="/js/main.js")
-script(type="text/javascript")
-    require(["iris", "#{js}"], function (Iris) {
-        console.log("renderer.jade");
-        Iris.init().then(function () {
-            var renderer = Iris.Renderer["#{name}"];
-            renderer.render({
-                target: document.getElementById("renderMe"),
-                data: renderer.exampleData()
-            });
+block scripts
+    script(type="text/javascript", data-main="/js/app", src="/js/require.js")
+    script(type="text/javascript")
+        requirejs.onError = function (err) {
+            if (err.requireType == 'scripterror') {
+                require(["jquery"], function ($) {
+                    $("#content").html("Renderer does not exist");
+                })
+            }
+            console.log("RequireJS error", err);
+        }
+        require(["renderers/#{name}"], function (renderer) {
+            var elem = document.getElementById("renderMe");
+            renderer.render({target: elem});
         });
-    });
 
-div(id="renderMe", style="position: relative; min-width:500px")
+block content
+    div(id="renderMe", style="position: relative; min-width:500px")
