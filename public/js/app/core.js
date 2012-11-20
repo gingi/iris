@@ -69,12 +69,12 @@ function (Util, FrameBuilder, jQuery) {
         return model;
     };
     
-	Iris.renderer = function (name) {
-    	var rendObject = require(name);
-    	
-    	Util.extend(rendObject, {});
-    	return rendObject.create();
-    };
+	// Iris.renderer = function (name) {
+	//     	var rendObject = require(name);
+	//     	
+	//     	Util.extend(rendObject, {});
+	//     	return rendObject.create();
+	//     };
     
     Iris.extend = Util.extend;
     return Iris;

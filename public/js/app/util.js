@@ -9,10 +9,11 @@ define(function () {
     };
 
     Util.extend = function (object) {
-        console.log("Extending object", object);
         Util.each(arguments, function (src) {
             for (var key in src) {
-				object[key] = src[key];
+				if (! object.hasOwnProperty(key)) {
+					object[key] = src[key];
+				}
             }
         });
         return object;

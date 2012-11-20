@@ -13,3 +13,6 @@
 [submodule "external/snapdragon"]
 	path = external/snapdragon
 	url = https://bitbucket.org/garden/snapdragon
+[submodule "external/cytoscape"]
+	path = external/cytoscape
+	url = https://github.com/cytoscape/cytoscape.js.git
