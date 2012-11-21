@@ -7,6 +7,8 @@ function lineParser(network) {
     var vertexMode = new RegExp(/^\*\s*vertices/i);
     var edgeMode   = new RegExp(/^\*\s*edges/i);
     return function (line) {
+        line = line.replace(/^\s+|\s+$|["']/g, '');
+        if (line == '') return;
         if (vertexMode.test(line)) {
             parseMode = 'vertices';
             return;
@@ -16,7 +18,6 @@ function lineParser(network) {
             return;
         }
         var tokens = line.split(/\s+/);
-        if (tokens.length == 0) return;
         if (parseMode == 'vertices') {
             network.createNode(tokens[0]).attribute('name', tokens[1]);
         } else if (parseMode == 'edges') {
