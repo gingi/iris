@@ -20,14 +20,20 @@ function Node(graph, id) {
 	return node;
 }
 
+function isInt(val) {
+    return !isNaN(parseInt(val)) && (parseFloat(val) == parseInt(val)); 
+}
+
 function Graph() {
     var idSequence = 0;
     var nodes = {};
     var edges = {};
     return {
         link: function (n1, n2, meta) {
-            var key = [n1.id, n2.id].sort().join(" ");
-            edges[key] = { source: n1, target: n2, meta: meta }
+            n1 = isInt(n1) ? n1 : n1.id;
+            n2 = isInt(n2) ? n2 : n2.id;
+            var key = [n1, n2].sort().join(" ");
+            edges[key] = { source: nodes[n1], target: nodes[n2], meta: meta }
             return this;
         },
         createNode: function (id) {
