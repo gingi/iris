@@ -1,4 +1,4 @@
-define(function () {
+define(['revalidator'], function (revalidator) {
     var Util = {};
 
     Util.each = function (array, func) {

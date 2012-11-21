@@ -12,18 +12,17 @@ define(["app/core","app/util"], function (Iris,Util) {
 			if (renderer.about.setDefaults) {
 				Util.extend(settings, renderer.about.setDefaults());
 			}
+			if (settings.data == null) {
+				settings.data = renderer.exampleData();
+			}
 			if (renderer.about.schema != null) {
 				var check = Util.validate(settings, renderer.about.schema);
 				if (check['valid']) {
-					console.log("automatic validation", renderer.about.name);
 					return settings;
 				} else {
 					console.log("validation failed",check['errors']);
 					throw Error(check['errors']);
 				}
-			}
-			if (settings.data == null) {
-				settings.data = renderer.exampleData();
 			}
 			return settings;
 		}

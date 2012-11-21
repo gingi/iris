@@ -1,1 +1,1 @@
-../../nodejs/node_modules/revalidator/lib/revalidator.js
+../../../node_modules/revalidator/lib/revalidator.js
