@@ -2,9 +2,36 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 	renderer.about = {
 		name: "Network",
 		defaults: {
-			target: "test"
+			target: "test",
+			width: 960,
+			height: 500,
+			charge: -120,
+			linkDistance: 30,
+			radius: 5,
+			linkstyle: {
+				"stroke": "#999",
+				"stroke-opacity": 0.6,
+				"stroke-width": function(d) { return Math.sqrt(d.value); }
+			},
+			nodestyle: {
+				"stroke": "#fff",
+				"stroke-width": "1.5px",
+				"fill": function(d) { var color = d3.scale.category20(); return color(d.group); }
+			}
+		},
+		schema: {
+			properties: {
+				target: { type: 'object', required: true },
+				data: { type: 'object', required: true },
+				width: { type: 'integer' },
+				height: { type: 'integer' },
+				charge: { type: 'integer' },
+				linkDistance: { type: 'integer' },
+				radius: { type: 'number' },
+				nodestyle: { type: 'object' },
+				linkstyle: { type: 'object' }
+			}
 		}
-//		schema: {}
 	};
 	renderer.exampleData = function () {
 		return {
@@ -347,23 +374,16 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 	};
 	renderer.render = function (settings) {
 		settings = renderer.prepare(settings);
-		
-		var width = 960,
-			height = 500;
-
-		var color = d3.scale.category20();
-
 		var force = d3.layout.force()
-			.charge(-120)
-			.linkDistance(30)
-			.size([width, height]);
+			.charge(settings.charge)
+			.linkDistance(settings.linkDistance)
+			.size([settings.width, settings.height]);
 
-		var elem = settings["target"];
-		var svg = d3.select(elem).append("svg")
-			.attr("width",width)
-			.attr("height",height);
+		var svg = d3.select(settings.target).append("svg")
+			.attr("width",settings.width)
+			.attr("height",settings.height);
 
-		var graph = settings["data"];
+		var graph = settings.data;
 		force
 			.nodes(graph.nodes)
 			.links(graph.links)
@@ -371,19 +391,28 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 
 		var link = svg.selectAll("line.link")
 			.data(graph.links)
-			.enter().append("line")
-			.style("stroke","#999")
-			.style("stroke-opacity", 0.6 )
-			.style("stroke-width", function(d) { return Math.sqrt(d.value); });
+			.enter().append("line");
+			
+		for (var k in settings.linkstyle) {
+			link.style(k,settings.linkstyle[k]);
+		}
 
 		var node = svg.selectAll("circle.node")
 			.data(graph.nodes)
 			.enter().append("circle")
-			.style("stroke", "#fff")
-			.style("stroke-width", "1.5px")
-			.attr("r", 5)
-			.style("fill", function(d) { return color(d.group); })
+			.attr("r", settings.radius)
 			.call(force.drag);
+
+		for (var k in settings.nodestyle) {
+			node.style(k,settings.nodestyle[k]);
+		}
+		// For some reason, the settings.nodestyle.fill function doesn't work
+		// but this does.
+		var color = d3.scale.category20();
+		node.style("fill", function(d) { return color(d.group); });
+
+		node.append("title")
+			.text(function(d) {return d.name;});
 
 		force.on("tick", function() {
 			link.attr("x1", function(d) { return d.source.x; })
