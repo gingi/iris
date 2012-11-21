@@ -1,4 +1,5 @@
-define(["app/renderer","d3"], function (renderer,deethree) {
+define(["app/renderer","d3"], function (renderer, deethree) {
+    var color = d3.scale.category10();
 	renderer.about = {
 		name: "Network",
 		defaults: {
@@ -14,9 +15,9 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 				"stroke-width": function(d) { return Math.sqrt(d.value); }
 			},
 			nodestyle: {
-				"stroke": "#fff",
+				"stroke": "#999",
 				"stroke-width": "1.5px",
-				"fill": function(d) { var color = d3.scale.category20(); return color(d.group); }
+				"fill": function (d) { return color(d.group); }
 			}
 		},
 		schema: {
@@ -373,7 +374,7 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 		};
 	};
 	renderer.render = function (settings) {
-		settings = renderer.prepare(settings);
+        settings = renderer.prepare(settings);
 		var force = d3.layout.force()
 			.charge(settings.charge)
 			.linkDistance(settings.linkDistance)
@@ -404,12 +405,8 @@ define(["app/renderer","d3"], function (renderer,deethree) {
 			.call(force.drag);
 
 		for (var k in settings.nodestyle) {
-			node.style(k,settings.nodestyle[k]);
+			node.style(k, settings.nodestyle[k]);
 		}
-		// For some reason, the settings.nodestyle.fill function doesn't work
-		// but this does.
-		var color = d3.scale.category20();
-		node.style("fill", function(d) { return color(d.group); });
 
 		node.append("title")
 			.text(function(d) {return d.name;});
