@@ -29,6 +29,15 @@ exports.graph = function (test) {
 	test.done();
 }
 
+exports.idLinks = function (test) {
+	var g = graph.createGraph();
+	var n1 = g.createNode(24);
+	var n2 = g.createNode(811);
+	g.link(24, 811);
+	test.deepEqual(n2, n1.neighbors()[0]);
+	test.done();
+}
+
 exports.metadata = function (test) {
 	var node = graph.createGraph().createNode();
 	node.attribute('a', 'x');
