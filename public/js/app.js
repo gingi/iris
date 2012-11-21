@@ -7,9 +7,9 @@ require.config({
         iris:         '../iris',
         widgets:      '../widgets',
         renderers:    '../renderers',
-        colorbrewer:  'd3/colorbrewer/colorbrewer'
+        colorbrewer:  'd3/colorbrewer/colorbrewer',
     },
-    shims: {
+    shim: {
         d3: { exports: 'd3' }
     }
 });

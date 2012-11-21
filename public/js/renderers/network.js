@@ -1,4 +1,4 @@
-define(["app/renderer","d3"], function (renderer, deethree) {
+define(["app/renderer", "d3"], function (renderer, d3) {
     var color = d3.scale.category10();
 	renderer.about = {
 		name: "Network",
