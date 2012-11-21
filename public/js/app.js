@@ -9,4 +9,7 @@ require.config({
         renderers:    '../renderers',
         colorbrewer:  'd3/colorbrewer/colorbrewer'
     },
+    shims: {
+        d3: { exports: 'd3' }
+    }
 });
