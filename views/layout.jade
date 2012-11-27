@@ -30,7 +30,23 @@ head
             margin-left: 0;
             padding-left: 19px;
         }
-    script(type="text/javascript",src="/js/require.js", data-main="/js/frontpage")
+    script(type="text/javascript",src="/js/require.js",data-main="/js/app")
+    script(type="text/javascript",src="/js/lib/jquery.js")
+    script(type="text/javascript")
+        $(document).ready(function() {
+            $("a[data-content]").on("click", function () {
+                console.log("clicked");
+                $.ajax({
+                    url: $(this).data('content'),
+                    success: function (content) {
+                        $("#content").html(content);
+                    },
+                    error: function () {
+                        console.log("Ajax error:", arguments);
+                    }
+                })
+            });
+        });
     block scripts
 body
     .navbar.navbar-fixed-top
@@ -42,6 +58,10 @@ body
                         a(href="#", data-content="/widget/manhattan?nolayout") Manhattan
                     li
                         a(href="#", data-content="/widget/pcoords?nolayout") Pcoords
+                    li
+                        a(href="#", data-content="/widget/RegulatoryNetwork?nolayout") Regulatory Network
+                    li
+                        a(href="#", data-content="/renderer/forceDirectedGraph?nolayout") Force-directed Graph
     
     .container
         .content

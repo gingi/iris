@@ -7,15 +7,14 @@ block scripts
         requirejs.onError = function (err) {
             if (err.requireType == 'scripterror') {
                 require(["jquery"], function ($) {
-                    $("#content").html("Widget does not exist");
+                    $("#content").html("Widget #{name} does not exist");
                 })
             }
             console.log("RequireJS error", err);
         }
-        require(["iris", "widgets/#{name}"], function (Iris, widget) {
+        require(["widgets/#{name}"], function (widget) {
             widget.display(document.getElementById("widget"));
         });
 
 block content
     div(id="widget", style="position: relative; min-width:500px")
-    
