@@ -5,7 +5,7 @@ var graph    = require('../graph');
 function lineParser(network) {
     var parseMode = null;
     var vertexMode = new RegExp(/^\*\s*vertices/i);
-    var edgeMode   = new RegExp(/^\*\s*edges/i);
+    var edgeMode   = new RegExp(/^\*\s*(?:edges|arcs)/i);
     return function (line) {
         line = line.replace(/^\s+|\s+$|["']/g, '');
         if (line == '') return;
