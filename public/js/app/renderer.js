@@ -3,6 +3,7 @@ define(["app/core","app/util"], function (Iris,Util) {
 		about: {},
 		exampleData: function () {},
 		render: function (settings) {},
+		update: function (settings) {},
 		prepare: function (settings) {
 			var renderer = this;
 			settings = (settings || {});
@@ -25,7 +26,10 @@ define(["app/core","app/util"], function (Iris,Util) {
 				}
 			}
 			return settings;
-		}
+		},
+		config: function (settings) { // setup an interactive layer to tune parameters
+			console.log("config function invoked",settings);
+ 		}
     };
     return Renderer;
 });

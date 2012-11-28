@@ -35,7 +35,6 @@ head
     script(type="text/javascript")
         $(document).ready(function() {
             $("a[data-content]").on("click", function () {
-                console.log("clicked");
                 $.ajax({
                     url: $(this).data('content'),
                     success: function (content) {
