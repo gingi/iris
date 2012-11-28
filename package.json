@@ -1,8 +1,15 @@
 {
-	"name"    : "datavis",
-	"version" : "0.0.1",
-	"dependencies" : {
-		"optimist" : ">=0.3.5"
-	   ,"nodeunit" : ">=0.7.4"	
-	}
+    "dependencies": {
+        "ejs"             : "*", 
+        "express"         : ">=3.0.3", 
+        "less-middleware" : "*", 
+        "nodeunit"        : ">=0.7.4",
+        "optimist"        : ">=0.3.5"
+    }, 
+    "name": "datavis", 
+    "private": true, 
+    "scripts": {
+        "start": "node app"
+    }, 
+    "version": "0.0.1"
 }
