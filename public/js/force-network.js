@@ -32,14 +32,6 @@ require(['d3', 'dao'], function (d3, Data) {
         var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
-        var nodeMap = {};
-        for (var i in graph.nodes) {
-            nodeMap[graph.nodes[i].id] = i;
-        }
-        for (var i in graph.edges) {
-            graph.edges[i].source = parseInt(nodeMap[graph.edges[i].source]);
-            graph.edges[i].target = parseInt(nodeMap[graph.edges[i].target]);
-        }
 
         force
             .nodes(graph.nodes)
