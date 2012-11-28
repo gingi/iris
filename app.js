@@ -37,16 +37,45 @@ app.get('/users', user.list);
 
 app.get('/data/network/:network', function (request, response, next) {
     response.contentType = 'json';
-    var parser = require('./src/parsers/pajek');
-    var datadir = path.join(__dirname, 'test', 'fixtures');
-    var filename = path.join(datadir, request.params.network) + ".pajek";
+    var fetcher, filename;
+    if (request.params.network == 'regulome') {
+        filename = path.join(__dirname, 'data', request.params.network) + '.json';
+        fetcher = function () {
+            var json = require(filename);
+            var nodeMap = {};
+            for (var i in json.nodes) {
+                nodeMap[json.nodes[i].id] = i;
+            }
+            for (var i in json.edges) {
+                json.edges[i].source = parseInt(nodeMap[json.edges[i].nodeId1]);
+                json.edges[i].target = parseInt(nodeMap[json.edges[i].nodeId2]);
+                json.edges[i].weight = 1;
+            }
+            response.send(json);
+        };
+    } else {
+        var parser = require('./src/parsers/pajek');
+        filename = path.join(__dirname, 'test', 'fixtures', request.params.network) + ".pajek";
+        fetcher = function () {
+            parser.parse(filename, function (network) {
+                var json = network.json();
+                var nodeMap = {};
+                for (var i in json.nodes) {
+                    nodeMap[json.nodes[i].id] = i;
+                }
+                for (var i in json.edges) {
+                    json.edges[i].source = parseInt(nodeMap[json.edges[i].source]);
+                    json.edges[i].target = parseInt(nodeMap[json.edges[i].target]);
+                }
+                response.send(json);
+            });
+        }
+    }
     fs.exists(filename, function (exists) {
         if (exists) {
-            parser.parse(filename, function (network) {
-                response.send(network.json());
-            })
+            fetcher();
         } else {
-            response.send(404, { error: "Network " + request.params.pajek + " not found" });
+            response.send(404, { error: "Network " + request.params.network + " not found" });
         }
     })
 });
