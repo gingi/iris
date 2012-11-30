@@ -21,7 +21,6 @@ define(['api'], function (API) {
     };
     
     Data.prototype.readFromStorage = function () {
-        console.log(window.localStorage);
         try {
             var n = JSON.parse(window.localStorage.getItem(STORAGE_KEY));
         } catch (e) {};
