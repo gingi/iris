@@ -38,21 +38,49 @@ app.get('/users', user.list);
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
     var nodes = [], edges = [];
-    var nNodes = 40;
-    var nEdges = 100;
-    var nGroups = 5;
-    for (var i = 0; i < nNodes; i++) {
-        nodes.push({
-            id: i, name: 'Node' + (i + 1),
-            group: Math.ceil(Math.random() * nGroups)
-        });
+    var nNodes = request.query.nodes || 20;
+    var nEdges = request.query.edges || 50;
+    var nClusters = request.query.clusters || 3;
+    var nodeIndex = 0;
+    var clusterMasters = [];
+    for (var c = 0; c < nClusters; c++) {
+        for (var i = 0; i < nNodes; i++) {
+            nodes.push({
+                id: nodeIndex, name: 'Node' + (nodeIndex + 1),
+                group: c + 1
+            });
+            nodeIndex++;
+        }
+        clusterMasters[c]
+            = Math.floor(Math.random() * nNodes) + c * nNodes;
+        var seen = {};
+        for (var i = 0; i < nEdges; i++) {
+            var s, t;
+            while (true) {
+                s = Math.floor(Math.random() * nNodes);
+                t = Math.floor(Math.random() * nNodes);
+                if (s == t) continue;
+                var key = s * nNodes + t;
+                if (seen[key] != 1) {
+                    seen[key] = 1;
+                    break;
+                }
+            }
+            edges.push({
+                source: c * nNodes + s,
+                target: c * nNodes + t,
+                weight: Math.random()
+            });
+        }
     }
-    for (var i = 0; i < nEdges; i++) {
-        edges.push({
-            source: Math.floor(Math.random() * nNodes),
-            target: Math.floor(Math.random() * nNodes),
-            weight: Math.random()
-        });
+    for (var i = 0; i < clusterMasters.length; i++) {
+        for (var j = i + 1; j < clusterMasters.length; j++) {
+            edges.push({
+                source: clusterMasters[i],
+                target: clusterMasters[j],
+                weight: Math.random()
+            });
+        }
     }
     response.send({nodes: nodes, edges: edges});
 });
