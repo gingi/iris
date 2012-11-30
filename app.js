@@ -35,6 +35,28 @@ app.configure('development', function() {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+app.get('/data/network/random', function (request, response, next) {
+    response.contentType = 'json';
+    var nodes = [], edges = [];
+    var nNodes = 40;
+    var nEdges = 100;
+    var nGroups = 5;
+    for (var i = 0; i < nNodes; i++) {
+        nodes.push({
+            id: i, name: 'Node' + (i + 1),
+            group: Math.ceil(Math.random() * nGroups)
+        });
+    }
+    for (var i = 0; i < nEdges; i++) {
+        edges.push({
+            source: Math.floor(Math.random() * nNodes),
+            target: Math.floor(Math.random() * nNodes),
+            weight: Math.random()
+        });
+    }
+    response.send({nodes: nodes, edges: edges});
+});
+
 app.get('/data/network/:network', function (request, response, next) {
     response.contentType = 'json';
     var fetcher, filename;

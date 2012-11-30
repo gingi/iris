@@ -14,7 +14,7 @@ require(['d3', 'dao'], function (d3, Data) {
     var color = d3.scale.category10();
 
     var force = d3.layout.force()
-        .charge(-120)
+        .charge(-50)
         .linkDistance(30)
         .size([width, height]);
 
@@ -48,6 +48,7 @@ require(['d3', 'dao'], function (d3, Data) {
                 .attr("class", "node")
                 .attr("r", 6)
                 .style("fill", function (d) { return color(d.group); })
+                .on("click", clickNode)
                 .call(force.drag);
 
         node.append("title").text(function(d) { return d.name; });
@@ -61,5 +62,10 @@ require(['d3', 'dao'], function (d3, Data) {
               node.attr("cx", function(d) { return d.x; })
                   .attr("cy", function(d) { return d.y; });
         });
+    }
+    
+    function clickNode(d) {
+        d.style("stroke", "yellow");
+        console.log(d);
     }
 });
