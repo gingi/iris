@@ -4,18 +4,19 @@ requirejs.config({
         d3:     { exports: 'd3' },
     },
 })
-require(['d3', 'dao'], function (d3, Data) {
+require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
     
     this.data = new Data();
     
+    var svg;
     var width = window.innerWidth,
         height = window.innerHeight;
 
     var color = d3.scale.category10();
 
     var force = d3.layout.force()
-        .charge(-50)
-        .linkDistance(30)
+        .charge(-120)
+        .linkDistance(60)
         .size([width, height]);
 
     // !!! FIXME: User input
@@ -25,12 +26,10 @@ require(['d3', 'dao'], function (d3, Data) {
 
     function render() {
         var graph = data.getNetwork(networkName);
-
-        // error: function () {
-        //     d3.select("body").append("div").text("Network not found");
-        // },
-        var svg = d3.select("body").append("svg")
-            .attr("width", width)
+        var body = d3.select("body");
+        svg = body.append("svg");        
+        
+        svg.attr("width", width)
             .attr("height", height);
 
         force
@@ -46,11 +45,11 @@ require(['d3', 'dao'], function (d3, Data) {
         var node = svg.selectAll("circle.node").data(graph.nodes).enter()
             .append("circle")
                 .attr("class", "node")
-                .attr("r", 6)
+                .attr("r", 8)
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
                 .call(force.drag);
-
+        
         node.append("title").text(function(d) { return d.name; });
       
         force.on("tick", function() {
@@ -64,8 +63,23 @@ require(['d3', 'dao'], function (d3, Data) {
         });
     }
     
+    var selected, originalFill;
     function clickNode(d) {
-        d.style("stroke", "yellow");
-        console.log(d);
+        if (selected) {
+            selected.style["fill"] = originalFill;
+        }
+        if (selected == this) {
+            selected = null;
+            $("#informationBox").css("visibility", "hidden");
+            return;
+        }
+        selected = this;
+        originalFill = selected.style["fill"];
+        var fill = d3.hsl(originalFill);
+        selected.style["fill"] = fill.brighter().toString();
+        
+        $("#informationBox")
+            .css("visibility", "visible")
+            .text($(selected).children("title").text());
     }
 });

@@ -2,13 +2,30 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Pajek Network</title>
+    <title>Network</title>
     <script src="/js/require.js" data-main="/js/force-network.js"></script>
     <style>
+    body { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Verdana, Arial, sans-serif; }
     .link { stroke: #999; stroke-opacity: 0.6; }
     .node { stroke: #999; stroke-width: 1px; }
+    #informationBox {
+        display: table-cell;
+        color: #eee;
+        background-color: #666;
+        padding: 5px;
+        visibility: hidden;
+        position: absolute;
+        left:10px;
+        bottom:10px;
+        width: 200px;
+        -moz-border-radius:5px;
+        border-radius:5px;
+        text-align: center;
+        vertical-align: middle;
+    }
     </style>
 </head>
 <body>
+    <div id="informationBox"></div>
 </body>
 </html>
