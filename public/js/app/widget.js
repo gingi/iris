@@ -1,15 +1,13 @@
 define(["app/core"], function (Iris) {
 	var Widget = Iris.Widget = {
-		renderers: {},
-		target: function (target) {
-			widget.targetElement = target;
-			return widget;
+		about: {
+			name: "base",
+			author: "shanje",
+			description: "Widget base class"
 		},
-		view: function () {},
-		setup: function (args) { return [] },
-		display: function () { throw Error("No renderers defined"); },
-    };
-    Widget.create = Widget.display;
-
-    return Widget;
+		display: function (settings) {
+			throw Error(this.about.name + ": display() function not implemented");
+		}
+	};
+	return Widget;
 });

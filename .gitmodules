@@ -16,3 +16,6 @@
 [submodule "external/cytoscape"]
 	path = external/cytoscape
 	url = https://github.com/cytoscape/cytoscape.js.git
+[submodule "external/CodeMirror"]
+	path = external/CodeMirror
+	url = https://github.com/marijnh/CodeMirror.git

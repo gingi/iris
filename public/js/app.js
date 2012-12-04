@@ -8,8 +8,12 @@ require.config({
         widgets:      '../widgets',
         renderers:    '../renderers',
         colorbrewer:  'd3/colorbrewer/colorbrewer',
+        CM_mode:      'CodeMirror/mode',
+        CM_util:      'CodeMirror/lib/util',
+        CodeMirror:   'CodeMirror/lib/codemirror',
     },
     shim: {
-        d3: { exports: 'd3' }
+        d3: { exports: 'd3' },
+        CodeMirror: { exports: 'CodeMirror' }
     }
 });

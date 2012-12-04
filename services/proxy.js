@@ -14,13 +14,18 @@ var WIDGET_JS_DIR   = path.join(JS_DIR,         'widgets');
 var RENDERER_HTTPPATH = '/js/renderers';
 var WIDGET_HTTPPATH = '/js/widgets';
 
-var requirejs = require('requirejs');
-
 function directoryContents(response, dir) {
     fs.readdir(dir, function (err, files) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(JSON.stringify(files));
     });
+}
+
+function isJS(s) {
+	if (s.match(/\.js$/)) {
+		return true;
+	}
+	return false;
 }
 
 // Routes
@@ -34,36 +39,12 @@ app.get('/contact', function (req, res) {
     res.render('contact', { title : 'Contact Us'});
 });
 
-requirejs.define('iris', function () {
-    var extendShim = { extend: function (obj) { return obj; } };
-    return {
-        Widget: extendShim,
-        Renderer: extendShim
-    };
-});
-
-// RequireJS shim for non-AMD dependencies
-function shim(dependency) {
-    requirejs.define(dependency, function () { return {} });
-}
-
-shim('d3');
-requirejs.onError = function (error) {
-    console.error("Parse error in widget " + error.moduleName);
-    console.error("   Error:    " + error.originalError);
-    console.error("   Filename: " + error.fileName);
-};
-
 app.get('/widget', function (request, response) {
-	// list the widgets
-});
-
-function aboutModule(filename, key) {
-    requirejs([filename], function (module) {
-        iris.log(module.about);
+    fs.readdir(WIDGET_JS_DIR, function (err, files) {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify(files.filter(isJS)));
     });
-    return about;
-}
+});
 
 app.get('/widget/:widget', function (req, res, next) {
     var layout = req.query.nolayout == null;
@@ -100,23 +81,9 @@ app.get('/widget/:widget', function (req, res, next) {
 });
 
 app.get('/renderer', function (request, response) {
-	// list the renderers
-    var i, f, renderers = [];
     fs.readdir(RENDERER_JS_DIR, function (err, files) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
-        for (i in files) {
-            f = files[i];
-            if (f.match(/^renderer\.\w+\.js$/)) {
-                var name = files[i].split('.', 3)[1];
-                renderers[renderers.length] = {
-                    name: name,
-                    filename: files[i],
-                    example: iris.uri() + "/renderer/" + name
-                };
-            }
-        }
-        response.write(JSON.stringify(renderers));
-        response.end();
+        response.end(JSON.stringify(files.filter(isJS)));
     });
 });
 

@@ -14,7 +14,7 @@ block scripts
         }
         require(["renderers/#{name}"], function (renderer) {
             var elem = document.getElementById("renderMe");
-            renderer.render({element: elem});
+            renderer.render(renderer.prepare({element: elem}));
         });
 
 block content
