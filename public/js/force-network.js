@@ -1,7 +1,7 @@
 requirejs.config({
     shim: {
         jquery: { exports: '$' },
-        d3:     { exports: 'd3' },
+        d3:     { exports: 'd3' }
     },
 })
 require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
@@ -19,19 +19,24 @@ require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
         .linkDistance(60)
         .size([width, height]);
 
+    var body = d3.select("body");
+
     // !!! FIXME: User input
-    var networkName = location.hash.substr(1) || 'example';
+    var networkName = location.hash.substr(1) || 'random';
 
     data.updateFromServer(networkName, function () { render(); });
+    $(window).on('hashchange', function () {
+        networkName = location.hash.substr(1);
+        data.updateFromServer(networkName, function () { render(); });
+    })
 
     function render() {
-        var graph = data.getNetwork(networkName);
-        var body = d3.select("body");
-        svg = body.append("svg");        
+        body.select("svg").remove();
+        svg = body.append("svg");
         
         svg.attr("width", width)
             .attr("height", height);
-
+        var graph = data.getNetwork(networkName);
         force
             .nodes(graph.nodes)
             .links(graph.edges)

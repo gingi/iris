@@ -3,9 +3,13 @@
 <head>
     <meta charset="utf-8">
     <title>Network</title>
-    <script src="/js/require.js" data-main="/js/force-network.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
+    <script src="js/require.js" data-main="js/force-network.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
     <style>
-    body { font-family: "Avenir Next", "Helvetica Neue", Helvetica, Verdana, Arial, sans-serif; }
+    body { padding-top: 40px; }
+    .container { width: 100%; height: 100% }
     .link { stroke: #999; stroke-opacity: 0.6; }
     .node { stroke: #999; stroke-width: 1px; }
     #informationBox {
@@ -14,9 +18,6 @@
         background-color: #666;
         padding: 5px;
         visibility: hidden;
-        position: absolute;
-        left:10px;
-        bottom:10px;
         width: 200px;
         -moz-border-radius:5px;
         border-radius:5px;
@@ -26,6 +27,29 @@
     </style>
 </head>
 <body>
-    <div id="informationBox"></div>
+    <div class="container">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+        <ul class="nav">
+            <li>
+                <form class="navbar-search">
+                    <input class="search-query" placeholder="Search" type="text">
+                    <button type="sumbit" class="btn btn-small">Lookup</button>
+                </form>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="#">Examples <b class="caret"></b></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a href="#regulome">Regulome</a></li>
+                    <li><a href="#example">Hairball</a></li>
+                    <li><a href="#example-small">Small Network</a></li>
+                    <li><a href="#random">Random Network</a></li>
+                </ul>
+            </li>
+            <li><div id="informationBox"></div></li>
+        </ul>
+    </div>
+        </div>
+    </div>
 </body>
 </html>
