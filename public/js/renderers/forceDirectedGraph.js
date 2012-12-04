@@ -1,42 +1,44 @@
 define(["app/renderer", "d3"], function (renderer, d3) {
     var color = d3.scale.category10();
 	renderer.about = {
-		name: "Force-Directed Graph",
-		defaults: {
-			radius: 5,
-			force: {
-				linkDistance: 20,
-				linkStrength: 1,
-				friction: 0.9,
-				charge: -30,
-				theta: 0.8,
-				gravity: 0.1
-			},
-			edgestyle: {
-				"stroke": "#999",
-				"stroke-opacity": 0.6,
-				"stroke-width": function(d) { return Math.sqrt(d.value); }
-			},
-			nodestyle: {
-				"stroke": "#999",
-				"stroke-width": "1.5px",
-				"fill": function (d) { return color(d.group); }
-			}
+		name: "forceDirectedGraph",
+		author: "Andrew Olson",
+		description: "network renderer that uses d3's force layout"
+	};
+	renderer.defaults = {
+		radius: 5,
+		force: {
+			linkDistance: 20,
+			linkStrength: 1,
+			friction: 0.9,
+			charge: -30,
+			theta: 0.8,
+			gravity: 0.1
 		},
-		schema: {
-			properties: {
-				element: { type: 'object', required: true },
-				data: { type: 'object', required: true },
-				force: {
-					type: 'object',
-					properties: {
-						linkDistance: { type: 'integer' },
-						linkStrength: { type: 'integer' },
-						friction: { type: 'number' },
-						charge: { type: 'integer' },
-						theta: {type: 'number' },
-						gravity: {type: 'number' }
-					}
+		edgestyle: {
+			"stroke": "#999",
+			"stroke-opacity": 0.6,
+			"stroke-width": function(d) { return Math.sqrt(d.value); }
+		},
+		nodestyle: {
+			"stroke": "#999",
+			"stroke-width": "1.5px",
+			"fill": function (d) { return color(d.group); }
+		}
+	};
+	renderer.schema = {
+		properties: {
+			element: { type: 'any', required: true },
+			data: { type: 'object', required: true },
+			force: {
+				type: 'object',
+				properties: {
+					linkDistance: { type: 'integer' },
+					linkStrength: { type: 'integer' },
+					friction: { type: 'number' },
+					charge: { type: 'integer' },
+					theta: {type: 'number' },
+					gravity: {type: 'number' }
 				}
 			}
 		}
@@ -381,11 +383,10 @@ define(["app/renderer", "d3"], function (renderer, d3) {
 		};
 	};
 	renderer.render = function (settings) {
-		settings = renderer.prepare(settings);
-		renderer.config(settings);
 		var element = $(settings.element);
-		var width = Math.max(element.width(), 800);
-		var height = Math.max(element.parent().height(), 500);
+		element.empty();
+		var width = (element.width() || 800);
+		var height = (element.height() || 500);
 		var force = d3.layout.force()
 			.size([width, height]);
 
@@ -437,7 +438,6 @@ define(["app/renderer", "d3"], function (renderer, d3) {
 			node.attr("cx", function(d) { return d.x; })
 				.attr("cy", function(d) { return d.y; });
 		});
-		return force;
 	};
 	return renderer;
 });
