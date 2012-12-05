@@ -1,7 +1,7 @@
 requirejs.config({
     shim: {
-        jquery: { exports: '$' },
-        d3:     { exports: 'd3' }
+        jquery:    { exports: '$' },
+        d3:        { exports: 'd3' },
     },
 })
 require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
@@ -55,7 +55,7 @@ require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
                 .on("click", clickNode)
                 .call(force.drag);
         
-        node.append("title").text(function(d) { return d.name; });
+        node.append("title").text(function (d) { return d.name; });
       
         force.on("tick", function() {
               link.attr("x1", function(d) { return d.source.x; })
@@ -72,10 +72,11 @@ require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
     function clickNode(d) {
         if (selected) {
             selected.style["fill"] = originalFill;
+            // $(selected).popover('hide');
         }
         if (selected == this) {
+            $("#infoBox").fadeOut(function () { $(this).empty(); });
             selected = null;
-            $("#informationBox").css("visibility", "hidden");
             return;
         }
         selected = this;
@@ -83,8 +84,23 @@ require(['d3', 'dao', 'jquery'], function (d3, Data, $) {
         var fill = d3.hsl(originalFill);
         selected.style["fill"] = fill.brighter().toString();
         
-        $("#informationBox")
-            .css("visibility", "visible")
-            .text($(selected).children("title").text());
+        // $(selected).popover({
+        //     title: $(selected).children('title').text(),
+        //     placement: 'bottom',
+        //     toggle: 'click',
+        //     delay: { hide: 1000 }
+        // });
+        // $(selected).popover("show");]
+        $("#infoBox").empty()
+            // .css('visibility', 'visible')
+            .append("<b>Selected:</b> " + $(selected).children('title').text());
+        $("#infoBox").fadeIn();
+        $("#infoBox").on("click", function () {
+            $(this).fadeOut(function () { $(this).empty(); });
+            if (selected != null) {
+                selected.style["fill"] = originalFill;
+                selected = null;
+            }
+        });
     }
 });
