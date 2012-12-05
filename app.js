@@ -85,6 +85,10 @@ app.get('/data/network/random', function (request, response, next) {
     response.send({nodes: nodes, edges: edges});
 });
 
+app.get('/data/gene/:id/neighbors', function (request, response, next) {
+    
+});
+
 app.get('/data/network/:network', function (request, response, next) {
     response.contentType = 'json';
     var fetcher, filename;
