@@ -1,5 +1,7 @@
 define(["app/core","app/util"], function (Iris,Util) {
-	var Renderer = Iris.Renderer = {
+	function Renderer() {};
+	Renderer.prototype = {
+		constructor: Renderer,
 		about: {
 			name: "base",
 			author: "shanje",
@@ -55,5 +57,5 @@ define(["app/core","app/util"], function (Iris,Util) {
 			return settings;
 		}
     };
-    return Renderer;
+	return Renderer;
 });
