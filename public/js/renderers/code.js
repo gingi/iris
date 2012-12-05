@@ -1,5 +1,6 @@
-define(["app/renderer", "CodeMirror", "app/event"], function (renderer, CodeMirror, Observable) {
-	renderer.updates = new Observable;
+define(["app/renderer", "CodeMirror", "app/event"], function (Renderer, CodeMirror, Observable) {
+	var renderer = new Renderer;
+	renderer.jscode = new Observable;
 	renderer.about = {
 		name: "code",
 		author: "Andrew Olson",
@@ -58,7 +59,7 @@ define(["app/renderer", "CodeMirror", "app/event"], function (renderer, CodeMirr
 	renderer.parse = function (str) {
 		if (str === "") str = '""';
 		eval("var p=" + str + ";");
-		renderer.updates.update(p);
+		renderer.jscode.update(p);
 	};
 	renderer.render = function (settings) {
 		var element = $(settings.element);
@@ -66,27 +67,32 @@ define(["app/renderer", "CodeMirror", "app/event"], function (renderer, CodeMirr
 		var width = (element.width() || 800);
 		var height = (element.height() || 500);
 		var code = this;
-		require(["CM_mode/javascript/javascript","CM_util/formatting"], function(CM_mode,fmt) {
+		require(["CM_mode/javascript/javascript","CM_util/formatting","CM_util/foldcode"], function(CM_mode,fmt,foldcode) {
 			var textarea = document.createElement("textarea");
 			textarea.setAttribute("id","code");
 			textarea.setAttribute("name","code");
 			textarea.value = code.stringify(settings.data,0);
 			settings.element.appendChild(textarea);
-			code.editor = CodeMirror.fromTextArea(textarea, {
+			var foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
+			var editor;
+			editor = CodeMirror.fromTextArea(textarea, {
 				mode: "javascript",
 				lineNumbers: true,
+				lineWrapping: true,
+				onGutterClick: foldFunc,
 				onKeyEvent: function() {
 					clearTimeout(code.delay);
 					code.delay = setTimeout( function()
 					{
-						var val = code.editor.getValue();
+						var val = editor.getValue();
 						code.parse(val);
-					}, 1000);
+					}, 300);
 				}
 			});
-			CodeMirror.commands["selectAll"](code.editor);
-			code.editor.autoFormatRange(code.editor.getCursor(true), code.editor.getCursor(false));
-			code.editor.setCursor(0,0);
+			editor.setSize(width,height);
+			CodeMirror.commands["selectAll"](editor);
+			editor.autoFormatRange(editor.getCursor(true), editor.getCursor(false));
+			editor.setCursor(0,0);
 		});
 	};
 	return renderer;

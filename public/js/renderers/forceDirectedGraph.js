@@ -1,5 +1,5 @@
-define(["app/renderer", "d3"], function (renderer, d3) {
-    var color = d3.scale.category10();
+define(["app/renderer", "d3"], function (Renderer, d3) {
+	var renderer = new Renderer;
 	renderer.about = {
 		name: "forceDirectedGraph",
 		author: "Andrew Olson",
@@ -23,7 +23,7 @@ define(["app/renderer", "d3"], function (renderer, d3) {
 		nodestyle: {
 			"stroke": "#999",
 			"stroke-width": "1.5px",
-			"fill": function (d) { return color(d.group); }
+			"fill": function (d) { var colors = ["#17becf","#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#ff7f0e"]; return colors[d.group]; }
 		}
 	};
 	renderer.schema = {

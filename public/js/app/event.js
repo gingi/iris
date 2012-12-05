@@ -1,6 +1,7 @@
 define( function () {
 	function Observable() {
 		this.listeners = [];
+		this.args = [];
 	}
 	Observable.prototype = {
 		constructor: Observable,
@@ -20,6 +21,7 @@ define( function () {
 			var listeners = this.listeners,
 				len = listeners.length,
 				i;
+			this.args = arguments;
 			for( i = 0; i < len; ++i ) {
 				listeners[i].apply( null, arguments );
 			}
