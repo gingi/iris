@@ -9,6 +9,8 @@ var express = require('express'),
     path    = require('path'),
     fs      = require('fs');
 
+var NETWORK_API = 'http://140.221.92.222:7064/KBaseNetworksRPC/networks';
+
 var app = express();
 
 app.configure(function() {
@@ -37,56 +39,16 @@ app.get('/users', user.list);
 
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
-    var nodes = [], edges = [];
     var nNodes = request.query.nodes || 20;
     var nEdges = request.query.edges || 50;
     var nClusters = request.query.clusters || 3;
-    var nodeIndex = 0;
-    var clusterMasters = [];
-    for (var c = 0; c < nClusters; c++) {
-        for (var i = 0; i < nNodes; i++) {
-            nodes.push({
-                id: nodeIndex, name: 'Node' + (nodeIndex + 1),
-                group: c + 1
-            });
-            nodeIndex++;
-        }
-        clusterMasters[c]
-            = Math.floor(Math.random() * nNodes) + c * nNodes;
-        var seen = {};
-        for (var i = 0; i < nEdges; i++) {
-            var s, t;
-            while (true) {
-                s = Math.floor(Math.random() * nNodes);
-                t = Math.floor(Math.random() * nNodes);
-                if (s == t) continue;
-                var key = s * nNodes + t;
-                if (seen[key] != 1) {
-                    seen[key] = 1;
-                    break;
-                }
-            }
-            edges.push({
-                source: c * nNodes + s,
-                target: c * nNodes + t,
-                weight: Math.random()
-            });
-        }
-    }
-    for (var i = 0; i < clusterMasters.length; i++) {
-        for (var j = i + 1; j < clusterMasters.length; j++) {
-            edges.push({
-                source: clusterMasters[i],
-                target: clusterMasters[j],
-                weight: Math.random()
-            });
-        }
-    }
-    response.send({nodes: nodes, edges: edges});
+    var network = randomNetwork(nNodes, nEdges, nClusters);
+    response.send(network);
 });
 
 app.get('/data/gene/:id/neighbors', function (request, response, next) {
-    
+    response.contentType = 'json';
+    response.send(randomNetwork(5, 6, 1));
 });
 
 app.get('/data/network/:network', function (request, response, next) {
@@ -138,3 +100,49 @@ http.createServer(app)
     .listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
 });
+
+function randomNetwork(nNodes, nEdges, nClusters) {
+    var nodes = [], edges = [];
+    var nodeIndex = 0;
+    var clusterMasters = [];
+    for (var c = 0; c < nClusters; c++) {
+        for (var i = 0; i < nNodes; i++) {
+            nodes.push({
+                id: nodeIndex, name: 'Node' + (nodeIndex + 1),
+                group: c + 1
+            });
+            nodeIndex++;
+        }
+        clusterMasters[c]
+            = Math.floor(Math.random() * nNodes) + c * nNodes;
+        var seen = {};
+        for (var i = 0; i < nEdges; i++) {
+            var s, t;
+            while (true) {
+                s = Math.floor(Math.random() * nNodes);
+                t = Math.floor(Math.random() * nNodes);
+                if (s == t) continue;
+                var key = s * nNodes + t;
+                if (seen[key] != 1) {
+                    seen[key] = 1;
+                    break;
+                }
+            }
+            edges.push({
+                source: c * nNodes + s,
+                target: c * nNodes + t,
+                weight: Math.random()
+            });
+        }
+    }
+    for (var i = 0; i < clusterMasters.length; i++) {
+        for (var j = i + 1; j < clusterMasters.length; j++) {
+            edges.push({
+                source: clusterMasters[i],
+                target: clusterMasters[j],
+                weight: Math.random()
+            });
+        }
+    }
+    return { edges: edges, nodes: nodes };
+}
