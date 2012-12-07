@@ -48,7 +48,17 @@ app.get('/data/network/random', function (request, response, next) {
 
 app.get('/data/gene/:id/neighbors', function (request, response, next) {
     response.contentType = 'json';
-    response.send(randomNetwork(5, 6, 1));
+    var rootId = 6;
+    var neighborhood = randomNetwork(5, 6, 1);
+    neighborhood.nodes.push({id: rootId, name: request.params.id});
+    for (var i in neighborhood.nodes) {
+        neighborhood.edges.push({
+            source: rootId,
+            target: neighborhood.nodes[i].id,
+            weight: Math.random()
+        })
+    }
+    response.send(neighborhood);
 });
 
 app.get('/data/network/:network', function (request, response, next) {
@@ -106,10 +116,11 @@ function randomNetwork(nNodes, nEdges, nClusters) {
     var nodeIndex = 0;
     var clusterMasters = [];
     for (var c = 0; c < nClusters; c++) {
+        var groupName = "group" + Math.ceil(Math.random() * 30);
         for (var i = 0; i < nNodes; i++) {
             nodes.push({
-                id: nodeIndex, name: 'Node' + (nodeIndex + 1),
-                group: c + 1
+                id: nodeIndex, name: 'Node' + (Math.ceil(Math.random() * 1000) + 1),
+                group: groupName
             });
             nodeIndex++;
         }
