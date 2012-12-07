@@ -1,9 +1,10 @@
 define(['jquery', 'd3'], function ($, d3) {
     var color = d3.scale.category10();
     var Network = function (el) {
+        var _network = this;
         // Add and remove elements on the graph object
-        this.addNode = function (id) {
-            nodes.push({id: id});
+        this.addNode = function (node) {
+            nodes.push(node);
             update();
         }
 
@@ -20,14 +21,12 @@ define(['jquery', 'd3'], function ($, d3) {
         
         this.setNodes = function (nodesArg) {
             force.nodes(nodesArg);
-            // this.myNodes = nodes;
             nodes = force.nodes();
             // update();
         }
         
         this.setEdges = function (edgesArg) {
             force.links(edgesArg);
-            // this.myEdges = edges;
             links = force.links();
             // update();
         }
@@ -69,7 +68,9 @@ define(['jquery', 'd3'], function ($, d3) {
         
         function update() {
             
-            var link = vis.selectAll("line.link").data(links).enter()
+            var link = vis.selectAll("line.link").data(links);
+            
+            var linkEnter = link.enter()
                 .append("line")
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
@@ -80,19 +81,20 @@ define(['jquery', 'd3'], function ($, d3) {
             // link.enter().insert("line")
             //     .attr("class", "link");
             // 
-            // link.remove();
+            link.exit().remove();
 
-            var node = vis.selectAll("circle.node")
-                .data(nodes).enter().append("circle")
+            var node = vis.selectAll("circle.node").data(nodes);
+            
+            var nodeEnter = node.enter().append("circle")
                 .attr("class", "node")
                 .attr("r", 8)
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
-                // .on("dblclick", this.getNeighbors)
+                .on("dblclick", getNeighbors)
                 .call(force.drag);
 
 
-            // node.remove();
+            node.exit().remove();
 
             force.on("tick", function() {
                   link.attr("x1", function(d) { return d.source.x; })
@@ -148,14 +150,10 @@ define(['jquery', 'd3'], function ($, d3) {
             $.ajax({
                 url: '/data/gene/' + d.name + '/neighbors',
                 success: function (data) {
-                    var nodes = App.model.get("nodes");
-                    var edges = App.model.get("edges");
                     data.nodes.forEach(function (n) { 
-                        Network.addNode(n);
+                        _network.addNode(n);
                     });
-                    console.log(nodes);
-                    // App.model.set({nodes: nodes, edges: edges});
-                    // App.update();
+                    _network.start();
                 }
             });
         }
