@@ -37,6 +37,10 @@ app.configure('development', function() {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+app.get('/network', function (req, res, next) {
+    res.sendfile('public/network.html');
+});
+
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
     var nNodes = request.query.nodes || 20;
