@@ -10,6 +10,7 @@ var express = require('express'),
     fs      = require('fs');
 
 var NETWORK_API = 'http://140.221.92.222:7064/KBaseNetworksRPC/networks';
+var RANDOM_NEIGHBORHOOD_NODES = 20;
 
 var app = express();
 
@@ -52,8 +53,12 @@ app.get('/data/network/random', function (request, response, next) {
 
 app.get('/data/gene/:id/neighbors', function (request, response, next) {
     response.contentType = 'json';
-    var rootId = 6;
-    var neighborhood = randomNetwork(5, 6, 1);
+    var rootId = RANDOM_NEIGHBORHOOD_NODES + 1;
+    var neighborhood = randomNetwork(
+        RANDOM_NEIGHBORHOOD_NODES,
+        RANDOM_NEIGHBORHOOD_NODES + 5,
+        1
+    );
     neighborhood.nodes.push({id: rootId, name: request.params.id});
     for (var i in neighborhood.nodes) {
         neighborhood.edges.push({
