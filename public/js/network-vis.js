@@ -2,17 +2,30 @@ define(['jquery', 'd3'], function ($, d3) {
     var color = d3.scale.category10();
     var Network = function (el) {
         var _network = this;
-        // Add and remove elements on the graph object
+        var _idSequence = 1;
+
         this.addNode = function (node) {
-            nodes.push(node);
+            if (node.id) {
+                var existing = findNode(node.id);
+                if (!existing) {
+                    nodes.push(node);
+                    _idSequence = d3.max(_idSequence, node.id + 1);
+                }
+            } else {
+                node.id = _idSequence++;
+                nodes.push(node);
+            }
             update();
+            return node.id;
         }
 
         this.removeNode = function (id) {
             var i = 0;
             var n = findNode(id);
             while (i < links.length) {
-                if ((links[i]['source'] == n)||(links[i]['target'] == n)) links.splice(i,1);
+                if ((links[i]['source'] == n) ||
+                    (links[i]['target'] == n))
+                    links.splice(i,1);
                 else i++;
             }
             nodes.splice(findNodeIndex(id),1);
@@ -22,31 +35,42 @@ define(['jquery', 'd3'], function ($, d3) {
         this.setNodes = function (nodesArg) {
             force.nodes(nodesArg);
             nodes = force.nodes();
-            // update();
+            _idSequence = d3.max(nodes, function (n) { return n.id }) + 1;
         }
         
         this.setEdges = function (edgesArg) {
             force.links(edgesArg);
             links = force.links();
-            // update();
         }
 
-        this.addLink = function (source, target) {
-            links.push({
-                source: findNode(source),
-                target: findNode(target)
-            });
+        this.addEdge = function (edge) {
+            edge.source = this.findNode(edge.source);
+            edge.target = this.findNode(edge.target);
+            links.push(edge);
+            update();
+        }
+        
+        this.addLink = function (source, target, params) {
+            var edge = {
+                source: this.findNode(source),
+                target: this.findNode(target),
+            };
+            for (var p in params) {
+                edge[p] = params[p];
+            }
+            links.push(edge);
             update();
         }
         
         this.start = function () { update(); }
 
-        var findNode = function(id) {
-            for (var i in nodes) {if (nodes[i]["id"] === id) return nodes[i]};
+        this.findNode = function (key, type) {
+            type = (type || 'id');
+            for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
         }
 
-        var findNodeIndex = function(id) {
-            for (var i in nodes) {if (nodes[i]["id"] === id) return i};
+        var findNodeIndex = function (id) {
+            for (var i in nodes) {if (nodes[i].id === id) return i};
         }
 
         // set up the D3 visualisation in the specified element
@@ -67,7 +91,6 @@ define(['jquery', 'd3'], function ($, d3) {
             links = force.links();
         
         function update() {
-            
             var link = vis.selectAll("line.link").data(links);
             
             var linkEnter = link.enter()
@@ -75,12 +98,6 @@ define(['jquery', 'd3'], function ($, d3) {
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
 
-            // var link = vis.selectAll("line.link")
-            //     .data(links, function(d) { return d.source.id + "-" + d.target.id; });
-
-            // link.enter().insert("line")
-            //     .attr("class", "link");
-            // 
             link.exit().remove();
 
             var node = vis.selectAll("circle.node").data(nodes);
@@ -93,17 +110,15 @@ define(['jquery', 'd3'], function ($, d3) {
                 .on("dblclick", getNeighbors)
                 .call(force.drag);
 
-
             node.exit().remove();
 
             force.on("tick", function() {
-                  link.attr("x1", function(d) { return d.source.x; })
-                      .attr("y1", function(d) { return d.source.y; })
-                      .attr("x2", function(d) { return d.target.x; })
-                      .attr("y2", function(d) { return d.target.y; });
-      
-                  node.attr("cx", function(d) { return d.x; })
-                      .attr("cy", function(d) { return d.y; });
+                link.attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
+                node.attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; });
             });
 
             // Restart the force layout.
@@ -146,14 +161,26 @@ define(['jquery', 'd3'], function ($, d3) {
         }
         
         function getNeighbors(d) {
-            console.log("DBL");
             $.ajax({
                 url: '/data/gene/' + d.name + '/neighbors',
                 success: function (data) {
-                    data.nodes.forEach(function (n) { 
-                        _network.addNode(n);
+                    var nodeMap = {};
+                    data.nodes.forEach(function (n) {
+                        var node = _network.findNode(n.name, "name");
+                        var oldId = n.id;
+                        if (node) {
+                            nodeMap[oldId] = node.id;
+                        } else {
+                            n.id = null;
+                            var newId = _network.addNode(n);
+                            nodeMap[oldId] = newId;
+                        }
                     });
-                    _network.start();
+                    data.edges.forEach(function (e) {
+                        _network.addLink(
+                            nodeMap[e.source], nodeMap[e.target],
+                            { weight: e.weight });
+                    });
                 }
             });
         }
