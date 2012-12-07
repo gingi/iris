@@ -15,6 +15,7 @@ require(['underscore', 'jquery', 'backbone', 'network-vis'],
     
     var networkID = location.hash.substr(1) || 'random';
 
+    var vis;
     var AppView = Backbone.View.extend({
         initialize: function () {
             var network = this.model;
@@ -28,16 +29,10 @@ require(['underscore', 'jquery', 'backbone', 'network-vis'],
             // network.bind('change', this.update, this);
         },
         render: function () {
-            var vis = new NetworkVis("#datavis");
+            vis = new NetworkVis("#datavis");
             vis.setNodes(this.model.get('nodes'));
             vis.setEdges(this.model.get('edges'));
             vis.start();
-            // vis.addNode("Cause");
-            // vis.addNode("Effect");
-            // vis.addLink("Cause", "Effect");
-            // vis.addNode("A");
-            // vis.addNode("B");
-            // vis.addLink("A", "B");
             return this;
         },
         events: {
