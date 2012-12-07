@@ -2,47 +2,51 @@ requirejs.config({
     shim: {
         jquery:     { exports: '$' },
         d3:         { exports: 'd3' },
-        backbone:   { exports: 'Backbone' },
-        underscore:  { exports: '_' }
+        underscore: { exports: '_' },
+        backbone:   {
+            exports: 'Backbone',
+            deps: [ 'underscore', 'jquery' ]
+        }
     },
 })
-require(['underscore', 'jquery', 'backbone', 'network-vis'],
-    function (_, $, Backbone, NetworkVis) {
+require(['jquery', 'backbone', 'underscore', 'network-vis'],
+    function ($, Backbone, _, NetworkVis) {
     var Network = Backbone.Model.extend({
-       defaults: { name: "" },
-       urlRoot: "/data/network",
+        defaults: { name: "" },
+        urlRoot: "/data/network",
     });
     
-    var networkID = location.hash.substr(1) || 'random';
-
     var vis;
     var AppView = Backbone.View.extend({
+        el: $("#container"),
         initialize: function () {
-            var network = this.model;
-            network.set({ id: networkID });
-            network.bind('fetch', this.render);
-            network.fetch({
-                success: function (model) {
-                    App.render();
-                }
-            });
-            // network.bind('change', this.update, this);
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
         },
         render: function () {
+            $("#datavis").empty();
             vis = new NetworkVis("#datavis");
             vis.setNodes(this.model.get('nodes'));
             vis.setEdges(this.model.get('edges'));
             vis.start();
             return this;
         },
-        events: {
-            "click circle.node": "doClick"
-        },
-        doClick: function () {
-            console.log("Clicked.");
-        }    
-        
     });    
+
+    var App;
     
-    var App = new AppView({ model: new Network });
+    var Router = Backbone.Router.extend({
+        routes: {
+            "*actions": "showNetwork",
+        },
+        showNetwork: function (networkId) {
+            var network = new Network;
+            networkId = (networkId || 'random');
+            network.set({id: networkId});
+            App = new AppView({ model: network });
+            network.fetch();
+        }
+    });
+    var router = new Router;
+    Backbone.history.start();
 });
