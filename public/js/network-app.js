@@ -22,6 +22,10 @@ require(['jquery', 'backbone', 'underscore', 'network-vis'],
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
+            $("#nav-search").on('submit', function (evt) {
+                var value = evt.target[0].value;
+                vis.highlight(value);
+            });
         },
         render: function () {
             $("#datavis").empty();
@@ -37,7 +41,7 @@ require(['jquery', 'backbone', 'underscore', 'network-vis'],
     
     var Router = Backbone.Router.extend({
         routes: {
-            "*actions": "showNetwork",
+            "*actions":        "showNetwork"
         },
         showNetwork: function (networkId) {
             var network = new Network;
@@ -45,7 +49,7 @@ require(['jquery', 'backbone', 'underscore', 'network-vis'],
             network.set({id: networkId});
             App = new AppView({ model: network });
             network.fetch();
-        }
+        },
     });
     var router = new Router;
     Backbone.history.start();
