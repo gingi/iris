@@ -1,9 +1,11 @@
 define(['jquery', 'd3'], function ($, d3) {
     var color = d3.scale.category10();
+    
     var Network = function (el) {
         var _network = this;
         var _idSequence = 1;
-
+        var _autoUpdate = true;
+        
         this.addNode = function (node) {
             if (node.id) {
                 var existing = findNode(node.id);
@@ -15,7 +17,7 @@ define(['jquery', 'd3'], function ($, d3) {
                 node.id = _idSequence++;
                 nodes.push(node);
             }
-            update();
+            if (_autoUpdate) update();
             return node.id;
         }
 
@@ -47,7 +49,7 @@ define(['jquery', 'd3'], function ($, d3) {
             edge.source = this.findNode(edge.source);
             edge.target = this.findNode(edge.target);
             links.push(edge);
-            update();
+            if (_autoUpdate) update();
         }
         
         this.addLink = function (source, target, params) {
@@ -60,6 +62,13 @@ define(['jquery', 'd3'], function ($, d3) {
             }
             links.push(edge);
             update();
+        }
+        
+        this.highlight = function (name) {
+            var node = this.findNode(name, "name");
+            if (node) {
+                console.log("Found", node);
+            }
         }
         
         this.start = function () { update(); }
@@ -81,10 +90,42 @@ define(['jquery', 'd3'], function ($, d3) {
             .attr("width", w)
             .attr("height", h);
 
+        // vis.on("mousemove", function() {
+        //   cursor.attr("transform", "translate(" + d3.svg.mouse(this) + ")");
+        // });
+
+        vis.on("mousedown", function() {
+            // var point = d3.svg.mouse(this);
+        });
+        
+        var docked = {};
+        var dock = vis.append("rect")
+            .attr("id", "networkDock")
+            .attr("width", w / 2)
+            .attr("height", 30)
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .attr("x", (w - 600) / 2)
+            .attr("y", h * 5 / 6)
+            .style("fill", "rgba(0,0,0,0.1)");
+        var dockDims = {
+            x1: parseInt(dock.attr("x")),
+            x2: parseInt(dock.attr("x")) + parseInt(dock.attr("width")),
+            y1: parseInt(dock.attr("y")),
+            y2: parseInt(dock.attr("y")) + parseInt(dock.attr("height")),
+        };
+            
+        dock.on("mouseover", function () {
+            dock.style("stroke", "yellow");
+        })
+        .on("mouseout", function () {
+            dock.style("stroke", "none");
+        });
+
         var force = d3.layout.force()
             .gravity(.05)
             .distance(100)
-            .charge(-100)
+            .charge(-60)
             .size([w, h]);
 
         var nodes = force.nodes(),
@@ -101,13 +142,13 @@ define(['jquery', 'd3'], function ($, d3) {
             link.exit().remove();
 
             var node = vis.selectAll("circle.node").data(nodes);
-            
             var nodeEnter = node.enter().append("circle")
                 .attr("class", "node")
                 .attr("r", 8)
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
                 .on("dblclick", getNeighbors)
+                .on("mousemove", updateDock)
                 .call(force.drag);
 
             node.exit().remove();
@@ -125,8 +166,9 @@ define(['jquery', 'd3'], function ($, d3) {
             force.start();
         }
 
-        var selected, originalFill;
+        var selected, originalFill, dragged;
         function clickNode(d) {
+            dragged = true;
             if (selected) {
                 selected.style["fill"] = originalFill;
                 // $(selected).popover('hide');
@@ -164,6 +206,8 @@ define(['jquery', 'd3'], function ($, d3) {
             $.ajax({
                 url: '/data/gene/' + d.name + '/neighbors',
                 success: function (data) {
+                    var origAutoUpdate = _autoUpdate;
+                    _autoUpdate = false;
                     var nodeMap = {};
                     data.nodes.forEach(function (n) {
                         var node = _network.findNode(n.name, "name");
@@ -181,13 +225,38 @@ define(['jquery', 'd3'], function ($, d3) {
                             nodeMap[e.source], nodeMap[e.target],
                             { weight: e.weight });
                     });
+                    force.resume();
+                    _autoUpdate = origAutoUpdate;
                 }
             });
         }
         
-
+        function intersectsDock(d) {
+            return d.px >= dockDims.x1 &&
+                   d.px <= dockDims.x2 &&
+                   d.py >= dockDims.y1 &&
+                   d.py <= dockDims.y2
+        }
+        
+        function updateDock(d) {
+            intersecting = intersectsDock(d);
+            var draggedNode = this;
+            if (intersectsDock(d)) {
+                var dockTimeout = setTimeout(function () {
+                    if (intersectsDock(d)) {
+                        d3.select(draggedNode)
+                            .style("stroke", "yellow")
+                            .style("stroke-width", 1);
+                
+                        d.fixed = true;                    
+                    } else {
+                        d3.select(draggedNode).style("stroke", "none");
+                    }
+                }, 2000);
+            }
+        }
         // Make it all go
-        // update();        
+        // update();
     };
     return Network;
 });
