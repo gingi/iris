@@ -1,6 +1,10 @@
 define(['jquery', 'd3'], function ($, d3) {
     
     var DOCK_DELAY = 1000; // 1 seconds
+    var NODE_SIZE  = {
+        GENE: 8,
+        CLUSTER: 12
+    };
     var color = d3.scale.category10();
     
     var Network = function (el) {
@@ -94,6 +98,9 @@ define(['jquery', 'd3'], function ($, d3) {
             .attr("width", w)
             .attr("height", h);
             
+        // var dockNodeStyle = vis.append("svg:defs")
+        //     .append("svg:filter").attr("id", "dockStyle")
+        //     .append("svg:feGaussianBlur").attr("stdDeviation", 0.2);
         
         var docked = {};
         var dock = vis.append("rect")
@@ -118,6 +125,10 @@ define(['jquery', 'd3'], function ($, d3) {
             .on("mouseout",  function () { dock.style("opacity", "0.1"); })
             .on("click", dockHud);
 
+        // This order matters (nodes painted on top of links)
+        var linkG = vis.append("g").attr("id", "networkLinks");
+        var nodeG = vis.append("g").attr("id", "networkNodes");
+            
         var force = d3.layout.force()
             .gravity(.05)
             .distance(100)
@@ -128,26 +139,23 @@ define(['jquery', 'd3'], function ($, d3) {
             links = force.links();
         
         function update() {
-            var link = vis.selectAll("line.link").data(links);
-            
+            var link = linkG.selectAll("line.link").data(links);
             var linkEnter = link.enter()
                 .append("line")
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
-
             link.exit().remove();
 
-            var node = vis.selectAll("circle.node").data(nodes);
+            var node = nodeG.selectAll("circle.node").data(nodes);
             var nodeEnter = node.enter().append("circle")
                 .attr("class", "node")
-                .attr("r", 8)
+                .attr("r", function (d) { return nodeSize(d); })
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
                 .on("dblclick", getNeighbors)
                 .on("mousedown", forceDragging)
                 .on("mousemove", handleDock)
                 .call(force.drag);
-
             node.exit().remove();
 
             force.on("tick", function() {
@@ -161,6 +169,11 @@ define(['jquery', 'd3'], function ($, d3) {
 
             // Restart the force layout.
             force.start();
+        }
+        
+        function nodeSize(d) {
+            var size = NODE_SIZE[d.type] || 8;
+            return size;
         }
 
         var selected, originalFill;
@@ -200,10 +213,10 @@ define(['jquery', 'd3'], function ($, d3) {
         }
         
         function nodeInfo(d) {
-            console.log("Info for ", d)
-            var $table = $("<table class='table table-condensed'>")
+            var $table = $("<table id='nodeInfo' class='table table-condensed'>")
                 .append($("<tbody>"));
             function row(key, val) {
+                if (!val) return;
                 $table.find("tbody").append($("<tr>")
                     .append($("<th>").text(key))
                     .append($("<td>").text(val))
@@ -211,6 +224,7 @@ define(['jquery', 'd3'], function ($, d3) {
             }
             row("Name", d.name);
             row("KBase ID", d.kbid);
+            row("Type", d.type);
             return $table;
         }
         
@@ -281,9 +295,10 @@ define(['jquery', 'd3'], function ($, d3) {
             if (intersectsDock(d) &&
                 (!intersectsDock(dragStart) || changedDockState)) {
                 selected
-                    .attr("r", 10)
                     .style("stroke", "yellow")
-                    .style("stroke-width", 1);
+                    .style("stroke-width", 3)
+                    .style("stroke-location", "outside");
+                    // .attr("filter", "url(#dockStyle)");
 
                 d.fixed = true;
                 docked[d.name] = d;
@@ -293,8 +308,11 @@ define(['jquery', 'd3'], function ($, d3) {
             if (!intersectsDock(d) &&
                 (intersectsDock(dragStart) || changedDockState)) {
                 selected
-                    .attr("r", 8)
-                    .style("stroke", null);
+                    .style("stroke", null)
+                    .style("stroke-width", null)
+                    .style("stroke-location", null);
+                    // .attr("filter", null);
+                    
                 setTimeout(function () {
                     if (draggedNode) {
                         d.fixed = false;
