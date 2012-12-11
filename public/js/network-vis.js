@@ -225,6 +225,7 @@ define(['jquery', 'd3'], function ($, d3) {
             row("Name", d.name);
             row("KBase ID", d.kbid);
             row("Type", d.type);
+            row("Entity ID", d.entityId);
             return $table;
         }
         
@@ -254,8 +255,9 @@ define(['jquery', 'd3'], function ($, d3) {
         }
         
         function getNeighbors(d) {
+            var path = d.entityId ? d.entityId + '/network' : d.name + '/neighbors';
             $.ajax({
-                url: '/data/gene/' + d.name + '/network',
+                url: '/data/gene/' + path,
                 success: function (data) {
                     var origAutoUpdate = _autoUpdate;
                     _autoUpdate = false;
@@ -314,10 +316,8 @@ define(['jquery', 'd3'], function ($, d3) {
                     // .attr("filter", null);
                     
                 setTimeout(function () {
-                    if (draggedNode) {
-                        d.fixed = false;
-                        draggedNode = null;
-                    }
+                    d.fixed = false;
+                    draggedNode = null;
                 }, DOCK_DELAY);
                 delete docked[d.name];
                 updateDockHud();
