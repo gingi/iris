@@ -241,7 +241,6 @@ define(['jquery', 'd3'], function ($, d3) {
         
         
         function mouseup() {
-            console.log("mouseup!");
             dragging = false;
         }
         
@@ -302,7 +301,6 @@ define(['jquery', 'd3'], function ($, d3) {
                 
         function handleDock(d) {
             if (!dragging) return;
-            console.log(d3.event.type);
             if (!draggedNode) return;
             var selected = d3.select(draggedNode);
             if (intersectsDock(d) &&
