@@ -9,8 +9,10 @@ var express = require('express'),
     path    = require('path'),
     fs      = require('fs');
 
-var NETWORK_API = 'http://140.221.92.222:7064/KBaseNetworksRPC/networks';
+var NETWORK_API = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var RANDOM_NEIGHBORHOOD_NODES = 20;
+
+var NetworksAPI = require('./src/api/networks');
 
 var app = express();
 
@@ -70,6 +72,38 @@ app.get('/data/gene/:id/neighbors', function (request, response, next) {
     response.send(neighborhood);
 });
 
+app.get('/data/gene/:id/network', function (request, response, next) {
+    response.contentType = 'json';
+    var api = NetworksAPI(NETWORK_API);
+    api.buildFirstNeighborNetwork_async(
+        [ "kb|netdataset.regprecise.301",
+          "kb|netdataset.modelseed.0",
+          "kb|netdataset.ppi.7" ],
+        "kb|g.21765.CDS.543",
+        ['GENE_CLUSTER'],
+        function (data) {
+            response.send(transformNetwork(data));
+        }
+    );
+});
+
+function transformNetwork(json) {
+    var nodeMap = {};
+    for (var i in json.nodes) {
+        var node = json.nodes[i];
+        nodeMap[node.id] = i;
+        node.kbid = node.id;
+        node.group = node.type;
+        node.id = i;
+    }
+    for (var i in json.edges) {
+        json.edges[i].source = parseInt(nodeMap[json.edges[i].nodeId1]);
+        json.edges[i].target = parseInt(nodeMap[json.edges[i].nodeId2]);
+        json.edges[i].weight = 1;
+    }
+    return json;
+}
+
 app.get('/data/network/:network', function (request, response, next) {
     response.contentType = 'json';
     var fetcher, filename;
@@ -77,16 +111,7 @@ app.get('/data/network/:network', function (request, response, next) {
         filename = path.join(__dirname, 'data', request.params.network) + '.json';
         fetcher = function () {
             var json = require(filename);
-            var nodeMap = {};
-            for (var i in json.nodes) {
-                nodeMap[json.nodes[i].id] = i;
-            }
-            for (var i in json.edges) {
-                json.edges[i].source = parseInt(nodeMap[json.edges[i].nodeId1]);
-                json.edges[i].target = parseInt(nodeMap[json.edges[i].nodeId2]);
-                json.edges[i].weight = 1;
-            }
-            response.send(json);
+            response.send(transformNetwork(json));
         };
     } else {
         var parser = require('./src/parsers/pajek');
