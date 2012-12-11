@@ -161,46 +161,45 @@ function KBaseNetworks(url) {
      * JSON call using jQuery method.
      */
 
-    function json_call_ajax_sync(method, params)
-    {
-        var rpc = { 'params' : params,
-                    'method' : method,
-                    'version': "1.1",
+    function json_call_ajax_sync(method, params) {
+        var rpc = {
+            'params': params,
+            'method': method,
+            'version': "1.1",
         };
-        
+
         var body = JSON.stringify(rpc);
         var resp_txt;
-	var code;
-        
-        var x = jQuery.ajax({       "async": false,
-                                    dataType: "text",
-                                    url: _url,
-                                    success: function (data, status, xhr) { resp_txt = data; code = xhr.status },
-				    error: function(xhr, textStatus, errorThrown) { resp_txt = xhr.responseText, code = xhr.status },
-                                    data: body,
-                                    processData: false,
-                                    type: 'POST',
-				    });
+        var code;
+
+        var x = jQuery.ajax({
+            dataType: "text",
+            url: _url,
+            success: function (data, status, xhr) {
+                resp_txt = data;
+                code = xhr.status
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                resp_txt = xhr.responseText; code = xhr.status
+            },
+            data: body,
+            processData: false,
+            type: 'POST',
+        });
 
         var result;
 
-        if (resp_txt)
-        {
-	    var resp = JSON.parse(resp_txt);
-	    
-	    if (code >= 500)
-	    {
-		throw resp.error;
-	    }
-	    else
-	    {
-		return resp.result;
-	    }
+        if (resp_txt) {
+            var resp = JSON.parse(resp_txt);
+
+            if (code >= 500) {
+                throw resp.error;
+            } else {
+                return resp.result;
+            }
+        } else {
+            return null;
         }
-	else
-	{
-	    return null;
-	}
     }
 
     function json_call_ajax_async(method, params, num_rets, callback, error_callback)
@@ -214,13 +213,12 @@ function KBaseNetworks(url) {
         var resp_txt;
 	var code;
         
-        var x = jQuery.ajax({       "async": true,
-                                    dataType: "text",
+        jQuery.ajax({       "async": true,
+                                    dataType: "json",
                                     url: _url,
                                     success: function (data, status, xhr)
 				{
-				    resp = JSON.parse(data);
-				    var result = resp["result"];
+				    var result = data["result"];
 				    if (num_rets == 1)
 				    {
 					callback(result[0]);
