@@ -7,7 +7,8 @@ var express = require('express'),
     user    = require('./routes/user'),
     http    = require('http'),
     path    = require('path'),
-    fs      = require('fs');
+    fs      = require('fs'),
+    util    = require('util');
 
 var NETWORK_API = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var RANDOM_NEIGHBORHOOD_NODES = 20;
@@ -74,12 +75,14 @@ app.get('/data/gene/:id/neighbors', function (request, response, next) {
 
 app.get('/data/gene/:id/network', function (request, response, next) {
     response.contentType = 'json';
+    var nodeId = request.params.id == 'sample'
+        ? 'kb|g.21765.CDS.543' : request.params.id;
     var api = NetworksAPI(NETWORK_API);
     api.buildFirstNeighborNetwork_async(
         [ "kb|netdataset.regprecise.301",
           "kb|netdataset.modelseed.0",
           "kb|netdataset.ppi.7" ],
-        "kb|g.21765.CDS.543",
+        nodeId,
         ['GENE_CLUSTER'],
         function (data) {
             response.send(transformNetwork(data));
@@ -87,19 +90,31 @@ app.get('/data/gene/:id/network', function (request, response, next) {
     );
 });
 
-function transformNetwork(json) {
+Object.clone = function(obj) {
+    return Object.create(
+        Object.getPrototypeOf(obj), 
+        Object.getOwnPropertyNames(obj).reduce(function(memo, name) {
+            return (memo[name] = Object.getOwnPropertyDescriptor(obj, name)) && memo;
+        }, {})
+    );
+}
+function transformNetwork(networkJson) {
+    var json = { nodes: [], edges: [] };
     var nodeMap = {};
-    for (var i in json.nodes) {
-        var node = json.nodes[i];
+    for (var i in networkJson.nodes) {
+        var node = Object.clone(networkJson.nodes[i]);
         nodeMap[node.id] = i;
         node.kbid = node.id;
         node.group = node.type;
         node.id = i;
+        json.nodes.push(node);
     }
-    for (var i in json.edges) {
-        json.edges[i].source = parseInt(nodeMap[json.edges[i].nodeId1]);
-        json.edges[i].target = parseInt(nodeMap[json.edges[i].nodeId2]);
-        json.edges[i].weight = 1;
+    for (var i in networkJson.edges) {
+        var edge = Object.clone(networkJson.edges[i]);
+        edge.source = parseInt(nodeMap[edge.nodeId1]);
+        edge.target = parseInt(nodeMap[edge.nodeId2]);
+        edge.weight = 1;
+        json.edges.push(edge);
     }
     return json;
 }
@@ -107,8 +122,8 @@ function transformNetwork(json) {
 app.get('/data/network/:network', function (request, response, next) {
     response.contentType = 'json';
     var fetcher, filename;
-    if (request.params.network == 'regulome') {
-        filename = path.join(__dirname, 'data', request.params.network) + '.json';
+    if (request.params.network == 'kbase') {
+        filename = path.join(__dirname, 'data', 'regulome') + '.json';
         fetcher = function () {
             var json = require(filename);
             response.send(transformNetwork(json));
