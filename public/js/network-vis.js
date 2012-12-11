@@ -1,6 +1,6 @@
 define(['jquery', 'd3'], function ($, d3) {
     
-    var DOCK_DELAY = 1000; // 1 seconds
+    var DOCK_DELAY = 500; // 1 seconds
     var NODE_SIZE  = {
         GENE: 8,
         CLUSTER: 12
@@ -155,6 +155,7 @@ define(['jquery', 'd3'], function ($, d3) {
                 .on("dblclick", getNeighbors)
                 .on("mousedown", forceDragging)
                 .on("mousemove", handleDock)
+                .on("mouseup", mouseup)
                 .call(force.drag);
             node.exit().remove();
 
@@ -175,6 +176,7 @@ define(['jquery', 'd3'], function ($, d3) {
             var size = NODE_SIZE[d.type] || 8;
             return size;
         }
+        
 
         var selected, originalFill;
         function clickNode(d) {
@@ -229,11 +231,18 @@ define(['jquery', 'd3'], function ($, d3) {
             return $table;
         }
         
-        var draggedNode, dragStart, changedDockState;
+        var draggedNode, dragStart, changedDockState, dragging;
         function forceDragging(d) {
             dragStart = { px: d.x, py: d.y };
             draggedNode = this;
+            dragging = true;
             changedDockState = false;
+        }
+        
+        
+        function mouseup() {
+            console.log("mouseup!");
+            dragging = false;
         }
         
         function updateDockHud() {
@@ -292,36 +301,41 @@ define(['jquery', 'd3'], function ($, d3) {
         }
                 
         function handleDock(d) {
+            if (!dragging) return;
+            console.log(d3.event.type);
             if (!draggedNode) return;
-            var selected = d3.select(this);
+            var selected = d3.select(draggedNode);
             if (intersectsDock(d) &&
                 (!intersectsDock(dragStart) || changedDockState)) {
                 selected
                     .style("stroke", "yellow")
                     .style("stroke-width", 3)
-                    .style("stroke-location", "outside");
+                    .style("stroke-location", "outside")
+                    // .attr("class", "docked");
                     // .attr("filter", "url(#dockStyle)");
 
                 d.fixed = true;
                 docked[d.name] = d;
                 updateDockHud();
                 changedDockState = true;
+                draggedNode = null;
             }
             if (!intersectsDock(d) &&
                 (intersectsDock(dragStart) || changedDockState)) {
-                selected
-                    .style("stroke", null)
-                    .style("stroke-width", null)
-                    .style("stroke-location", null);
-                    // .attr("filter", null);
+                    selected
+                        .style("stroke", null)
+                        .style("stroke-width", null)
+                        .style("stroke-location", null);
+                        // .attr("class", null);
+                        // .attr("filter", null);
                     
-                setTimeout(function () {
-                    d.fixed = false;
+                    delete docked[d.name];
+                    updateDockHud();
+                    changedDockState = true;
+                    setTimeout(function () {
+                        d.fixed = false;
+                    }, DOCK_DELAY);
                     draggedNode = null;
-                }, DOCK_DELAY);
-                delete docked[d.name];
-                updateDockHud();
-                changedDockState = true;
             }
         }
         // Make it all go
