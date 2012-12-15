@@ -2,10 +2,34 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+      <div class="navbar navbar-fixed"></div>
+      <div class="container">
+          <div class="hero-unit">
+              <h1>KBase DataVis</h1>
+              <h4>A data visualization library for the KBase Project</h4>
+          </div>
+          <div class="row">
+              <div class="span4">
+                  <h2>Networks</h2>
+                  <p>A workbench for network exploration.</p>
+                  <p><a class="btn" href="/network">Launch »</a></p>
+              </div>
+              <div class="span4">
+                  <h2>GenoPheno</h2>
+                  <p>Visualizations of genomic diversity</p>
+                  <p><a class="btn" href="/diversity">Launch »</a></p>
+              </div>
+              <div class="span4">
+                  <h2>Charts</h2>
+                  <p>Basic charts for KBase data.</p>
+                  <p><a class="btn" href="/charts">Launch »</a></p>
+              </div>
+          </div>
+          <hr/>
+          <footer>&copy; Ware Lab for the DOE KBase Project 2012</footer>
+      </div>
   </body>
 </html>
