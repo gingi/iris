@@ -1,4 +1,5 @@
 requirejs.config({
+    baseUrl: '/js',
     shim: {
         jquery:     { exports: '$' },
         d3:         { exports: 'd3' },
@@ -9,7 +10,7 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'network-vis'],
+require(['jquery', 'backbone', 'underscore', 'network/vis'],
     function ($, Backbone, _, NetworkVis) {
     var Network = Backbone.Model.extend({
         defaults: { name: "" },
