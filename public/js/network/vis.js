@@ -111,40 +111,43 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
             
         var nodes = force.nodes(),
             links = force.links();
+            
+        var svgNodes, svgLinks;
+        function tick() {
+            svgLinks.attr("x1", function (d) { return d.source.x; })
+                    .attr("y1", function (d) { return d.source.y; })
+                    .attr("x2", function (d) { return d.target.x; })
+                    .attr("y2", function (d) { return d.target.y; });
+            svgNodes.attr("cx", function (d) { return d.x; })
+                    .attr("cy", function (d) { return d.y; });
+        }
         
         function update() {
-            var link = linkG.selectAll("line.link").data(links);
-            var linkEnter = link.enter()
+            svgLinks = linkG.selectAll("line.link").data(links);
+            var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
-            link.exit().remove();
+            svgLinks.exit().remove();
 
-            var node = nodeG.selectAll("circle.node").data(nodes);
-            var nodeEnter = node.enter().append("circle")
+            svgNodes = nodeG.selectAll("circle.node").data(nodes);
+            var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
                 .attr("r", function (d) { return nodeSize(d); })
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
                 .on("dblclick", getNeighbors)
-                .on("mousedown", forceDragging)
-                .on("mousemove", handleDock)
-                .on("mouseup", mouseup)
-                .call(force.drag);
-            node.exit().remove();
+                .call(nodeDrag);
+            svgNodes.exit().remove();
 
-            force.on("tick", function() {
-                link.attr("x1", function(d) { return d.source.x; })
-                    .attr("y1", function(d) { return d.source.y; })
-                    .attr("x2", function(d) { return d.target.x; })
-                    .attr("y2", function(d) { return d.target.y; });
-                node.attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; });
-            });
-
-            // Restart the force layout.
+            force.on("tick", tick);            
             force.start();
         }
+        
+        var nodeDrag = d3.behavior.drag()
+            .on("dragstart", nodeDragstart)
+            .on("drag", nodeDragmove)
+            .on("dragend", nodeDragend);
         
         function nodeSize(d) {
             var size = NODE_SIZE[d.type] || 8;
@@ -204,20 +207,7 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
             row("Entity ID", d.entityId);
             return $table;
         }
-        
-        var draggedNode, dragStart, dragging;
-        function forceDragging(d) {
-            dragStart = { px: d.x, py: d.y };
-            draggedNode = this;
-            dragging = true;
-            dock.changedState = false;
-        }
-        
-        
-        function mouseup() {
-            dragging = false;
-        }
-                
+
         function getNeighbors(d) {
             var path = d.entityId ? d.entityId + '/network' : d.name + '/neighbors';
             $.ajax({
@@ -248,42 +238,36 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
             });
         }
         
-        function handleDock(d) {
-            if (!dragging) return;
-            if (!draggedNode) return;
+        function nodeDragstart() {
+            force.stop();
+        }
+        
+        function nodeDragmove(d) {
+            d.px += d3.event.dx;
+            d.py += d3.event.dy;
+            d.x += d3.event.dx;
+            d.y += d3.event.dy; 
+            tick();
+        }
+        
+        function nodeDragend(d) {
+            var draggedNode = this;
             var selected = d3.select(draggedNode);
-            if (dock.intersects(d) &&
-                (!dock.intersects(dragStart) || dock.changedState)) {
+            if (dock.intersects(d)) {
+                dock.dockElement(d);
                 selected
                     .style("stroke", "yellow")
                     .style("stroke-width", 3)
-                    .style("stroke-location", "outside")
-                    // .attr("class", "docked");
-                    // .attr("filter", "url(#dockStyle)");
-
-                d.fixed = true;
-                dock.dockElement(d);
-                dock.updateHud();
-                dock.changedState = true;
-                draggedNode = null;
+                    .style("stroke-location", "outside")                
+            } else {
+                dock.undockElement(d);
+                selected
+                    .style("stroke", null)
+                    .style("stroke-width", null)
+                    .style("stroke-location", null);
             }
-            if (!dock.intersects(d) &&
-                (dock.intersects(dragStart) || dock.changedState)) {
-                    selected
-                        .style("stroke", null)
-                        .style("stroke-width", null)
-                        .style("stroke-location", null);
-                        // .attr("class", null);
-                        // .attr("filter", null);
-                    
-                    dock.undockElement(d);
-                    dock.updateHud();
-                    dock.changedState = true;
-                    setTimeout(function () {
-                        d.fixed = false;
-                    }, 500 /* DOCK_DELAY */);
-                    draggedNode = null;
-            }
+            tick();
+            force.resume();
         }
     };
     return Network;
