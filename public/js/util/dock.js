@@ -62,14 +62,18 @@ define(['jquery', 'd3'], function ($, d3) {
             if (d == null) {
                 throw Error("Cannot dock a null element");
             }
+            d.fixed = true;
             docked[d.name] = d;
+            self.updateHud();
         }
         
         self.undockElement = function (d) {
             if (d == null) {
                 throw Error("Cannot undock a null element");
             }
+            d.fixed = false;
             delete docked[d.name];
+            self.updateHud();
         }
           
         /*      
