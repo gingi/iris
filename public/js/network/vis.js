@@ -1,6 +1,5 @@
-define(['jquery', 'd3'], function ($, d3) {
+define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
     
-    var DOCK_DELAY = 500; // 1 seconds
     var NODE_SIZE  = {
         GENE: 8,
         CLUSTER: 12
@@ -98,33 +97,8 @@ define(['jquery', 'd3'], function ($, d3) {
             .attr("width", w)
             .attr("height", h);
             
-        // var dockNodeStyle = vis.append("svg:defs")
-        //     .append("svg:filter").attr("id", "dockStyle")
-        //     .append("svg:feGaussianBlur").attr("stdDeviation", 0.2);
+        var dock = new Dock(vis);
         
-        var docked = {};
-        var dock = vis.append("rect")
-            .attr("id", "networkDock")
-            .attr("width", w / 2)
-            .attr("height", 30)
-            .attr("rx", 5)
-            .attr("ry", 5)
-            .attr("x", (w - 600) / 2)
-            .attr("y", h * 5 / 6)
-            .style("fill", "black")
-            .style("opacity", "0.1");
-        var dockDims = {
-            x1: parseInt(dock.attr("x")),
-            x2: parseInt(dock.attr("x")) + parseInt(dock.attr("width")),
-            y1: parseInt(dock.attr("y")),
-            y2: parseInt(dock.attr("y")) + parseInt(dock.attr("height")),
-        };
-            
-        dock
-            .on("mouseover", function () { dock.style("opacity", "0.2"); })
-            .on("mouseout",  function () { dock.style("opacity", "0.1"); })
-            .on("click", dockHud);
-
         // This order matters (nodes painted on top of links)
         var linkG = vis.append("g").attr("id", "networkLinks");
         var nodeG = vis.append("g").attr("id", "networkNodes");
@@ -231,37 +205,19 @@ define(['jquery', 'd3'], function ($, d3) {
             return $table;
         }
         
-        var draggedNode, dragStart, changedDockState, dragging;
+        var draggedNode, dragStart, dragging;
         function forceDragging(d) {
             dragStart = { px: d.x, py: d.y };
             draggedNode = this;
             dragging = true;
-            changedDockState = false;
+            dock.changedState = false;
         }
         
         
         function mouseup() {
             dragging = false;
         }
-        
-        function updateDockHud() {
-            var $hud = $("#dockHud");
-            $hud.empty();
-            $hud.append("<h4>Dock</h4>");
-            for (d in docked) {
-                $hud.append("<li>" + d + "</li>");
-            }            
-        }
-        
-        function dockHud() {
-            updateDockHud();
-            var $hud = $("#dockHud");
-            $hud.fadeIn();
-            $hud.on("click", function () {
-                $hud.fadeOut();
-            });
-        }
-        
+                
         function getNeighbors(d) {
             var path = d.entityId ? d.entityId + '/network' : d.name + '/neighbors';
             $.ajax({
@@ -292,19 +248,12 @@ define(['jquery', 'd3'], function ($, d3) {
             });
         }
         
-        function intersectsDock(d) {
-            return d.px >= dockDims.x1 &&
-                   d.px <= dockDims.x2 &&
-                   d.py >= dockDims.y1 &&
-                   d.py <= dockDims.y2
-        }
-                
         function handleDock(d) {
             if (!dragging) return;
             if (!draggedNode) return;
             var selected = d3.select(draggedNode);
-            if (intersectsDock(d) &&
-                (!intersectsDock(dragStart) || changedDockState)) {
+            if (dock.intersects(d) &&
+                (!dock.intersects(dragStart) || dock.changedState)) {
                 selected
                     .style("stroke", "yellow")
                     .style("stroke-width", 3)
@@ -313,13 +262,13 @@ define(['jquery', 'd3'], function ($, d3) {
                     // .attr("filter", "url(#dockStyle)");
 
                 d.fixed = true;
-                docked[d.name] = d;
-                updateDockHud();
-                changedDockState = true;
+                dock.dockElement(d);
+                dock.updateHud();
+                dock.changedState = true;
                 draggedNode = null;
             }
-            if (!intersectsDock(d) &&
-                (intersectsDock(dragStart) || changedDockState)) {
+            if (!dock.intersects(d) &&
+                (dock.intersects(dragStart) || dock.changedState)) {
                     selected
                         .style("stroke", null)
                         .style("stroke-width", null)
@@ -327,17 +276,15 @@ define(['jquery', 'd3'], function ($, d3) {
                         // .attr("class", null);
                         // .attr("filter", null);
                     
-                    delete docked[d.name];
-                    updateDockHud();
-                    changedDockState = true;
+                    dock.undockElement(d);
+                    dock.updateHud();
+                    dock.changedState = true;
                     setTimeout(function () {
                         d.fixed = false;
-                    }, DOCK_DELAY);
+                    }, 500 /* DOCK_DELAY */);
                     draggedNode = null;
             }
         }
-        // Make it all go
-        // update();
     };
     return Network;
 });
