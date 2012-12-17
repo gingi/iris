@@ -10,10 +10,12 @@ var express = require('express'),
     fs      = require('fs'),
     util    = require('util');
 
-var NETWORK_API = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
+var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
+var G2P_API_URL     = 'http://140.221.84.160:7067';
 var RANDOM_NEIGHBORHOOD_NODES = 20;
 
 var NetworksAPI = require('./src/api/networks');
+var G2PAPI      = require('./src/api/g2p');
 
 var app = express();
 
@@ -44,6 +46,15 @@ app.get('/users', user.list);
 app.get('/network', function (req, res, next) {
     res.sendfile('public/network.html');
 });
+
+app.get('/data/trait/:id/gwas', function (request, response, next) {
+    response.contentType = 'json';
+    var pcutoff = request.query.p || 1;
+    var api = G2PAPI(G2P_API_URL);
+    api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
+        response.send(json);
+    });
+}); 
 
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
@@ -77,7 +88,7 @@ app.get('/data/gene/:id/network', function (request, response, next) {
     response.contentType = 'json';
     var nodeId = request.params.id == 'sample'
         ? 'kb|g.21765.CDS.543' : request.params.id;
-    var api = NetworksAPI(NETWORK_API);
+    var api = NetworksAPI(NETWORK_API_URL);
     api.buildFirstNeighborNetwork_async(
         [ "kb|netdataset.regprecise.301",
           "kb|netdataset.modelseed.0",
