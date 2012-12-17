@@ -137,23 +137,33 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
                 .on("dblclick", getNeighbors)
-                .call(nodeDrag);
+                .call(dock.drag());
             svgNodes.exit().remove();
 
             force.on("tick", tick);            
             force.start();
         }
         
-        var nodeDrag = d3.behavior.drag()
-            .on("dragstart", nodeDragstart)
-            .on("drag", nodeDragmove)
-            .on("dragend", nodeDragend);
-        
+        dock.on("dragstart.dock", function () { force.stop(); })
+            .on("dragmove.dock",  function () { tick() })
+            .on("dragend.dock",   function () { tick(); force.start(); })
+            .on("dock", function (evt, d, element) {
+                element
+                    .style("stroke", "yellow")
+                    .style("stroke-width", 3)
+                    .style("stroke-location", "outside")   
+            })
+            .on("undock", function (evt, d, element) {
+                element
+                    .style("stroke", null)
+                    .style("stroke-width", null)
+                    .style("stroke-location", null);
+            });
+                
         function nodeSize(d) {
             var size = NODE_SIZE[d.type] || 8;
             return size;
         }
-        
 
         var selected, originalFill;
         function clickNode(d) {
@@ -236,39 +246,7 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
                     _autoUpdate = origAutoUpdate;
                 }
             });
-        }
-        
-        function nodeDragstart() {
-            force.stop();
-        }
-        
-        function nodeDragmove(d) {
-            d.px += d3.event.dx;
-            d.py += d3.event.dy;
-            d.x += d3.event.dx;
-            d.y += d3.event.dy; 
-            tick();
-        }
-        
-        function nodeDragend(d) {
-            var draggedNode = this;
-            var selected = d3.select(draggedNode);
-            if (dock.intersects(d)) {
-                dock.dockElement(d);
-                selected
-                    .style("stroke", "yellow")
-                    .style("stroke-width", 3)
-                    .style("stroke-location", "outside")                
-            } else {
-                dock.undockElement(d);
-                selected
-                    .style("stroke", null)
-                    .style("stroke-width", null)
-                    .style("stroke-location", null);
-            }
-            tick();
-            force.resume();
-        }
+        }        
     };
     return Network;
 });
