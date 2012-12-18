@@ -5,10 +5,9 @@ define(['jquery'], function ($) {
 
         var ctx;
         var ctxi;
-        var canvasi;
+        var canvas, canvasi;
         var tool = new Object();
         tool.started = false;
-        var global_min = 0;
         var globalMax = 0;
         var totalLen = 0;
         var sc = 2;
@@ -19,108 +18,132 @@ define(['jquery'], function ($) {
         var chrRange = new Array();
         var scoreA;
         var scoreB;
-		var chrNames = [];
+        
+        
+        var chrOrder = [];
+        var chrIndex = [];
+        var threads = 5;
 
         var chromosomes, variations, maxscore, chrXsize;
+        var xfactor, yfactor; 
         self.setData = function (data) {
-            chromosomes = data.chromosomes;
-            for (var chr in chromosomes) {
-                chrNames.push(chr);
+            chromosomes = {};
+            for (var i = 0; i < data.chromosomes.length; i++) {
+                var chr = data.chromosomes[i];
+                var name = chr[0];
+                var length = chr[1];
+                chromosomes[name] = { len: length };
+                chrIndex.push(name);
+                chrOrder.push(name);
             }
-            chrNames = chrNames.sort(function (a, b) {
-                return chromosomes[b] - chromosomes[a];
+            chrOrder = chrOrder.sort(function (a, b) {
+                return chromosomes[b].len - chromosomes[a].len;
             });
             variations  = data.variations;
             maxscore    = 1 - Math.log(data.maxscore);
+            console.log("Max score", maxscore);
         };
         self.display = function (args) {
             args = (args || {});
-    		var myDiv = $(element);
-    		myDiv.append('<div id="' + element.id + '_man">');
-    		var div = $(document.getElementById(element.id + "_man"));
-            var canvasHeight = Math.max(div.height(), 500);
-            var canvasWidth = Math.max(div.width(), 300);
-            div.append('<canvas id="' + element.id + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
-            div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
+            var $element = $(element);
+            var div = $('<div></div>').css("position", "relative");
+            $element.append(div);
+            var canvasHeight = Math.max($element.height(), 500);
+            var canvasWidth = Math.max($element.width(), 300);
+            canvas = $("<canvas>")
+                .attr("id", element.id + "_canvas")
+                .attr("width", canvasWidth)
+                .attr("height", canvasHeight)
+                .css("position", "absolute")
+                .css("left", 0)
+                .css("top", 0)
+                .css("z-index", 1);
+            canvasi = $("<canvas>")
+                .attr("id", element.id + "_canvasi")
+                .attr("width", canvasWidth)
+                .attr("height", canvasHeight)
+                .css("position", "absolute")
+                .css("left", 0)
+                .css("top", 0)
+                .css("z-index", 1);
+            div.append(canvas).append(canvasi);
             div.height(canvasHeight);
 
-            var canvas = document.getElementById(element.id + "_canvas");
-            canvasi = document.getElementById(element.id + "_canvasi");
-            ctx = canvas.getContext('2d');
-            ctxi = canvasi.getContext('2d');
+            ctx = canvas[0].getContext('2d');
+            ctxi = canvasi[0].getContext('2d');
 
     		totalLen = 0;
-            for (var chr in chromosomes) {
-                totalLen += parseInt(chromosomes[chr]);
-            }
+            for (var c in chromosomes) { totalLen += chromosomes[c].len; }
 
             globalMax = Math.ceil(maxscore);
             drawManhattan();
         };
-
-    function drawManhattan() {
-        ctx.strokeStyle = "black";
-
-        ctxi.strokeStyle = "red";
-        ctxi.fillStyle = "rgba(255,0,0,0.3)";
-
-        // add event listeners
-        canvasi.addEventListener('mousedown', startDragEvent(), false);
-        canvasi.addEventListener('mousemove', moveDragEvent(), false);
-        canvasi.addEventListener('mouseup', releaseDragEvent(), false);
-
-        var offset = XGUTTER;
-        var ysize = ctx.canvas.height;
-        var xstarts = {};
-        var colors  = {};
-        var xfactor =
-            (ctx.canvas.width - (XGUTTER * chrNames.length - 1)) / totalLen;
-        var yfactor = ctx.canvas.height / globalMax;
-        for (var i = 0; i < chrNames.length; i++) {
-            var chr = chrNames[i];
-            var xsize = xfactor * chromosomes[chr];
-            xstarts[chr] = offset;
-            offset += xsize + XGUTTER;
-            if (i % 2 === 0) {
-                colors[chr] = {
-                    min: [150, 150, 150],
-                    max: [0, 0, 0]
-                };
-            } else {
-                colors[chr] = {
-                    min: [255, 165, 0],
-                    max: [255, 15, 0]
-                }
-            }
-        }
-
+        
         function color(r, cc, c) {
             return cc.min[c] + Math.floor(r * (cc.max[c] - cc.min[c]));
-        };
-        for (var i = 0; i < variations.length; i++) {
-            var chr = variations[i][0];
-            var xcoord = parseInt(variations[i][1]);
-            var pval   = 1 - Math.log(parseFloat(variations[i][2]));
-            var x = xstarts[chr] + (xfactor * xcoord);
-            var y = ysize - yfactor * pval;
-
-            var ratio = parseFloat(variations[i][2]) / globalMax;
-            var r = color(ratio, colors[chr], 0);
-            var g = color(ratio, colors[chr], 1);
-            var b = color(ratio, colors[chr], 2);
-
-            ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-
-            if (circles) {
-                ctx.beginPath();
-                ctx.arc(Math.floor(x), Math.floor(y), radius, 0, 2 * Math.PI, true);
-                ctx.closePath();
-                ctx.fill();
-            } else {
-                ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
-            }
         }
-    }
+
+        function drawManhattan() {
+            ctx.strokeStyle = "black";
+
+            ctxi.strokeStyle = "red";
+            ctxi.fillStyle = "rgba(255,0,0,0.3)";
+
+            // add event listeners
+            canvasi[0].addEventListener('mousedown', startDragEvent(), false);
+            canvasi[0].addEventListener('mousemove', moveDragEvent(), false);
+            canvasi[0].addEventListener('mouseup', releaseDragEvent(), false);
+
+            var offset = XGUTTER;
+            xfactor =
+                (ctx.canvas.width - (XGUTTER * chrIndex.length - 1)) / totalLen;
+            yfactor = ctx.canvas.height / globalMax;
+            for (var i = 0; i < chrOrder.length; i++) {
+                var chr = chrOrder[i];
+                chromosomes[chr].offset = offset;
+                offset += xfactor * chromosomes[chr].len + XGUTTER;
+
+                if (i % 2 === 0) {
+                    chromosomes[chr].color = {
+                        min: [150, 150, 150],
+                        max: [0, 0, 0]
+                    };
+                } else {
+                    chromosomes[chr].color = {
+                        min: [255, 165, 0],
+                        max: [255, 15, 0]
+                    }
+                }
+            }
+            scatterplot();
+        }
+        
+        function scatterplot() {
+            for (var i = 0; i < variations.length; i++) {
+                var chrN   = variations[i][0];
+                var xcoord = variations[i][1];
+                var pval   = 1 - Math.log(variations[i][2]);
+                var chr    = chromosomes[chrIndex[chrN]];
+                var x      = chr.offset + (xfactor * xcoord);
+                var y      = ctx.canvas.height - yfactor * pval;
+
+                var ratio = variations[i][2] / globalMax;
+                var r = color(ratio, chr.color, 0);
+                var g = color(ratio, chr.color, 1);
+                var b = color(ratio, chr.color, 2);
+
+                ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+
+                if (circles) {
+                    ctx.beginPath();
+                    ctx.arc(Math.floor(x), Math.floor(y), radius, 0, 2 * Math.PI, true);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
+                }
+            }            
+        }
 
     function canvasToChr(a, b) {
         chrRange = [];
@@ -234,8 +257,8 @@ define(['jquery'], function ($) {
                 var chrRangeString = JSON.stringify(chrRange);
                 tool.started = false;
 //                ctxi.clearRect(0, 0, ctxi.canvas.width, ctxi.canvas.height);
-                console.log([scoreB, scoreA, chrRangeString]);
-				renderGO(build_where([scoreB, scoreA, chrRange]));
+                // console.log([scoreB, scoreA, chrRangeString]);
+                // renderGO(build_where([scoreB, scoreA, chrRange]));
             }
         };
     }
