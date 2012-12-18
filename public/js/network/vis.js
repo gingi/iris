@@ -73,10 +73,10 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
         }
         
         this.highlight = function (name) {
-            var node = this.findNode(name, "name");
-            if (node) {
-                console.log("Found", node);
-            }
+            d3.select("#" + name)
+                .style("stroke", "yellow")
+                .style("stroke-width", 3)
+                .style("stroke-location", "outside")   
         }
         
         this.start = function () { update(); }
@@ -133,6 +133,7 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
+                .attr("id", function (d) { return d.name })
                 .attr("r", function (d) { return nodeSize(d); })
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
