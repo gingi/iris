@@ -11,13 +11,14 @@ define(['jquery'], function ($) {
         var globalMax = 0;
         var totalLen = 0;
         var sc = 2;
-        var radius = 1.5;
+        var radius = 2;
         var circles = true;
         var XGUTTER = 10;
         var colorByDensity = true;
         var chrRange = new Array();
         var scoreA;
         var scoreB;
+        var PINTENSITY = 5;
         
         
         var chrOrder = [];
@@ -41,7 +42,6 @@ define(['jquery'], function ($) {
             });
             variations  = data.variations;
             maxscore    = 1 - Math.log(data.maxscore);
-            console.log("Max score", maxscore);
         };
         self.display = function (args) {
             args = (args || {});
@@ -119,6 +119,7 @@ define(['jquery'], function ($) {
         }
         
         function scatterplot() {
+            var PI2 = Math.PI * 2;
             for (var i = 0; i < variations.length; i++) {
                 var chrN   = variations[i][0];
                 var xcoord = variations[i][1];
@@ -127,7 +128,7 @@ define(['jquery'], function ($) {
                 var x      = chr.offset + (xfactor * xcoord);
                 var y      = ctx.canvas.height - yfactor * pval;
 
-                var ratio = variations[i][2] / globalMax;
+                var ratio = variations[i][2] * PINTENSITY / globalMax;
                 var r = color(ratio, chr.color, 0);
                 var g = color(ratio, chr.color, 1);
                 var b = color(ratio, chr.color, 2);
@@ -136,7 +137,7 @@ define(['jquery'], function ($) {
 
                 if (circles) {
                     ctx.beginPath();
-                    ctx.arc(Math.floor(x), Math.floor(y), radius, 0, 2 * Math.PI, true);
+                    ctx.arc(Math.floor(x), Math.floor(y), radius, 0, PI2, true);
                     ctx.closePath();
                     ctx.fill();
                 } else {
