@@ -723,7 +723,7 @@ function CDMI_API(url) {
         var body = JSON.stringify(rpc);
         var resp_txt;
 	var code;
-    console.log("Hello?");
+        
         var x = jQuery.ajax({       "async": false,
                                     dataType: "text",
                                     url: _url,
@@ -765,12 +765,13 @@ function CDMI_API(url) {
         var body = JSON.stringify(rpc);
         var resp_txt;
 	var code;
+        
         var x = jQuery.ajax({       "async": true,
-                                    dataType: "json",
+                                    dataType: "text",
                                     url: _url,
                                     success: function (data, status, xhr)
 				{
-				    resp = data; // JSON.parse(data);
+				    resp = JSON.parse(data);
 				    var result = resp["result"];
 				    if (num_rets == 1)
 				    {
@@ -1748,9 +1749,6 @@ function CDMI_EntityAPI(url) {
 //	var resp = json_call_sync("CDMI_EntityAPI.all_entities_Genome", [start, count, fields]);
         return resp[0];
     }
-    
-    // Shiran
-    this.json_call_ajax_sync = json_call_ajax_sync;
 
     this.all_entities_Genome_async = function(start, count, fields, _callback, _error_callback)
     {
@@ -4025,6 +4023,30 @@ function CDMI_EntityAPI(url) {
 	json_call_ajax_async("CDMI_EntityAPI.get_relationship_IsImpactedBy", [ids, from_fields, rel_fields, to_fields], 1, _callback, _error_callback)
     }
 
+    this.get_relationship_ImplementsReaction = function(ids, from_fields, rel_fields, to_fields)
+    {
+	var resp = json_call_ajax_sync("CDMI_EntityAPI.get_relationship_ImplementsReaction", [ids, from_fields, rel_fields, to_fields]);
+//	var resp = json_call_sync("CDMI_EntityAPI.get_relationship_ImplementsReaction", [ids, from_fields, rel_fields, to_fields]);
+        return resp[0];
+    }
+
+    this.get_relationship_ImplementsReaction_async = function(ids, from_fields, rel_fields, to_fields, _callback, _error_callback)
+    {
+	json_call_ajax_async("CDMI_EntityAPI.get_relationship_ImplementsReaction", [ids, from_fields, rel_fields, to_fields], 1, _callback, _error_callback)
+    }
+
+    this.get_relationship_ImplementedBasedOn = function(ids, from_fields, rel_fields, to_fields)
+    {
+	var resp = json_call_ajax_sync("CDMI_EntityAPI.get_relationship_ImplementedBasedOn", [ids, from_fields, rel_fields, to_fields]);
+//	var resp = json_call_sync("CDMI_EntityAPI.get_relationship_ImplementedBasedOn", [ids, from_fields, rel_fields, to_fields]);
+        return resp[0];
+    }
+
+    this.get_relationship_ImplementedBasedOn_async = function(ids, from_fields, rel_fields, to_fields, _callback, _error_callback)
+    {
+	json_call_ajax_async("CDMI_EntityAPI.get_relationship_ImplementedBasedOn", [ids, from_fields, rel_fields, to_fields], 1, _callback, _error_callback)
+    }
+
     this.get_relationship_Includes = function(ids, from_fields, rel_fields, to_fields)
     {
 	var resp = json_call_ajax_sync("CDMI_EntityAPI.get_relationship_Includes", [ids, from_fields, rel_fields, to_fields]);
@@ -5716,15 +5738,15 @@ function CDMI_EntityAPI(url) {
         var resp_txt;
 	var code;
         
-        var x = jQuery.ajax({       async: false,
-                                    dataType: 'text',
+        var x = jQuery.ajax({       "async": false,
+                                    dataType: "text",
                                     url: _url,
                                     success: function (data, status, xhr) { resp_txt = data; code = xhr.status },
-                            error: function(xhr, textStatus, errorThrown) {resp_txt = xhr.responseText, code = xhr.status },
+				    error: function(xhr, textStatus, errorThrown) { resp_txt = xhr.responseText, code = xhr.status },
                                     data: body,
                                     processData: false,
                                     type: 'POST',
-                            });
+				    });
 
         var result;
 
@@ -5757,13 +5779,13 @@ function CDMI_EntityAPI(url) {
         var body = JSON.stringify(rpc);
         var resp_txt;
 	var code;
+        
         var x = jQuery.ajax({       "async": true,
-                                    dataType: "json",
+                                    dataType: "text",
                                     url: _url,
                                     success: function (data, status, xhr)
 				{
-				    resp = data; // JSON.parse(data);
-                    console.log("Parsed [" + method + "]:" + data.length);
+				    resp = JSON.parse(data);
 				    var result = resp["result"];
 				    if (num_rets == 1)
 				    {
