@@ -48,7 +48,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
             traitId = (traitId || 'kb|g.22476.trait.3');
             trait.set({id: traitId});
             App = new AppView({ model: trait });
-            trait.fetch();
+            trait.fetch({ data: { p: 1 } });
         },
     });
     var router = new Router;

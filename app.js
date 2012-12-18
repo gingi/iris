@@ -9,10 +9,13 @@ var express = require('express'),
     path    = require('path'),
     fs      = require('fs'),
     util    = require('util');
+    gzippo  = require('gzippo');
 
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var G2P_API_URL     = 'http://140.221.84.160:7067';
 var CDM_API_URL     = 'http://140.221.84.160:7032';
+
+var ONE_YEAR = 31557600000;
 
 var RANDOM_NEIGHBORHOOD_NODES = 20;
 
@@ -26,6 +29,8 @@ app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(gzippo.compress());
     app.use(express.favicon());
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
@@ -36,7 +41,6 @@ app.configure(function() {
     app.use(require('less-middleware')({
         src: __dirname + '/public'
     }));
-    app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function() {
@@ -61,21 +65,26 @@ app.get('/data/trait/:id', function (request, response, next) {
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
     api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
         var chrs = [];
-        var seen = {};
-        var maxscore = 0;
+        var chrIndex = {};
+        var maxscore = Infinity;
+        var v = [];
         json.forEach(function (d) {
-            maxscore = Math.max(maxscore, parseFloat(d[2]));
-            if (!seen[d[0]]) {
+            maxscore = Math.min(maxscore, parseFloat(d[2]));
+            if (chrIndex[d[0]] == null) {
                 chrs.push(d[0]);
-                seen[d[0]] = 1;
+                chrIndex[d[0]] = chrs.length - 1;
             }
+            v.push([chrIndex[d[0]], parseInt(d[1]), parseFloat(d[2])]);
         });
         cdmi.contigs_to_lengths_async(chrs, function (lengths) {
+            for (var c in lengths) {
+                chrs[chrIndex[c]] = [c, parseInt(lengths[c])];
+            }
             response.send({
                 id: request.params.id,
                 maxscore: maxscore,
-                variations: json,
-                chromosomes: lengths
+                variations: v,
+                chromosomes: chrs
             });
         })
     });
