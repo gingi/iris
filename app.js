@@ -12,10 +12,13 @@ var express = require('express'),
 
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var G2P_API_URL     = 'http://140.221.84.160:7067';
+var CDM_API_URL     = 'http://140.221.84.160:7032';
+
 var RANDOM_NEIGHBORHOOD_NODES = 20;
 
 var NetworksAPI = require('./src/api/networks');
 var G2PAPI      = require('./src/api/g2p');
+var CDMI        = require('./src/api/cdmi');
 
 var app = express();
 
@@ -47,14 +50,33 @@ app.get('/network', function (req, res, next) {
     res.sendfile('public/network.html');
 });
 
-app.get('/data/trait/:id/gwas', function (request, response, next) {
+app.get('/g2p', function (req, res, next) {
+    res.sendfile('public/g2p.html');
+});
+
+app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
-    var pcutoff = request.query.p || 1;
+    var pcutoff = request.query.p || 0.005;
     var api = G2PAPI(G2P_API_URL);
     api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
-        response.send(json);
+        response.send({ id: request.params.id, variations: json });
     });
-}); 
+});
+
+app.get('/data/genome/:id/chromosomes', function (request, response, next) {
+    response.contentType = 'json';
+    var eapi = new CDMI.CDMI_EntityAPI(CDM_API_URL);
+    var cdmi = new CDMI.CDMI_API(CDM_API_URL);
+    eapi.get_relationship_IsComposedOf_async(
+        [request.params.id], ['id'], [], ['id'], function (data) {
+            // response.send(data);
+        var ids = [];
+        data.forEach(function (c) { ids.push(c[2].id); });
+        cdmi.contigs_to_lengths_async(ids, function (lengths) {
+            response.send(lengths);
+        });
+    });
+});
 
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
