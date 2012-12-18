@@ -10,7 +10,7 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/hud'],
+require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
     function ($, Backbone, _, ManhattanPlot, HUD) {
     var Trait = Backbone.Model.extend({
         defaults: { name: "" },
@@ -84,7 +84,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/hud'],
             traitId = (traitId || 'kb|g.22476.trait.3');
             trait.set({id: traitId});
             App = new AppView({ model: trait });
-            trait.fetch({ data: { p: 0.1 } });
+            trait.fetch({ data: { p: 1 } });
         },
     });
     var router = new Router;
