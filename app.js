@@ -56,10 +56,28 @@ app.get('/g2p', function (req, res, next) {
 
 app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
-    var pcutoff = request.query.p || 0.005;
+    var pcutoff = request.query.p || 1.0;
     var api = G2PAPI(G2P_API_URL);
+    var cdmi = new CDMI.CDMI_API(CDM_API_URL);
     api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
-        response.send({ id: request.params.id, variations: json });
+        var chrs = [];
+        var seen = {};
+        var maxscore = 0;
+        json.forEach(function (d) {
+            maxscore = Math.max(maxscore, parseFloat(d[2]));
+            if (!seen[d[0]]) {
+                chrs.push(d[0]);
+                seen[d[0]] = 1;
+            }
+        });
+        cdmi.contigs_to_lengths_async(chrs, function (lengths) {
+            response.send({
+                id: request.params.id,
+                maxscore: maxscore,
+                variations: json,
+                chromosomes: lengths
+            });
+        })
     });
 });
 
@@ -69,7 +87,6 @@ app.get('/data/genome/:id/chromosomes', function (request, response, next) {
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
     eapi.get_relationship_IsComposedOf_async(
         [request.params.id], ['id'], [], ['id'], function (data) {
-            // response.send(data);
         var ids = [];
         data.forEach(function (c) { ids.push(c[2].id); });
         cdmi.contigs_to_lengths_async(ids, function (lengths) {
