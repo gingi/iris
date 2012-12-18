@@ -11,19 +11,17 @@ define(['jquery'], function ($) {
         var globalMax = 0;
         var totalLen = 0;
         var sc = 2;
-        var radius = 2;
+        var RADIUS = 2;
         var circles = true;
         var XGUTTER = 10;
         var colorByDensity = true;
         var chrRange = new Array();
         var scoreA;
         var scoreB;
-        var PINTENSITY = 5;
-        
+        var PINTENSITY = 0.4;
         
         var chrOrder = [];
         var chrIndex = [];
-        var threads = 5;
 
         var chromosomes, variations, maxscore, chrXsize;
         var xfactor, yfactor; 
@@ -41,7 +39,7 @@ define(['jquery'], function ($) {
                 return chromosomes[b].len - chromosomes[a].len;
             });
             variations  = data.variations;
-            maxscore    = 1 - Math.log(data.maxscore);
+            maxscore    = data.maxscore;
         };
         self.display = function (args) {
             args = (args || {});
@@ -80,7 +78,7 @@ define(['jquery'], function ($) {
         };
         
         function color(r, cc, c) {
-            return cc.min[c] + Math.floor(r * (cc.max[c] - cc.min[c]));
+            return cc.min[c] + Math.floor(r * cc.range[c]);
         }
 
         function drawManhattan() {
@@ -105,14 +103,21 @@ define(['jquery'], function ($) {
 
                 if (i % 2 === 0) {
                     chromosomes[chr].color = {
-                        min: [150, 150, 150],
-                        max: [0, 0, 0]
+                        min: [0, 0, 0],
+                        max: [150, 150, 150]
                     };
                 } else {
                     chromosomes[chr].color = {
-                        min: [255, 165, 0],
-                        max: [255, 15, 0]
+                        min: [255, 0, 0],
+                        max: [255, 165, 0]
                     }
+                }
+            }
+            for (var chr in chromosomes) {
+                var c = chromosomes[chr].color;
+                c.range = [];
+                for (var i = 0; i < c.max.length; i++) {
+                    c.range.push(c.max[i] - c.min[i]);
                 }
             }
             scatterplot();
@@ -120,15 +125,18 @@ define(['jquery'], function ($) {
         
         function scatterplot() {
             var PI2 = Math.PI * 2;
+            function intensity(v) { return Math.pow(v + 1, PINTENSITY) }
+            var normalized = intensity(maxscore);
+            
             for (var i = 0; i < variations.length; i++) {
                 var chrN   = variations[i][0];
                 var xcoord = variations[i][1];
-                var pval   = 1 - Math.log(variations[i][2]);
+                var pval   = variations[i][2];
                 var chr    = chromosomes[chrIndex[chrN]];
                 var x      = chr.offset + (xfactor * xcoord);
                 var y      = ctx.canvas.height - yfactor * pval;
 
-                var ratio = variations[i][2] * PINTENSITY / globalMax;
+                var ratio = intensity(pval) / normalized;
                 var r = color(ratio, chr.color, 0);
                 var g = color(ratio, chr.color, 1);
                 var b = color(ratio, chr.color, 2);
@@ -137,7 +145,7 @@ define(['jquery'], function ($) {
 
                 if (circles) {
                     ctx.beginPath();
-                    ctx.arc(Math.floor(x), Math.floor(y), radius, 0, PI2, true);
+                    ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
                     ctx.closePath();
                     ctx.fill();
                 } else {

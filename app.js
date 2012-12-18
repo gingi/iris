@@ -66,15 +66,16 @@ app.get('/data/trait/:id', function (request, response, next) {
     api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
         var chrs = [];
         var chrIndex = {};
-        var maxscore = Infinity;
+        var maxscore = 0;
         var v = [];
         json.forEach(function (d) {
-            maxscore = Math.min(maxscore, parseFloat(d[2]));
+            var normalized = -Math.log(parseFloat(d[2]));
+            maxscore = Math.max(maxscore, normalized);
             if (chrIndex[d[0]] == null) {
                 chrs.push(d[0]);
                 chrIndex[d[0]] = chrs.length - 1;
             }
-            v.push([chrIndex[d[0]], parseInt(d[1]), parseFloat(d[2])]);
+            v.push([chrIndex[d[0]], parseInt(d[1]), normalized]);
         });
         cdmi.contigs_to_lengths_async(chrs, function (lengths) {
             for (var c in lengths) {
