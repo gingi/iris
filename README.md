@@ -12,6 +12,10 @@ Installation
 
     $ git submodule update --init
     $ npm install
+    $ cd external/jquery
+    $ npm install
+    $ ./node_modules/grunt/bin/grunt
+    $ cd ../..
 
 Deployment
 ----------
