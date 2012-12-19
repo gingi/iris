@@ -27,15 +27,16 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         );
     }
     var AppView = Backbone.View.extend({
-        el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
             $hud = $("#infoBox");
         },
         render: function () {
-            $("#datavis").empty();
-            vis = new ManhattanPlot("#datavis");
+            $(this.el).empty();
+            
+            console.log(this.el.id);
+            vis = new ManhattanPlot("#" + this.el.id);
             vis.setData({
                 variations:  this.model.get('variations'),
                 chromosomes: this.model.get('chromosomes'),
@@ -73,17 +74,19 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         },
     });    
 
-    var App;
-    
     var Router = Backbone.Router.extend({
         routes: {
             "*actions": "show"
         },
         show: function (traitId) {
+            var $manhattan = $("<div>")
+                .attr("id", "manhattan")
+                .css("height", "400px");
+            $("#container").empty().append($manhattan);
             var trait = new Trait;
             traitId = (traitId || 'kb|g.22476.trait.3');
             trait.set({id: traitId});
-            App = new AppView({ model: trait });
+            var mview = new ManhattanView({ model: trait, el: $manhattan });
             trait.fetch({ data: { p: 1 } });
         },
     });
