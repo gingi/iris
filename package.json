@@ -5,6 +5,7 @@
   , "dependencies" : {
       "express"          : ">=3.0.3"
     , "ejs"              : ">= 0.8.2"
+	, "gzippo"           : ">=0.2.0"
     , "jade"             : ">= 0.20.1"
     , "connect-gzip"     : ">= 0.1.5"
     , "mongodb"          : ">= 0.9.9"
