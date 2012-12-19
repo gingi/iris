@@ -97,13 +97,13 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
 
                 if (i % 2 === 0) {
                     chromosomes[chr].color = {
-                        min: [0, 0, 0],
-                        max: [150, 150, 150]
+                        max: [0, 0, 0],
+                        min: [150, 150, 150]
                     };
                 } else {
                     chromosomes[chr].color = {
-                        min: [255, 0, 0],
-                        max: [255, 165, 0]
+                        max: [255, 0, 0],
+                        min: [255, 165, 0]
                     }
                 }
             }
@@ -121,31 +121,56 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             var PI2 = Math.PI * 2;
             function intensity(v) { return Math.pow(v + 1, PINTENSITY) }
             var normalized = intensity(maxscore);
-            
-            for (var i = 0; i < variations.length; i++) {
-                var chrN   = variations[i][0];
-                var xcoord = variations[i][1];
-                var pval   = variations[i][2];
-                var chr    = chromosomes[chrIndex[chrN]];
-                var x      = chr.offset + (xfactor * xcoord);
-                var y      = canvasHeight - yfactor * pval;
 
-                var ratio = intensity(pval) / normalized;
-                var r = color(ratio, chr.color, 0);
-                var g = color(ratio, chr.color, 1);
-                var b = color(ratio, chr.color, 2);
+            // create a 2D histogram
+			var histogram = new Object();
+			var x2color = new Object();
+			var max_tally=1;
+			for (var i = 0; i < variations.length; i++) {
+				var chrN   = variations[i][0];
+				var xcoord = variations[i][1];
+				var ycoord = variations[i][2];
+				var chr    = chromosomes[chrIndex[chrN]];
+				var x      = chr.offset + xfactor * xcoord;
+				var y      = canvasHeight - yfactor * ycoord;
+				var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
+				var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
+				x2color[xbin] = chr.color;
+				if (histogram.hasOwnProperty(xbin)) {
+					if (histogram[xbin].hasOwnProperty(ybin)) {
+						histogram[xbin][ybin]++
+					} else {
+						histogram[xbin][ybin]=1
+					}
+				} else {
+					histogram[xbin] = new Object();
+					histogram[xbin][ybin] = 1;
+				}
+				if (histogram[xbin][ybin] > max_tally) {
+					max_tally = histogram[xbin][ybin];
+				}
+			}
 
-                ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-
-                if (DRAW_DISCS) {
-                    ctx.beginPath();
-                    ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
-                    ctx.closePath();
-                    ctx.fill();
-                } else {
-                    ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
-                }
-            }            
+			for (var x in histogram) {
+				var chrcolor = x2color[x];
+				for (var y in histogram[x]) {
+					var ratio = histogram[x][y]/max_tally;
+					var r = color(ratio, chrcolor, 0);
+					var g = color(ratio, chrcolor, 1);
+					var b = color(ratio, chrcolor, 2);
+					
+					ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+					
+					if (DRAW_DISCS) {
+						ctx.beginPath();
+						ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
+						ctx.closePath();
+						ctx.fill();
+					} else {
+						ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
+					}
+				}
+			}
         }
 
         function canvasToChr(a, b) {
