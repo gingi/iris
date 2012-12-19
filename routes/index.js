@@ -19,6 +19,10 @@ exports.examples = function (req, res) {
     res.render('examples', { title: "Examples" });
 };
 
+exports.charts = function (req, res) {
+    res.render('charts', { title: 'Charts Demo' });
+};
+
 exports.workspace = function (req, res, widgetList) {
     res.render('workspace',
         { title: "Workspace", layout: "workspace_layout", list: widgetList });

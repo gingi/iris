@@ -11,7 +11,7 @@ requirejs.config({
     },
 })
 require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
-    function ($, Backbone, _, ManhattanPlot, HUD) {
+    function ($, Backbone, _, ManhattanPlot) {
     var Trait = Backbone.Model.extend({
         defaults: { name: "" },
         urlRoot: "/data/trait",
@@ -26,7 +26,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
             .append($("<td>").html(val))
         );
     }
-    var AppView = Backbone.View.extend({
+    var ManhattanView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
@@ -35,7 +35,6 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         render: function () {
             $(this.el).empty();
             
-            console.log(this.el.id);
             vis = new ManhattanPlot("#" + this.el.id);
             vis.setData({
                 variations:  this.model.get('variations'),
@@ -47,8 +46,8 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
                 var tbody = $("<tbody>");
                 $hud.empty();
                 $hud.append($("<table>").append(tbody));
-                row(tbody, "P<i>min</i>", scoreA.toFixed(2));
-                row(tbody, "P<i>max</i>", scoreB.toFixed(2));
+                row(tbody, "-log(p)<sub><i>min</i></sub>", scoreA.toFixed(2));
+                row(tbody, "-log(p)<sub><i>max</i></sub>", scoreB.toFixed(2));
                 tbody = $("<tbody>");
                 $hud.append($("<table>")
                     .append($("<thead>")
