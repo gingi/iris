@@ -16,6 +16,8 @@ Installation
     $ npm install
     $ ./node_modules/grunt/bin/grunt
     $ cd ../..
+    $ cd 
+    
 
 Deployment
 ----------
