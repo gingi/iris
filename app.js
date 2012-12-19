@@ -58,6 +58,8 @@ app.get('/g2p', function (req, res, next) {
     res.sendfile('public/g2p.html');
 });
 
+app.get('/charts', routes.charts);
+
 app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
     var pcutoff = request.query.p || 1.0;
