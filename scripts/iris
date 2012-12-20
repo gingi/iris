@@ -366,10 +366,12 @@ LOG_HEADER
         # Install Snapdragon
         cd $SNAPDRAGON_HOME
 		git submodule update --init 2>&1 >> $INSTALL_LOG
-        ./configure --prefix $IRIS_HOME 2>&1 >> $INSTALL_LOG
-        make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break
+        ./configure --enable-xopt --without-java --prefix $SNAPDRAGON_HOME 2>&1 >> $INSTALL_LOG
+        make 2>&1 >> $INSTALL_LOG # Now take a [long] coffee break: or "make -j 8" to parallelize using 8 cores
         make check 2>&1 >> $INSTALL_LOG
         make install 2>&1 >> $INSTALL_LOG
+		cd node/fastbit_addon
+		node-gyp rebuild 2>&1 >> $INSTALL_LOG
     fi
 }
 
