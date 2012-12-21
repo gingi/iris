@@ -21,23 +21,23 @@
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
         <ul class="nav">
-            <li>
-                <form class="navbar-search" id="nav-search">
-                    <input class="search-query" placeholder="Search" type="text">
-                    <button class="btn btn-small">Lookup</button>
-                </form>
+            <li class="dropdown">
+                <a class="dropdown-toggle" id="gsLabel" data-toggle="dropdown"
+                    data-target="#" href="#">Genomes <b class="caret"></b></a>
+                <ul id="genome-select" class="dropdown-menu" role="menu" aria-labelledby="gsLabel">
+                    <li><a href="#genome/kb|g.22475">Arabidopsis thaliana</a></li>
+                    <li><a href="#genome/kb|g.22476">Poplar</a></li>
+                </ul>
             </li>
             <li class="dropdown">
-                <a class="dropdown-toggle" id="dLabel" data-toggle="dropdown" data-target="#" href="#">Examples <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a href="#kb|g.22475.trait.1">Arabidopsis Trait 1</a></li>
-                    <li><a href="#kb|g.22475.trait.2">Arabidopsis Trait 2</a></li>
-                    <li><a href="#kb|g.22475.trait.3">Arabidopsis Trait 3</a></li>
-                    <li><a href="#kb|g.22475.trait.4">Arabidopsis Trait 4</a></li>
-                    <li><a href="#kb|g.22476.trait.3">Poplar Trait 1</a></li>
-                    <li><a href="#kb|g.22476.trait.4">Poplar Trait 2</a></li>
-                    <li><a href="#kb|g.22476.trait.5">Poplar Trait 3</a></li>
-                    <li><a href="#kb|g.22476.trait.6">Poplar Trait 4</a></li>
+                <a class="dropdown-toggle" id="esLabel" data-toggle="dropdown"
+                    data-target="#" href="#">Experiments <b class="caret"></b></a>
+                <ul id="exp-select" class="dropdown-menu" role="menu" aria-labelledby="esLabel">
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" id="tsLabel" data-toggle="dropdown" data-target="#" href="#">Traits <b class="caret"></b></a>
+                <ul id="trait-select" class="dropdown-menu" role="menu" aria-labelledby="tsLabel">
                 </ul>
             </li>
         </ul>

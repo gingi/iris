@@ -123,6 +123,25 @@ app.get('/data/genome/:id/chromosomes', function (request, response, next) {
     });
 });
 
+app.get('/data/genome/:id/experiments', function (request, response, next) {
+    response.contentType = 'json';
+    var api = new G2PAPI(G2P_API_URL);
+    api.get_experiments_async(request.params.id, function (json) {
+        response.send(json);
+    });
+});
+
+app.get('/data/experiment/:id/traits', function (request, response, next) {
+    response.contentType = 'json';
+    var api = new G2PAPI(G2P_API_URL);
+    api.get_traits_async(request.params.id, function (json) {
+        json.forEach(function (trait) {
+            trait[1] = trait[1].replace(/:.*$/, '');
+        });
+        response.send(json);
+    });
+})
+
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
     var nNodes = request.query.nodes || 20;
