@@ -12,10 +12,42 @@ requirejs.config({
 })
 require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
     function ($, Backbone, _, ManhattanPlot) {
+        
+    function dataAPI(path) { return "/data" + path; }
+
     var Trait = Backbone.Model.extend({
         defaults: { name: "" },
-        urlRoot: "/data/trait",
+        urlRoot: dataAPI("/trait"),
     });
+    
+    var Model = Backbone.Model.extend({
+        defaults: { name: "", itemType: "" },
+        url: function () { return dataAPI(this.path()); },
+        parse: function (json) {
+            this.set('items', json);
+        }
+    });
+    
+    var Types = {};
+    Types.genome = Model.extend({
+        el: $("#exp-select"),
+        path: function () {
+            return "/genome/" + this.id + "/experiments";
+        },
+        initialize: function () {
+            this.set('itemType', 'experiment');
+        }
+    });
+    
+    Types.experiment = Model.extend({
+        el: $("#trait-select"),
+        path: function () {
+            return "/experiment/" + this.id + "/traits";
+        },
+        initialize: function () {
+            this.set('itemType', 'trait');
+        }
+    })
     
     var BP2PX = 2.5e5;
     var vis;
@@ -32,6 +64,28 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         chromosomes.forEach(function (c) { genomeLength += c[1] });
         return Math.floor(genomeLength / BP2PX);
     }
+    
+    function linkItem(href, title) {
+        return $("<li>")
+            .append($("<a>").attr("href", href).text(title));
+    }
+    
+    var DropDownMenu = Backbone.View.extend({
+        initialize: function () {
+            this.listenTo(this.model, 'change', this.render);
+        },
+        render: function (evt) {
+            var $el = this.$el;
+            var model = this.model;
+            $el.empty();
+            model.get('items').forEach(function (i) {
+                $el.append(linkItem(
+                    "#" + model.get('itemType') + "/" + i[0], i[1]
+                ));
+            });
+        }
+    })
+    
     var ManhattanView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
@@ -74,7 +128,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
                 row(tbody, "-log(p)<sub><i>max</i></sub>", scoreA.toFixed(2));
                 row(tbody, "-log(p)<sub><i>min</i></sub>", scoreB.toFixed(2));
                 $.ajax({
-                    url: '/data/trait/' + self.model.id + '/genes',
+                    url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
                     data: {
                         pmin: Math.pow(10, -scoreA),
@@ -94,7 +148,14 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
 
     var Router = Backbone.Router.extend({
         routes: {
-            "*actions": "show"
+            "trait/:traitId": "show",
+            ":type/:id": "dropdownSelect",
+        },
+        dropdownSelect: function (type, id) {
+            var model = new Types[type];
+            model.set({id: decodeURIComponent(id)});
+            var view = new DropDownMenu({ model: model, el: model.el });
+            model.fetch();
         },
         show: function (traitId) {
             var trait = new Trait;
@@ -102,7 +163,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
             trait.set({id: traitId});
             var mview = new ManhattanView({ model: trait, el: $("#container") });
             trait.fetch({ data: { p: 30 } });
-        },
+        }
     });
     var router = new Router;
     $("#nav-search button").on("click", function () {
