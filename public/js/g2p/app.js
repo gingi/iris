@@ -10,10 +10,27 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
-    function ($, Backbone, _, ManhattanPlot) {
+require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
+    function ($, Backbone, _, ManhattanPlot, Spinner) {
         
     function dataAPI(path) { return "/data" + path; }
+    function addSpinner(el) {
+        var opts = {
+            lines: 13, // The number of lines to draw
+            length: 5, // The length of each line
+            width: 2, // The line thickness
+            radius: 5, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 69, // The rotation offset
+            color: '#666', // #rgb or #rrggbb
+            speed: 1.3, // Rounds per second
+            trail: 42, // Afterglow percentage
+            className: 'spinner', // The CSS class to assign to the spinner
+            top: 'auto', // Top position relative to parent in px
+            left: 'auto' // Left position relative to parent in px
+        };
+        var spinner = new Spinner(opts).spin(el[0]);
+    }
 
     var Trait = Backbone.Model.extend({
         defaults: { name: "" },
@@ -28,6 +45,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         }
     });
     
+    var cache = {};
     var Types = {};
     Types.genome = Model.extend({
         el: $("#exp-select"),
@@ -47,7 +65,18 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         initialize: function () {
             this.set('itemType', 'trait');
         }
-    })
+    });
+    
+    function traitName(trait) {
+        var experiment = cache["experiment"];
+        var items = experiment ? experiment.get('items') : [];
+        for (var i in items) {
+            if (items[i][0] == trait.id) {
+                return items[i][1];
+            }
+        }
+        return trait.id;
+    };
     
     var BP2PX = 2.5e5;
     var vis;
@@ -73,9 +102,14 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
     var DropDownMenu = Backbone.View.extend({
         initialize: function () {
             this.listenTo(this.model, 'change', this.render);
+            addSpinner(this.$el.parent());
+            this.$el.parent().fadeTo(1, 0.2);
         },
         render: function (evt) {
             var $el = this.$el;
+            $el.parent().fadeTo(1, 1, function () {
+                $(this).find(".spinner").remove();
+            });
             var model = this.model;
             $el.empty();
             model.get('items').forEach(function (i) {
@@ -84,7 +118,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
                 ));
             });
         }
-    })
+    });
     
     var ManhattanView = Backbone.View.extend({
         initialize: function () {
@@ -92,19 +126,29 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
             this.model.on('change', this.render);
             this.$el.css("position", "relative")
             $hud = $("#infoBox");
+            this.$el.find(".manhattan").fadeTo(0, 0.3);
+            var div = $("<div>")
+                .attr("class", "spinnerContainer")
+                .css("width", this.$el.width()-80)
+                .css("height", "400px")
+                .css("position", "absolute");
+            this.$el.append(div);
+            addSpinner(div);
         },
         render: function () {
             var self = this;
-            var $oldVis = this.$el.find(".manhattan");
+            var $el = this.$el;
+            $el.find(".spinner").fadeOut(function () { $(this).remove() });
+            var $oldVis = $el.find(".manhattan");
             var $newVis = $("<div>")
                 .attr("class", "manhattan")
                 .css("width",
-                    Math.min(self.$el.width()-80,
+                    Math.min($el.width()-80,
                         genomePixelWidth(self.model.get('chromosomes'))))
                 .css("height", "400px")
                 .css("position", "absolute");
-            $newVis.append($("<h4>").text(this.model.id));
-            self.$el.append($newVis);
+            $newVis.append($("<h4>").text(traitName(this.model)));
+            $el.append($newVis);
             
             vis = new ManhattanPlot($newVis);
             vis.setData({
@@ -154,20 +198,17 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         dropdownSelect: function (type, id) {
             var model = new Types[type];
             model.set({id: decodeURIComponent(id)});
+            cache[type] = model;
             var view = new DropDownMenu({ model: model, el: model.el });
             model.fetch();
         },
         show: function (traitId) {
             var trait = new Trait;
-            traitId = decodeURIComponent(traitId || 'kb|g.22475.trait.3');
-            trait.set({id: traitId});
+            trait.set({id: decodeURIComponent(traitId)});
             var mview = new ManhattanView({ model: trait, el: $("#container") });
             trait.fetch({ data: { p: 30 } });
         }
     });
     var router = new Router;
-    $("#nav-search button").on("click", function () {
-        router.navigate("#" + $("#nav-search input").val(), true);
-    });
     Backbone.history.start();
 });
