@@ -158,10 +158,10 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             var $oldVis = $el.find(".manhattan");
             var $newVis = $("<div>")
                 .attr("class", "manhattan")
-                .css("width",
+                .css("min-width",
                     Math.min($el.width()-80,
                         genomePixelWidth(self.model.get('chromosomes'))))
-                .css("height", "400px")
+                .css("min-height", "400px")
                 .css("position", "absolute");
             $newVis.append($("<h4>").text(traitName(this.model)));
             $el.append($newVis);

@@ -1,20 +1,21 @@
 define(['jquery', 'util/eventemitter', 'util/dragbox'],
 function ($, EventEmitter, DragBox) {
 
-    function ManhattanPlot(element, args) {
+    function ManhattanPlot(parent) {
         var self = this;
-
+        parent = $(parent);
+        var $element = $("<div>").height(parent.height());
+        parent.append($element);
         var canvasWidth, canvasHeight;
         var ctx;
         var canvas;
         var totalLen = 0;
-        var sc = 2;
         var RADIUS = 2;
         var DRAW_DISCS = true;
         var XGUTTER = 10;
-        var colorByDensity = true;
         var PINTENSITY = 0.4;
-        var RGB_STRING = "rgb({0}, {1}, {2})";
+        var YAXIS_WIDTH = 60;
+        var XAXIS_HEIGHT = 50;
         
         var chrOrder = [];
         var chrIndex = [];
@@ -41,29 +42,42 @@ function ($, EventEmitter, DragBox) {
         
         self.display = function (args) {
             args = (args || {});
-            var $element = $(element);
-            var div = $('<div></div>').css("position", "relative");
-            $element.append(div);
-            canvasHeight = Math.max($element.height(), 500);
-            canvasWidth  = Math.max($element.width(), 300);
-            var addCanvas = function (id) {
-                var c = $("<canvas>")
-                    .attr("id", id)
-                    .attr("width", canvasWidth)
-                    .attr("height", canvasHeight)
-                    .css("position", "absolute")
-                    .css("left", 0)
-                    .css("top", 0)
-                    .css("z-index", 1);
-                div.append(c);
-                return c;
-            };
-            canvas  = addCanvas($element.attr("id") + "-canvas");
-            div.height(canvasHeight);
+            $element.empty();
+            var containerHeight = $element.height();
+            var containerWidth  = $element.width();
+            canvasHeight = containerHeight - XAXIS_HEIGHT;
+            canvasWidth  = containerWidth - YAXIS_WIDTH;
+            $element.css("position", "relative")
+                .width(containerWidth)
+                .height(containerHeight);
+            var plotArea =
+                $('<div>').css("position", "absolute").css("right", 0);
+            var yAxis =
+                $('<div>').css("position", "absolute");
+            var xAxis =
+                $('<div>').css("position", "absolute")
+                .css("bottom", 0).css("right", 0);
+            plotArea.width(canvasWidth).height(canvasHeight);
+            yAxis.width(YAXIS_WIDTH).height(canvasHeight);
+            xAxis.width(canvasWidth).height(XAXIS_HEIGHT);
+            xAxis.css("background-color", "#FAA");
+yAxis.css("background-color", "#FCC");
+$element.css('background-color', "#FEE");
+            canvas = $("<canvas>")
+                .attr("width", canvasWidth)
+                .attr("height", canvasHeight)
+                .css("position", "absolute")
+                .css("left", 0)
+                .css("top", 0)
+                .css("z-index", 1)
+            plotArea.append(canvas);
+            $element.append(yAxis);
+            $element.append(plotArea);
+            $element.append(xAxis);
 
             ctx  = canvas[0].getContext('2d');
 
-            var dragbox = new DragBox(div);
+            var dragbox = new DragBox(plotArea);
             dragbox.pinpointHandler(function (x, y) {
                 self.emit("pinpoint", [canvasToScore(y), canvasToChr(x, x)]);
             });
