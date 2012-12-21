@@ -1,80 +1,104 @@
 
 
-function G2P(url) {
+function Genotype_PhenotypeAPI(url) {
 
     var _url = url;
 
 
-    this.get_all_experiments = function(kb_genome)
+    this.get_experiments = function(kb_genome)
     {
-	var resp = json_call_ajax_sync("G2P.get_all_experiments", [kb_genome]);
-//	var resp = json_call_sync("G2P.get_all_experiments", [kb_genome]);
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.get_experiments", [kb_genome]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.get_experiments", [kb_genome]);
         return resp[0];
     }
 
-    this.get_all_experiments_async = function(kb_genome, _callback, _error_callback)
+    this.get_experiments_async = function(kb_genome, _callback, _error_callback)
     {
-	json_call_ajax_async("G2P.get_all_experiments", [kb_genome], 1, _callback, _error_callback)
+	json_call_ajax_async("Genotype_PhenotypeAPI.get_experiments", [kb_genome], 1, _callback, _error_callback)
+    }
+
+    this.get_traits = function(kb_study_experiment)
+    {
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.get_traits", [kb_study_experiment]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.get_traits", [kb_study_experiment]);
+        return resp[0];
+    }
+
+    this.get_traits_async = function(kb_study_experiment, _callback, _error_callback)
+    {
+	json_call_ajax_async("Genotype_PhenotypeAPI.get_traits", [kb_study_experiment], 1, _callback, _error_callback)
     }
 
     this.traits_to_variations = function(trait, pvaluecutoff)
     {
-	var resp = json_call_ajax_sync("G2P.traits_to_variations", [trait, pvaluecutoff]);
-//	var resp = json_call_sync("G2P.traits_to_variations", [trait, pvaluecutoff]);
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.traits_to_variations", [trait, pvaluecutoff]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.traits_to_variations", [trait, pvaluecutoff]);
         return resp[0];
     }
 
     this.traits_to_variations_async = function(trait, pvaluecutoff, _callback, _error_callback)
     {
-	json_call_ajax_async("G2P.traits_to_variations", [trait, pvaluecutoff], 1, _callback, _error_callback)
+	json_call_ajax_async("Genotype_PhenotypeAPI.traits_to_variations", [trait, pvaluecutoff], 1, _callback, _error_callback)
     }
 
     this.chromosome_position_from_variation_details = function(variation_details)
     {
-	var resp = json_call_ajax_sync("G2P.chromosome_position_from_variation_details", [variation_details]);
-//	var resp = json_call_sync("G2P.chromosome_position_from_variation_details", [variation_details]);
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.chromosome_position_from_variation_details", [variation_details]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.chromosome_position_from_variation_details", [variation_details]);
         return resp[0];
     }
 
     this.chromosome_position_from_variation_details_async = function(variation_details, _callback, _error_callback)
     {
-	json_call_ajax_async("G2P.chromosome_position_from_variation_details", [variation_details], 1, _callback, _error_callback)
-    }
-
-    this.variations_to_genes = function(arg_1, distance)
-    {
-	var resp = json_call_ajax_sync("G2P.variations_to_genes", [arg_1, distance]);
-//	var resp = json_call_sync("G2P.variations_to_genes", [arg_1, distance]);
-        return resp[0];
-    }
-
-    this.variations_to_genes_async = function(arg_1, distance, _callback, _error_callback)
-    {
-	json_call_ajax_async("G2P.variations_to_genes", [arg_1, distance], 1, _callback, _error_callback)
-    }
-
-    this.find_common_snps = function(arg_1)
-    {
-	var resp = json_call_ajax_sync("G2P.find_common_snps", [arg_1]);
-//	var resp = json_call_sync("G2P.find_common_snps", [arg_1]);
-        return resp[0];
-    }
-
-    this.find_common_snps_async = function(arg_1, _callback, _error_callback)
-    {
-	json_call_ajax_async("G2P.find_common_snps", [arg_1], 1, _callback, _error_callback)
+	json_call_ajax_async("Genotype_PhenotypeAPI.chromosome_position_from_variation_details", [variation_details], 1, _callback, _error_callback)
     }
 
     this.traits_to_genes = function(trait, pvaluecutoff, distance)
     {
-	var resp = json_call_ajax_sync("G2P.traits_to_genes", [trait, pvaluecutoff, distance]);
-//	var resp = json_call_sync("G2P.traits_to_genes", [trait, pvaluecutoff, distance]);
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.traits_to_genes", [trait, pvaluecutoff, distance]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.traits_to_genes", [trait, pvaluecutoff, distance]);
         return resp[0];
     }
 
     this.traits_to_genes_async = function(trait, pvaluecutoff, distance, _callback, _error_callback)
     {
-	json_call_ajax_async("G2P.traits_to_genes", [trait, pvaluecutoff, distance], 1, _callback, _error_callback)
+	json_call_ajax_async("Genotype_PhenotypeAPI.traits_to_genes", [trait, pvaluecutoff, distance], 1, _callback, _error_callback)
+    }
+
+    this.variations_to_genes = function(chromosomal_positions, distance)
+    {
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.variations_to_genes", [chromosomal_positions, distance]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.variations_to_genes", [chromosomal_positions, distance]);
+        return resp[0];
+    }
+
+    this.variations_to_genes_async = function(chromosomal_positions, distance, _callback, _error_callback)
+    {
+	json_call_ajax_async("Genotype_PhenotypeAPI.variations_to_genes", [chromosomal_positions, distance], 1, _callback, _error_callback)
+    }
+
+    this.find_common_snps = function(trait_list_pvalue)
+    {
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.find_common_snps", [trait_list_pvalue]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.find_common_snps", [trait_list_pvalue]);
+        return resp[0];
+    }
+
+    this.find_common_snps_async = function(trait_list_pvalue, _callback, _error_callback)
+    {
+	json_call_ajax_async("Genotype_PhenotypeAPI.find_common_snps", [trait_list_pvalue], 1, _callback, _error_callback)
+    }
+
+    this.selected_locations_to_genes = function(trait, pmin, pmax, chromosomal_locations, distance)
+    {
+	var resp = json_call_ajax_sync("Genotype_PhenotypeAPI.selected_locations_to_genes", [trait, pmin, pmax, chromosomal_locations, distance]);
+//	var resp = json_call_sync("Genotype_PhenotypeAPI.selected_locations_to_genes", [trait, pmin, pmax, chromosomal_locations, distance]);
+        return resp[0];
+    }
+
+    this.selected_locations_to_genes_async = function(trait, pmin, pmax, chromosomal_locations, distance, _callback, _error_callback)
+    {
+	json_call_ajax_async("Genotype_PhenotypeAPI.selected_locations_to_genes", [trait, pmin, pmax, chromosomal_locations, distance], 1, _callback, _error_callback)
     }
 
     function _json_call_prepare(url, method, params, async_flag)
