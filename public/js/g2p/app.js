@@ -47,6 +47,14 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     
     var cache = {};
     var Types = {};
+    
+    Types.root = Model.extend({
+        el: $("#genome-select"),
+        path: function () { return "/genome" },
+        initialize: function () {
+            this.set('itemType', 'genome');
+        }
+    });
     Types.genome = Model.extend({
         el: $("#exp-select"),
         path: function () {
@@ -112,11 +120,19 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             });
             var model = this.model;
             $el.empty();
-            model.get('items').forEach(function (i) {
-                $el.append(linkItem(
-                    "#" + model.get('itemType') + "/" + i[0], i[1]
-                ));
-            });
+            var items = model.get('items');
+            if (items.length == 0) {
+                $el.append($("<li>")
+                    .css("padding", "5px")
+                    .addClass("text-warning")
+                    .text('No ' + model.get('itemType') + 's'));
+            } else {
+                items.forEach(function (i) {
+                    $el.append(linkItem(
+                        "#" + model.get('itemType') + "/" + i[0], i[1]
+                    ));
+                });
+            }
         }
     });
     
@@ -211,4 +227,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     });
     var router = new Router;
     Backbone.history.start();
+    var rootModel = new Types.root;
+    new DropDownMenu({ model: rootModel, el: rootModel.el });
+    rootModel.fetch();
 });

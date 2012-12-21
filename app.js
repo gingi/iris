@@ -60,6 +60,16 @@ app.get('/g2p', function (req, res, next) {
 
 app.get('/charts', routes.charts);
 
+function rpcErrorHandler(response) {
+    return function (err) {
+        console.log("Service Error", err);
+        response.send(503, {
+            error: "Unexpected RPC service error",
+            rpc: err
+        })
+    };
+}
+
 app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
     var pcutoff = request.query.p || 1.0;
@@ -89,8 +99,8 @@ app.get('/data/trait/:id', function (request, response, next) {
                 variations: v,
                 chromosomes: chrs
             });
-        })
-    });
+        }, rpcErrorHandler(response))
+    }, rpcErrorHandler(response));
 });
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
@@ -105,7 +115,8 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         FLANKING_DISTANCE,
         function (json) {
             response.send(json);
-        }
+        },
+        rpcErrorHandler(response)
     )
 });
 
@@ -119,16 +130,29 @@ app.get('/data/genome/:id/chromosomes', function (request, response, next) {
         data.forEach(function (c) { ids.push(c[2].id); });
         cdmi.contigs_to_lengths_async(ids, function (lengths) {
             response.send(lengths);
-        });
-    });
+        }, rpcErrorHandler(response));
+    }, rpcErrorHandler(response));
 });
+
+app.get('/data/genome', function (request, response, next) {
+    response.contentType = 'json';
+    var eapi = new CDMI.CDMI_EntityAPI(CDM_API_URL);
+    eapi.all_entities_Genome_async(0, 100, ['id', 'scientific_name'], function (json) {
+        var genomes = [];
+        for (var id in json) {
+            var genome = json[id];
+            genomes.push([ genome.id, genome.scientific_name ]);
+        }
+        response.send(genomes);
+    }, rpcErrorHandler(response));
+})
 
 app.get('/data/genome/:id/experiments', function (request, response, next) {
     response.contentType = 'json';
     var api = new G2PAPI(G2P_API_URL);
     api.get_experiments_async(request.params.id, function (json) {
         response.send(json);
-    });
+    }, rpcErrorHandler(response));
 });
 
 app.get('/data/experiment/:id/traits', function (request, response, next) {
@@ -139,7 +163,7 @@ app.get('/data/experiment/:id/traits', function (request, response, next) {
             trait[1] = trait[1].replace(/:.*$/, '');
         });
         response.send(json);
-    });
+    }, rpcErrorHandler(response));
 })
 
 app.get('/data/network/random', function (request, response, next) {
@@ -183,7 +207,14 @@ app.get('/data/gene/:id/network', function (request, response, next) {
         ['GENE_CLUSTER'],
         function (data) {
             response.send(transformNetwork(data));
-        }
+        },
+        function (err) {
+        console.log("Service Error", err);
+        response.send(503, {
+            error: "Unexpected RPC service error",
+            rpc: err
+        })
+    }
     );
 });
 
