@@ -1,14 +1,12 @@
-define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
+define(['jquery', 'util/eventemitter', 'util/dragbox'],
+function ($, EventEmitter, DragBox) {
 
     function ManhattanPlot(element, args) {
         var self = this;
 
         var canvasWidth, canvasHeight;
         var ctx;
-        var ctxi;
-        var canvas, canvasi;
-        var tool = new Object();
-        tool.started = false;
+        var canvas;
         var totalLen = 0;
         var sc = 2;
         var RADIUS = 2;
@@ -61,12 +59,21 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
                 return c;
             };
             canvas  = addCanvas($element.attr("id") + "-canvas");
-            canvasi = addCanvas($element.attr("id") + "-canvasi");
             div.height(canvasHeight);
 
             ctx  = canvas[0].getContext('2d');
-            ctxi = canvasi[0].getContext('2d');
 
+            var dragbox = new DragBox(div);
+            dragbox.pinpointHandler(function (x, y) {
+                self.emit("pinpoint", [canvasToScore(y), canvasToChr(x, x)]);
+            });
+            dragbox.selectionHandler(function (x1, y1, x2, y2) {
+                self.emit("selection", [
+                    canvasToScore(y1),
+                    canvasToScore(y2),
+                    canvasToChr(x1, x2)
+                ]);
+            });
             drawManhattan();
         };
         
@@ -77,14 +84,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
 
         function drawManhattan() {
             ctx.strokeStyle = "black";
-
-            ctxi.strokeStyle = "red";
-            ctxi.fillStyle = "rgba(255,0,0,0.3)";
-
-            // add event listeners
-            canvasi.on('mousedown', startDrag);
-            canvasi.on('mousemove', moveDragEvent);
-            canvasi.on('mouseup',   releaseDragEvent);
+            
 
             var offset = XGUTTER;
             xfactor =
@@ -218,79 +218,8 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         function canvasToScore(py) {
             return maxscore * (canvasHeight - py) / canvasHeight;
         }
-
-        function startDrag(ev) {
-            if (tool.clicked) {
-                tool.clicked = false;
-                return;
-            }
-            if (ev.layerX || ev.layerX === 0) {
-                ev._x = ev.layerX;
-                ev._y = ev.layerY;
-            } else if (ev.offsetX || ev.offsetX === 0) {
-                ev._x = ev.offsetX;
-                ev._y = ev.offsetY;
-            }
-            tool.clicked = true;
-            tool.started = false;
-            tool.x = ev._x;
-            tool.y = ev._y;
-            ctxi.clearRect(0, 0, canvasWidth, canvasHeight);
-            ctxi.strokeRect(tool.x, tool.y, 1, 1);
-        }
-
-        function moveDragEvent(ev) {
-            if (!tool.clicked) return;
-            tool.started = true;
-            if (ev.layerX || ev.layerX === 0) {
-                ev._x = ev.layerX;
-                ev._y = ev.layerY;
-            } else if (ev.offsetX || ev.offsetX === 0) {
-                ev._x = ev.offsetX;
-                ev._y = ev.offsetY;
-            }
-            var x = tool.x < ev._x ? tool.x : ev._x;
-            var y = tool.y < ev._y ? tool.y : ev._y;
-            var width = Math.abs(ev._x - tool.x + 1);
-            var height = Math.abs(ev._y - tool.y + 1);
-            ctxi.clearRect(0, 0, ctxi.canvas.width, ctxi.canvas.height);
-            ctxi.fillRect(x, y, width, height);
-            ctxi.strokeRect(x, y, width, height);
-        }
-
-        function releaseDragEvent(ev) {
-            if (ev.layerX || ev.layerX === 0) {
-                ev._x = ev.layerX;
-                ev._y = ev.layerY;
-            } else if (ev.offsetX || ev.offsetX === 0) {
-                ev._x = ev.offsetX;
-                ev._y = ev.offsetY;
-            }
-            var x1 = tool.x;
-            var x2 = ev._x;
-            var y1 = tool.y;
-            var y2 = ev._y;
-            if (tool.x > ev._x) {
-                x1 = ev._x;
-                x2 = tool.x;
-            }
-            if (tool.y > ev._y) {
-                y1 = ev._y;
-                y2 = tool.y;
-            }
-            if (!tool.started) {
-                self.emit("pinpoint", [canvasToScore(y2), canvasToChr(x2, x2)]);
-            } else {
-                // need to convert x, y pixels to intervals on chromosomes and scores
-                var ranges = canvasToChr(x1, x2);
-                tool.started = false;
-                self.emit("selection", [canvasToScore(y1), canvasToScore(y2), ranges]);
-            }
-            tool.clicked = false;
-        }
     };
-    
-    $.extend(ManhattanPlot.prototype, EventEmitter);
 
+    $.extend(ManhattanPlot.prototype, EventEmitter);    
     return ManhattanPlot;
 });

@@ -98,10 +98,10 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan'],
         },
         show: function (traitId) {
             var trait = new Trait;
-            traitId = decodeURIComponent(traitId || 'kb|g.22476.trait.3');
+            traitId = decodeURIComponent(traitId || 'kb|g.22475.trait.3');
             trait.set({id: traitId});
             var mview = new ManhattanView({ model: trait, el: $("#container") });
-            trait.fetch({ data: { p: 16 } });
+            trait.fetch({ data: { p: 30 } });
         },
     });
     var router = new Router;
