@@ -12,7 +12,7 @@ var express = require('express'),
     gzippo  = require('gzippo');
 
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
-var G2P_API_URL     = 'http://140.221.84.160:7067';
+var G2P_API_URL     = 'http://140.221.84.160:7068';
 var CDM_API_URL     = 'http://140.221.84.160:7032';
 
 var ONE_YEAR = 31557600000;
@@ -91,6 +91,22 @@ app.get('/data/trait/:id', function (request, response, next) {
             });
         })
     });
+});
+
+app.get('/data/trait/:id/genes', function (request, response, next) {
+    response.contentType = 'json';
+    var FLANKING_DISTANCE = 10e5;
+    var api = G2PAPI(G2P_API_URL);
+    api.selected_locations_to_genes_async(
+        request.params.id,
+        request.query.pmin,
+        request.query.pmax,
+        request.query.locations,
+        FLANKING_DISTANCE,
+        function (json) {
+            response.send(json);
+        }
+    )
 });
 
 app.get('/data/genome/:id/chromosomes', function (request, response, next) {

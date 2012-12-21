@@ -9,14 +9,41 @@
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
     <style>
+    #container { padding-top: 40px; }
+    .manhattan { padding: 0 20px;}
     #infoBox { z-index: 10;}
     #infoBox td, #infoBox th { padding: 10px; }
     #infoBox th { text-align: left;}
     </style>
 </head>
 <body>
-    <div id="container"></div>
-    <div class="hud" id="infoBox" style="display:none;width:400px"></div>
-</div>
+    <div id="container">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+        <ul class="nav">
+            <li>
+                <form class="navbar-search" id="nav-search">
+                    <input class="search-query" placeholder="Search" type="text">
+                    <button class="btn btn-small">Lookup</button>
+                </form>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" id="dLabel" data-toggle="dropdown" data-target="#" href="#">Examples <b class="caret"></b></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a href="#kb|g.22475.trait.1">Arabidopsis Trait 1</a></li>
+                    <li><a href="#kb|g.22475.trait.2">Arabidopsis Trait 2</a></li>
+                    <li><a href="#kb|g.22475.trait.3">Arabidopsis Trait 3</a></li>
+                    <li><a href="#kb|g.22475.trait.4">Arabidopsis Trait 4</a></li>
+                    <li><a href="#kb|g.22476.trait.3">Poplar Trait 1</a></li>
+                    <li><a href="#kb|g.22476.trait.4">Poplar Trait 2</a></li>
+                    <li><a href="#kb|g.22476.trait.5">Poplar Trait 3</a></li>
+                    <li><a href="#kb|g.22476.trait.6">Poplar Trait 4</a></li>
+                </ul>
+            </li>
+        </ul>
+        </div>
+    </div>
+    </div>
+<div class="hud" id="infoBox" style="display:none;width:400px"></div>
 </body>
 </html>
