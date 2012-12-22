@@ -337,18 +337,20 @@ function randomNetwork(nNodes, nEdges, nClusters) {
 }
 
 app.get('/data/expression', function (request, response, next) {
+    var DELIM = "\r\n\r\n";
     response.writeHead(200, {
         'Content-Type': 'application/json; charset=UTF-8',
     });
-    var NUM_ROWS = 60;
-    var NUM_COLS = 60;
+    var NUM_ROWS = 80;
+    var NUM_COLS = 80;
+    var FAKE_DELAY = 1;
     var matrix = [];
     response.write(JSON.stringify({
         meta: {
             rows: NUM_ROWS,
             cols: NUM_COLS
         }
-    }) + "\r\n");
+    }) + DELIM);
     for (var i = 0; i < NUM_ROWS; i++) {
         for (var j = 0; j < NUM_COLS; j++) {
             matrix.push({ i: i, j: j, value: Math.random().toFixed(5) });
@@ -359,8 +361,8 @@ app.get('/data/expression', function (request, response, next) {
         var start = (new Date).getTime(), delay;
         do {
             delay = (new Date).getTime();
-        } while (delay < start + 3);
-        response.write(JSON.stringify(matrix[i]) + "\r\n");                
+        } while (delay < start + FAKE_DELAY);
+        response.write(JSON.stringify(matrix[i]) + DELIM);
     }
     response.end();
 });
