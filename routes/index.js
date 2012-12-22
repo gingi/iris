@@ -23,6 +23,10 @@ exports.charts = function (req, res) {
     res.render('charts', { title: 'Charts Demo' });
 };
 
+exports.heatmap = function (req, res) {
+    res.render('heatmap', { title: 'Heatmap'});
+};
+
 exports.workspace = function (req, res, widgetList) {
     res.render('workspace',
         { title: "Workspace", layout: "workspace_layout", list: widgetList });
