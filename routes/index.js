@@ -10,3 +10,7 @@ exports.index = function (req, res) {
 exports.charts = function (req, res) {
     res.render('charts', { title: 'Charts Demo' });
 };
+
+exports.heatmap = function (req, res) {
+    res.render('heatmap', { title: 'Heatmap'});
+};

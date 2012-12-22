@@ -59,6 +59,7 @@ app.get('/g2p', function (req, res, next) {
 });
 
 app.get('/charts', routes.charts);
+app.get('/heatmap', routes.heatmap);
 
 function rpcErrorHandler(response) {
     return function (err) {
@@ -334,3 +335,56 @@ function randomNetwork(nNodes, nEdges, nClusters) {
     }
     return { edges: edges, nodes: nodes };
 }
+
+app.get('/data/expression', function (request, response, next) {
+    response.writeHead(200, {
+        'Content-Type': 'application/json; charset=UTF-8',
+    });
+    var NUM_ROWS = 60;
+    var NUM_COLS = 60;
+    var matrix = [];
+    response.write(JSON.stringify({
+        meta: {
+            rows: NUM_ROWS,
+            cols: NUM_COLS
+        }
+    }) + "\r\n");
+    for (var i = 0; i < NUM_ROWS; i++) {
+        for (var j = 0; j < NUM_COLS; j++) {
+            matrix.push({ i: i, j: j, value: Math.random().toFixed(5) });
+        }
+    }
+    shuffle(matrix, NUM_ROWS * NUM_COLS);
+    for (var i = 0; i < matrix.length; i++) {
+        var start = (new Date).getTime(), delay;
+        do {
+            delay = (new Date).getTime();
+        } while (delay < start + 3);
+        response.write(JSON.stringify(matrix[i]) + "\r\n");                
+    }
+    response.end();
+});
+
+function shuffle(arr) {
+    for (var i = arr.length - 1; i >= 0; i--) {
+        var t = Math.floor(Math.random() * i);
+        var tmp = arr[i]; arr[i] = arr[t]; arr[t] = tmp;
+    }
+}
+
+app.get('/streaming', function (request, response, next) {
+    response.writeHead(200, {
+        'Content-Type': 'application/json; charset=UTF-8',
+    });
+    var counter = 0;
+    setInterval(function () {
+        if (++counter < 500) {
+            if (counter % 20 === 0) console.log("Writing %d", counter);
+            response.write(JSON.stringify({ count: counter }));
+            response.write("\n");
+        } else {
+            response.end();
+            clearTimeout(this);
+        }
+    }, 500);
+});
