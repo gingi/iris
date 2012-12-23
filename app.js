@@ -76,7 +76,19 @@ app.get('/data/trait/:id', function (request, response, next) {
     var pcutoff = request.query.p || 1.0;
     var api = G2PAPI(G2P_API_URL);
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
-    api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
+    var variationFetcher = api.traits_to_variations_async;
+    var chromosomeFetcher = cdmi.contigs_to_lengths_async;
+    if (request.params.id == 'fake') {
+        variationFetcher = function (arg1, arg2, callback) {
+            var json = require('./data/trait-variations.json');
+            callback(json);
+        };
+        chromosomeFetcher = function (arg1, callback) {
+            var json = require('./data/chromosome-lengths.json');
+            callback(json);
+        };
+    }
+    variationFetcher(request.params.id, pcutoff, function (json) {
         var chrs = [];
         var chrIndex = {};
         var maxscore = 0;
@@ -90,7 +102,7 @@ app.get('/data/trait/:id', function (request, response, next) {
             }
             v.push([chrIndex[d[0]], parseInt(d[1]), normalized]);
         });
-        cdmi.contigs_to_lengths_async(chrs, function (lengths) {
+        chromosomeFetcher(chrs, function (lengths) {
             for (var c in lengths) {
                 chrs[chrIndex[c]] = [c, parseInt(lengths[c])];
             }
