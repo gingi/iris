@@ -59,6 +59,7 @@ app.get('/g2p', function (req, res, next) {
 });
 
 app.get('/charts', routes.charts);
+app.get('/heatmap', routes.heatmap);
 
 function rpcErrorHandler(response) {
     return function (err) {
@@ -75,7 +76,19 @@ app.get('/data/trait/:id', function (request, response, next) {
     var pcutoff = request.query.p || 1.0;
     var api = G2PAPI(G2P_API_URL);
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
-    api.traits_to_variations_async(request.params.id, pcutoff, function (json) {
+    var variationFetcher = api.traits_to_variations_async;
+    var chromosomeFetcher = cdmi.contigs_to_lengths_async;
+    if (request.params.id == 'fake') {
+        variationFetcher = function (arg1, arg2, callback) {
+            var json = require('./data/trait-variations.json');
+            callback(json);
+        };
+        chromosomeFetcher = function (arg1, callback) {
+            var json = require('./data/chromosome-lengths.json');
+            callback(json);
+        };
+    }
+    variationFetcher(request.params.id, pcutoff, function (json) {
         var chrs = [];
         var chrIndex = {};
         var maxscore = 0;
@@ -89,7 +102,7 @@ app.get('/data/trait/:id', function (request, response, next) {
             }
             v.push([chrIndex[d[0]], parseInt(d[1]), normalized]);
         });
-        cdmi.contigs_to_lengths_async(chrs, function (lengths) {
+        chromosomeFetcher(chrs, function (lengths) {
             for (var c in lengths) {
                 chrs[chrIndex[c]] = [c, parseInt(lengths[c])];
             }
@@ -334,3 +347,58 @@ function randomNetwork(nNodes, nEdges, nClusters) {
     }
     return { edges: edges, nodes: nodes };
 }
+
+app.get('/data/expression', function (request, response, next) {
+    var DELIM = "\r\n\r\n";
+    response.writeHead(200, {
+        'Content-Type': 'application/json; charset=UTF-8',
+    });
+    var NUM_ROWS = 80;
+    var NUM_COLS = 80;
+    var FAKE_DELAY = 1;
+    var matrix = [];
+    response.write(JSON.stringify({
+        meta: {
+            rows: NUM_ROWS,
+            cols: NUM_COLS
+        }
+    }) + DELIM);
+    for (var i = 0; i < NUM_ROWS; i++) {
+        for (var j = 0; j < NUM_COLS; j++) {
+            matrix.push({ i: i, j: j, value: Math.random().toFixed(5) });
+        }
+    }
+    shuffle(matrix, NUM_ROWS * NUM_COLS);
+    for (var i = 0; i < matrix.length; i++) {
+        var start = (new Date).getTime(), delay;
+        do {
+            delay = (new Date).getTime();
+        } while (delay < start + FAKE_DELAY);
+        response.write(JSON.stringify(matrix[i]) + DELIM);
+    }
+    response.end();
+});
+
+function shuffle(arr) {
+    for (var i = arr.length - 1; i >= 0; i--) {
+        var t = Math.floor(Math.random() * i);
+        var tmp = arr[i]; arr[i] = arr[t]; arr[t] = tmp;
+    }
+}
+
+app.get('/streaming', function (request, response, next) {
+    response.writeHead(200, {
+        'Content-Type': 'application/json; charset=UTF-8',
+    });
+    var counter = 0;
+    setInterval(function () {
+        if (++counter < 500) {
+            if (counter % 20 === 0) console.log("Writing %d", counter);
+            response.write(JSON.stringify({ count: counter }));
+            response.write("\n");
+        } else {
+            response.end();
+            clearTimeout(this);
+        }
+    }, 500);
+});
