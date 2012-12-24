@@ -1,5 +1,17 @@
 define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/Scale'],
 function ($, EventEmitter, DragBox, Scale) {
+    function createCanvas(container) {
+        var canvas = $("<canvas>")
+            .attr("width", container.width())
+            .attr("height", container.height())
+            .css("position", "absolute")
+            .css("left", 0)
+            .css("top", 0)
+            .css("z-index", 1);
+        container.append(canvas);
+        return canvas[0].getContext('2d');
+    }
+    
     function ManhattanPlot(parent) {
         var self = this;
         var $element;
@@ -8,7 +20,6 @@ function ($, EventEmitter, DragBox, Scale) {
             xAxis = new Scale();
         var canvasWidth, canvasHeight;
         var ctx;
-        var canvas;
         var genomeLength = 0;
         var RADIUS = 2;
         var DRAW_DISCS = true;
@@ -66,23 +77,15 @@ function ($, EventEmitter, DragBox, Scale) {
             plotArea.width(canvasWidth).height(canvasHeight);
             yAxisArea.width(YAXIS_WIDTH).height(canvasHeight);
             xAxisArea.width(canvasWidth).height(XAXIS_HEIGHT);
-xAxisArea.css("background-color", "#FEE");
-yAxisArea.css("background-color", "#FEE");
+// xAxisArea.css("background-color", "#FEE");
+// yAxisArea.css("background-color", "#FEE");
 // $element.css('background-color', "#FEE");
-            canvas = $("<canvas>")
-                .attr("width", canvasWidth)
-                .attr("height", canvasHeight)
-                .css("position", "absolute")
-                .css("left", 0)
-                .css("top", 0)
-                .css("z-index", 1)
-            plotArea.append(canvas);
+            ctx = createCanvas(plotArea);
             $element.append(yAxisArea);
             $element.append(plotArea);
             $element.append(xAxisArea);
-            setAxes();
-
-            ctx  = canvas[0].getContext('2d');
+            setRanges();
+            drawAxes(xAxisArea, yAxisArea);
 
             var dragbox = new DragBox(plotArea);
             dragbox.pinpointHandler(function (x, y) {
@@ -98,17 +101,36 @@ yAxisArea.css("background-color", "#FEE");
             drawManhattan();
         };
         
-        function setAxes() {
+        function setRanges() {
             var yAxisMax = Math.ceil(maxscore) + 1;
             yAxis.domain([0, yAxisMax]);
             yAxis.range([canvasHeight, 0]);
             
             if (genomeLength == 0) {
-                throw new Error("setAxes: Chromosome data not set");
+                throw new Error("setRanges: Chromosome data not set");
             }
             
             xAxis.domain([0, genomeLength]);
             xAxis.range([0, canvasWidth - (chrOrder.length + 1) * XGUTTER]);
+        }
+        
+        function drawAxes(xaxis, yaxis) {
+            var AXIS_OFFSET = 3;
+            var AXIS_COLOR  = '#999';
+            var xContext = createCanvas(xaxis);
+            var yContext = createCanvas(yaxis);
+            
+            xContext.strokeStyle = AXIS_COLOR;
+            xContext.beginPath();
+            xContext.moveTo(0,             AXIS_OFFSET);
+            xContext.lineTo(xaxis.width(), AXIS_OFFSET);
+            xContext.stroke();
+            
+            yContext.strokeStyle = AXIS_COLOR;
+            yContext.beginPath();
+            yContext.moveTo(yaxis.width() - AXIS_OFFSET, 0);
+            yContext.lineTo(yaxis.width() - AXIS_OFFSET, yaxis.height());
+            yContext.stroke();
         }
         
         function color(r, cc, c) {
