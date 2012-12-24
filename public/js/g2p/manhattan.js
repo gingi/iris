@@ -1,15 +1,15 @@
-define(['jquery', 'util/eventemitter', 'util/dragbox'],
-function ($, EventEmitter, DragBox) {
-
+define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/Scale'],
+function ($, EventEmitter, DragBox, Scale) {
     function ManhattanPlot(parent) {
         var self = this;
-        parent = $(parent);
-        var $element = $("<div>").height(parent.height());
-        parent.append($element);
+        var $element;
+        
+        var yAxis = new Scale(),
+            xAxis = new Scale();
         var canvasWidth, canvasHeight;
         var ctx;
         var canvas;
-        var totalLen = 0;
+        var genomeLength = 0;
         var RADIUS = 2;
         var DRAW_DISCS = true;
         var XGUTTER = 10;
@@ -21,7 +21,13 @@ function ($, EventEmitter, DragBox) {
         var chrIndex = [];
 
         var chromosomes, variations, maxscore, chrXsize;
-        var xfactor, yfactor; 
+
+        (function init() {
+            parent = $(parent);
+            $element = $("<div>").height(parent.height());
+            parent.append($element);
+        })();
+        
         self.setData = function (data) {
             chromosomes = {};
             for (var i = 0; i < data.chromosomes.length; i++) {
@@ -31,7 +37,7 @@ function ($, EventEmitter, DragBox) {
                 chromosomes[name] = { len: length };
                 chrIndex.push(name);
                 chrOrder.push(name);
-                totalLen += length;
+                genomeLength += length;
             }
             chrOrder = chrOrder.sort(function (a, b) {
                 return chromosomes[b].len - chromosomes[a].len;
@@ -52,17 +58,17 @@ function ($, EventEmitter, DragBox) {
                 .height(containerHeight);
             var plotArea =
                 $('<div>').css("position", "absolute").css("right", 0);
-            var yAxis =
+            var yAxisArea =
                 $('<div>').css("position", "absolute");
-            var xAxis =
+            var xAxisArea =
                 $('<div>').css("position", "absolute")
                 .css("bottom", 0).css("right", 0);
             plotArea.width(canvasWidth).height(canvasHeight);
-            yAxis.width(YAXIS_WIDTH).height(canvasHeight);
-            xAxis.width(canvasWidth).height(XAXIS_HEIGHT);
-            xAxis.css("background-color", "#FAA");
-yAxis.css("background-color", "#FCC");
-$element.css('background-color', "#FEE");
+            yAxisArea.width(YAXIS_WIDTH).height(canvasHeight);
+            xAxisArea.width(canvasWidth).height(XAXIS_HEIGHT);
+xAxisArea.css("background-color", "#FEE");
+yAxisArea.css("background-color", "#FEE");
+// $element.css('background-color', "#FEE");
             canvas = $("<canvas>")
                 .attr("width", canvasWidth)
                 .attr("height", canvasHeight)
@@ -71,9 +77,10 @@ $element.css('background-color', "#FEE");
                 .css("top", 0)
                 .css("z-index", 1)
             plotArea.append(canvas);
-            $element.append(yAxis);
+            $element.append(yAxisArea);
             $element.append(plotArea);
-            $element.append(xAxis);
+            $element.append(xAxisArea);
+            setAxes();
 
             ctx  = canvas[0].getContext('2d');
 
@@ -91,23 +98,33 @@ $element.css('background-color', "#FEE");
             drawManhattan();
         };
         
+        function setAxes() {
+            var yAxisMax = Math.ceil(maxscore) + 1;
+            yAxis.domain([0, yAxisMax]);
+            yAxis.range([canvasHeight, 0]);
+            
+            if (genomeLength == 0) {
+                throw new Error("setAxes: Chromosome data not set");
+            }
+            
+            xAxis.domain([0, genomeLength]);
+            xAxis.range([0, canvasWidth - (chrOrder.length + 1) * XGUTTER]);
+        }
         
         function color(r, cc, c) {
             return cc.min[c] + Math.floor(r * cc.range[c]);
         }
 
         function drawManhattan() {
-            ctx.strokeStyle = "black";
-            
-
             var offset = XGUTTER;
-            xfactor =
-                (canvasWidth - (XGUTTER * chrIndex.length - 1)) / totalLen;
-            yfactor = canvasHeight / maxscore;
             for (var i = 0; i < chrOrder.length; i++) {
                 var chr = chrOrder[i];
-                chromosomes[chr].offset = offset;
-                offset += xfactor * chromosomes[chr].len + XGUTTER;
+                var scale = chromosomes[chr].scale = new Scale();
+                var lenPx = xAxis.toRange(chromosomes[chr].len);
+                scale.domain([0, chromosomes[chr].len]);
+                scale.range([offset, offset + lenPx]);
+                chromosomes[chr].offset = offset + XGUTTER;
+                offset += lenPx + XGUTTER;
 
                 if (i % 2 === 0) {
                     chromosomes[chr].color = {
@@ -139,14 +156,14 @@ $element.css('background-color', "#FEE");
             // create a 2D histogram
 			var histogram = new Object();
 			var x2color = new Object();
-			var max_tally=1;
+			var maxTally=1;
 			for (var i = 0; i < variations.length; i++) {
 				var chrN   = variations[i][0];
 				var xcoord = variations[i][1];
 				var ycoord = variations[i][2];
 				var chr    = chromosomes[chrIndex[chrN]];
-				var x      = chr.offset + xfactor * xcoord;
-				var y      = canvasHeight - yfactor * ycoord;
+				var x      = chr.scale.toRange(xcoord);
+				var y      = yAxis.toRange(ycoord);
 				var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
 				var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
 				x2color[xbin] = chr.color;
@@ -160,15 +177,15 @@ $element.css('background-color', "#FEE");
 					histogram[xbin] = new Object();
 					histogram[xbin][ybin] = 1;
 				}
-				if (histogram[xbin][ybin] > max_tally) {
-					max_tally = histogram[xbin][ybin];
+				if (histogram[xbin][ybin] > maxTally) {
+					maxTally = histogram[xbin][ybin];
 				}
 			}
 
 			for (var x in histogram) {
 				var chrcolor = x2color[x];
 				for (var y in histogram[x]) {
-					var ratio = histogram[x][y]/max_tally;
+					var ratio = histogram[x][y]/maxTally;
 					var r = color(ratio, chrcolor, 0);
 					var g = color(ratio, chrcolor, 1);
 					var b = color(ratio, chrcolor, 2);
@@ -193,7 +210,7 @@ $element.css('background-color', "#FEE");
             var aChr = 0;
             var bChr = 0;
             var gutters = (chrIndex.length + 1) * XGUTTER;
-            var nt2px = (canvasWidth - gutters) / totalLen;
+            var nt2px = (canvasWidth - gutters) / genomeLength;
             var aPos, bPos;
             for (i = 0; i < chrOrder.length; i++) {
     			var chr = chrOrder[i];
@@ -230,7 +247,7 @@ $element.css('background-color', "#FEE");
         }
 
         function canvasToScore(py) {
-            return maxscore * (canvasHeight - py) / canvasHeight;
+            return yAxis.toDomain(py);
         }
     };
 
