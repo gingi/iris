@@ -1,13 +1,14 @@
 define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/Scale'],
 function ($, EventEmitter, DragBox, Scale) {
-    function createCanvas(container) {
+    function createCanvas(container, options) {
+        options = (options || {})
         var canvas = $("<canvas>")
             .attr("width", container.width())
             .attr("height", container.height())
             .css("position", "absolute")
             .css("left", 0)
             .css("top", 0)
-            .css("z-index", 1);
+            .css("z-index", options.z || 10);
         container.append(canvas);
         return canvas[0].getContext('2d');
     }
@@ -25,8 +26,8 @@ function ($, EventEmitter, DragBox, Scale) {
         var DRAW_DISCS = true;
         var XGUTTER = 10;
         var PINTENSITY = 0.4;
-        var YAXIS_WIDTH = 60;
-        var XAXIS_HEIGHT = 50;
+        var YAXIS_WIDTH = 10;
+        var XAXIS_HEIGHT = 100;
         
         var chrOrder = [];
         var chrIndex = [];
@@ -43,8 +44,8 @@ function ($, EventEmitter, DragBox, Scale) {
             chromosomes = {};
             for (var i = 0; i < data.chromosomes.length; i++) {
                 var chr = data.chromosomes[i];
-                var name = chr[0];
-                var length = chr[1];
+                var name = chr["name"];
+                var length = chr["len"];
                 chromosomes[name] = { len: length };
                 chrIndex.push(name);
                 chrOrder.push(name);
@@ -63,31 +64,19 @@ function ($, EventEmitter, DragBox, Scale) {
             var containerHeight = $element.height();
             var containerWidth  = $element.width();
             canvasHeight = containerHeight - XAXIS_HEIGHT;
-            canvasWidth  = containerWidth - YAXIS_WIDTH;
+            canvasWidth  = containerWidth  - YAXIS_WIDTH;
             $element.css("position", "relative")
                 .width(containerWidth)
                 .height(containerHeight);
             var plotArea =
                 $('<div>').css("position", "absolute").css("right", 0);
-            var yAxisArea =
-                $('<div>').css("position", "absolute");
-            var xAxisArea =
-                $('<div>').css("position", "absolute")
-                .css("bottom", 0).css("right", 0);
             plotArea.width(canvasWidth).height(canvasHeight);
-            yAxisArea.width(YAXIS_WIDTH).height(canvasHeight);
-            xAxisArea.width(canvasWidth).height(XAXIS_HEIGHT);
-// xAxisArea.css("background-color", "#FEE");
-// yAxisArea.css("background-color", "#FEE");
-// $element.css('background-color', "#FEE");
             ctx = createCanvas(plotArea);
-            $element.append(yAxisArea);
             $element.append(plotArea);
-            $element.append(xAxisArea);
             setRanges();
-            drawAxes(xAxisArea, yAxisArea);
+            drawAxes();
 
-            var dragbox = new DragBox(plotArea);
+            var dragbox = new DragBox(plotArea, { z: 10 });
             dragbox.pinpointHandler(function (x, y) {
                 self.emit("pinpoint", [canvasToScore(y), canvasToChr(x, x)]);
             });
@@ -114,23 +103,38 @@ function ($, EventEmitter, DragBox, Scale) {
             xAxis.range([0, canvasWidth - (chrOrder.length + 1) * XGUTTER]);
         }
         
-        function drawAxes(xaxis, yaxis) {
-            var AXIS_OFFSET = 3;
-            var AXIS_COLOR  = '#999';
-            var xContext = createCanvas(xaxis);
-            var yContext = createCanvas(yaxis);
+        function drawAxes() {
+            var offset = 0;
+            var AXIS_COLOR  = '#CCC';
+            var axisContext = createCanvas($element, { z: 1 });
             
-            xContext.strokeStyle = AXIS_COLOR;
-            xContext.beginPath();
-            xContext.moveTo(0,             AXIS_OFFSET);
-            xContext.lineTo(xaxis.width(), AXIS_OFFSET);
-            xContext.stroke();
+            axisContext.strokeStyle = AXIS_COLOR;
+            axisContext.fillStyle = AXIS_COLOR;
+            axisContext.beginPath();
+            axisContext.moveTo(YAXIS_WIDTH - offset, 0);
+            axisContext.lineTo(YAXIS_WIDTH - offset, canvasHeight + offset);
+            axisContext.lineTo($element.width(),     canvasHeight + offset);
+            axisContext.stroke();
+            axisContext.closePath();
             
-            yContext.strokeStyle = AXIS_COLOR;
-            yContext.beginPath();
-            yContext.moveTo(yaxis.width() - AXIS_OFFSET, 0);
-            yContext.lineTo(yaxis.width() - AXIS_OFFSET, yaxis.height());
-            yContext.stroke();
+            function label(text, x, y) {
+                axisContext.save();
+                axisContext.translate(x, y);
+                axisContext.rotate(Math.PI/2);
+                axisContext.textAlign = "left";
+                axisContext.textBaseline = "middle";
+                axisContext.fillText(text, 0, 0);
+                axisContext.restore();
+            }
+            
+            var labelOffset = YAXIS_WIDTH + XGUTTER;
+            chrOrder.forEach(function (name) {
+                var chr = chromosomes[name];
+                var chrWidth = xAxis.toRange(chr.len);
+                var origin = labelOffset + chrWidth / 2;
+                label(name, origin, canvasHeight + offset + 3);
+                labelOffset += chrWidth + XGUTTER;
+            });
         }
         
         function color(r, cc, c) {

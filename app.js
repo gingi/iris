@@ -97,15 +97,21 @@ app.get('/data/trait/:id', function (request, response, next) {
             var normalized = -Math.log(parseFloat(d[2]));
             maxscore = Math.max(maxscore, normalized);
             if (chrIndex[d[0]] == null) {
-                chrs.push(d[0]);
+                chrs.push([d[0], d[3]]);
                 chrIndex[d[0]] = chrs.length - 1;
             }
             v.push([chrIndex[d[0]], parseInt(d[1]), normalized]);
         });
         chromosomeFetcher(chrs, function (lengths) {
             for (var c in lengths) {
-                chrs[chrIndex[c]] = [c, parseInt(lengths[c])];
+                var old = chrs[chrIndex[c]];
+                chrs[chrIndex[c]] = {
+                    id: c,
+                    name: old[1],
+                    len: parseInt(lengths[c])
+                };
             }
+            // console.log("Chrs")
             response.send({
                 id: request.params.id,
                 maxscore: maxscore,
