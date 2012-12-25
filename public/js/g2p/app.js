@@ -98,7 +98,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     }
     function genomePixelWidth(chromosomes) {
         var genomeLength = 0;
-        chromosomes.forEach(function (c) { genomeLength += c[1] });
+        chromosomes.forEach(function (c) { genomeLength += c.len });
         return Math.floor(genomeLength / BP2PX);
     }
     
