@@ -1,6 +1,7 @@
 define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
-    function DragBox(element) {
+    function DragBox(element, options) {
         var self = this;
+        options = (options || {})
         element = $(element);
 
         var tool = new Object();
@@ -17,7 +18,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             .css("position", "absolute")
             .css("left", 0)
             .css("top", 0)
-            .css("z-index", 1);
+            .css("z-index", options.z || 1);
         element.append(canvas);
         
         canvas.on('mousedown', startDrag);
