@@ -137,7 +137,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     });
     
     function dismissSpinner($el) {
-        $el.find(".spinner").fadeOut(function () { $(this).remove() });
+        $el.find(".spinnerContainer").fadeOut(function () { $(this).remove() });
     }
     
     var ManhattanView = Backbone.View.extend({
@@ -148,6 +148,8 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             this.$el.css("position", "relative")
             $hud = $("#infoBox");
             this.$el.find(".manhattan").fadeTo(0, 0.3);
+            this.$el.find(".spinnerContainer").remove();
+            this.$el.find(".alert").remove();
             var div = $("<div>")
                 .attr("class", "spinnerContainer")
                 .css("width", this.$el.width()-80)
@@ -159,7 +161,6 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
         render: function () {
             var self = this;
             var $el = self.$el;
-            $el.find(".alert").remove();
             dismissSpinner($el);
             var $oldVis = $el.find(".manhattan");
             var $newVis = $("<div>")
@@ -218,6 +219,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
                 text = $("<pre>").text(JSON.stringify(error.responseText));
             }
             dismissSpinner(this.$el);
+            this.$el.find(".manhattan").remove();
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
         }

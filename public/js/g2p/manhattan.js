@@ -103,11 +103,16 @@ function ($, EventEmitter, DragBox, Scale) {
             xAxis.range([0, canvasWidth - (chrOrder.length + 1) * XGUTTER]);
         }
         
+        
         function drawAxes() {
             var offset = 0;
             var AXIS_COLOR  = '#CCC';
             var axisContext = createCanvas($element, { z: 1 });
             
+            function chromosomesAreWide() {
+                var shortest = chromosomes[chrOrder.slice(-1)[0]];
+                return (xAxis.toRange(shortest.len) > 20);
+            }
             axisContext.strokeStyle = AXIS_COLOR;
             axisContext.fillStyle = AXIS_COLOR;
             axisContext.beginPath();
@@ -131,12 +136,23 @@ function ($, EventEmitter, DragBox, Scale) {
                 axisContext.restore();
             }
             
+            var labeler = verticalLabel;
+            if (chromosomesAreWide()) {
+                labeler = function (text, x, y) {
+                    axisContext.save();
+                    axisContext.textAlign = "center";
+                    axisContext.textBaseline = "top";
+                    axisContext.fillText(text, x, y);
+                    axisContext.restore();
+                };
+            }
+            
             var labelOffset = YAXIS_WIDTH + XGUTTER;
             chrOrder.forEach(function (name) {
                 var chr = chromosomes[name];
                 var chrWidth = xAxis.toRange(chr.len);
                 var origin = labelOffset + chrWidth / 2;
-                verticalLabel(name, origin, canvasHeight + offset + 1);
+                labeler(name, origin, canvasHeight + offset + 1);
                 labelOffset += chrWidth + XGUTTER;
             });
             
