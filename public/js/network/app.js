@@ -10,7 +10,7 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'network/vis'],
+require(['jquery', 'backbone', 'underscore', 'renderers/network'],
     function ($, Backbone, _, NetworkVis) {
     var Network = Backbone.Model.extend({
         defaults: { name: "" },
