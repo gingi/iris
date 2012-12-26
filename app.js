@@ -252,6 +252,7 @@ app.get('/data/coexpression', function (request, response, next) {
     var genes = request.query.genes;
     if (!genes || genes.length == 0) {
         response.send([]);
+        return;
     }
     var matrix = [];
     for (var i = 0; i < genes.length; i++) {
