@@ -26,7 +26,7 @@ function ($, EventEmitter, DragBox, Scale) {
         var DRAW_DISCS = true;
         var XGUTTER = 10;
         var PINTENSITY = 0.4;
-        var YAXIS_WIDTH = 10;
+        var YAXIS_WIDTH = 30;
         var XAXIS_HEIGHT = 100;
         
         var chrOrder = [];
@@ -117,12 +117,16 @@ function ($, EventEmitter, DragBox, Scale) {
             axisContext.stroke();
             axisContext.closePath();
             
-            function label(text, x, y) {
+            function verticalLabel(text, x, y, options) {
+                options = (options || {});
                 axisContext.save();
+                if (options.callback) {
+                    options.callback(axisContext);
+                }
                 axisContext.translate(x, y);
-                axisContext.rotate(Math.PI/2);
-                axisContext.textAlign = "left";
-                axisContext.textBaseline = "middle";
+                axisContext.rotate(-Math.PI/2);
+                axisContext.textAlign = options.align || "right";
+                axisContext.textBaseline = options.baseline || "middle";
                 axisContext.fillText(text, 0, 0);
                 axisContext.restore();
             }
@@ -132,9 +136,25 @@ function ($, EventEmitter, DragBox, Scale) {
                 var chr = chromosomes[name];
                 var chrWidth = xAxis.toRange(chr.len);
                 var origin = labelOffset + chrWidth / 2;
-                label(name, origin, canvasHeight + offset + 3);
+                verticalLabel(name, origin, canvasHeight + offset + 1);
                 labelOffset += chrWidth + XGUTTER;
             });
+            
+            verticalLabel("Significance", 0, canvasHeight / 2,
+                { align: "center", baseline: "top" }
+            );
+            verticalLabel("-log10(p)", 12, canvasHeight / 2,
+                { align: "center", baseline: "top",
+                    callback: function (context) {
+                        context.font = "italic 6pt sans-serif";
+                    }
+                }
+            );
+            axisContext.textAlign = "right";
+            axisContext.textBaseline = "top";
+            axisContext.fillText(yAxis.domain()[1], YAXIS_WIDTH - 1, 0);
+            axisContext.textBaseline = "bottom";
+            axisContext.fillText(yAxis.domain()[0], YAXIS_WIDTH - 1, canvasHeight);
         }
         
         function color(r, cc, c) {

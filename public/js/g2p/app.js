@@ -136,10 +136,15 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
         }
     });
     
+    function dismissSpinner($el) {
+        $el.find(".spinner").fadeOut(function () { $(this).remove() });
+    }
+    
     var ManhattanView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
+            this.model.on('error', (this.errorHandler).bind(this));
             this.$el.css("position", "relative")
             $hud = $("#infoBox");
             this.$el.find(".manhattan").fadeTo(0, 0.3);
@@ -153,8 +158,9 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
         },
         render: function () {
             var self = this;
-            var $el = this.$el;
-            $el.find(".spinner").fadeOut(function () { $(this).remove() });
+            var $el = self.$el;
+            $el.find(".alert").remove();
+            dismissSpinner($el);
             var $oldVis = $el.find(".manhattan");
             var $newVis = $("<div>")
                 .attr("class", "manhattan")
@@ -204,6 +210,17 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             vis.on("pinpoint", function () { $hud.fadeOut(); });
             return this;
         },
+        errorHandler: function (model, error) {
+            var text = '';
+            if (error.status == '404') {
+                text = 'No variations for trait "' + model.id + '"';
+            } else {
+                text = $("<pre>").text(JSON.stringify(error.responseText));
+            }
+            dismissSpinner(this.$el);
+            this.$el.append($("<div>")
+                .addClass("alert alert-warning").html(text));
+        }
     });    
 
     var Router = Backbone.Router.extend({
