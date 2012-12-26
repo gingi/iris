@@ -1,4 +1,4 @@
-define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/Scale'],
+define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/scale'],
 function ($, EventEmitter, DragBox, Scale) {
     function createCanvas(container, options) {
         options = (options || {})
