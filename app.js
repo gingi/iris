@@ -90,6 +90,7 @@ app.get('/data/trait/:id', function (request, response, next) {
     }
     variationFetcher(request.params.id, pcutoff, function (json) {
         var chrs = [];
+        var chrInfo = {};
         var chrIndex = {};
         var maxscore = 0;
         var v = [];
@@ -97,21 +98,25 @@ app.get('/data/trait/:id', function (request, response, next) {
             var normalized = -Math.log(parseFloat(d[2]));
             maxscore = Math.max(maxscore, normalized);
             if (chrIndex[d[0]] == null) {
-                chrs.push([d[0], d[3]]);
-                chrIndex[d[0]] = chrs.length - 1;
+                chrs.push(d[0]);
+                chrIndex[d[0]] = { idx: chrs.length - 1, name: d[3] };
             }
-            v.push([chrIndex[d[0]], parseInt(d[1]), normalized]);
+            v.push([chrIndex[d[0]].idx, parseInt(d[1]), normalized]);
         });
+        if (json.length == 0) {
+            response.send(404, {
+                error: "No variations for trait " + request.params.id,
+            });
+            return;
+        }
         chromosomeFetcher(chrs, function (lengths) {
             for (var c in lengths) {
-                var old = chrs[chrIndex[c]];
-                chrs[chrIndex[c]] = {
+                chrs[chrIndex[c].idx] = {
                     id: c,
-                    name: old[1],
+                    name: chrIndex[c].name,
                     len: parseInt(lengths[c])
                 };
             }
-            // console.log("Chrs")
             response.send({
                 id: request.params.id,
                 maxscore: maxscore,
