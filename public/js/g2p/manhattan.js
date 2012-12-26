@@ -27,7 +27,7 @@ function ($, EventEmitter, DragBox, Scale) {
         var XGUTTER = 10;
         var PINTENSITY = 0.4;
         var YAXIS_WIDTH = 30;
-        var XAXIS_HEIGHT = 100;
+        var XAXIS_HEIGHT = 80;
         
         var chrOrder = [];
         var chrIndex = [];
@@ -136,16 +136,18 @@ function ($, EventEmitter, DragBox, Scale) {
                 axisContext.restore();
             }
             
-            var labeler = verticalLabel;
-            if (chromosomesAreWide()) {
-                labeler = function (text, x, y) {
-                    axisContext.save();
-                    axisContext.textAlign = "center";
-                    axisContext.textBaseline = "top";
-                    axisContext.fillText(text, x, y);
-                    axisContext.restore();
-                };
+            function horizontalLabeler(text, x, y, options) {
+                options = (options || {})
+                axisContext.save();
+                axisContext.textAlign = "center";
+                axisContext.textBaseline = options.baseline || "top";
+                axisContext.fillText(text, x, y);
+                axisContext.restore();
             }
+            
+            var horizontalChromosomes = chromosomesAreWide();
+            var labeler = horizontalChromosomes
+                ? horizontalLabeler : verticalLabel;
             
             var labelOffset = YAXIS_WIDTH + XGUTTER;
             chrOrder.forEach(function (name) {
@@ -155,6 +157,13 @@ function ($, EventEmitter, DragBox, Scale) {
                 labeler(name, origin, canvasHeight + offset + 1);
                 labelOffset += chrWidth + XGUTTER;
             });
+            horizontalLabeler("Chromosomes",
+                YAXIS_WIDTH + canvasWidth / 2,
+                horizontalChromosomes
+                    ? canvasHeight + 40
+                    : XAXIS_HEIGHT + canvasHeight - 1,
+                { baseline: "bottom" }
+            );
             
             verticalLabel("Significance", 0, canvasHeight / 2,
                 { align: "center", baseline: "top" }
