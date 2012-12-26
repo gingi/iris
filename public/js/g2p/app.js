@@ -12,7 +12,9 @@ requirejs.config({
 })
 require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     function ($, Backbone, _, ManhattanPlot, Spinner) {
-        
+    
+    var MANHATTAN_HEIGHT = "300px";
+    
     function dataAPI(path) { return "/data" + path; }
     function addSpinner(el) {
         var opts = {
@@ -45,7 +47,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
         }
     });
     
-    var cache = {};
+    var ModelCache = {};
     var Types = {};
     
     Types.root = Model.extend({
@@ -76,7 +78,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     });
     
     function traitName(trait) {
-        var experiment = cache["experiment"];
+        var experiment = ModelCache["experiment"];
         var items = experiment ? experiment.get('items') : [];
         for (var i in items) {
             if (items[i][0] == trait.id) {
@@ -153,7 +155,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             var div = $("<div>")
                 .attr("class", "spinnerContainer")
                 .css("width", this.$el.width()-80)
-                .css("height", "400px")
+                .css("height", MANHATTAN_HEIGHT)
                 .css("position", "absolute");
             this.$el.append(div);
             addSpinner(div);
@@ -168,7 +170,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
                 .css("min-width",
                     Math.min($el.width()-80,
                         genomePixelWidth(self.model.get('chromosomes'))))
-                .css("min-height", "400px")
+                .css("min-height", MANHATTAN_HEIGHT)
                 .css("position", "absolute");
             $newVis.append($("<h4>").text(traitName(this.model)));
             $el.append($newVis);
@@ -192,8 +194,6 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
                 var tbody = $("<tbody>");
                 $hud.empty();
                 $hud.append($("<table>").append(tbody));
-                row(tbody, "-log(p)<sub><i>max</i></sub>", scoreA.toFixed(2));
-                row(tbody, "-log(p)<sub><i>min</i></sub>", scoreB.toFixed(2));
                 $.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
@@ -202,9 +202,17 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
                         pmax: Math.pow(10, -scoreB),
                         locations: ranges
                     },
-                    success: function (json) {
-                        row(tbody, "genes", json.length);
+                    success: function (genes) {
+                        row(tbody, "genes", genes.length);
                         $hud.fadeIn();
+                        $.ajax({
+                            url: dataAPI('/coexpression'),
+                            dataType: 'json',
+                            data: { genes: genes },
+                            success: function (coexpression) {
+                                console.log(coexpression);
+                            }
+                        })
                     }
                 })
             });
@@ -233,7 +241,7 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
         dropdownSelect: function (type, id) {
             var model = new Types[type];
             model.set({id: decodeURIComponent(id)});
-            cache[type] = model;
+            ModelCache[type] = model;
             var view = new DropDownMenu({ model: model, el: model.el });
             model.fetch();
         },

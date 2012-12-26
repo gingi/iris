@@ -11,9 +11,15 @@
     <style>
     #container { padding-top: 40px; }
     .manhattan { margin: 0 20px;}
-    #infoBox { z-index: 10;}
-    #infoBox td, #infoBox th { padding: 10px; }
-    #infoBox th { text-align: left;}
+    #infoBox {
+        z-index: 10;
+        top: 50px;
+        right: 10px;
+        bottom: auto;
+        left: auto;
+    }
+    #infoBox td, #infoBox th { padding: 5px; }
+    #infoBox th { text-align: left; }
     </style>
 </head>
 <body>
@@ -42,6 +48,6 @@
         </div>
     </div>
     </div>
-<div class="hud" id="infoBox" style="display:none;width:400px"></div>
+<div class="hud" id="infoBox" style="display:none"></div>
 </body>
 </html>

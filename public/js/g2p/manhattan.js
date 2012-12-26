@@ -77,6 +77,11 @@ function ($, EventEmitter, DragBox, Scale) {
             drawAxes();
 
             var dragbox = new DragBox(plotArea, { z: 10 });
+            dragbox.textHandler(function (x, y, w, h) {
+                return "-log p ["
+                    + yAxis.toDomain(y).toFixed(2) + " "
+                    + yAxis.toDomain(y + h).toFixed(2) + "]"
+            });
             dragbox.pinpointHandler(function (x, y) {
                 self.emit("pinpoint", [canvasToScore(y), canvasToChr(x, x)]);
             });
@@ -168,7 +173,7 @@ function ($, EventEmitter, DragBox, Scale) {
             verticalLabel("Significance", 0, canvasHeight / 2,
                 { align: "center", baseline: "top" }
             );
-            verticalLabel("-log10(p)", 12, canvasHeight / 2,
+            verticalLabel("-log p", 12, canvasHeight / 2,
                 { align: "center", baseline: "top",
                     callback: function (context) {
                         context.font = "italic 6pt sans-serif";
