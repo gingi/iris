@@ -10,7 +10,7 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
+require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin'],
     function ($, Backbone, _, ManhattanPlot, Spinner) {
     
     var MANHATTAN_HEIGHT = "300px";
@@ -149,7 +149,9 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             this.model.on('error', (this.errorHandler).bind(this));
             this.$el.css("position", "relative")
             $hud = $("#infoBox");
+            $hud.on("click", function () { $hud.fadeOut() });
             this.$el.find(".manhattan").fadeTo(0, 0.3);
+            this.$el.find(".subview").fadeTo(0, 0.3);
             this.$el.find(".spinnerContainer").remove();
             this.$el.find(".alert").remove();
             var div = $("<div>")
@@ -165,23 +167,32 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
             var $el = self.$el;
             dismissSpinner($el);
             var $oldVis = $el.find(".manhattan");
+            $el.find(".subview").remove();
             var $newVis = $("<div>")
-                .attr("class", "manhattan")
+                .addClass("manhattan")
                 .css("min-width",
                     Math.min($el.width()-80,
                         genomePixelWidth(self.model.get('chromosomes'))))
-                .css("min-height", MANHATTAN_HEIGHT)
-                .css("position", "absolute");
-            $newVis.append($("<h4>").text(traitName(this.model)));
+                .css("height", MANHATTAN_HEIGHT)
+                .css("display", "table");
+            $newVis
+                .append($("<div>")
+                    .css("display", "table-row")
+                    .append($("<h4>").text(traitName(this.model))));
+            var $visElement = $("<div>")
+                .css("display", "table-cell")
+                .css("height", "100%")
+                .css("width", "100%");
+            $newVis.append($visElement);
             $el.append($newVis);
             
-            vis = new ManhattanPlot($newVis);
+            vis = new ManhattanPlot($visElement);
             vis.setData({
                 variations:  this.model.get('variations'),
                 chromosomes: this.model.get('chromosomes'),
                 maxscore:    this.model.get('maxscore')
             });
-            vis.display();
+            vis.render();
             if ($oldVis.length > 0) {
                 $oldVis.fadeOut(function () {
                     $newVis.fadeIn();
@@ -203,14 +214,21 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
                         locations: ranges
                     },
                     success: function (genes) {
-                        row(tbody, "genes", genes.length);
+                        if (genes.length > 0) {
+                            row(tbody, "genes", genes.length);
+                        } else {
+                            $hud.append($("<p>")
+                                .css("text-align", "center")
+                                .css("font-weight", "bold")
+                                .text("No genes found"));
+                        }
                         $hud.fadeIn();
                         $.ajax({
                             url: dataAPI('/coexpression'),
                             dataType: 'json',
                             data: { genes: genes },
                             success: function (coexpression) {
-                                console.log(coexpression);
+                                drawHeatmap(coexpression);
                             }
                         })
                     }
@@ -257,4 +275,25 @@ require(['jquery', 'backbone', 'underscore', 'g2p/manhattan', 'util/spin'],
     var rootModel = new Types.root;
     new DropDownMenu({ model: rootModel, el: rootModel.el });
     rootModel.fetch();
+    
+    
+    function drawHeatmap(data) {
+        require(['renderers/heatmap'], function (Heatmap) {
+            $("#container").find("#heatmap").remove();
+            $("#container").append($("<div>")
+                .attr("id", "heatmap")
+                .addClass("subview")
+                .css("width", "300px")
+                .css("min-height", "300px"));
+            var heatmap = new Heatmap("#heatmap");
+            try {
+                heatmap.setData({ matrix: data });
+                heatmap.render();
+            } catch (e) {
+                $("#heatmap").append($("<div>")
+                    .addClass("alert alert-error")
+                    .css("margin", "20px").html([e, "Try selecting a smaller window"].join("<br>")));
+            }
+        });
+    }
 });

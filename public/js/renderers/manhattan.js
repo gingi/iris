@@ -13,9 +13,9 @@ function ($, EventEmitter, DragBox, Scale) {
         return canvas[0].getContext('2d');
     }
     
-    function ManhattanPlot(parent) {
+    function ManhattanPlot(element) {
         var self = this;
-        var $element;
+        var $element = $(element);
         
         var yAxis = new Scale(),
             xAxis = new Scale();
@@ -33,12 +33,6 @@ function ($, EventEmitter, DragBox, Scale) {
         var chrIndex = [];
 
         var chromosomes, variations, maxscore, chrXsize;
-
-        (function init() {
-            parent = $(parent);
-            $element = $("<div>").height(parent.height());
-            parent.append($element);
-        })();
         
         self.setData = function (data) {
             chromosomes = {};
@@ -58,7 +52,7 @@ function ($, EventEmitter, DragBox, Scale) {
             maxscore    = data.maxscore;
         };
         
-        self.display = function (args) {
+        self.render = function (args) {
             args = (args || {});
             $element.empty();
             var containerHeight = $element.height();

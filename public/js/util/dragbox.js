@@ -64,7 +64,6 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             tool.started = false;
             tool.x = ev._x;
             tool.y = ev._y;
-            drawDragBox(tool.x, tool.y, 1, 1);
         }
         
 
@@ -81,16 +80,17 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         }
 
         function releaseDragEvent(ev) {
+            context.clearRect(0, 0, element.width(), element.height());
             ev._x = ev.pageX - offset.left;
             ev._y = ev.pageY - offset.top;
             var x1 = Math.min(tool.x, ev._x);
             var x2 = Math.max(tool.x, ev._x);
             var y1 = Math.min(tool.y, ev._y);
             var y2 = Math.max(tool.y, ev._y);
-            drawDragBox(x1, y1, x2 - x1 + 1, y2 - y1 + 1)
             if (!tool.started) {
                 handlers.pinpoint(x2, y2);
             } else {
+                drawDragBox(x1, y1, x2 - x1 + 1, y2 - y1 + 1)
                 tool.started = false;
                 // self.emit("selection", [x1, y1, x2, y2]);
                 handlers.selection(x1, y1, x2, y2);
