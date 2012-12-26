@@ -1,4 +1,5 @@
 define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
+    var FGCOLOR = "red";
     function DragBox(element, options) {
         var self = this;
         options = (options || {})
@@ -9,7 +10,8 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         
         var handlers = {
             selection: function () {},
-            pinpoint:  function () {}
+            pinpoint:  function () {},
+            text:      null
         };
 
         var canvas = $("<canvas>")
@@ -27,9 +29,29 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         
         var offset = element.offset();
         var context = canvas[0].getContext('2d');
-        context.strokeStyle = "red";
+        context.strokeStyle = FGCOLOR;
         context.lineWidth = 0.5;
         context.fillStyle = "rgba(255,0,0,0.2)";
+
+        function boxInfo(text, x, y) {
+            context.save();
+            context.textBaseline = 'middle';
+            context.textAlign = 'center';
+            context.fillStyle = FGCOLOR;
+            context.fillText(text, x, y);
+            context.restore();
+            
+        }
+        
+        function drawDragBox(x, y, w, h) {
+            context.clearRect(0, 0, element.width(), element.height());
+            context.fillRect(x, y, w, h);
+            context.strokeRect(x, y, w, h);
+            if (handlers.text && typeof(handlers.text) === 'function') {
+                var text = handlers.text(x, y, w, h);
+                boxInfo(text, x + w / 2, y + h / 2);
+            }
+        }
 
         function startDrag(ev) {
             if (tool.clicked) {
@@ -42,9 +64,9 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             tool.started = false;
             tool.x = ev._x;
             tool.y = ev._y;
-            context.clearRect(0, 0, element.width(), element.height());
-            context.strokeRect(tool.x, tool.y, 1, 1);
+            drawDragBox(tool.x, tool.y, 1, 1);
         }
+        
 
         function moveDragEvent(ev) {
             if (!tool.clicked) return;
@@ -55,9 +77,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             var y = Math.min(tool.y, ev._y);
             var width = Math.abs(ev._x - tool.x + 1);
             var height = Math.abs(ev._y - tool.y + 1);
-            context.clearRect(0, 0, element.width(), element.height());
-            context.fillRect(x, y, width, height);
-            context.strokeRect(x, y, width, height);
+            drawDragBox(x, y, width, height);
         }
 
         function releaseDragEvent(ev) {
@@ -67,6 +87,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             var x2 = Math.max(tool.x, ev._x);
             var y1 = Math.min(tool.y, ev._y);
             var y2 = Math.max(tool.y, ev._y);
+            drawDragBox(x1, y1, x2 - x1 + 1, y2 - y1 + 1)
             if (!tool.started) {
                 handlers.pinpoint(x2, y2);
             } else {
@@ -82,6 +103,9 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         self.pinpointHandler = function (callback) {
             handlers.pinpoint = callback;
         };
+        self.textHandler = function (callback) {
+            handlers.text = callback;
+        }
     }
     $.extend(DragBox.prototype, EventEmitter);
     return DragBox;

@@ -19,7 +19,7 @@ define(function () {
         };
         self.toDomain = function (value) {
             return _domain[0]
-                + (_domain[1] - _domain[0]) * value / (_range[1] - _range[0]);
+                + Math.abs(_domain[1] - _domain[0]) * value / Math.abs(_range[1] - _range[0]);
         };
         self.toRange = function (value) {
             return _range[0]

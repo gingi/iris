@@ -129,6 +129,17 @@ app.get('/data/trait/:id', function (request, response, next) {
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
     response.contentType = 'json';
+    if (request.params.id == 'fake') {
+        var locus = 1;
+        var genes = [];
+        request.query.locations.forEach(function () {
+            for (var i = 0; i < 10; i++) {
+                genes.push("kb|g.fake.locus." + locus++);
+            }
+        });
+        response.send(genes);
+        return;
+    }
     var FLANKING_DISTANCE = 10e5;
     var api = G2PAPI(G2P_API_URL);
     api.selected_locations_to_genes_async(
@@ -232,14 +243,25 @@ app.get('/data/gene/:id/network', function (request, response, next) {
         function (data) {
             response.send(transformNetwork(data));
         },
-        function (err) {
-        console.log("Service Error", err);
-        response.send(503, {
-            error: "Unexpected RPC service error",
-            rpc: err
-        })
-    }
+        rpcErrorHandler(response)
     );
+});
+
+app.get('/data/coexpression', function (request, response, next) {
+    response.contentType = 'json';
+    var genes = request.query.genes;
+    if (!genes || genes.length == 0) {
+        response.send([]);
+    }
+    var matrix = [];
+    for (var i = 0; i < genes.length; i++) {
+        for (var j = 0; j < genes.length; j++) {
+            if (genes[i] != genes[j]) {
+                matrix.push([genes[i], genes[j], Math.random()]);
+            }
+        }
+    }
+    response.send(matrix);
 });
 
 Object.clone = function(obj) {
