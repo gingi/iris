@@ -10,31 +10,45 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'd3', 'util/ajaxstream'], function ($, Backbone, _, d3, Stream) {
-    
-    var width = $("#container").width();
-    var height = Math.max($("#container").height(), 800);
-    var svg  = d3.select("#container").append("svg")
-        .attr("class", "GnBu")
-        .attr("width", width)
-        .attr("height", height);
-    var quantize = d3.scale.quantile().domain([0, 1]).range(d3.range(9));
-        
-    var rows = 1, cols = 1;
-    var size = 8;
-    var stream = new Stream({
-        url: "/data/expression",
-        chunk: function (json) {
-            if (json.meta) {
-                rows = json.meta.rows;
-                cols = json.meta.cols;
-            } else {
-                svg.append("rect")
-                    .attr("width", size).attr("height", size)
-                    .attr("x", (size + 0.5) * json["j"])
-                    .attr("y", (size + 0.5) * json["i"])
-                    .attr("class", "q" + quantize(json["value"]) + "-9");
+require(['jquery', 'backbone', 'underscore', 'renderers/heatmap'],
+function ($, Backbone, _, Heatmap) {
+    function randomMatrix(num) {
+        var genes = new Array(num);
+        var matrix = [];
+        for (var i = 0; i < num; i++) {
+            genes[i] = 'Gene' + (i+1);
+        }
+        for (var i = num - 1; i >= 0; i--) {
+            var j = Math.floor(Math.random() * i);
+            var tmp  = genes[j];
+            genes[j] = genes[i];
+            genes[i] = tmp;
+        }
+        for (var i = 0; i < num; i++) {
+            for (var j = 0; j < num; j++) {
+                if (i != j) {
+                    matrix.push([genes[i], genes[j], Math.random()]);
+                }
             }
         }
+        return matrix;
+    }
+    var View = Backbone.View.extend({
+        initialize: function () {
+            this.render();
+        },
+        render: function () {
+            var NUM_GENES = 10;
+            var heatmap = new Heatmap(this.$el);
+            heatmap.setData({ matrix: randomMatrix(NUM_GENES) });
+            heatmap.render();
+        }
     });
+    
+    $("#container").append(
+        $("<div>").attr("id", "heatmap")
+            .addClass("datavis").width(600).height(600)
+            .css("border", "1px dotted red"));
+    
+    new View({ el: $("#heatmap") });
 });

@@ -27,6 +27,10 @@ exports.heatmap = function (req, res) {
     res.render('heatmap', { title: 'Heatmap'});
 };
 
+exports.heatmapChunked = function (req, res) {
+    res.render('heatmap', { title: 'Heatmap', js: 'chunked' });
+};
+
 exports.workspace = function (req, res, widgetList) {
     res.render('workspace',
         { title: "Workspace", layout: "workspace_layout", list: widgetList });

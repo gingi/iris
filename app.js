@@ -60,6 +60,7 @@ app.get('/g2p', function (req, res, next) {
 
 app.get('/charts', routes.charts);
 app.get('/heatmap', routes.heatmap);
+app.get('/heatmap-chunking', routes.heatmapChunked);
 
 function rpcErrorHandler(response) {
     return function (err) {
@@ -257,7 +258,7 @@ app.get('/data/coexpression', function (request, response, next) {
     var matrix = [];
     for (var i = 0; i < genes.length; i++) {
         for (var j = 0; j < genes.length; j++) {
-            if (genes[i] != genes[j]) {
+            if (i != j) {
                 matrix.push([genes[i], genes[j], Math.random()]);
             }
         }
