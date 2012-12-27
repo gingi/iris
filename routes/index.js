@@ -12,5 +12,9 @@ exports.charts = function (req, res) {
 };
 
 exports.heatmap = function (req, res) {
-    res.render('heatmap', { title: 'Heatmap'});
+    res.render('heatmap', { title: 'Heatmap', js: 'app' });
+};
+
+exports.heatmapChunked = function (req, res) {
+    res.render('heatmap', { title: 'Heatmap', js: 'chunked' });
 };
