@@ -259,7 +259,7 @@ app.get('/data/coexpression', function (request, response, next) {
     for (var i = 0; i < genes.length; i++) {
         for (var j = 0; j < genes.length; j++) {
             if (i != j) {
-                matrix.push([genes[i], genes[j], Math.random()]);
+                matrix.push([i, j, Math.random()]);
             }
         }
     }
