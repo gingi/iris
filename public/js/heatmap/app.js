@@ -12,7 +12,7 @@ requirejs.config({
 })
 require(['jquery', 'backbone', 'underscore', 'renderers/heatmap'],
 function ($, Backbone, _, Heatmap) {
-    function randomMatrix(num) {
+    function randomData(num) {
         var genes = new Array(num);
         var matrix = [];
         for (var i = 0; i < num; i++) {
@@ -27,11 +27,11 @@ function ($, Backbone, _, Heatmap) {
         for (var i = 0; i < num; i++) {
             for (var j = 0; j < num; j++) {
                 if (i != j) {
-                    matrix.push([genes[i], genes[j], Math.random()]);
+                    matrix.push([i, j, Math.random()]);
                 }
             }
         }
-        return matrix;
+        return { rows: genes, matrix: matrix };
     }
     var View = Backbone.View.extend({
         initialize: function () {
@@ -40,15 +40,14 @@ function ($, Backbone, _, Heatmap) {
         render: function () {
             var NUM_GENES = 10;
             var heatmap = new Heatmap(this.$el);
-            heatmap.setData({ matrix: randomMatrix(NUM_GENES) });
+            heatmap.setData(randomData(NUM_GENES));
             heatmap.render();
         }
     });
     
     $("#container").append(
         $("<div>").attr("id", "heatmap")
-            .addClass("datavis").width(600).height(600)
-            .css("border", "1px dotted red"));
+            .addClass("datavis").width(600).height(600));
     
     new View({ el: $("#heatmap") });
 });
