@@ -33,3 +33,6 @@ body,html { height:100%;}
 #nodeInfo {
     font-size: 10pt;
 }
+#subviews {
+    padding: 20px;
+}

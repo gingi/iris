@@ -138,6 +138,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
         }
     });
     
+    function subviewBar() {
+        return $("<div>")
+            .attr("id", "subviews")
+            .addClass("row")
+            .height(400);
+    }
+    
     function dismissSpinner($el) {
         $el.find(".spinnerContainer").fadeOut(function () { $(this).remove() });
     }
@@ -151,7 +158,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             $hud = $("#infoBox");
             $hud.on("click", function () { $hud.fadeOut() });
             this.$el.find(".manhattan").fadeTo(0, 0.3);
-            this.$el.find(".subview").fadeTo(0, 0.3);
+            $("#subviews").fadeTo(0, 0.3);
             this.$el.find(".spinnerContainer").remove();
             this.$el.find(".alert").remove();
             var div = $("<div>")
@@ -185,6 +192,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                 .css("width", "100%");
             $newVis.append($visElement);
             $el.append($newVis);
+            $el.append(subviewBar());
             
             vis = new ManhattanPlot($visElement);
             vis.setData({
@@ -279,11 +287,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     
     function drawHeatmap(data) {
         require(['renderers/heatmap'], function (Heatmap) {
-            $("#container").find("#heatmap").remove();
-            $("#container").append($("<div>")
+            $("#subviews").find("#heatmap").remove();
+            $("#subviews").append($("<div>")
                 .attr("id", "heatmap")
                 .addClass("subview")
-                .css("width", "300px")
+                .addClass("span4")
                 .css("min-height", "300px"));
             var heatmap = new Heatmap("#heatmap");
             try {
