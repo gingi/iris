@@ -236,7 +236,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                             dataType: 'json',
                             data: { genes: genes },
                             success: function (coexpression) {
-                                drawHeatmap(coexpression);
+                                drawHeatmap({ rows: genes, matrix: coexpression });
                             }
                         })
                     }
@@ -295,7 +295,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                 .css("min-height", "300px"));
             var heatmap = new Heatmap("#heatmap");
             try {
-                heatmap.setData({ matrix: data });
+                heatmap.setData(data);
                 heatmap.render();
             } catch (e) {
                 $("#heatmap").append($("<div>")

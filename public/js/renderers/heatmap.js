@@ -1,6 +1,9 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MAX_CELLS = 6400; // 80 x 80
     var BORDER_WIDTH = 0.5;
+    function requiredProperty(object, property) {
+        
+    }
 	function Heatmap(element, options) {
         var self = this;
         element = $(element);
@@ -17,22 +20,27 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
         
         self.setData = function (data) {
             if (data == null) return;
-            if (!data.hasOwnProperty('matrix')) {
-                throw new Error("setData(): Required property 'matrix' not found");
+            function requiredProperty(prop) {
+                if (!data.hasOwnProperty(prop)) {
+                    throw new Error("setData(): Required property '"
+                        + prop + "' not found");
+                }
+            }
+            requiredProperty('matrix');
+            requiredProperty('rows');
+            rows = data.rows;
+            if (!data.hasOwnProperty('columns')) {
+                columns = rows;
             }
             matrix = data.matrix;
             if (matrix.length > MAX_CELLS) {
                 throw new Error("Too many cells");
             }
-            matrix.forEach(function (e) {
-                if (rowIndex[e[0]] == null) rowIndex[e[0]] = (++numRows - 1);
-                if (colIndex[e[1]] == null) colIndex[e[1]] = (++numCols - 1);
-            });
         };
         self.render = function () {
             element.css("position", "relative");
             cellSize = Math.max(3,
-                Math.floor((element.width() - BORDER_WIDTH * (numRows-2)) / numRows));
+                (element.width() - BORDER_WIDTH * (rows.length+1)) / rows.length);
     	    var svg  = d3.select("#" + element.attr('id')).append("svg")
     	        .attr("class", "GnBu")
     	        .attr("width", width)
@@ -45,19 +53,14 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
 
             for (var i = 0; i < matrix.length; i++) {
                 var cell = matrix[i];
-                var row = rowIndex[cell[0]];
-                var col = colIndex[cell[1]];
+                var row = cell[0];
+                var col = cell[1];
                 svg.append("rect")
                     .attr("width", cellSize).attr("height", cellSize)
-                    .attr("x", (cellSize + BORDER_WIDTH) * row)
-                    .attr("y", (cellSize + BORDER_WIDTH) * col)
-                    .attr("class", "q" + quantize(cell[2]) + "-9");
-                svg.append("text")
-                    .attr("x", (cellSize + BORDER_WIDTH) * row + 5)
-                    .attr("y", (cellSize + BORDER_WIDTH) * col + 5)
-                    .attr("font-size", "6pt")
-                    .attr("alignment-baseline", "middle")
-                    .text([row, col].join(" "));
+                    .attr("x", BORDER_WIDTH + (cellSize + BORDER_WIDTH) * row)
+                    .attr("y", BORDER_WIDTH + (cellSize + BORDER_WIDTH) * col)
+                    .attr("class", "q" + quantize(cell[2]) + "-9")
+                    .append("title").text(cell[2]);
             }
         }
         return self;
