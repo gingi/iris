@@ -2,14 +2,15 @@
  * Module dependencies.
  */
 
-var express = require('express'),
-    routes  = require('./routes'),
-    user    = require('./routes/user'),
-    http    = require('http'),
-    path    = require('path'),
-    fs      = require('fs'),
-    util    = require('util');
-    gzippo  = require('gzippo');
+var express  = require('express'),
+    routes   = require('./routes'),
+    user     = require('./routes/user'),
+    http     = require('http'),
+    path     = require('path'),
+    fs       = require('fs'),
+    util     = require('util'),
+    gzippo   = require('gzippo'),
+    argv     = require('optimist').argv;
 
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var G2P_API_URL     = 'http://140.221.84.160:7068';
@@ -24,6 +25,10 @@ var G2PAPI      = require('./src/api/g2p');
 var CDMI        = require('./src/api/cdmi');
 
 var app = express();
+
+if (argv.fake) {
+    console.log("Starting in fake API mode");
+}
 
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
@@ -66,8 +71,7 @@ function rpcErrorHandler(response) {
     return function (err) {
         console.log("Service Error", err);
         response.send(503, {
-            error: "Unexpected RPC service error",
-            rpc: err
+            error: "Unexpected RPC service error"
         })
     };
 }
@@ -79,13 +83,13 @@ app.get('/data/trait/:id', function (request, response, next) {
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
     var variationFetcher = api.traits_to_variations_async;
     var chromosomeFetcher = cdmi.contigs_to_lengths_async;
-    if (request.params.id == 'fake') {
+    if (argv.fake || request.params.id == 'fake') {
         variationFetcher = function (arg1, arg2, callback) {
-            var json = require('./data/trait-variations.json');
+            var json = require('./data/fake/trait-variations.json');
             callback(json);
         };
         chromosomeFetcher = function (arg1, callback) {
-            var json = require('./data/chromosome-lengths.json');
+            var json = require('./data/fake/chromosome-lengths.json');
             callback(json);
         };
     }
@@ -95,7 +99,12 @@ app.get('/data/trait/:id', function (request, response, next) {
         var chrIndex = {};
         var maxscore = 0;
         var v = [];
-        json.forEach(function (d) {
+        var meta = json[0];
+        var trait = {
+            id: meta[0][0],
+            name: meta[0][4]
+        };
+        json[1].forEach(function (d) {
             var normalized = -Math.log(parseFloat(d[2]));
             maxscore = Math.max(maxscore, normalized);
             if (chrIndex[d[0]] == null) {
@@ -119,7 +128,7 @@ app.get('/data/trait/:id', function (request, response, next) {
                 };
             }
             response.send({
-                id: request.params.id,
+                trait: trait,
                 maxscore: maxscore,
                 variations: v,
                 chromosomes: chrs
@@ -130,7 +139,7 @@ app.get('/data/trait/:id', function (request, response, next) {
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
     response.contentType = 'json';
-    if (request.params.id == 'fake') {
+    if (argv.fake || request.params.id == 'fake') {
         var locus = 1;
         var genes = [];
         request.query.locations.forEach(function () {
@@ -172,6 +181,10 @@ app.get('/data/genome/:id/chromosomes', function (request, response, next) {
 
 app.get('/data/genome', function (request, response, next) {
     response.contentType = 'json';
+    if (argv.fake) {
+        response.send(require('./data/fake/genomes.json'));
+        return;
+    }
     var eapi = new CDMI.CDMI_EntityAPI(CDM_API_URL);
     eapi.all_entities_Genome_async(0, 100, ['id', 'scientific_name'], function (json) {
         var genomes = [];
