@@ -1,4 +1,3 @@
-var optimist = require('optimist');
 var reader   = require('./line-reader');
 var graph    = require('../graph');
 
