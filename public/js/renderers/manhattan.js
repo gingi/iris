@@ -95,7 +95,7 @@ function ($, EventEmitter, DragBox, Scale) {
             yAxis.range([canvasHeight, 0]);
             
             if (genomeLength == 0) {
-                throw new Error("setRanges: Chromosome data not set");
+                throw new Error("setRanges(): Chromosome data not set");
             }
             
             xAxis.domain([0, genomeLength]);
