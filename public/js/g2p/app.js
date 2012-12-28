@@ -78,14 +78,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     });
     
     function traitName(trait) {
-        var experiment = ModelCache["experiment"];
-        var items = experiment ? experiment.get('items') : [];
-        for (var i in items) {
-            if (items[i][0] == trait.id) {
-                return items[i][1];
-            }
-        }
-        return trait.id;
+        return trait.get('trait').name;
     };
     
     var BP2PX = 2.5e5;
@@ -151,10 +144,14 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     
     var ManhattanView = Backbone.View.extend({
         initialize: function () {
+            //Listeners
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
             this.model.on('error', (this.errorHandler).bind(this));
+
             this.$el.css("position", "relative")
+
+            // Prepare transitions
             $hud = $("#infoBox");
             $hud.on("click", function () { $hud.fadeOut() });
             this.$el.find(".manhattan").fadeTo(0, 0.3);
@@ -180,18 +177,18 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                 .css("min-width",
                     Math.min($el.width()-80,
                         genomePixelWidth(self.model.get('chromosomes'))))
-                .css("height", MANHATTAN_HEIGHT)
-                .css("display", "table");
-            $newVis
-                .append($("<div>")
-                    .css("display", "table-row")
-                    .append($("<h4>").text(traitName(this.model))));
+                .outerHeight(MANHATTAN_HEIGHT);
+            var $title = $("<div>")
+                    .append($("<h4>").text(traitName(this.model)));
+            $newVis.append($title);
             var $visElement = $("<div>")
-                .css("display", "table-cell")
-                .css("height", "100%")
                 .css("width", "100%");
             $newVis.append($visElement);
             $el.append($newVis);
+            $visElement.outerHeight(
+                $newVis.outerHeight(true) -
+                $title.outerHeight(true)
+            );
             $el.append(subviewBar());
             
             vis = new ManhattanPlot($visElement);
@@ -250,7 +247,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             if (error.status == '404') {
                 text = 'No variations for trait "' + model.id + '"';
             } else {
-                text = $("<pre>").text(JSON.stringify(error.responseText));
+                var details = JSON.parse(error.responseText).error;
+                text = $("<span>")
+                    .append($("<h3>").text(error.statusText))
+                    .append($("<pre>").css("font-size", "8pt").text([
+                    "TECHNICAL DETAILS",
+                    "=================",
+                    "Status:  " + error.status,
+                    "Message: " + details.message,
+                    "Stack:   " + details.stack].join("\n")));
             }
             dismissSpinner(this.$el);
             this.$el.find(".manhattan").remove();
