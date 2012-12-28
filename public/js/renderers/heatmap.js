@@ -1,6 +1,6 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MAX_CELLS = 6400; // 80 x 80
-    var BORDER_WIDTH = 0.5;
+    var DEFAULT_BORDER_WIDTH = 0.5;
     function requiredProperty(object, property) {
         
     }
@@ -8,6 +8,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
         var self = this;
         element = $(element);
         options = (options || {});
+        options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
         
         var matrix = [];
         var rowIndex = {}; var numRows = 0;
@@ -17,6 +18,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
 
 	    var width = element.width();
 	    var height = element.height();
+        var minDim = Math.min(width, height);
         
         self.setData = function (data) {
             if (data == null) return;
@@ -40,7 +42,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
         self.render = function () {
             element.css("position", "relative");
             cellSize = Math.max(3,
-                (element.width() - BORDER_WIDTH * (rows.length+1)) / rows.length);
+                (minDim - options.borderWidth * (rows.length+1)) / rows.length);
     	    var svg  = d3.select("#" + element.attr('id')).append("svg")
     	        .attr("class", "GnBu")
     	        .attr("width", width)
@@ -57,8 +59,8 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 var col = cell[1];
                 svg.append("rect")
                     .attr("width", cellSize).attr("height", cellSize)
-                    .attr("x", BORDER_WIDTH + (cellSize + BORDER_WIDTH) * row)
-                    .attr("y", BORDER_WIDTH + (cellSize + BORDER_WIDTH) * col)
+                    .attr("x", options.borderWidth * (row + 1) + cellSize * row)
+                    .attr("y", options.borderWidth * (col + 1) + cellSize * col)
                     .attr("class", "q" + quantize(cell[2]) + "-9")
                     .append("title").text(cell[2]);
             }
