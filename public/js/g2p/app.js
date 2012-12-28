@@ -37,6 +37,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     var Trait = Backbone.Model.extend({
         defaults: { name: "" },
         urlRoot: dataAPI("/trait"),
+        parse: function (json) {
+            this.name = json["trait"]["name"];
+            return json;
+        }
     });
     
     var Model = Backbone.Model.extend({
@@ -78,7 +82,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     });
     
     function traitName(trait) {
-        return trait.get('trait').name;
+        return trait.name;
     };
     
     var BP2PX = 2.5e5;
@@ -169,9 +173,14 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
         render: function () {
             var self = this;
             var $el = self.$el;
+            var model = self.model;
+            if (model.get('variations').length == 0) {
+                self.errorHandler(model, { status: '404' });
+                return;
+            }
             dismissSpinner($el);
-            var $oldVis = $el.find(".manhattan");
-            $el.find(".subview").remove();
+            $el.find(".manhattan").remove();
+            $el.find("#subviews").remove();
             var $newVis = $("<div>")
                 .addClass("manhattan")
                 .css("min-width",
@@ -193,19 +202,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             
             vis = new ManhattanPlot($visElement);
             vis.setData({
-                variations:  this.model.get('variations'),
-                chromosomes: this.model.get('chromosomes'),
-                maxscore:    this.model.get('maxscore')
+                variations:  model.get('variations'),
+                chromosomes: model.get('chromosomes'),
+                maxscore:    model.get('maxscore')
             });
             vis.render();
-            if ($oldVis.length > 0) {
-                $oldVis.fadeOut(function () {
-                    $newVis.fadeIn();
-                    $oldVis.remove();
-                 });
-            } else {
-                $newVis.fadeIn();
-            }
+            $newVis.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 var tbody = $("<tbody>");
                 $hud.empty();
@@ -245,7 +247,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
         errorHandler: function (model, error) {
             var text = '';
             if (error.status == '404') {
-                text = 'No variations for trait "' + model.id + '"';
+                text = 'No variations for trait "' + model.name + '"';
             } else {
                 var details = JSON.parse(error.responseText).error;
                 text = $("<span>")
@@ -259,6 +261,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             }
             dismissSpinner(this.$el);
             this.$el.find(".manhattan").remove();
+            this.$el.find("#subviews").remove();
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
         }
