@@ -112,7 +112,7 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         response.send(genes);
         return;
     }
-    var FLANKING_DISTANCE = 10e5;
+    var FLANKING_DISTANCE = 1e4;
     var api = G2PAPI(G2P_API_URL);
     api.selected_locations_to_genes_async(
         request.params.id,

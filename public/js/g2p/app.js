@@ -212,12 +212,17 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                 var tbody = $("<tbody>");
                 $hud.empty();
                 $hud.append($("<table>").append(tbody));
+                var pmin = Math.pow(10, -scoreA);
+                var pmax = Math.pow(10, -scoreB);
+                if (pmin > pmax) {
+                    var tmp = pmin; pmin = pmax; pmax = tmp;
+                }
                 $.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
                     data: {
-                        pmin: Math.pow(10, -scoreA),
-                        pmax: Math.pow(10, -scoreB),
+                        pmin: pmin,
+                        pmax: pmax,
                         locations: ranges
                     },
                     success: function (genes) {
