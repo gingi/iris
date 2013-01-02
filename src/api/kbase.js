@@ -88,6 +88,7 @@ exports.getVariations = function (params) {
                     len: parseInt(lengths[c.id])
                 })
             });
+            trait.name = trait.trait_name;
             params.callback({
                 maxscore:   maxscore,
                 trait:      trait,
