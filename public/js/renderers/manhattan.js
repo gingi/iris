@@ -38,12 +38,11 @@ function ($, EventEmitter, DragBox, Scale) {
             contigs = {};
             for (var i = 0; i < data.contigs.length; i++) {
                 var ctg = data.contigs[i];
-                var name = ctg["name"];
-                var length = ctg["len"];
-                contigs[name] = { len: length };
-                ctgIndex.push(name);
-                ctgOrder.push(name);
-                genomeLength += length;
+                var key = ctg.id;
+                contigs[key] = ctg;
+                ctgIndex.push(key);
+                ctgOrder.push(key);
+                genomeLength += ctg.len;
             }
             ctgOrder = ctgOrder.sort(function (a, b) {
                 return contigs[b].len - contigs[a].len;
@@ -77,13 +76,13 @@ function ($, EventEmitter, DragBox, Scale) {
                     + yAxis.toDomain(y + h).toFixed(2) + "]"
             });
             dragbox.pinpointHandler(function (x, y) {
-                self.emit("pinpoint", [canvasToScore(y), canvasToChr(x, x)]);
+                self.emit("pinpoint", [canvasToScore(y), canvasToCtg(x, x)]);
             });
             dragbox.selectionHandler(function (x1, y1, x2, y2) {
                 self.emit("selection", [
                     canvasToScore(y1),
                     canvasToScore(y2),
-                    canvasToChr(x1, x2)
+                    canvasToCtg(x1, x2)
                 ]);
             });
             drawManhattan();
@@ -95,7 +94,7 @@ function ($, EventEmitter, DragBox, Scale) {
             yAxis.range([canvasHeight, 0]);
             
             if (genomeLength == 0) {
-                throw new Error("setRanges(): Chromosome data not set");
+                throw new Error("setRanges(): Contig data not set");
             }
             
             xAxis.domain([0, genomeLength]);
@@ -144,21 +143,21 @@ function ($, EventEmitter, DragBox, Scale) {
                 axisContext.restore();
             }
             
-            var horizontalChromosomes = contigsAreWide();
-            var labeler = horizontalChromosomes
+            var horizontalContigs = contigsAreWide();
+            var labeler = horizontalContigs
                 ? horizontalLabeler : verticalLabel;
             
             var labelOffset = YAXIS_WIDTH + XGUTTER;
-            ctgOrder.forEach(function (name) {
-                var ctg = contigs[name];
+            ctgOrder.forEach(function (key) {
+                var ctg = contigs[key];
                 var ctgWidth = xAxis.toRange(ctg.len);
                 var origin = labelOffset + ctgWidth / 2;
-                labeler(name, origin, canvasHeight + offset + 1);
+                labeler(ctg.name, origin, canvasHeight + offset + 1);
                 labelOffset += ctgWidth + XGUTTER;
             });
-            horizontalLabeler("Chromosomes",
+            horizontalLabeler("Contigs",
                 YAXIS_WIDTH + canvasWidth / 2,
-                horizontalChromosomes
+                horizontalContigs
                     ? canvasHeight + 40
                     : XAXIS_HEIGHT + canvasHeight - 1,
                 { baseline: "bottom" }
@@ -274,11 +273,11 @@ function ($, EventEmitter, DragBox, Scale) {
 			}
         }
 
-        function canvasToChr(a, b) {
+        function canvasToCtg(a, b) {
             var ranges = [];
             var offset = XGUTTER;
-            var aChr = 0;
-            var bChr = 0;
+            var aCtg = 0;
+            var bCtg = 0;
             var gutters = (ctgIndex.length + 1) * XGUTTER;
             var nt2px = (canvasWidth - gutters) / genomeLength;
             var aPos, bPos;
@@ -287,30 +286,30 @@ function ($, EventEmitter, DragBox, Scale) {
                 var len = contigs[ctg].len;
                 var ctgXsize = nt2px * len;
                 if (a >= offset - XGUTTER && a <= offset + ctgXsize) {
-                    aChr = i;
+                    aCtg = i;
                     aPos = Math.floor(len * Math.max(a - offset, 0) / ctgXsize);
                 }
                 if (b >= offset && b <= offset + ctgXsize + XGUTTER) {
-                    bChr = i;
+                    bCtg = i;
                     bPos = Math.ceil(len * Math.max(b - offset, 0) / ctgXsize);
                 }
                 offset += ctgXsize + XGUTTER;
             }
-            if (aChr <= bChr) {
-                if (aChr === bChr) {
-                    ranges[0] = [ctgOrder[aChr], aPos, bPos];
-                } else if (aChr === bChr - 1) {
+            if (aCtg <= bCtg) {
+                if (aCtg === bCtg) {
+                    ranges[0] = [ctgOrder[aCtg], aPos, bPos];
+                } else if (aCtg === bCtg - 1) {
                     ranges[0] =
-                        [ctgOrder[aChr], aPos, contigs[ctgOrder[aChr]].len];
-                    ranges[1] = [ctgOrder[bChr], 0, bPos];
+                        [ctgOrder[aCtg], aPos, contigs[ctgOrder[aCtg]].len];
+                    ranges[1] = [ctgOrder[bCtg], 0, bPos];
                 } else {
                     ranges[0] =
-                        [ctgOrder[aChr], aPos, contigs[ctgOrder[aChr]].len];
-                    for (i = 1; i < bChr - aChr; i++) {
+                        [ctgOrder[aCtg], aPos, contigs[ctgOrder[aCtg]].len];
+                    for (i = 1; i < bCtg - aCtg; i++) {
                         ranges[i] =
-                            [ctgOrder[aChr + i], 0, contigs[ctgOrder[aChr + i]].len];
+                            [ctgOrder[aCtg + i], 0, contigs[ctgOrder[aCtg + i]].len];
                     }
-                    ranges[bChr - aChr] = [ctgOrder[bChr], 0, bPos];
+                    ranges[bCtg - aCtg] = [ctgOrder[bCtg], 0, bPos];
                 }
             }
             return ranges;
