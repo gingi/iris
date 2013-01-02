@@ -81,72 +81,22 @@ function rpcErrorHandler(response) {
 app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
     var pcutoff = request.query.p || 1.0;
-
-    /*
-    var api = G2PAPI(G2P_API_URL);
-    var cdmi = new CDMI.CDMI_API(CDM_API_URL);
-    var variationFetcher = api.traits_to_variations_async;
-    var chromosomeFetcher = cdmi.contigs_to_lengths_async;
-    */
+    var getVarArgs = {
+        traitId:  request.params.id,
+        pcutoff:  pcutoff,
+        response: response
+    };
     if (argv.fake || request.params.id == 'fake') {
-        variationFetcher = function (arg1, arg2, callback) {
+        getVarArgs.variationFetcher = function (arg1, arg2, callback) {
             var json = require('./data/fake/trait-variations.json');
             callback(json);
         };
-        chromosomeFetcher = function (arg1, callback) {
+        getVarArgs.contigFetcher = function (arg1, callback) {
             var json = require('./data/fake/chromosome-lengths.json');
             callback(json);
         };
     }
-    /*
-    variationFetcher(request.params.id, pcutoff, function (json) {
-        var chrs = [];
-        var chrInfo = {};
-        var chrIndex = {};
-        var maxscore = 0;
-        var v = [];
-        var meta = json[0];
-        var trait = {
-            id: meta[0][0],
-            name: meta[0][4]
-        };
-        json[1].forEach(function (d) {
-            var normalized = -Math.log(parseFloat(d[2]));
-            maxscore = Math.max(maxscore, normalized);
-            if (chrIndex[d[0]] == null) {
-                chrs.push(d[0]);
-                chrIndex[d[0]] = { idx: chrs.length - 1, name: d[3] };
-            }
-            v.push([chrIndex[d[0]].idx, parseInt(d[1]), normalized]);
-        });
-        if (json.length == 0) {
-            response.send(404, {
-                error: "No variations for trait " + request.params.id,
-            });
-            return;
-        }
-        chromosomeFetcher(chrs, function (lengths) {
-            for (var c in lengths) {
-                chrs[chrIndex[c].idx] = {
-                    id: c,
-                    name: chrIndex[c].name,
-                    len: parseInt(lengths[c])
-                };
-            }
-            response.send({
-                trait: trait,
-                maxscore: maxscore,
-                variations: v,
-                chromosomes: chrs
-            });
-        }, rpcErrorHandler(response))
-    }, rpcErrorHandler(response));
-    */
-    kbase.getVariations({
-        traitId: request.params.id,
-        pcutoff: request.params.pcutoff,
-        response: response
-    });
+    kbase.getVariations(getVarArgs);
 });
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
