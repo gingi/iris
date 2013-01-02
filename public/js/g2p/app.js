@@ -95,9 +95,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             .append($("<td>").html(val))
         );
     }
-    function genomePixelWidth(chromosomes) {
+    function genomePixelWidth(contigs) {
         var genomeLength = 0;
-        chromosomes.forEach(function (c) { genomeLength += c.len });
+        contigs.forEach(function (c) { genomeLength += c.len });
         return Math.floor(genomeLength / BP2PX);
     }
     
@@ -185,10 +185,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                 .addClass("manhattan")
                 .css("min-width",
                     Math.min($el.width()-80,
-                        genomePixelWidth(self.model.get('chromosomes'))))
+                        genomePixelWidth(self.model.get('contigs'))))
                 .outerHeight(MANHATTAN_HEIGHT);
             var $title = $("<div>")
-                    .append($("<h4>").text(traitName(this.model)));
+                    .append($("<h4>").text(model.name));
             $newVis.append($title);
             var $visElement = $("<div>")
                 .css("width", "100%");
@@ -202,9 +202,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             
             vis = new ManhattanPlot($visElement);
             vis.setData({
-                variations:  model.get('variations'),
-                chromosomes: model.get('chromosomes'),
-                maxscore:    model.get('maxscore')
+                variations: model.get('variations'),
+                contigs:    model.get('contigs'),
+                maxscore:   model.get('maxscore')
             });
             vis.render();
             $newVis.fadeIn();

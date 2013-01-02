@@ -29,24 +29,24 @@ function ($, EventEmitter, DragBox, Scale) {
         var YAXIS_WIDTH = 30;
         var XAXIS_HEIGHT = 80;
         
-        var chrOrder = [];
-        var chrIndex = [];
+        var ctgOrder = [];
+        var ctgIndex = [];
 
-        var chromosomes, variations, maxscore, chrXsize;
+        var contigs, variations, maxscore, ctgXsize;
         
         self.setData = function (data) {
-            chromosomes = {};
-            for (var i = 0; i < data.chromosomes.length; i++) {
-                var chr = data.chromosomes[i];
-                var name = chr["name"];
-                var length = chr["len"];
-                chromosomes[name] = { len: length };
-                chrIndex.push(name);
-                chrOrder.push(name);
+            contigs = {};
+            for (var i = 0; i < data.contigs.length; i++) {
+                var ctg = data.contigs[i];
+                var name = ctg["name"];
+                var length = ctg["len"];
+                contigs[name] = { len: length };
+                ctgIndex.push(name);
+                ctgOrder.push(name);
                 genomeLength += length;
             }
-            chrOrder = chrOrder.sort(function (a, b) {
-                return chromosomes[b].len - chromosomes[a].len;
+            ctgOrder = ctgOrder.sort(function (a, b) {
+                return contigs[b].len - contigs[a].len;
             });
             variations  = data.variations;
             maxscore    = data.maxscore;
@@ -99,7 +99,7 @@ function ($, EventEmitter, DragBox, Scale) {
             }
             
             xAxis.domain([0, genomeLength]);
-            xAxis.range([0, canvasWidth - (chrOrder.length + 1) * XGUTTER]);
+            xAxis.range([0, canvasWidth - (ctgOrder.length + 1) * XGUTTER]);
         }
         
         
@@ -108,8 +108,8 @@ function ($, EventEmitter, DragBox, Scale) {
             var AXIS_COLOR  = '#CCC';
             var axisContext = createCanvas($element, { z: 1 });
             
-            function chromosomesAreWide() {
-                var shortest = chromosomes[chrOrder.slice(-1)[0]];
+            function contigsAreWide() {
+                var shortest = contigs[ctgOrder.slice(-1)[0]];
                 return (xAxis.toRange(shortest.len) > 20);
             }
             axisContext.strokeStyle = AXIS_COLOR;
@@ -144,17 +144,17 @@ function ($, EventEmitter, DragBox, Scale) {
                 axisContext.restore();
             }
             
-            var horizontalChromosomes = chromosomesAreWide();
+            var horizontalChromosomes = contigsAreWide();
             var labeler = horizontalChromosomes
                 ? horizontalLabeler : verticalLabel;
             
             var labelOffset = YAXIS_WIDTH + XGUTTER;
-            chrOrder.forEach(function (name) {
-                var chr = chromosomes[name];
-                var chrWidth = xAxis.toRange(chr.len);
-                var origin = labelOffset + chrWidth / 2;
+            ctgOrder.forEach(function (name) {
+                var ctg = contigs[name];
+                var ctgWidth = xAxis.toRange(ctg.len);
+                var origin = labelOffset + ctgWidth / 2;
                 labeler(name, origin, canvasHeight + offset + 1);
-                labelOffset += chrWidth + XGUTTER;
+                labelOffset += ctgWidth + XGUTTER;
             });
             horizontalLabeler("Chromosomes",
                 YAXIS_WIDTH + canvasWidth / 2,
@@ -187,29 +187,29 @@ function ($, EventEmitter, DragBox, Scale) {
 
         function drawManhattan() {
             var offset = XGUTTER;
-            for (var i = 0; i < chrOrder.length; i++) {
-                var chr = chrOrder[i];
-                var scale = chromosomes[chr].scale = new Scale();
-                var lenPx = xAxis.toRange(chromosomes[chr].len);
-                scale.domain([0, chromosomes[chr].len]);
+            for (var i = 0; i < ctgOrder.length; i++) {
+                var ctg = ctgOrder[i];
+                var scale = contigs[ctg].scale = new Scale();
+                var lenPx = xAxis.toRange(contigs[ctg].len);
+                scale.domain([0, contigs[ctg].len]);
                 scale.range([offset, offset + lenPx]);
-                chromosomes[chr].offset = offset + XGUTTER;
+                contigs[ctg].offset = offset + XGUTTER;
                 offset += lenPx + XGUTTER;
 
                 if (i % 2 === 0) {
-                    chromosomes[chr].color = {
+                    contigs[ctg].color = {
                         max: [0, 0, 0],
                         min: [150, 150, 150]
                     };
                 } else {
-                    chromosomes[chr].color = {
+                    contigs[ctg].color = {
                         max: [255, 0, 0],
                         min: [255, 165, 0]
                     }
                 }
             }
-            for (var chr in chromosomes) {
-                var c = chromosomes[chr].color;
+            for (var ctg in contigs) {
+                var c = contigs[ctg].color;
                 c.range = [];
                 for (var i = 0; i < c.max.length; i++) {
                     c.range.push(c.max[i] - c.min[i]);
@@ -228,15 +228,15 @@ function ($, EventEmitter, DragBox, Scale) {
 			var x2color = new Object();
 			var maxTally=1;
 			for (var i = 0; i < variations.length; i++) {
-				var chrN   = variations[i][0];
+				var ctgN   = variations[i][0];
 				var xcoord = variations[i][1];
 				var ycoord = variations[i][2];
-				var chr    = chromosomes[chrIndex[chrN]];
-				var x      = chr.scale.toRange(xcoord);
+				var ctg    = contigs[ctgIndex[ctgN]];
+				var x      = ctg.scale.toRange(xcoord);
 				var y      = yAxis.toRange(ycoord);
 				var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
 				var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
-				x2color[xbin] = chr.color;
+				x2color[xbin] = ctg.color;
 				if (histogram.hasOwnProperty(xbin)) {
 					if (histogram[xbin].hasOwnProperty(ybin)) {
 						histogram[xbin][ybin]++
@@ -253,12 +253,12 @@ function ($, EventEmitter, DragBox, Scale) {
 			}
 
 			for (var x in histogram) {
-				var chrcolor = x2color[x];
+				var ctgcolor = x2color[x];
 				for (var y in histogram[x]) {
 					var ratio = histogram[x][y]/maxTally;
-					var r = color(ratio, chrcolor, 0);
-					var g = color(ratio, chrcolor, 1);
-					var b = color(ratio, chrcolor, 2);
+					var r = color(ratio, ctgcolor, 0);
+					var g = color(ratio, ctgcolor, 1);
+					var b = color(ratio, ctgcolor, 2);
 					
 					ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
 					
@@ -279,38 +279,38 @@ function ($, EventEmitter, DragBox, Scale) {
             var offset = XGUTTER;
             var aChr = 0;
             var bChr = 0;
-            var gutters = (chrIndex.length + 1) * XGUTTER;
+            var gutters = (ctgIndex.length + 1) * XGUTTER;
             var nt2px = (canvasWidth - gutters) / genomeLength;
             var aPos, bPos;
-            for (i = 0; i < chrOrder.length; i++) {
-    			var chr = chrOrder[i];
-                var len = chromosomes[chr].len;
-                var chrXsize = nt2px * len;
-                if (a >= offset - XGUTTER && a <= offset + chrXsize) {
+            for (i = 0; i < ctgOrder.length; i++) {
+    			var ctg = ctgOrder[i];
+                var len = contigs[ctg].len;
+                var ctgXsize = nt2px * len;
+                if (a >= offset - XGUTTER && a <= offset + ctgXsize) {
                     aChr = i;
-                    aPos = Math.floor(len * Math.max(a - offset, 0) / chrXsize);
+                    aPos = Math.floor(len * Math.max(a - offset, 0) / ctgXsize);
                 }
-                if (b >= offset && b <= offset + chrXsize + XGUTTER) {
+                if (b >= offset && b <= offset + ctgXsize + XGUTTER) {
                     bChr = i;
-                    bPos = Math.ceil(len * Math.max(b - offset, 0) / chrXsize);
+                    bPos = Math.ceil(len * Math.max(b - offset, 0) / ctgXsize);
                 }
-                offset += chrXsize + XGUTTER;
+                offset += ctgXsize + XGUTTER;
             }
             if (aChr <= bChr) {
                 if (aChr === bChr) {
-                    ranges[0] = [chrOrder[aChr], aPos, bPos];
+                    ranges[0] = [ctgOrder[aChr], aPos, bPos];
                 } else if (aChr === bChr - 1) {
                     ranges[0] =
-                        [chrOrder[aChr], aPos, chromosomes[chrOrder[aChr]].len];
-                    ranges[1] = [chrOrder[bChr], 0, bPos];
+                        [ctgOrder[aChr], aPos, contigs[ctgOrder[aChr]].len];
+                    ranges[1] = [ctgOrder[bChr], 0, bPos];
                 } else {
                     ranges[0] =
-                        [chrOrder[aChr], aPos, chromosomes[chrOrder[aChr]].len];
+                        [ctgOrder[aChr], aPos, contigs[ctgOrder[aChr]].len];
                     for (i = 1; i < bChr - aChr; i++) {
                         ranges[i] =
-                            [chrOrder[aChr + i], 0, chromosomes[chrOrder[aChr + i]].len];
+                            [ctgOrder[aChr + i], 0, contigs[ctgOrder[aChr + i]].len];
                     }
-                    ranges[bChr - aChr] = [chrOrder[bChr], 0, bPos];
+                    ranges[bChr - aChr] = [ctgOrder[bChr], 0, bPos];
                 }
             }
             return ranges;
