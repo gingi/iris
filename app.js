@@ -12,6 +12,8 @@ var express  = require('express'),
     gzippo   = require('gzippo'),
     argv     = require('optimist').argv;
 
+var kbase = require('./src/api/kbase');
+
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var G2P_API_URL     = 'http://140.221.84.160:7068';
 var CDM_API_URL     = 'http://140.221.84.160:7032';
@@ -79,10 +81,13 @@ function rpcErrorHandler(response) {
 app.get('/data/trait/:id', function (request, response, next) {
     response.contentType = 'json';
     var pcutoff = request.query.p || 1.0;
+
+    /*
     var api = G2PAPI(G2P_API_URL);
     var cdmi = new CDMI.CDMI_API(CDM_API_URL);
     var variationFetcher = api.traits_to_variations_async;
     var chromosomeFetcher = cdmi.contigs_to_lengths_async;
+    */
     if (argv.fake || request.params.id == 'fake') {
         variationFetcher = function (arg1, arg2, callback) {
             var json = require('./data/fake/trait-variations.json');
@@ -93,6 +98,7 @@ app.get('/data/trait/:id', function (request, response, next) {
             callback(json);
         };
     }
+    /*
     variationFetcher(request.params.id, pcutoff, function (json) {
         var chrs = [];
         var chrInfo = {};
@@ -135,6 +141,12 @@ app.get('/data/trait/:id', function (request, response, next) {
             });
         }, rpcErrorHandler(response))
     }, rpcErrorHandler(response));
+    */
+    kbase.getVariations({
+        traitId: request.params.id,
+        pcutoff: request.params.pcutoff,
+        response: response
+    });
 });
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
