@@ -14,18 +14,9 @@ var express  = require('express'),
 
 var kbase = require('./src/api/kbase');
 
-var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
-var G2P_API_URL     = 'http://140.221.84.160:7068';
-var CDM_API_URL     = 'http://140.221.84.160:7032';
-var ONTOLOGY_API_URL = 'http://140.221.84.160:7062';
-
 var ONE_YEAR = 31557600000;
 
 var RANDOM_NEIGHBORHOOD_NODES = 20;
-
-var NetworksAPI = require('./src/api/networks');
-var G2PAPI      = require('./src/api/g2p');
-var CDMI        = require('./src/api/cdmi');
 
 var app = express();
 
@@ -70,21 +61,10 @@ app.get('/charts', routes.charts);
 app.get('/heatmap', routes.heatmap);
 app.get('/heatmap-chunking', routes.heatmapChunked);
 
-function rpcErrorHandler(response) {
-    return function (err) {
-        console.log("Service Error", err);
-        response.send(503, {
-            error: "Unexpected RPC service error"
-        })
-    };
-}
-
 app.get('/data/trait/:id', function (request, response, next) {
-    response.contentType = 'json';
-    var pcutoff = request.query.p || 1.0;
     var getVarArgs = {
         traitId:  request.params.id,
-        pcutoff:  pcutoff,
+        pcutoff:  request.query.p,
         response: response
     };
     if (argv.fake || request.params.id == 'fake') {
@@ -101,7 +81,6 @@ app.get('/data/trait/:id', function (request, response, next) {
 });
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
-    response.contentType = 'json';
     if (argv.fake || request.params.id == 'fake') {
         var locus = 1;
         var genes = [];
@@ -113,69 +92,42 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         response.send(genes);
         return;
     }
-    var FLANKING_DISTANCE = 1e4;
-    var api = G2PAPI(G2P_API_URL);
-    api.selected_locations_to_genes_async(
-        request.params.id,
-        request.query.pmin,
-        request.query.pmax,
-        request.query.locations,
-        FLANKING_DISTANCE,
-        function (json) {
-            response.send(json);
-        },
-        rpcErrorHandler(response)
-    )
+    kbase.getTraitGenes({
+        traitId:  request.params.id,
+        pmin:     request.query.pmin,
+        pmax:     request.query.pmax,
+        loci:     request.query.locations,
+        response: response
+    });
 });
 
 app.get('/data/genome/:id/chromosomes', function (request, response, next) {
-    response.contentType = 'json';
-    var eapi = new CDMI.CDMI_EntityAPI(CDM_API_URL);
-    var cdmi = new CDMI.CDMI_API(CDM_API_URL);
-    eapi.get_relationship_IsComposedOf_async(
-        [request.params.id], ['id'], [], ['id'], function (data) {
-        var ids = [];
-        data.forEach(function (c) { ids.push(c[2].id); });
-        cdmi.contigs_to_lengths_async(ids, function (lengths) {
-            response.send(lengths);
-        }, rpcErrorHandler(response));
-    }, rpcErrorHandler(response));
+    kbase.getContigLengths({
+       response: response,
+       genomeId: request.params.id 
+    });
 });
 
 app.get('/data/genome', function (request, response, next) {
-    response.contentType = 'json';
     if (argv.fake) {
         response.send(require('./data/fake/genomes.json'));
         return;
     }
-    var eapi = new CDMI.CDMI_EntityAPI(CDM_API_URL);
-    eapi.all_entities_Genome_async(0, 100, ['id', 'scientific_name'], function (json) {
-        var genomes = [];
-        for (var id in json) {
-            var genome = json[id];
-            genomes.push([ genome.id, genome.scientific_name ]);
-        }
-        response.send(genomes);
-    }, rpcErrorHandler(response));
+    kbase.getGenomes({ response: response });
 })
 
 app.get('/data/genome/:id/experiments', function (request, response, next) {
-    response.contentType = 'json';
-    var api = new G2PAPI(G2P_API_URL);
-    api.get_experiments_async(request.params.id, function (json) {
-        response.send(json);
-    }, rpcErrorHandler(response));
+    kbase.getExperiments({
+        response: response,
+        genomeId: request.params.id
+    });
 });
 
 app.get('/data/experiment/:id/traits', function (request, response, next) {
-    response.contentType = 'json';
-    var api = new G2PAPI(G2P_API_URL);
-    api.get_traits_async(request.params.id, function (json) {
-        json.forEach(function (trait) {
-            trait[1] = trait[1].replace(/:.*$/, '');
-        });
-        response.send(json);
-    }, rpcErrorHandler(response));
+    kbase.getTraits({
+        response:     response,
+        experimentId: request.params.id
+    });
 })
 
 app.get('/data/network/random', function (request, response, next) {
@@ -207,21 +159,10 @@ app.get('/data/gene/:id/neighbors', function (request, response, next) {
 });
 
 app.get('/data/gene/:id/network', function (request, response, next) {
-    response.contentType = 'json';
-    var nodeId = request.params.id == 'sample'
-        ? 'kb|g.21765.CDS.543' : request.params.id;
-    var api = NetworksAPI(NETWORK_API_URL);
-    api.buildFirstNeighborNetwork_async(
-        [ "kb|netdataset.regprecise.301",
-          "kb|netdataset.modelseed.0",
-          "kb|netdataset.ppi.7" ],
-        nodeId,
-        ['GENE_CLUSTER'],
-        function (data) {
-            response.send(transformNetwork(data));
-        },
-        rpcErrorHandler(response)
-    );
+    kbase.getNeighborNetwork({
+        response: response,
+        nodeId:   request.params.id
+    });
 });
 
 app.get('/data/coexpression', function (request, response, next) {
