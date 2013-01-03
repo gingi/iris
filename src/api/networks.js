@@ -1,5 +1,5 @@
 var vm = require('vm');
-var jQuery = require('jquery'); //jQueryStub();
+var jQuery = require('jquery');
 var fs = require('fs');
 var sandbox = { jQuery: jQuery, console: console };
 
