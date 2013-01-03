@@ -1,17 +1,46 @@
-var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
-var G2P_API_URL     = 'http://140.221.84.160:7068';
-var CDM_API_URL     = 'http://140.221.84.160:7032';
+var vm     = require('vm');
+var jQuery = require('jquery');
+var fs     = require('fs');
+var path   = require('path');
+
+var apis = {
+    network: {
+        url: 'http://140.221.92.181:7064/KBaseNetworksRPC/networks',
+        src: "networks-api.js",
+        fn:  "KBaseNetworks"
+    },
+    g2p: {
+        url: 'http://140.221.84.160:7068',
+        src: "g2p-api.js",
+        fn:  "Genotype_PhenotypeAPI"
+    },
+    cdmi: {
+        url: 'http://140.221.84.160:7032',
+        src: "cdm-api.js",
+        fn:  "CDMI_API"
+    },
+    cdmiEntity: {
+        url: 'http://140.221.84.160:7032',
+        src: "cdm-api.js",
+        fn:  "CDMI_EntityAPI"        
+    },
+    ontology:   {
+        url: 'http://140.221.84.160:7062',
+        src: "ontology-api.js",
+        fn:  "Ontology"
+    },
+    expression: {
+        url: 'http://140.221.84.160:7063',
+        src: "expression-api.js",
+        fn:  "PlantExpression"
+    }
+}
 
 var KBaseNetworks  = require('./networks');
 var KBaseGenoPheno = require('./g2p');
 var KBaseCDMI      = require('./cdmi');
 
 var P_DECIMALS = 5;
-
-var NetworksAPI  = new KBaseNetworks(NETWORK_API_URL);
-var GenoPhenoAPI = new KBaseGenoPheno(G2P_API_URL);
-var CDMI         = new KBaseCDMI.CDMI_API(CDM_API_URL);
-var CDMEntityAPI = new KBaseCDMI.CDMI_EntityAPI(CDM_API_URL);
 
 function errorHandler(response, type, errorMessage) {
     type = (type || "Service Error");
@@ -47,9 +76,9 @@ exports.getVariations = function (params) {
     params = (params || {});
     validateParams(params, ['traitId']);
     params.contigFetcher =
-        (params.contigFetcher || CDMI.contigs_to_lengths_async);
+        (params.contigFetcher || api('cdmi').contigs_to_lengths_async);
     params.variationFetcher =
-        (params.variationFetcher || GenoPhenoAPI.traits_to_variations_async);
+        (params.variationFetcher || api('g2p').traits_to_variations_async);
     params.callback   = (params.callback || function (json) {
         params.response.send(json)
     });
@@ -97,4 +126,23 @@ exports.getVariations = function (params) {
             });
         }, rpcErrorHandler(params.response))
     }, rpcErrorHandler(params.response));
+}
+
+function api(key) {
+    var params = apis[key];
+    if (!params.object) {
+        var proto = apiRequire(path.join(__dirname, params.src), params.fn);
+        params.object = new proto(params.url);
+    }
+    return params.object;
+}
+
+var sandboxes = {};
+function apiRequire(path, fn) {
+    if (!sandboxes[path]) {
+        var sandbox = sandboxes[path] = { jQuery: jQuery, console: console };
+        var data = fs.readFileSync(path, 'utf8');
+        var ret = vm.runInNewContext(data, sandbox, path);
+    }
+    return sandboxes[path][fn];
 }
