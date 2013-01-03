@@ -1,7 +1,7 @@
 define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/scale'],
 function ($, EventEmitter, DragBox, Scale) {
     function createCanvas(container, options) {
-        options = (options || {})
+        options = (options || {});
         var canvas = $("<canvas>")
             .attr("width", container.width())
             .attr("height", container.height())
@@ -13,8 +13,11 @@ function ($, EventEmitter, DragBox, Scale) {
         return canvas[0].getContext('2d');
     }
     
-    function ManhattanPlot(element) {
+    function ManhattanPlot(element, options) {
         var self = this;
+        options = (options || {});
+        options.filterContig =
+            (options.filterContig || function () { return false; });
         var $element = $(element);
         
         var yAxis = new Scale(),
@@ -38,15 +41,15 @@ function ($, EventEmitter, DragBox, Scale) {
             contigs = {};
             for (var i = 0; i < data.contigs.length; i++) {
                 var ctg = data.contigs[i];
+                if (options.filterContig(ctg)) {
+                    continue;
+                }
                 var key = ctg.id;
                 contigs[key] = ctg;
                 ctgIndex.push(key);
                 ctgOrder.push(key);
                 genomeLength += ctg.len;
             }
-            ctgOrder = ctgOrder.sort(function (a, b) {
-                return contigs[b].len - contigs[a].len;
-            });
             variations  = data.variations;
             maxscore    = data.maxscore;
         };
@@ -109,7 +112,7 @@ function ($, EventEmitter, DragBox, Scale) {
             
             function contigsAreWide() {
                 var shortest = contigs[ctgOrder.slice(-1)[0]];
-                return (xAxis.toRange(shortest.len) > 20);
+                return (xAxis.toRange(shortest.len) > 50);
             }
             axisContext.strokeStyle = AXIS_COLOR;
             axisContext.fillStyle = AXIS_COLOR;
@@ -230,6 +233,7 @@ function ($, EventEmitter, DragBox, Scale) {
 				var ctgN   = variations[i][0];
 				var xcoord = variations[i][1];
 				var ycoord = variations[i][2];
+                if (ctgIndex[ctgN] == null) continue;
 				var ctg    = contigs[ctgIndex[ctgN]];
 				var x      = ctg.scale.toRange(xcoord);
 				var y      = yAxis.toRange(ycoord);

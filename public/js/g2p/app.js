@@ -85,7 +85,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
         return trait.name;
     };
     
-    var BP2PX = 2.5e5;
+    var BP2PX = 25e4;
     var vis;
     var $hud;
     function row(tb, key, val) {
@@ -157,7 +157,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             this.$el.css("position", "relative")
 
             // Prepare transitions
-            $hud = $("#infoBox");
+            $hud = $("#infoBox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
             this.$el.find(".manhattan").fadeTo(0, 0.3);
             $("#subviews").fadeTo(0, 0.3);
@@ -194,7 +194,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             );
             $el.append(subviewBar());
             
-            vis = new ManhattanPlot($visElement);
+            vis = new ManhattanPlot($visElement, {});
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
@@ -205,7 +205,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 var tbody = $("<tbody>");
                 $hud.empty();
-                $hud.append($("<table>").append(tbody));
+                $hud.fadeIn();
+                setInterval(function () {
+                    if ($hud.is(":empty")) { addSpinner($hud); }
+                }, 500);
                 var pmin = Math.pow(10, -scoreA);
                 var pmax = Math.pow(10, -scoreB);
                 if (pmin > pmax) {
@@ -220,15 +223,18 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
                         locations: ranges
                     },
                     success: function (genes) {
+                        var $p = $("<p>")
+                            .css("text-align",  "center")
+                            .css("vertical-align", "middle")
+                            .css("font-weight", "bold")
+                            .css("min-height",  "30px");
                         if (genes.length > 0) {
-                            row(tbody, "genes", genes.length);
+                            $p.text(genes.length + " genes");
                         } else {
-                            $hud.append($("<p>")
-                                .css("text-align", "center")
-                                .css("font-weight", "bold")
-                                .text("No genes found"));
+                            $p.text("No genes found");
                         }
-                        $hud.fadeIn();
+                        dismissSpinner($hud);
+                        $hud.append($p);
                         $.ajax({
                             url: dataAPI('/coexpression'),
                             dataType: 'json',
