@@ -3,6 +3,9 @@ var jQuery = require('jquery');
 var fs     = require('fs');
 var path   = require('path');
 
+var P_DECIMALS = 5;
+var FLANKING_DISTANCE = 1e4;
+
 var apis = {
     network: {
         url: 'http://140.221.92.181:7064/KBaseNetworksRPC/networks',
@@ -36,12 +39,6 @@ var apis = {
     }
 }
 
-var KBaseNetworks  = require('./networks');
-var KBaseGenoPheno = require('./g2p');
-var KBaseCDMI      = require('./cdmi');
-
-var P_DECIMALS = 5;
-
 function errorHandler(response, type, errorMessage) {
     type = (type || "Service Error");
     var getError = errorMessage
@@ -63,25 +60,57 @@ function rpcErrorHandler(response) {
 }
 
 function validateParams(target, reqs) {
+    target = (target || {});
     reqs.push('response');
-    reqs.forEach(function (param) {
-        if (!target.hasOwnProperty(param)) {
-            throw new Error(
-                arguments.callee + ": '" + param + "' is a required parameter");
+    try {
+        var missing = [];
+        for (var i = 0; i < reqs.length; i++) {
+            var param = reqs[i];
+            if (!target.hasOwnProperty(param) || target[param] == null) {
+                missing.push(param);
+            }
         }
+        if (missing.length > 0) {
+            throw "Missing required parameter(s) [" + missing.join(" ") + "]";
+        }
+    } catch (err) {
+        if (target.response) {
+            errorHandler(target.response)(err)
+        }
+    }
+    target.callback = (target.callback || function (json) {
+        target.response.send(json)
     });
+    return target;
 }
 
+function api(key) {
+    var params = apis[key];
+    if (!params.object) {
+        var proto = apiRequire(path.join(__dirname, params.src), params.fn);
+        params.object = new proto(params.url);
+    }
+    return params.object;
+}
+
+var sandboxes = {};
+function apiRequire(path, fn) {
+    if (!sandboxes[path]) {
+        var sandbox = sandboxes[path] = { jQuery: jQuery, console: console };
+        var data = fs.readFileSync(path, 'utf8');
+        var ret = vm.runInNewContext(data, sandbox, path);
+    }
+    return sandboxes[path][fn];
+}
+
+/* ADAPTED METHODS */
+
 exports.getVariations = function (params) {
-    params = (params || {});
-    validateParams(params, ['traitId']);
+    params = validateParams(params, ['traitId']);
     params.contigFetcher =
         (params.contigFetcher || api('cdmi').contigs_to_lengths_async);
     params.variationFetcher =
         (params.variationFetcher || api('g2p').traits_to_variations_async);
-    params.callback   = (params.callback || function (json) {
-        params.response.send(json)
-    });
     params.pcutoff    = (params.pcutoff || 1);
     params.variationFetcher(params.traitId, params.pcutoff,
     function (json) {
@@ -128,21 +157,16 @@ exports.getVariations = function (params) {
     }, rpcErrorHandler(params.response));
 }
 
-function api(key) {
-    var params = apis[key];
-    if (!params.object) {
-        var proto = apiRequire(path.join(__dirname, params.src), params.fn);
-        params.object = new proto(params.url);
-    }
-    return params.object;
+exports.getTraitGenes = function (params) {
+    params = validateParams(params, ['traitId', 'pmin', 'pmax', 'loci']);
+    api('g2p').selected_locations_to_genes_async(
+        params.traitId,
+        params.pmin,
+        params.pmax,
+        params.loci,
+        FLANKING_DISTANCE,
+        params.callback,
+        rpcErrorHandler(params.response)
+    );
 }
 
-var sandboxes = {};
-function apiRequire(path, fn) {
-    if (!sandboxes[path]) {
-        var sandbox = sandboxes[path] = { jQuery: jQuery, console: console };
-        var data = fs.readFileSync(path, 'utf8');
-        var ret = vm.runInNewContext(data, sandbox, path);
-    }
-    return sandboxes[path][fn];
-}
