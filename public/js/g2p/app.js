@@ -95,17 +95,18 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             .append($("<td>").html(val))
         );
     }
+
     function genomePixelWidth(contigs) {
         var genomeLength = 0;
         contigs.forEach(function (c) { genomeLength += c.len });
         return Math.floor(genomeLength / BP2PX);
     }
-    
+
     function linkItem(href, title) {
         return $("<li>")
             .append($("<a>").attr("href", href).text(title));
     }
-    
+
     var DropDownMenu = Backbone.View.extend({
         initialize: function () {
             this.listenTo(this.model, 'change', this.render);
@@ -143,7 +144,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     }
     
     function dismissSpinner($el) {
-        $el.find(".spinnerContainer").fadeOut(function () { $(this).remove() });
+        $el.find(".spinner").fadeOut(function () { $(this).remove() });
     }
     
     var ManhattanView = Backbone.View.extend({
@@ -160,15 +161,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             $hud.on("click", function () { $hud.fadeOut() });
             this.$el.find(".manhattan").fadeTo(0, 0.3);
             $("#subviews").fadeTo(0, 0.3);
-            this.$el.find(".spinnerContainer").remove();
             this.$el.find(".alert").remove();
-            var div = $("<div>")
-                .attr("class", "spinnerContainer")
-                .css("width", this.$el.width()-80)
-                .css("height", MANHATTAN_HEIGHT)
-                .css("position", "absolute");
-            this.$el.append(div);
-            addSpinner(div);
+            addSpinner(this.$el);
         },
         render: function () {
             var self = this;
@@ -252,7 +246,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
         errorHandler: function (model, error) {
             var text = '';
             if (error.status == '404') {
-                text = 'No variations for trait "' + model.name + '"';
+                text = JSON.parse(error.responseText).error;
             } else {
                 var details = JSON.parse(error.responseText).error;
                 text = $("<span>")
