@@ -61,6 +61,7 @@ function rpcErrorHandler(response) {
 
 function validateParams(target, reqs) {
     target = (target || {});
+    reqs   = (reqs || []);
     reqs.push('response');
     try {
         var missing = [];
@@ -79,7 +80,8 @@ function validateParams(target, reqs) {
         }
     }
     target.callback = (target.callback || function (json) {
-        target.response.send(json)
+        target.response.contentType = 'json';
+        target.response.send(json);
     });
     return target;
 }
@@ -170,3 +172,91 @@ exports.getTraitGenes = function (params) {
     );
 }
 
+exports.getContigLengths = function (params) {
+    params = validateParams(params, ['genomeId']);
+    api('cdmiEntity').get_relationship_IsComposedOf_async(
+        [params.genomeId], ['id'], [], ['id'], function (data) {
+        var ids = [];
+        data.forEach(function (c) { ids.push(c[2].id); });
+        api('cdmi').contigs_to_lengths_async(ids, function (lengths) {
+            params.callback(lengths);
+        }, rpcErrorHandler(params.response));
+    }, rpcErrorHandler(params.response));
+}
+
+exports.getGenomes = function (params) {
+    params = validateParams(params);
+    api('cdmiEntity').all_entities_Genome_async(
+        0, 100, ['id', 'scientific_name'], function (json) {
+        var genomes = [];
+        for (var id in json) {
+            var genome = json[id];
+            genomes.push([ genome.id, genome.scientific_name ]);
+        }
+        params.callback(genomes);
+    }, rpcErrorHandler(params.response));
+}
+
+exports.getExperiments = function (params) {
+    params = validateParams(params, ['genomeId']);
+    api('g2p').get_experiments_async(params.genomeId, function (json) {
+        params.callback(json);
+    }, rpcErrorHandler(params.response));
+}
+
+exports.getTraits = function (params) {
+    params = validateParams(params, ['experimentId']);
+    api('g2p').get_traits_async(params.experimentId, function (json) {
+        json.forEach(function (trait) {
+            trait[1] = trait[1].replace(/:.*$/, '');
+        });
+        params.callback(json);
+    }, rpcErrorHandler(params.response));
+}
+
+exports.getNeighborNetwork = function (params) {
+    params = validateParams(params, ['nodeId']);
+    api('networks').buildFirstNeighborNetwork_async(
+        [ "kb|netdataset.regprecise.301",
+          "kb|netdataset.modelseed.0",
+          "kb|netdataset.ppi.7" ],
+        params.nodeId,
+        ['GENE_CLUSTER'],
+        function (data) {
+            params.callback(transformNetwork(data));
+        },
+        rpcErrorHandler(params.response)
+    );
+}
+
+/* Utility functions */
+Object.clone = function (obj) {
+    return Object.create(
+        Object.getPrototypeOf(obj), 
+        Object.getOwnPropertyNames(obj).reduce(function(memo, name) {
+            return (memo[name] =
+                Object.getOwnPropertyDescriptor(obj, name)) && memo;
+        }, {})
+    );
+}
+
+function transformNetwork(networkJson) {
+    var json = { nodes: [], edges: [] };
+    var nodeMap = {};
+    for (var i in networkJson.nodes) {
+        var node = Object.clone(networkJson.nodes[i]);
+        nodeMap[node.id] = i;
+        node.kbid = node.id;
+        node.group = node.type;
+        node.id = i;
+        json.nodes.push(node);
+    }
+    for (var i in networkJson.edges) {
+        var edge = Object.clone(networkJson.edges[i]);
+        edge.source = parseInt(nodeMap[edge.nodeId1]);
+        edge.target = parseInt(nodeMap[edge.nodeId2]);
+        edge.weight = 1;
+        json.edges.push(edge);
+    }
+    return json;
+}
