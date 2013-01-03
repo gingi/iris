@@ -113,19 +113,13 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         response.send(genes);
         return;
     }
-    var FLANKING_DISTANCE = 1e4;
-    var api = G2PAPI(G2P_API_URL);
-    api.selected_locations_to_genes_async(
-        request.params.id,
-        request.query.pmin,
-        request.query.pmax,
-        request.query.locations,
-        FLANKING_DISTANCE,
-        function (json) {
-            response.send(json);
-        },
-        rpcErrorHandler(response)
-    )
+    kbase.getTraitGenes({
+        traitId:  request.params.id,
+        pmin:     request.query.pmin,
+        pmax:     request.query.pmax,
+        loci:     request.query.locations,
+        response: response
+    });
 });
 
 app.get('/data/genome/:id/chromosomes', function (request, response, next) {
