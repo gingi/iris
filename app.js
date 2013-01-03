@@ -17,6 +17,7 @@ var kbase = require('./src/api/kbase');
 var NETWORK_API_URL = 'http://140.221.92.181:7064/KBaseNetworksRPC/networks';
 var G2P_API_URL     = 'http://140.221.84.160:7068';
 var CDM_API_URL     = 'http://140.221.84.160:7032';
+var ONTOLOGY_API_URL = 'http://140.221.84.160:7062';
 
 var ONE_YEAR = 31557600000;
 
