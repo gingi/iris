@@ -28,28 +28,22 @@
     <div id="container">
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
-        <ul class="nav">
-            <li class="dropdown">
-                <a class="dropdown-toggle" id="gsLabel" data-toggle="dropdown"
-                    data-target="#" href="#">Genomes <b class="caret"></b></a>
-                <ul id="genome-select" class="dropdown-menu" role="menu" aria-labelledby="gsLabel">
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a class="dropdown-toggle" id="esLabel" data-toggle="dropdown"
-                    data-target="#" href="#">Experiments <b class="caret"></b></a>
-                <ul id="exp-select" class="dropdown-menu" role="menu" aria-labelledby="esLabel">
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a class="dropdown-toggle" id="tsLabel" data-toggle="dropdown" data-target="#" href="#">Traits <b class="caret"></b></a>
-                <ul id="trait-select" class="dropdown-menu" role="menu" aria-labelledby="tsLabel">
-                </ul>
-            </li>
+        <ul id="g2pnav" class="nav">
         </ul>
         </div>
     </div>
     </div>
 <div class="hud" id="infoBox" style="display:none"></div>
+<script type="text/template" id="ddItemTemplate">
+    <a href="<%= link %>"><%= title %></a>
+</script>
+<script type="text/template" id="ddListTemplate">
+    <li class="dropdown">
+        <a class="dropdown-toggle" id="<%= label %>" data-toggle="dropdown"
+            data-target="#" href="#"><%= title %> <b class="caret"></b></a>
+        <ul id="<%= listId %>" class="dropdown-menu" role="menu" aria-labelledby="<%= label %>">
+        </ul>
+    </li>
+</script>
 </body>
 </html>

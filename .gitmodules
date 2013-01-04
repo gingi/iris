@@ -4,3 +4,6 @@
 [submodule "external/bootstrap"]
 	path = external/bootstrap
 	url = https://github.com/twitter/bootstrap.git
+[submodule "external/backbone.localstorage"]
+	path = external/backbone.localstorage
+	url = https://github.com/jeromegn/Backbone.localStorage.git

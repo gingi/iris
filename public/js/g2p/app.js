@@ -7,12 +7,17 @@ requirejs.config({
         backbone:   {
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
+        },
+        'backbone.localStorage': {
+            exports: 'Backbone',
+            deps: [ 'backbone' ]
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin'],
-    function ($, Backbone, _, ManhattanPlot, Spinner) {
-    
+require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
+'util/dropdown'],
+    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown) {
+  
     var MANHATTAN_HEIGHT = "300px";
     
     function dataAPI(path) { return "/data" + path; }
@@ -42,59 +47,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             return json;
         }
     });
-    
-    var Model = Backbone.Model.extend({
-        defaults: { name: "", itemType: "" },
-        url: function () { return dataAPI(this.path()); },
-        parse: function (json) {
-            this.set('items', json);
-        }
-    });
-    
-    var ModelCache = {};
-    var Types = {};
-    
-    Types.root = Model.extend({
-        el: $("#genome-select"),
-        path: function () { return "/genome" },
-        initialize: function () {
-            this.set('itemType', 'genome');
-        }
-    });
-    Types.genome = Model.extend({
-        el: $("#exp-select"),
-        path: function () {
-            return "/genome/" + this.id + "/experiments";
-        },
-        initialize: function () {
-            this.set('itemType', 'experiment');
-        }
-    });
-    
-    Types.experiment = Model.extend({
-        el: $("#trait-select"),
-        path: function () {
-            return "/experiment/" + this.id + "/traits";
-        },
-        initialize: function () {
-            this.set('itemType', 'trait');
-        }
-    });
-    
-    function traitName(trait) {
-        return trait.name;
-    };
-    
+        
     var BP2PX = 25e4;
     var vis;
     var $hud;
-    function row(tb, key, val) {
-        if (!val) return;
-        tb.append($("<tr>")
-            .append($("<th>").html(key))
-            .append($("<td>").html(val))
-        );
-    }
 
     function genomePixelWidth(contigs) {
         var genomeLength = 0;
@@ -107,35 +63,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
             .append($("<a>").attr("href", href).text(title));
     }
 
-    var DropDownMenu = Backbone.View.extend({
-        initialize: function () {
-            this.listenTo(this.model, 'change', this.render);
-            addSpinner(this.$el.parent());
-            this.$el.parent().fadeTo(1, 0.2);
-        },
-        render: function (evt) {
-            var $el = this.$el;
-            $el.parent().fadeTo(1, 1, function () {
-                $(this).find(".spinner").remove();
-            });
-            var model = this.model;
-            $el.empty();
-            var items = model.get('items');
-            if (items.length == 0) {
-                $el.append($("<li>")
-                    .css("padding", "5px")
-                    .addClass("text-warning")
-                    .text('No ' + model.get('itemType') + 's'));
-            } else {
-                items.forEach(function (i) {
-                    $el.append(linkItem(
-                        "#" + model.get('itemType') + "/" + i[0], i[1]
-                    ));
-                });
-            }
-        }
-    });
-    
     function subviewBar() {
         return $("<div>")
             .attr("id", "subviews")
@@ -275,14 +202,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     var Router = Backbone.Router.extend({
         routes: {
             "trait/:traitId": "show",
-            ":type/:id": "dropdownSelect",
-        },
-        dropdownSelect: function (type, id) {
-            var model = new Types[type];
-            model.set({id: decodeURIComponent(id)});
-            ModelCache[type] = model;
-            var view = new DropDownMenu({ model: model, el: model.el });
-            model.fetch();
         },
         show: function (traitId) {
             var trait = new Trait;
@@ -293,10 +212,45 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin']
     });
     var router = new Router;
     Backbone.history.start();
-    var rootModel = new Types.root;
-    new DropDownMenu({ model: rootModel, el: rootModel.el });
-    rootModel.fetch();
-    
+
+    var dropDownFactory = new DropDown({
+        container: "#g2pnav",
+        template:  "#dropdownTemplate",
+        parseItem: function (data, item) {
+            item.id    = data[0];
+            item.title = data[1];
+        },
+        itemLink: function (item) {
+            return "#" + item.type + "/" + item.id;
+        }
+    });
+    var dropdowns = {};
+    dropdowns.genomes = dropDownFactory.create({
+        name:       "Genomes",
+        url:        dataAPI("/genome"),
+        itemType:   'genome',
+        itemSelect: function (item) {
+            dropdowns.experiments.fetch({ genomeId: item.id });
+        }
+    });
+    dropdowns.experiments = dropDownFactory.create({
+        name: "Experiments",
+        url:  function () {
+            return dataAPI("/genome/" + this.genomeId + "/experiments")
+        },
+        itemType: 'experiment',
+        itemSelect: function (item) {
+            dropdowns.traits.fetch({ experimentId: item.id });
+        }
+    });
+    dropdowns.traits = dropDownFactory.create({
+        name: "Traits",
+        url: function () {
+            return dataAPI("/experiment/" + this.experimentId + "/traits");
+        },
+        itemType: 'trait'
+    });
+    dropdowns.genomes.fetch();
     
     function drawHeatmap(data) {
         require(['renderers/heatmap'], function (Heatmap) {
