@@ -16,3 +16,6 @@
 [submodule "external/CodeMirror"]
 	path = external/CodeMirror
 	url = https://github.com/marijnh/CodeMirror.git
+[submodule "external/backbone.localstorage"]
+	path = external/backbone.localstorage
+	url = https://github.com/jeromegn/Backbone.localStorage.git
