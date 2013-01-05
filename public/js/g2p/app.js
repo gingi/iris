@@ -40,10 +40,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     }
 
     var Trait = Backbone.Model.extend({
-        defaults: { name: "" },
+        defaults: { name: "", genome: "" },
         urlRoot: dataAPI("/trait"),
         parse: function (json) {
             this.name = json["trait"]["name"];
+            this.genome = json["trait"]["id"].replace(/\.trait.*$/, '');
             return json;
         }
     });
@@ -157,18 +158,29 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         } else {
                             $p.text("No genes found");
                         }
+                        var sourceGenes = _.map(genes, function (g) { return g[1] });
                         dismissSpinner($hud);
                         $hud.append($p);
+                        $("#subviews").empty();
+                        addSpinner($("#subview"));
                         $.ajax({
                             url: dataAPI('/coexpression'),
                             dataType: 'json',
-                            data: { genes: genes },
+                            data: { genes: sourceGenes },
                             success: function (coexpression) {
                                 drawHeatmap({ rows: genes, matrix: coexpression });
                             }
                         })
+                        $.ajax({
+                            url: dataAPI('/genome/' + self.model.genome + '/ontology'),
+                            dataType: 'json',
+                            data: { genes: sourceGenes },
+                            success: function (ontology) {
+                                drawChart(ontology);
+                            }
+                        })
                     }
-                })
+                });
             });
             vis.on("pinpoint", function () { $hud.fadeOut(); });
             return this;
@@ -261,25 +273,40 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     var router = new Router;
     Backbone.history.start();
     
-    function breadcrumb(elementId, item) {
-        var $crumbs = $("#breadcrumbs");
-        if ($crumbs.length > 0) { $crumbs.show(); }
-        var crumb = $crumbs.find("#" + elementId);
-        if (crumb.length == 0) {
-            crumb = $("<li>").attr("id", elementId);
-            $crumbs.append(crumb);
-        }
-        crumb.html("<a href=\"" + item.link + "\">" + item.title + "</a>");
+    function drawChart(data) {
+        require(['charts/bar'], function (BarChart) {
+            var chartData = [];
+            var tally = new Array(data.terms.length);
+            for (var gene in data.genes) {
+                var goTerms = data.genes[gene];
+                for (var i = 0; i < goTerms.length; i++) {
+                    tally[goTerms[i]] = tally[goTerms[i]] == null
+                        ? 1 : tally[goTerms[i]] + 1;
+                }
+            }
+            for (var i = 0; i < data.terms.length; i++) {
+                chartData.push({ x: data.terms[i].term, y: tally[i] });
+            }
+            $("#subviews")
+                .append($("<div>").addClass("subview").addClass("span4")
+                    .append($("<h5>").text("Gene Ontology Distribution"))
+                    .append($("<div>").attr("id", "go-histogram")
+                        .css("height", "300px")));
+            var chart = new BarChart("#go-histogram", {
+                yTitle: "Frequency"
+            });
+            chart.setData(chartData);
+            chart.display();
+        });
     }
     
     function drawHeatmap(data) {
         require(['renderers/heatmap'], function (Heatmap) {
-            $("#subviews").find("#heatmap").remove();
-            $("#subviews").append($("<div>")
-                .attr("id", "heatmap")
-                .addClass("subview")
-                .addClass("span4")
-                .css("min-height", "300px"));
+            $("#subviews")
+                .append($("<div>").addClass("subview").addClass("span4")
+                    .append($("<h5>").text("Expression Profile"))
+                    .append($("<div>").attr("id", "heatmap")
+                        .css("height", "300px")));
             var heatmap = new Heatmap("#heatmap");
             try {
                 heatmap.setData(data);
