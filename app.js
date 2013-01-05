@@ -137,6 +137,14 @@ app.get('/data/experiment/:id', function (request, response, next) {
     });
 });
 
+app.get('/data/genome/:id/ontology', function (request, response, next) {
+    kbase.getGOTerms({
+        response: response,
+        genomeId: request.params.id,
+        genes: request.query.genes.split(",")
+    });
+});
+
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
     var nNodes = request.query.nodes || 20;
