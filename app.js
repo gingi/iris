@@ -141,7 +141,7 @@ app.get('/data/genome/:id/ontology', function (request, response, next) {
     kbase.getGOTerms({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes.split(",")
+        genes: request.query.genes || []
     });
 });
 
@@ -360,7 +360,6 @@ app.get('/streaming', function (request, response, next) {
     var counter = 0;
     setInterval(function () {
         if (++counter < 500) {
-            if (counter % 20 === 0) console.log("Writing %d", counter);
             response.write(JSON.stringify({ count: counter }));
             response.write("\n");
         } else {

@@ -37,12 +37,12 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar'],
                 if (len > 1e6)
                     chartData.push({ x: chr, y: len });
             }
-            vis = new BarChart("#" + this.el.id);
-            vis.setData({
+            vis = new BarChart("#" + this.el.id, {
                 xScale: "ordinal",
                 yScale: "exponential",
-                main: [ { data: chartData } ]
+                yTitle: "Length"
             });
+            vis.setData(chartData);
             vis.display();
             return this;
         },
