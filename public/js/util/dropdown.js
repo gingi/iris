@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'underscore', 'util/spin','backbone.localStorage'],
+define(['jquery', 'backbone', 'underscore', 'util/spin','backbone.localstorage'],
 function($, Backbone, _, Spinner) {
     function addSpinner(el) {
         var opts = {
