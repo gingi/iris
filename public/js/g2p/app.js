@@ -8,7 +8,7 @@ requirejs.config({
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
         },
-        'backbone.localStorage': {
+        'backbone.localstorage': {
             exports: 'Backbone',
             deps: [ 'backbone' ]
         }
