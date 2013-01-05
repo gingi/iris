@@ -238,6 +238,49 @@ exports.getNeighborNetwork = function (params) {
     );
 }
 
+var GO_DOMAINS = ["biological_process", "molecular_function", "cellular_component"];
+var GO_ECS     = ["IEA", "IEP"];
+exports.getGOTerms = function (params) {
+    params = validateParams(params, ['genomeId', 'genes']);
+    api('cdmiEntity').get_entity_Genome_async(
+        [params.genomeId], ['source_id'],
+    function (genome) {
+        var sname = genome[params.genomeId].source_id;
+        api('ontology').getGOIDList_async(sname, params.genes, GO_DOMAINS, GO_ECS,
+        function (goTerms) {
+            var terms = [];
+            var termIndex = {};
+            for (var gene in goTerms) {
+                for (var i = 0; i < goTerms[gene].length; i++) {
+                    var line = goTerms[gene][i];
+                    var term = line.split("\t")[0];
+                    var index = termIndex[term];
+                    if (index == null) {
+                        terms.push(term);
+                        index = termIndex[term] = terms.length - 1;
+                    }
+                    goTerms[gene][i] = index;
+                };
+            }
+            api('ontology').getGoDesc_async(terms, function (desc) {
+                for (var go in desc) {
+                    var index = termIndex[go];
+                    var meta = desc[go].split("\t");
+                    terms[index] = {
+                        term: go,
+                        desc: meta[0],
+                        domain: meta[1]
+                    };
+                }
+                params.callback({
+                    genes: goTerms,
+                    terms: terms
+                });
+            })
+        }, rpcErrorHandler(params.response));
+    }, rpcErrorHandler(params.response));
+}
+
 /* Utility functions */
 Object.clone = function (obj) {
     return Object.create(
