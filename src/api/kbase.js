@@ -204,6 +204,15 @@ exports.getExperiments = function (params) {
     }, rpcErrorHandler(params.response));
 }
 
+exports.getExperiment = function (params) {
+    params = validateParams(params, ['experimentId']);
+    api('cdmiEntity').get_entity_PhenotypeExperiment_async(
+        [params.experimentId], ['source_id', 'description', 'metadata'],
+    function (json) {
+        params.callback(json);
+    }, rpcErrorHandler(params.response));
+}
+
 exports.getTraits = function (params) {
     params = validateParams(params, ['experimentId']);
     api('g2p').get_traits_async(params.experimentId, function (json) {

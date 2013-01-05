@@ -2,16 +2,14 @@ define(['jquery', 'backbone', 'underscore', 'util/spin','backbone.localStorage']
 function($, Backbone, _, Spinner) {
     function addSpinner(el) {
         var opts = {
-            // lines: 13, // The number of lines to draw
-            length: 5, // The length of each line
-            width: 2, // The line thickness
-            radius: 5, // The radius of the inner circle
-            corners: 1, // Corner roundness (0..1)
-            rotate: 69, // The rotation offset
-            color: '#666', // #rgb or #rrggbb
-            speed: 1.3, // Rounds per second
-            trail: 42, // Afterglow percentage
-            // className: 'spinner', // The CSS class to assign to the spinner
+            length: 5,
+            width: 2,
+            radius: 5,
+            corners: 1,
+            rotate: 69,
+            color: '#666',
+            speed: 1.3,
+            trail: 42
         };
         var spinner = new Spinner(opts).spin(el[0]);
     }
@@ -29,7 +27,7 @@ function($, Backbone, _, Spinner) {
         options.itemTemplate = options.itemTemplate ?
             $(options.itemTemplate) : $("#ddItemTemplate")
         options.parseItem = (options.parseItem || function () {});
-        options.itemLink  = (options.itemLink || function (item) {
+        options.itemLink  = (options.itemLink  || function (item) {
             return "#" + item.id;
         });
         var DDItem = Backbone.Model.extend({
@@ -51,7 +49,7 @@ function($, Backbone, _, Spinner) {
             selectItem: function () {
                 this.$el.parent().children().removeClass('active');
                 this.$el.addClass('active');
-                this.model.select(this.model);
+                this.model.select(this.model, this.$el);
             },
             render: function() {
                 this.$el.append(this.template(this.model));
