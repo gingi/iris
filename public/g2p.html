@@ -10,8 +10,8 @@
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
     <style>
-    #container { padding-top: 40px; }
     .manhattan { margin: 0 20px;}
+    li.dropdown { width: 150px;}
     #infoBox {
         z-index: 10;
         top: 50px;
@@ -26,10 +26,10 @@
 </head>
 <body>
     <div id="container">
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-        <ul id="g2pnav" class="nav">
-        </ul>
+        <div class="row">
+        <div class="span12">
+            <ul id="g2pnav" class="nav nav-pills"></ul>
+            <!-- <ul class="breadcrumb" id="breadcrumbs"></ul> -->
         </div>
     </div>
     </div>
@@ -40,7 +40,8 @@
 <script type="text/template" id="ddListTemplate">
     <li class="dropdown">
         <a class="dropdown-toggle" id="<%= label %>" data-toggle="dropdown"
-            data-target="#" href="#"><%= title %> <b class="caret"></b></a>
+            data-target="#" href="#"><%= title %> <b class="caret"></b><br/><small id="copy" class="muted"></small></a>
+            
         <ul id="<%= listId %>" class="dropdown-menu" role="menu" aria-labelledby="<%= label %>">
         </ul>
     </li>

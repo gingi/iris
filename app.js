@@ -128,7 +128,14 @@ app.get('/data/experiment/:id/traits', function (request, response, next) {
         response:     response,
         experimentId: request.params.id
     });
-})
+});
+
+app.get('/data/experiment/:id', function (request, response, next) {
+    kbase.getExperiment({
+        response: response,
+        experimentId: request.params.id
+    });
+});
 
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
