@@ -13,6 +13,7 @@ function($, Backbone, _, Spinner) {
         };
         var spinner = new Spinner(opts).spin(el[0]);
     }
+    
     function removeSpinner(el) {
         el.find(".spinner").remove();
     }
