@@ -1,1 +1,0 @@
-../../node_modules/xcharts/build/xcharts.min.js
