@@ -266,8 +266,7 @@ var GO_DOMAINS = ["biological_process", "molecular_function", "cellular_componen
 var GO_ECS     = ["IEA", "IEP"];
 exports.getGOTerms = function (params) {
     params = validateParams(params, ['genomeId', 'genes']);
-    api('cdmiEntity').get_entity_Genome_async(
-        [params.genomeId], ['source_id'],
+    api('cdmiEntity').get_entity_Genome_async([params.genomeId], ['source_id'],
     function (genome) {
         var sname = genome[params.genomeId].source_id;
         // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
@@ -305,6 +304,20 @@ exports.getGOTerms = function (params) {
             })
         }, rpcErrorHandler(params.response));
     }, rpcErrorHandler(params.response));
+}
+
+exports.getGOEnrichment = function (params) {
+    params = validateParams(params, ['genomeId', 'genes']);
+    api('cdmiEntity').get_entity_Genome_async([params.genomeId], ['source_id'],
+    function (genome) {
+        var sname = genome[params.genomeId].source_id;
+        // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
+        for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
+        api('ontology').getGOEnrichment_async(sname, params.genes, GO_DOMAINS, GO_ECS,
+            'hypergeometric',
+            params.callback, rpcErrorHandler(params.response)
+        );
+    });
 }
 
 /* Utility functions */

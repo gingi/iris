@@ -159,6 +159,14 @@ app.get('/data/genome/:id/ontology', function (request, response, next) {
     });
 });
 
+app.get('/data/genome/:id/go-enrichment', function (request, response, next) {
+    kbase.getGOEnrichment({
+        response: response,
+        genomeId: request.params.id,
+        genes: request.query.genes || []
+    });
+});
+
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
     var nNodes = request.query.nodes || 20;

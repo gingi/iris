@@ -1,14 +1,12 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MAX_CELLS = 6400; // 80 x 80
     var DEFAULT_BORDER_WIDTH = 0.5;
-    function requiredProperty(object, property) {
-        
-    }
 	function Heatmap(element, options) {
         var self = this;
         element = $(element);
         options = (options || {});
         options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
+        options.colorscheme = (options.colorscheme || 'Spectral');
         
         var matrix = [];
         var rowIndex = {}; var numRows = 0;
@@ -44,7 +42,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
             cellSize = Math.max(3,
                 (minDim - options.borderWidth * (rows.length+1)) / rows.length);
     	    var svg  = d3.select("#" + element.attr('id')).append("svg")
-    	        .attr("class", "GnBu")
+    	        .attr("class", options.colorscheme)
     	        .attr("width", width)
     	        .attr("height", height);
     	    var quantize = d3.scale.quantile().domain([0, 1]).range(d3.range(9));
@@ -64,6 +62,23 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                     .attr("class", "q" + quantize(cell[2]) + "-9")
                     .append("title").text(cell[2]);
             }
+            var schemeIndex = 0;
+            var schemes = 'RdYlBu Spectral BrBG YlGnBu'.split(" ");
+            for (var i in schemes) {
+                if (schemes[i] == options.colorscheme) {
+                    schemes.splice(i, 1);
+                    break;
+                }
+            }
+            schemes.unshift(options.colorscheme);
+            element.append($("<button>")
+                .addClass("btn btn-mini").text("Change Scheme")
+                .on('click', function () {
+                    schemeIndex = (schemeIndex + 1) % schemes.length;
+                    svg.attr("class", schemes[schemeIndex]);
+                }
+            ));
+            // svg.on('click', function () { console.log("Clicked", evt); });
         }
         return self;
 	}

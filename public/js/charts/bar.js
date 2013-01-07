@@ -18,7 +18,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             width  = $el.height() - margin.left - margin.right,
             height = $el.width()  - margin.top  - margin.bottom;
 
-            var format = d3.format("0");
+            var format = d3.format(".0");
 
             var x = d3.scale.ordinal().rangeRoundBands([0, width], .1, 1);
             var y = d3.scale.linear().range([height, 0]);
@@ -67,10 +67,11 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                     .enter()
                     .append("rect")
                     .attr("class", "bar")
-                    .attr("x", function(d) { return x(d.x); })
+                    .attr("x", function (d) { return x(d.x); })
                     .attr("width", x.rangeBand())
-                    .attr("y", function(d) { return y(d.y); })
-                    .attr("height", function(d) { return height - y(d.y); });
+                    .attr("y", function (d) { return y(d.y); })
+                    .attr("height", function (d) { return height - y(d.y); })
+                    .append("title").text(function (d) { return d.title });
 
                 svg.on("click", change);
 
