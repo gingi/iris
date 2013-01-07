@@ -275,6 +275,18 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     var router = new Router;
     Backbone.history.start();
     
+    function subviewDiv(id, title) {
+        var header = $("<p>").addClass("muted")
+            .css("font-weight", "bold")
+            .css("text-transform", "uppercase")
+            .text(title);
+        var vis = $("<div>").addClass("vis").attr("id", id);
+        var view = $("<div>").addClass("subview span4");
+        view.append(header).append(vis);
+        $("#subviews").append(view);
+        vis.outerHeight(view.height() - header.outerHeight(true));
+    }    
+    
     function drawBarChart(data) {
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
@@ -284,14 +296,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                     title: data[i].goDesc.replace('_', ' ').split("\t").join("\n")
                 });
             }
-            $("#subviews")
-                .append($("<div>").addClass("subview").addClass("span4")
-                    .append($("<h5>").text("Gene Ontology Enrichment"))
-                    .append($("<div>").attr("id", "go-histogram")
-                        .css("height", "300px")));
-            var chart = new BarChart("#go-histogram", {
-                yTitle: "P value"
-            });
+            subviewDiv("go-histogram", "Gene Ontology Enrichment");
+            var chart = new BarChart("#go-histogram", { yTitle: "P value" });
             chart.setData(chartData);
             chart.display();
         });
@@ -310,14 +316,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             for (var domain in domains) {
                 chartData.push([domain, domains[domain]]);
             }
-            $("#subviews")
-                .append($("<div>").addClass("subview").addClass("span4")
-                    .append($("<h5>").text("Gene Ontology Domains"))
-                    .append($("<div>").attr("id", "go-domains")
-                        .css("height", "300px")));
-            var chart = new PieChart("#go-domains", {
-                categories: 3
-            });
+            subviewDiv("go-domains", "Gene Ontology Domains");
+            var chart = new PieChart("#go-domains", { categories: 3 });
             chart.setData(chartData);
             chart.display();
         })
@@ -325,11 +325,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     
     function drawHeatmap(data) {
         require(['renderers/heatmap'], function (Heatmap) {
-            $("#subviews")
-                .append($("<div>").addClass("subview").addClass("span4")
-                    .append($("<h5>").text("Expression Profile"))
-                    .append($("<div>").attr("id", "heatmap")
-                        .css("height", "300px")));
+            subviewDiv("heatmap", "Expression Profile");
             var heatmap = new Heatmap("#heatmap");
             try {
                 heatmap.setData(data);

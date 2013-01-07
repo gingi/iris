@@ -74,9 +74,13 @@ function ($, EventEmitter, DragBox, Scale) {
 
             var dragbox = new DragBox(plotArea, { z: 10 });
             dragbox.textHandler(function (x, y, w, h) {
+                var pvals = [
+                    yAxis.toDomain(y).toFixed(2),
+                    yAxis.toDomain(y + h).toFixed(2)
+                ].sort();
                 return "-log p ["
-                    + yAxis.toDomain(y).toFixed(2) + " "
-                    + yAxis.toDomain(y + h).toFixed(2) + "]"
+                    + pvals[0] + " "
+                    + pvals[1] + "]"
             });
             dragbox.pinpointHandler(function (x, y) {
                 self.emit("pinpoint", [canvasToScore(y), canvasToCtg(x, x)]);
@@ -95,7 +99,6 @@ function ($, EventEmitter, DragBox, Scale) {
             var yAxisMax = Math.ceil(maxscore) + 1;
             yAxis.domain([0, yAxisMax]);
             yAxis.range([canvasHeight, 0]);
-            
             if (genomeLength == 0) {
                 throw new Error("setRanges(): Contig data not set");
             }
