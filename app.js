@@ -123,6 +123,20 @@ app.get('/data/genome/:id/experiments', function (request, response, next) {
     });
 });
 
+app.get('/data/genome/:id/network-datasets', function (request, response, next) {
+    kbase.getNetworkDatasets({
+        response: response,
+        genomeId: request.params.id
+    });
+});
+
+app.get('/data/gene/:id/network-datasets', function (request, response, next) {
+    kbase.getNetworkDatasets({
+        response: response,
+        geneId:   request.params.id
+    });
+});
+
 app.get('/data/experiment/:id/traits', function (request, response, next) {
     kbase.getTraits({
         response:     response,
