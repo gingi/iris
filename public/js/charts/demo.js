@@ -7,46 +7,66 @@ requirejs.config({
         backbone:   {
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
-        }
+        },
+        colorbrewer: { exports: 'colorbrewer' }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'charts/bar'],
-    function ($, Backbone, _, BarChart) {
+require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie'],
+    function ($, Backbone, _, BarChart, PieChart) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
         url: function () { return "/data/genome/" + this.id + "/chromosomes"; },
         parse: function (data) {
-            this.set('chromosomes', data);
+            var chromosomes = {};
+            for (var chr in data) {
+                var len = parseInt(data[chr]);
+                if (len > 1e6) {
+                    chromosomes[chr] = len;
+                }
+            }
+            this.set('chromosomes', chromosomes);
+            return data;
         }
     });
     
     var vis;
-    var $hud;
-    var View = Backbone.View.extend({
+    var PieView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
-            $hud = $("#infoBox");
         },
         render: function () {
             $(this.el).empty();
             var chartData = [];
             var chromosomes = this.model.get('chromosomes');
             for (var chr in chromosomes) {
-                var len = parseInt(chromosomes[chr]);
-                if (len > 1e6)
-                    chartData.push({ x: chr, y: len });
+                chartData.push([ chr, chromosomes[chr] ]);
             }
-            vis = new BarChart("#" + this.el.id, {
-                xScale: "ordinal",
-                yScale: "exponential",
-                yTitle: "Length"
-            });
+            vis = new PieChart("#" + this.el.id, {});
             vis.setData(chartData);
             vis.display();
             return this;
         },
-    });    
+    });
+    
+    var BarView = Backbone.View.extend({
+        initialize: function () {
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
+        },
+        render: function () {
+            $(this.el).empty();
+            var chartData = [];
+            var chromosomes = this.model.get('chromosomes');
+            for (var chr in chromosomes) {
+                chartData.push({ x: chr, y: chromosomes[chr] });
+            }
+            vis = new BarChart("#" + this.el.id, {});
+            vis.setData(chartData);
+            vis.display();
+            return this;
+        }
+    })
 
     var Router = Backbone.Router.extend({
         routes: {
@@ -54,14 +74,20 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar'],
         },
         show: function (genomeId) {
             var $barchart = $("<div>")
-                .attr("id", "chart")
+                .attr("id", "barchart")
                 .css("height", "400px")
                 .css("width", "400px");
-            $("#container").empty().append($barchart);
+                
+            var $piechart = $("<div>")
+                .attr("id", "piechart")
+                .css("height", "400px")
+                .css("width", "400px");
+            $("#container").empty().append($barchart).append($piechart);
             var genome = new Genome;
             genomeId = (genomeId || 'kb|g.22476');
             genome.set({id: genomeId});
-            var view = new View({ model: genome, el: $barchart });
+            var view = new BarView({ model: genome, el: $barchart });
+            var piechart = new PieView({ model: genome, el: $piechart });
             genome.fetch();
         },
     });
