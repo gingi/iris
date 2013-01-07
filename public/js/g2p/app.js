@@ -1,10 +1,11 @@
 requirejs.config({
     baseUrl: '/js',
     shim: {
-        jquery:     { exports: '$' },
-        d3:         { exports: 'd3' },
-        underscore: { exports: '_' },
-        backbone:   {
+        jquery:      { exports: '$' },
+        d3:          { exports: 'd3' },
+        underscore:  { exports: '_' },
+        colorbrewer: { exports: 'colorbrewer'},
+        backbone:    {
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
         },
@@ -172,11 +173,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                             }
                         })
                         $.ajax({
-                            url: dataAPI('/genome/' + self.model.genome + '/ontology'),
+                            url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
                             dataType: 'json',
                             data: { genes: sourceGenes },
                             success: function (ontology) {
-                                drawChart(ontology);
+                                drawBarChart(ontology);
+                                drawPieChart(ontology);
                             }
                         })
                     }
@@ -273,31 +275,52 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     var router = new Router;
     Backbone.history.start();
     
-    function drawChart(data) {
+    function drawBarChart(data) {
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
-            var tally = new Array(data.terms.length);
-            for (var gene in data.genes) {
-                var goTerms = data.genes[gene];
-                for (var i = 0; i < goTerms.length; i++) {
-                    tally[goTerms[i]] = tally[goTerms[i]] == null
-                        ? 1 : tally[goTerms[i]] + 1;
-                }
-            }
-            for (var i = 0; i < data.terms.length; i++) {
-                chartData.push({ x: data.terms[i].term, y: tally[i] });
+            for (var i = 0; i < data.length; i++) {
+                chartData.push({
+                    x: data[i].goID, y: data[i].pvalue,
+                    title: data[i].goDesc.replace('_', ' ').split("\t").join("\n")
+                });
             }
             $("#subviews")
                 .append($("<div>").addClass("subview").addClass("span4")
-                    .append($("<h5>").text("Gene Ontology Distribution"))
+                    .append($("<h5>").text("Gene Ontology Enrichment"))
                     .append($("<div>").attr("id", "go-histogram")
                         .css("height", "300px")));
             var chart = new BarChart("#go-histogram", {
-                yTitle: "Frequency"
+                yTitle: "P value"
             });
             chart.setData(chartData);
             chart.display();
         });
+    }
+    
+    function drawPieChart(data) {
+        require(['charts/pie'], function (PieChart) {
+            var domains = {}, chartData = [];
+            for (var i = 0; i < data.length; i++) {
+                var domain = data[i].goDesc.split("\t")[1].replace('_', ' ');
+                if (!domains.hasOwnProperty(domain)) {
+                    domains[domain] = 0;
+                }
+                domains[domain]++;
+            }
+            for (var domain in domains) {
+                chartData.push([domain, domains[domain]]);
+            }
+            $("#subviews")
+                .append($("<div>").addClass("subview").addClass("span4")
+                    .append($("<h5>").text("Gene Ontology Domains"))
+                    .append($("<div>").attr("id", "go-domains")
+                        .css("height", "300px")));
+            var chart = new PieChart("#go-domains", {
+                categories: 3
+            });
+            chart.setData(chartData);
+            chart.display();
+        })
     }
     
     function drawHeatmap(data) {
