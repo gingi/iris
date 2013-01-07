@@ -276,15 +276,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     Backbone.history.start();
     
     function subviewDiv(id, title) {
-        var header = $("<p>").addClass("muted")
-            .css("font-weight", "bold")
-            .css("text-transform", "uppercase")
-            .text(title);
         var vis = $("<div>").addClass("vis").attr("id", id);
-        var view = $("<div>").addClass("subview span4");
-        view.append(header).append(vis);
-        $("#subviews").append(view);
-        vis.outerHeight(view.height() - header.outerHeight(true));
+        var view = $("<div>").addClass("subview");
+        view.attr('data-title', title);
+        view.append(vis);
+        $("#subviews")
+            .append($("<div>").addClass("span4").css("padding", "3px").append(view));
+        vis.outerHeight(view.height());
     }    
     
     function drawBarChart(data) {

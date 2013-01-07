@@ -4,7 +4,7 @@ var fs     = require('fs');
 var path   = require('path');
 
 var P_DECIMALS = 5;
-var FLANKING_DISTANCE = 1e4;
+var FLANKING_DISTANCE = 1e5;
 
 var apis = {
     network: {
