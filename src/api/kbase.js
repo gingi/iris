@@ -8,7 +8,7 @@ var FLANKING_DISTANCE = 1e4;
 
 var apis = {
     network: {
-        url: 'http://140.221.92.181:7064/KBaseNetworksRPC/networks',
+        url: 'http://140.221.84.160:7064/KBaseNetworksRPC/networks',
         src: "networks-api.js",
         fn:  "KBaseNetworks"
     },
@@ -199,18 +199,20 @@ exports.getGenomes = function (params) {
 
 exports.getExperiments = function (params) {
     params = validateParams(params, ['genomeId']);
-    api('g2p').get_experiments_async(params.genomeId, function (json) {
-        params.callback(json);
-    }, rpcErrorHandler(params.response));
+    api('g2p').get_experiments_async(
+        params.genomeId,
+        params.callback,
+        rpcErrorHandler(params.response)
+    );
 }
 
 exports.getExperiment = function (params) {
     params = validateParams(params, ['experimentId']);
     api('cdmiEntity').get_entity_PhenotypeExperiment_async(
         [params.experimentId], ['source_id', 'description', 'metadata'],
-    function (json) {
-        params.callback(json);
-    }, rpcErrorHandler(params.response));
+        params.callback,
+        rpcErrorHandler(params.response)
+    );
 }
 
 exports.getTraits = function (params) {
@@ -225,7 +227,7 @@ exports.getTraits = function (params) {
 
 exports.getNeighborNetwork = function (params) {
     params = validateParams(params, ['nodeId']);
-    api('networks').buildFirstNeighborNetwork_async(
+    api('network').buildFirstNeighborNetwork_async(
         [ "kb|netdataset.regprecise.301",
           "kb|netdataset.modelseed.0",
           "kb|netdataset.ppi.7" ],
@@ -236,6 +238,28 @@ exports.getNeighborNetwork = function (params) {
         },
         rpcErrorHandler(params.response)
     );
+}
+
+exports.getNetworkDatasets = function (params) {
+    params = validateParams(params);
+    if (params.geneId) {
+        console.log("Looking up gene [%s]", params.geneId);
+        api('network').entity2Datasets_async(
+            params.geneId,
+            params.callback,
+            rpcErrorHandler(params.response)
+        );
+    } else if (params.genomeId) {
+        api('network').taxon2Datasets_async(
+            params.genomeId,
+            params.callback,
+            rpcErrorHandler(params.response)
+        );
+    } else {
+        errorHandler(params.response)(
+            "Either 'geneId' or 'genomeId' need to be specified"
+        );
+    }
 }
 
 var GO_DOMAINS = ["biological_process", "molecular_function", "cellular_component"];
