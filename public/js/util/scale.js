@@ -3,10 +3,18 @@ define(function () {
         var self = this;
         var _domain = [0, 1];
         var _range  = [0, 1];
+        var _ratio  = 1;
+        function sign(n) {
+            return n > 0 ? 1 : n < 0 ? -1 : 0;
+        }
+        function resetRatio() {
+            _ratio = (_range[1] - _range[0]) / (_domain[1] - _domain[0]);
+        }
         self.domain = function (args) {
             if (args != null) {
                 _domain[0] = args[0];
                 _domain[1] = args[1];
+                resetRatio();
             }
             return _domain;
         };
@@ -14,16 +22,15 @@ define(function () {
             if (args != null) {
                 _range[0] = args[0];
                 _range[1] = args[1];
+                resetRatio();
             }
             return _range;
         };
         self.toDomain = function (value) {
-            return _domain[0]
-                + Math.abs(_domain[1] - _domain[0]) * value / Math.abs(_range[1] - _range[0]);
+            return (_ratio > 0 ? _domain[0] : _domain[1]) + value / _ratio;
         };
         self.toRange = function (value) {
-            return _range[0]
-                + (_range[1] - _range[0]) * value / (_domain[1] - _domain[0]);
+            return _range[0] + value * _ratio;
         };
 		return this;
 	};
