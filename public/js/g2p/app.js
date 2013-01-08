@@ -16,8 +16,8 @@ requirejs.config({
     },
 })
 require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
-'util/dropdown'],
-    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown) {
+'util/dropdown', 'util/eventemitter'],
+    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown, EventEmitter) {
   
     var MANHATTAN_HEIGHT = "300px";
     
@@ -77,6 +77,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     }
     
     var ManhattanView = Backbone.View.extend({
+        el: $("#container"),
+        events: {
+            "click":     "clickEvent",
+            "selection": "selectionEvent",
+        },
+        clickEvent: function () {},
+        selectionEvent: function () {},
         initialize: function () {
             //Listeners
             _.bindAll(this, 'render');
@@ -112,7 +119,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 .css("position", "relative")
                 .outerHeight(MANHATTAN_HEIGHT);
             var $visElement = $("<div>")
-                .css("width", "100%");
+                .css("width", "100%")
+                .attr("id", "manhattan-vis");
             $newVis.append($visElement);
             $el.append($newVis);
             $visElement.outerHeight(
@@ -268,7 +276,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
         show: function (traitId) {
             var trait = new Trait;
             trait.set({id: decodeURIComponent(traitId)});
-            var mview = new ManhattanView({ model: trait, el: $("#container") });
+            var mview = new ManhattanView({ model: trait });
             trait.fetch({ data: { p: 30 } });
         }
     });
@@ -291,7 +299,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             for (var i = 0; i < data.length; i++) {
                 chartData.push({
                     x: data[i].goID, y: data[i].pvalue,
-                    title: data[i].goDesc.replace('_', ' ').split("\t").join("\n")
+                    title: data[i].goDesc.join("\n")
                 });
             }
             subviewDiv("go-histogram", "Gene Ontology Enrichment");
@@ -305,7 +313,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
         require(['charts/pie'], function (PieChart) {
             var domains = {}, chartData = [];
             for (var i = 0; i < data.length; i++) {
-                var domain = data[i].goDesc.split("\t")[1].replace('_', ' ');
+                var domain = data[i].goDesc[1].replace('_', ' ');
                 if (!domains.hasOwnProperty(domain)) {
                     domains[domain] = 0;
                 }
