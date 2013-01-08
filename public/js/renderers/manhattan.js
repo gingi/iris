@@ -83,9 +83,11 @@ function ($, EventEmitter, DragBox, Scale) {
                     + pvals[1] + "]"
             });
             dragbox.pinpointHandler(function (x, y) {
+                console.log("pinpoint");
                 self.emit("pinpoint", [canvasToScore(y), canvasToCtg(x, x)]);
             });
             dragbox.selectionHandler(function (x1, y1, x2, y2) {
+                console.log("selection");
                 self.emit("selection", [
                     canvasToScore(y1),
                     canvasToScore(y2),
