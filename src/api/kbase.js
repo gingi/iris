@@ -274,33 +274,26 @@ exports.getGOTerms = function (params) {
         api('ontology').getGOIDList_async(sname, params.genes, GO_DOMAINS, GO_ECS,
         function (goTerms) {
             var terms = [];
+            var genes = [];
             var termIndex = {};
             for (var gene in goTerms) {
-                for (var i = 0; i < goTerms[gene].length; i++) {
-                    var line = goTerms[gene][i];
-                    var term = line.split("\t")[0];
+                var geneData = {};
+                geneData[gene] = [];
+                for (var term in goTerms[gene]) {
                     var index = termIndex[term];
                     if (index == null) {
-                        terms.push(term);
+                        var termData = goTerms[gene][term][0];
+                        termData.term = term;
+                        terms.push(termData);
                         index = termIndex[term] = terms.length - 1;
                     }
-                    goTerms[gene][i] = index;
-                };
-            }
-            api('ontology').getGoDesc_async(terms, function (desc) {
-                for (var go in desc) {
-                    var index = termIndex[go];
-                    var meta = desc[go].split("\t");
-                    terms[index] = {
-                        term: go,
-                        desc: meta[0],
-                        domain: meta[1]
-                    };
+                    geneData[gene].push(index);
                 }
-                params.callback({
-                    genes: goTerms,
-                    terms: terms
-                });
+                genes.push(geneData);
+            }
+            params.callback({
+                genes: genes,
+                terms: terms
             })
         }, rpcErrorHandler(params.response));
     }, rpcErrorHandler(params.response));
