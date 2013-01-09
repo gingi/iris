@@ -66,10 +66,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     }
 
     function subviewBar() {
-        return $("<div>")
-            .attr("id", "subviews")
-            .addClass("row")
-            .height(400);
+        return $("<div>").attr("id", "subviews").addClass("row");
     }
     
     function dismissSpinner($el) {
@@ -192,6 +189,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                                         terms.push(data.terms[i].term);
                                         ecs.push(data.terms[i].ec);
                                         descs.push(data.terms[i].desc);
+                                        // genes.push([
+                                        //     gene,
+                                        //     data.terms[i].term,
+                                        //     data.terms[i].ec,
+                                        //     data.terms[i].desc,
+                                        // ]);
+                                        
                                     }
                                     genes.push([gene,
                                         terms.join("<br/>"),
@@ -305,13 +309,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     Backbone.history.start();
     
     function subviewDiv(id, title) {
-        var vis = $("<div>").addClass("vis").attr("id", id);
-        var view = $("<div>").addClass("subview");
+        var view = $("<div>").addClass("vis-wrap span4").attr("id", id);
         view.attr('data-title', title);
-        view.append(vis);
-        $("#subviews")
-            .append($("<div>").addClass("span4").css("padding", "3px").append(view));
-        vis.outerHeight(view.height());
+        $("#subviews").append(view);
     }    
     
     function drawBarChart(data) {
@@ -359,7 +359,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 heatmap.render();
             } catch (e) {
                 $("#heatmap").append($("<div>")
-                    .addClass("alert alert-error")
+                    .addClass("text text-error")
                     .css("margin", "20px").html([e, "Try selecting a smaller window"].join("<br>")));
             }
         });
