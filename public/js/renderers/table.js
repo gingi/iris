@@ -2,6 +2,7 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
     function Table(options) {
         var self = this;
         options = options ? _.clone(options) : {};
+        options.scrollY = options.scrollY || 300;
         var $element = $(options.element);
         var elementOffset = $element.offset();
         self.setData = function (data) {
@@ -20,14 +21,27 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
                 aaData: self.data.data,
                 aoColumns: cols,
         		sPaginationType: "bootstrap",
+                sScrollY: options.scrollY,
+                bPaginate: false,
         		oLanguage: {
         			sLengthMenu: "_MENU_ per page"
         		}
             });
             adjustHeight('.dataTables_wrapper');
             adjustHeight('.table-wrapper');
-            adjustHeight('.dataTable');
-            $element.offset({ top: elementOffset.top, left: elementOffset.left });
+            // adjustHeight('.dataTable');
+            $element.offset({
+                top: elementOffset.top, left: elementOffset.left
+            });
+            // $(".dataTable .sorting_asc").each(function () {
+            //     $(this).html(
+            //         $(this).html() + "<i class=\"glyphicon-chevron-up\"></i>");
+            // });
+            // $(".dataTable .sorting_desc").each(function () {
+            //     $(this).html(
+            //         $(this).html() + "<i class=\"glyphicon-chevron-down\"></i>");
+            // });
+            
         };
         function adjustHeight(selector) {
             $(selector).each(function () {
