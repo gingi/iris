@@ -37,13 +37,30 @@ body,html { height:100%;}
     padding: 20px;
 }
 .vis-wrap {
+    display: inline-block;
     position: relative;
     border: 1px solid #DDD;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
     padding: 5px;
+    padding-top: 30px;
     margin-left: 5px;
+}
+.vis-wrap::after{
+    content: attr(data-title);
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #9da0a4;
+    -webkit-border-radius: 4px 0 4px 0;
+    -moz-border-radius: 4px 0 4px 0;
+    border-radius: 4px 0 4px 0;
 }
 
 .axis text {
@@ -78,6 +95,16 @@ body,html { height:100%;}
 .table-wrapper {
     overflow-y: auto;
     height: 100%;
+    width: 100%;
+}
+.dt-top, .dt-bottom {
+    display: inline-block;
+    width: 100%;
+    min-height: 1px;
+}
+.dt-info: {
+    display: inline-block;
+    width: 50px;
 }
 
 div.dataTables_length label {
@@ -117,12 +144,12 @@ table.table thead .sorting_desc_disabled {
 	*cursor: hand;
 }
 
-table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }
-table.table thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
-table.table thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
+table.table thead .sorting { background: url('../images/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
 
-table.table thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
-table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
+table.table thead .sorting_asc_disabled { background: url('..images/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('..images/sort_desc_disabled.png') no-repeat center right; }
 
 table.dataTable th:active {
 	outline: none;
