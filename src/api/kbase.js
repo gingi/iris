@@ -105,8 +105,9 @@ function apiRequire(path, fn) {
     return sandboxes[path][fn];
 }
 
-/* ADAPTED METHODS */
+function log10(val) { return Math.log(val) / Math.LN10; }
 
+/* ADAPTED METHODS */
 exports.getVariations = function (params) {
     params = validateParams(params, ['traitId']);
     params.contigFetcher =
@@ -131,7 +132,7 @@ exports.getVariations = function (params) {
         }
         contigs.forEach(function (c) { contigIds.push(c.id) });
         json.variations.forEach(function (variation) {
-            var normalized = -Math.log(parseFloat(variation[2])).toFixed(P_DECIMALS);
+            var normalized = -log10(parseFloat(variation[2])).toFixed(5);
             v.push([
                 variation[0],
                 variation[1],
