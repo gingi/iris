@@ -12,24 +12,26 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         options = options ? _.clone(options) : {};
         options.yTitle = options.yTitle || 'Y Axis';
         options.axisLabelFontSize = options.axisLabelFontSize || 10;
+        options.padding =           options.padding || 10;
         var $el = $(elementId);
         var data;
         self.setData = function (inData) {
             data = inData;
         };
         self.display = function () {
+            $el.empty();
             var margin = {
                 top: 20,
                 right: 20,
                 bottom: 40,
                 left: 40
             },
-            width  = $el.width()  - margin.left - margin.right,
-            height = $el.height() - margin.top  - margin.bottom;
+            width  = $el.width()  - margin.left - margin.right - options.padding,
+            height = $el.height() - margin.top  - margin.bottom - options.padding;
 
             var format = d3.format(".0");
 
-            var x = d3.scale.ordinal().rangeRoundBands([0, width]);
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
             var y = d3.scale.linear().range([height, 0]);
 
             var xAxis = d3.svg.axis().scale(x).orient("bottom");
@@ -37,8 +39,9 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
 
             var svg = d3.select(elementId)
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+                .attr("width", $el.width() - options.padding)
+                .attr("height", $el.height() - options.padding)
+                .style("margin", options.padding / 2)
                 .append("g")
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
@@ -90,13 +93,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
 
             svg.on("click", change);
 
-            var sortTimeout = setTimeout(function() {
-                // this.checked = true; change();
-            }, 1000);
-
             function change() {
-                clearTimeout(sortTimeout);
-
                 var clone = _.clone(data);
                 var x0 = x.domain(_.chain(clone).sort(this.checked
                     ? function(a, b) { return d3.ascending(a.x, b.x); }

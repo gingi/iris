@@ -264,7 +264,7 @@ exports.getNetworkDatasets = function (params) {
 }
 
 var GO_DOMAINS = ["biological_process", "molecular_function", "cellular_component"];
-var GO_ECS     = ["IEA", "IEP"];
+var GO_ECS     = ["IEA", "IEP", "ISS"];
 exports.getGOTerms = function (params) {
     params = validateParams(params, ['genomeId', 'genes']);
     api('cdmiEntity').get_entity_Genome_async([params.genomeId], ['source_id'],
@@ -272,7 +272,8 @@ exports.getGOTerms = function (params) {
         var sname = genome[params.genomeId].source_id;
         // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
         for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
-        api('ontology').getGOIDList_async(sname, params.genes, GO_DOMAINS, GO_ECS,
+        api('ontology').getGOIDList_async(s
+            name, params.genes, GO_DOMAINS, GO_ECS,
         function (goTerms) {
             var terms = [];
             var genes = {};

@@ -3,6 +3,7 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
         var self = this;
         options = options ? _.clone(options) : {};
         var $element = $(options.element);
+        var elementOffset = $element.offset();
         self.setData = function (data) {
             self.data = data;
         };
@@ -23,24 +24,39 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
         			sLengthMenu: "_MENU_ per page"
         		}
             });
+            adjustHeight('.dataTables_wrapper');
+            adjustHeight('.table-wrapper');
+            adjustHeight('.dataTable');
+            $element.offset({ top: elementOffset.top, left: elementOffset.left });
         };
+        function adjustHeight(selector) {
+            $(selector).each(function () {
+                var w = $(this);
+                var p = w.parent();
+                var totalHeight = 0;
+                p.children().each(function () {
+                    totalHeight += $(this).outerHeight(true)
+                });
+                w.height(p.height() + w.outerHeight(true) - totalHeight);
+            });
+        }
     }
     /* Set the defaults for DataTables initialization */
     $.extend(true, $.fn.dataTable.defaults, {
-    	sDom: "<'row'<'span12'lfr>>t<'row-fluid'<'span6'i><'span6'p>>",
+    	sDom: "<'dt-top'lfr><'table-wrapper't><'dt-bottom'ip>",
         fnInitComplete: function (table) {
             $('.dataTables_length').find("select").addClass("span2");
             $('.dataTables_filter').find(":input")
                 .addClass("input-small search-query")
                 .attr("placeholder", "Search");
             $('.dataTables_length > label').contents().filter(function() {
-               return this.nodeType != 1;
+                return this.nodeType != 1;
             }).wrap("<span class='mini help-inline'>");
         },
         sPaginationType: "bootstrap",
     	oLanguage: {
     		sLengthMenu: "_MENU_ records per page",
-            sInfo: "_START_-_END_ of <b>_TOTAL_</b> entries",
+            sInfo: "<b>_START_-_END_</b> of <b>_TOTAL_</b> entries",
             sSearch: ""
     	}
     });
@@ -49,7 +65,7 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
     /* Default class modification */
     $.extend($.fn.dataTableExt.oStdClasses, {
     	sWrapper: "dataTables_wrapper form-inline",
-        sInfo: "mini muted"
+        sInfo: "mini muted dt-info"
     });
 
     /* API method to get paging information */
@@ -79,8 +95,8 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
     					fnDraw(opts);
     				}
     			};
-    			$(nPaging).addClass('pagination').append(_.template(
-    				'<ul class="mini">' +
+    			$(nPaging).addClass('pagination pagination-mini').append(_.template(
+    				'<ul>' +
                         '<li class="prev disabled">' +
                         '<a href="#">&larr;</a></li>'+
     					'<li class="next disabled">'+

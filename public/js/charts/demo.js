@@ -34,7 +34,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
     var PieView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            this.model.on('sync', this.render);
         },
         render: function () {
             $(this.el).empty();
@@ -53,7 +53,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
     var BarView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            this.model.on('sync', this.render);
         },
         render: function () {
             $(this.el).empty();
@@ -72,7 +72,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
     var TableView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            this.model.on('sync', this.render);
         },
         render: function () {
             $(this.el).empty();
@@ -94,7 +94,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
     function div(id) {
         return $("<div>")
             .attr("id", id)
-            .addClass("view")
+            .addClass("vis-wrap")
             .css("height", "400px")
             .css("width", "400px")
     }
@@ -112,7 +112,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
                 .append($piechart)
                 .append($table);
             var genome = new Genome;
-            genomeId = (genomeId || 'kb|g.3907');
+            genomeId = (genomeId || 'kb|g.22476');
             genome.set({id: genomeId});
             var view = new BarView({ model: genome, el: $barchart });
             var piechart  = new PieView({ model: genome, el: $piechart });
