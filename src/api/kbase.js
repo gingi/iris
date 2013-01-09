@@ -18,12 +18,12 @@ var apis = {
         fn:  "Genotype_PhenotypeAPI"
     },
     cdmi: {
-        url: 'http://140.221.84.160:7033',
+        url: 'http://140.221.84.160:7032',
         src: "cdm-api.js",
         fn:  "CDMI_API"
     },
     cdmiEntity: {
-        url: 'http://140.221.84.160:7033',
+        url: 'http://140.221.84.160:7032',
         src: "cdm-api.js",
         fn:  "CDMI_EntityAPI"        
     },
@@ -274,11 +274,10 @@ exports.getGOTerms = function (params) {
         api('ontology').getGOIDList_async(sname, params.genes, GO_DOMAINS, GO_ECS,
         function (goTerms) {
             var terms = [];
-            var genes = [];
+            var genes = {};
             var termIndex = {};
             for (var gene in goTerms) {
-                var geneData = {};
-                geneData[gene] = [];
+                var geneTerms = [];
                 for (var term in goTerms[gene]) {
                     var index = termIndex[term];
                     if (index == null) {
@@ -287,9 +286,9 @@ exports.getGOTerms = function (params) {
                         terms.push(termData);
                         index = termIndex[term] = terms.length - 1;
                     }
-                    geneData[gene].push(index);
+                    geneTerms.push(index);
                 }
-                genes.push(geneData);
+                genes[gene] = geneTerms;
             }
             params.callback({
                 genes: genes,
