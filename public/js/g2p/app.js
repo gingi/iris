@@ -186,22 +186,22 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                                 for (var gene in data.genes) {
                                     var terms = [], ecs = [], descs = [];
                                     for (var i in data.genes[gene]) {
-                                        terms.push(data.terms[i].term);
-                                        ecs.push(data.terms[i].ec);
-                                        descs.push(data.terms[i].desc);
-                                        // genes.push([
-                                        //     gene,
-                                        //     data.terms[i].term,
-                                        //     data.terms[i].ec,
-                                        //     data.terms[i].desc,
-                                        // ]);
+                                        // terms.push(data.terms[i].term);
+                                        // ecs.push(data.terms[i].ec);
+                                        // descs.push(data.terms[i].desc);
+                                        genes.push([
+                                            gene,
+                                            data.terms[i].term,
+                                            data.terms[i].ec,
+                                            data.terms[i].desc,
+                                        ]);
                                         
                                     }
-                                    genes.push([gene,
-                                        terms.join("<br/>"),
-                                        ecs.join("<br/>"),
-                                        descs.join("<br/>")
-                                    ]);
+                                    // genes.push([gene,
+                                    //     terms.join("<br/>"),
+                                    //     ecs.join("<br/>"),
+                                    //     descs.join("<br/>")
+                                    // ]);
                                 }
                                 showTable(genes);
                             }
@@ -368,7 +368,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     function showTable(data) {
         require(['renderers/table'], function (Table) {
             subviewDiv("gene-table", "Trait Genes");
-            var table = new Table({element: "#gene-table"});
+            var table = new Table({element: "#gene-table", scrollY: 250});
             table.setData({
                 data: data,
                 columns: ['Name', 'GO Term', 'EC', 'Description']
