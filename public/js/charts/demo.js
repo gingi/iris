@@ -8,11 +8,12 @@ requirejs.config({
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
         },
-        colorbrewer: { exports: 'colorbrewer' }
+        colorbrewer: { exports: 'colorbrewer' },
+        "jquery.dataTables": [ 'jquery' ]
     },
 })
-require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie'],
-    function ($, Backbone, _, BarChart, PieChart) {
+require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'renderers/table'],
+    function ($, Backbone, _, BarChart, PieChart, Table) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
         url: function () { return "/data/genome/" + this.id + "/chromosomes"; },
@@ -66,28 +67,56 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie'],
             vis.display();
             return this;
         }
-    })
+    });
+
+    var TableView = Backbone.View.extend({
+        initialize: function () {
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
+        },
+        render: function () {
+            $(this.el).empty();
+            var data = [];
+            var chromosomes = this.model.get('chromosomes');
+            for (var chr in chromosomes) {
+                data.push([ chr, chromosomes[chr] ]);
+            }
+            vis = new Table({ element: this.$el });
+            vis.setData({
+                data: data,
+                columns: ['Chromosome', 'Length']
+            });
+            vis.display();
+            return this;
+        }
+    });
+    
+    function div(id) {
+        return $("<div>")
+            .attr("id", id)
+            .addClass("view")
+            .css("height", "400px")
+            .css("width", "400px")
+    }
 
     var Router = Backbone.Router.extend({
         routes: {
             "*actions": "show"
         },
         show: function (genomeId) {
-            var $barchart = $("<div>")
-                .attr("id", "barchart")
-                .css("height", "400px")
-                .css("width", "400px");
-                
-            var $piechart = $("<div>")
-                .attr("id", "piechart")
-                .css("height", "400px")
-                .css("width", "400px");
-            $("#container").empty().append($barchart).append($piechart);
+            var $barchart = div("barchart");
+            var $piechart = div("piechart");
+            var $table    = div("tablesum");
+            $("#container").empty()
+                .append($barchart)
+                .append($piechart)
+                .append($table);
             var genome = new Genome;
-            genomeId = (genomeId || 'kb|g.22476');
+            genomeId = (genomeId || 'kb|g.3907');
             genome.set({id: genomeId});
             var view = new BarView({ model: genome, el: $barchart });
-            var piechart = new PieView({ model: genome, el: $piechart });
+            var piechart  = new PieView({ model: genome, el: $piechart });
+            var tableview = new TableView({ model: genome, el: $table });
             genome.fetch();
         },
     });
