@@ -18,12 +18,12 @@ var apis = {
         fn:  "Genotype_PhenotypeAPI"
     },
     cdmi: {
-        url: 'http://140.221.84.160:7032',
+        url: 'http://140.221.84.160:7033',
         src: "cdm-api.js",
         fn:  "CDMI_API"
     },
     cdmiEntity: {
-        url: 'http://140.221.84.160:7032',
+        url: 'http://140.221.84.160:7033',
         src: "cdm-api.js",
         fn:  "CDMI_EntityAPI"        
     },
