@@ -171,13 +171,35 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         dismissSpinner($hud);
                         $hud.append($p);
                         $("#subviews").empty();
-                        addSpinner($("#subview"));
+                        // addSpinner($("#subviews"));
                         $.ajax({
                             url: dataAPI('/coexpression'),
                             dataType: 'json',
                             data: { genes: sourceGenes },
                             success: function (coexpression) {
                                 drawHeatmap({ rows: genes, matrix: coexpression });
+                            }
+                        });
+                        $.ajax({
+                            url: dataAPI('/genome/' + self.model.genome + '/ontology'),
+                            dataType: 'json',
+                            data: { genes: sourceGenes },
+                            success: function (data) {
+                                var genes = [];
+                                for (var gene in data.genes) {
+                                    var terms = [], ecs = [], descs = [];
+                                    for (var i in data.genes[gene]) {
+                                        terms.push(data.terms[i].term);
+                                        ecs.push(data.terms[i].ec);
+                                        descs.push(data.terms[i].desc);
+                                    }
+                                    genes.push([gene,
+                                        terms.join("<br/>"),
+                                        ecs.join("<br/>"),
+                                        descs.join("<br/>")
+                                    ]);
+                                }
+                                showTable(genes);
                             }
                         })
                         $.ajax({
@@ -186,7 +208,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                             data: { genes: sourceGenes },
                             success: function (ontology) {
                                 drawBarChart(ontology);
-                                drawPieChart(ontology);
                             }
                         })
                     }
@@ -342,5 +363,17 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                     .css("margin", "20px").html([e, "Try selecting a smaller window"].join("<br>")));
             }
         });
+    }
+    
+    function showTable(data) {
+        require(['renderers/table'], function (Table) {
+            subviewDiv("gene-table", "Trait Genes");
+            var table = new Table({element: "#gene-table"});
+            table.setData({
+                data: data,
+                columns: ['Name', 'GO Term', 'EC', 'Description']
+            })
+            table.display();
+        })
     }
 });
