@@ -1,4 +1,4 @@
-define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
+define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
     
     var NODE_SIZE  = {
         GENE: 8,
@@ -6,10 +6,13 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
     };
     var color = d3.scale.category10();
     
-    var Network = function (el) {
-        var _network = this;
+    var Network = function (el, options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
         var _idSequence = 1;
         var _autoUpdate = true;
+        
+        options.hud = options.hud || "#infobox";
         
         this.addNode = function (node) {
             if (node.id) {
@@ -79,7 +82,7 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
                 .style("stroke-location", "outside")   
         }
         
-        this.start = function () { update(); }
+        this.render = function () { update(); }
 
         this.findNode = function (key, type) {
             type = (type || 'id');
@@ -90,14 +93,15 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
             for (var i in nodes) {if (nodes[i].id === id) return i};
         }
 
-        var w = $(el).innerWidth(),
-            h = $(el).innerHeight();
+        var w = $(el).width(),
+            h = $(el).height();
 
         var vis = this.vis = d3.select(el).append("svg:svg")
             .attr("width", w)
             .attr("height", h);
             
-        var dock = new Dock(vis);
+        var dock;
+        if (options.dock) { dock = new Dock(vis) };
         
         // This order matters (nodes painted on top of links)
         var linkG = vis.append("g").attr("id", "networkLinks");
@@ -137,29 +141,35 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
                 .attr("r", function (d) { return nodeSize(d); })
                 .style("fill", function (d) { return color(d.group); })
                 .on("click", clickNode)
-                .on("dblclick", getNeighbors)
-                .call(dock.drag());
+                .on("dblclick", getNeighbors);
+            if (options.dock) {
+                nodeEnter.call(dock.drag());
+            } else {
+                nodeEnter.call(force.drag);
+            }
             svgNodes.exit().remove();
 
             force.on("tick", tick);            
             force.start();
         }
         
-        dock.on("dragstart.dock", function () { force.stop(); })
-            .on("dragmove.dock",  function () { tick() })
-            .on("dragend.dock",   function () { tick(); force.start(); })
-            .on("dock", function (evt, d, element) {
-                element
-                    .style("stroke", "yellow")
-                    .style("stroke-width", 3)
-                    .style("stroke-location", "outside")   
-            })
-            .on("undock", function (evt, d, element) {
-                element
-                    .style("stroke", null)
-                    .style("stroke-width", null)
-                    .style("stroke-location", null);
-            });
+        if (options.dock) {
+            dock.on("dragstart.dock", function () { force.stop(); })
+                .on("dragmove.dock",  function () { tick() })
+                .on("dragend.dock",   function () { tick(); force.start(); })
+                .on("dock", function (evt, d, element) {
+                    element
+                        .style("stroke", "yellow")
+                        .style("stroke-width", 3)
+                        .style("stroke-location", "outside")   
+                })
+                .on("undock", function (evt, d, element) {
+                    element
+                        .style("stroke", null)
+                        .style("stroke-width", null)
+                        .style("stroke-location", null);
+                });
+        }
                 
         function nodeSize(d) {
             var size = NODE_SIZE[d.type] || 8;
@@ -168,7 +178,7 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
 
         var selected, originalFill;
         function clickNode(d) {
-            var $hud = $("#infoBox");
+            var $hud = $(options.hud);
             if (selected) {
                 selected.style["fill"] = originalFill;
                 // $(selected).popover('hide');
@@ -228,18 +238,18 @@ define(['jquery', 'd3', 'util/dock'], function ($, d3, Dock) {
                     _autoUpdate = false;
                     var nodeMap = {};
                     data.nodes.forEach(function (n) {
-                        var node = _network.findNode(n.name, "name");
+                        var node = self.findNode(n.name, "name");
                         var oldId = n.id;
                         if (node) {
                             nodeMap[oldId] = node.id;
                         } else {
                             n.id = null;
-                            var newId = _network.addNode(n);
+                            var newId = self.addNode(n);
                             nodeMap[oldId] = newId;
                         }
                     });
                     data.edges.forEach(function (e) {
-                        _network.addLink(
+                        self.addLink(
                             nodeMap[e.source], nodeMap[e.target],
                             { weight: e.weight });
                     });

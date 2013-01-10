@@ -28,6 +28,11 @@
         bottom: auto;
         left: auto;
     }
+    #subinfobox {
+        z-index: 10;
+        bottom: 20px;
+        left: 20px;
+    }
     #infoBox td, #infoBox th { padding: 5px; }
     #infoBox th { text-align: left; }
     #container { position: relative; height: 100%;}
@@ -41,6 +46,7 @@
     </div>
     <div id="container" class="container"></div>
 <div class="hud" id="infoBox" style="display:none"></div>
+<div class="hud" id="subinfobox" style="display:none"></div>
 <script type="text/template" id="ddItemTemplate">
     <a href="<%= link %>"><%= title %></a>
 </script>

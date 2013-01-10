@@ -112,9 +112,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             var $rowContainer  = $("<div>").addClass("row")
                 .attr("id", "manhattan-row-container");
             var $spanContainer = $("<div>").addClass("span12")
-                // .css("min-width",
-                //     Math.min($el.width()-80,
-                //         genomePixelWidth(self.model.get('contigs'))))
                 .css("position", "relative")
                 .outerHeight(MANHATTAN_HEIGHT);
             var $viewport = $("<div>")
@@ -151,7 +148,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 if (pmin > pmax) {
                     var tmp = pmin; pmin = pmax; pmax = tmp;
                 }
-                console.log("AJAX", ranges);
                 genesXHR = $.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
@@ -172,11 +168,16 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                     } else {
                         $p.text("No genes found");
                     }
-                    var sourceGenes = _.map(genes, function (g) { return g[1] });
+                    var sourceGenes =
+                        _.map(genes, function (g) { return g[1] });
                     dismissSpinner($hud);
                     $hud.append($p);
                     $("#subviews").empty();
-                    // addSpinner($("#subviews"));
+                    $.ajax({
+                        url: dataAPI('/network/random'),
+                        dataType: 'json',
+                        data: { clusters: 2, nodes: 10 }
+                    }).done(function (json) { drawNetwork(json); });
                     $.ajax({
                         url: dataAPI('/coexpression'),
                         dataType: 'json',
@@ -220,6 +221,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         data: { genes: sourceGenes },
                         success: function (ontology) {
                             drawBarChart(ontology);
+                            drawPieChart(ontology);
                         }
                     })
                 });
@@ -291,7 +293,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             url:        dd.url,
             itemType:   type,
             itemSelect: function (item, $el) {
-                $el.parents("li.dropdown").find("#copy").text(item.title);
+                $el.parents("li.dropdown")
+                    .find("#copy").text(item.title);
             } 
         });
     }
@@ -387,6 +390,20 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 columns: ['Name', 'GO Term', 'EC', 'Description']
             })
             table.display();
+        })
+    }
+    
+    function drawNetwork(data) {
+        var nodes = data.nodes;
+        var edges = data.edges;
+        require(['renderers/network'], function (NetworkVis) {
+            subviewDiv("network", "Gene Clusters");
+            var network = new NetworkVis("#network", {
+                hud: $("#subinfobox")
+            });
+            network.setNodes(nodes);
+            network.setEdges(edges);
+            network.render();
         })
     }
 });
