@@ -1,12 +1,14 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MAX_CELLS = 6400; // 80 x 80
+    var MIN_CELL_SIZE = 3;
+    var MAX_CELL_SIZE = 12;
     var DEFAULT_BORDER_WIDTH = 0.5;
 	function Heatmap(element, options) {
         var self = this;
         element = $(element);
         options = (options || {});
         options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
-        options.colorscheme = (options.colorscheme || 'Spectral');
+        options.colorscheme = (options.colorscheme || 'RdYlBu');
         
         var matrix = [];
         var rowIndex = {}; var numRows = 0;
@@ -39,12 +41,16 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
         };
         self.render = function () {
             element.css("position", "relative");
-            cellSize = Math.max(3,
-                (minDim - options.borderWidth * (rows.length+1)) / rows.length);
+            cellSize = Math.min(MAX_CELL_SIZE,
+                Math.max(MIN_CELL_SIZE,
+                    (minDim - options.borderWidth * (rows.length+1)) / rows.length)
+                );
+            var adjWidth  = (rows.length)    * (cellSize + options.borderWidth)
+            var adjHeight = (columns.length) * (cellSize + options.borderWidth)
     	    var svg  = d3.select("#" + element.attr('id')).append("svg")
     	        .attr("class", options.colorscheme)
-    	        .attr("width", width)
-    	        .attr("height", height);
+    	        .attr("width", adjWidth)
+    	        .attr("height", adjHeight);
     	    var quantize = d3.scale.quantile().domain([0, 1]).range(d3.range(9));
             var dragbox = new DragBox(element);
             dragbox.textHandler(function (x, y, w, h) {
@@ -71,14 +77,13 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 }
             }
             schemes.unshift(options.colorscheme);
-            element.append($("<button>")
-                .addClass("btn btn-mini").text("Change Scheme")
-                .on('click', function () {
-                    schemeIndex = (schemeIndex + 1) % schemes.length;
-                    svg.attr("class", schemes[schemeIndex]);
-                }
-            ));
-            // svg.on('click', function () { console.log("Clicked", evt); });
+            // element.append($("<button>")
+            //     .addClass("btn btn-mini").text("Change Scheme")
+            //     .on('click', function () {
+            //         schemeIndex = (schemeIndex + 1) % schemes.length;
+            //         svg.attr("class", schemes[schemeIndex]);
+            //     }
+            // ));
         }
         return self;
 	}
