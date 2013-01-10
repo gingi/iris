@@ -76,7 +76,10 @@ function($, Backbone, _, Spinner) {
                 var $topics = this.$el.find("#" + this.options.listId);
                 $topics.empty();
                 if (this.collection.length) {
-                    _.each(this.collection.models, function (item) {
+                    var items = options.sortBy
+                        ? _.sortBy(this.collection.models, options.sortBy)
+                        : this.collection.models;
+                    _.each(items, function (item) {
                         var itemView = new DDItemView({ model: item });
                         $topics.append(itemView.render().el);
                     }, this);
