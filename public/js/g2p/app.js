@@ -178,14 +178,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         dataType: 'json',
                         data: { clusters: 2, nodes: 10 }
                     }).done(function (json) { drawNetwork(json); });
-                    $.ajax({
-                        url: dataAPI('/coexpression'),
-                        dataType: 'json',
-                        data: { genes: sourceGenes },
-                        success: function (coexpression) {
-                            drawHeatmap({ rows: genes, matrix: coexpression });
-                        }
-                    });
+                    // $.ajax({
+                    //     url: dataAPI('/coexpression'),
+                    //     dataType: 'json',
+                    //     data: { genes: sourceGenes }
+                    // }).done(function (coexpression) {
+                    //     drawHeatmap({ rows: genes, matrix: coexpression });
+                    // });
                     $.ajax({
                         url: dataAPI('/genome/' + self.model.genome + '/ontology'),
                         dataType: 'json',
@@ -221,7 +220,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         data: { genes: sourceGenes },
                         success: function (ontology) {
                             drawBarChart(ontology);
-                            drawPieChart(ontology);
                         }
                     })
                 });
