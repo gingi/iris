@@ -175,7 +175,6 @@ function Genotype_PhenotypeAPI(url) {
         };
         
         var body = JSON.stringify(rpc);
-console.log("curl -d '%s' '%s'", body, _url);
         var resp_txt;
 	var code;
         
