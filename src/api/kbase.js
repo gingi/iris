@@ -166,7 +166,7 @@ exports.getVariations = function (params) {
 
 exports.getTraitGenes = function (params) {
     params = validateParams(params, ['traitId', 'pmin', 'pmax', 'loci']);
-    if (Object.prototype.toString.call(params.loci) === '[object Array]') {
+    if (Object.prototype.toString.call(params.loci) !== '[object Array]') {
         return errorHandler(params.response)
             ("'loci' argument must be an array");
     }

@@ -133,7 +133,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             });
             vis.render();
             $spanContainer.fadeIn();
+            var genesXHR;
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
+                if (genesXHR) {
+                    // If a prior query is in progress
+                    genesXHR.abort();
+                }
                 var tbody = $("<tbody>");
                 $hud.empty();
                 $hud.fadeIn();
@@ -145,76 +150,76 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 if (pmin > pmax) {
                     var tmp = pmin; pmin = pmax; pmax = tmp;
                 }
-                $.ajax({
+                genesXHR = $.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
                     data: {
                         pmin: pmin,
                         pmax: pmax,
                         locations: ranges
-                    },
-                    success: function (genes) {
-                        var $p = $("<p>")
-                            .css("text-align",  "center")
-                            .css("vertical-align", "middle")
-                            .css("font-weight", "bold")
-                            .css("min-height",  "30px");
-                        if (genes.length > 0) {
-                            $p.text(genes.length + " genes");
-                        } else {
-                            $p.text("No genes found");
-                        }
-                        var sourceGenes = _.map(genes, function (g) { return g[1] });
-                        dismissSpinner($hud);
-                        $hud.append($p);
-                        $("#subviews").empty();
-                        // addSpinner($("#subviews"));
-                        $.ajax({
-                            url: dataAPI('/coexpression'),
-                            dataType: 'json',
-                            data: { genes: sourceGenes },
-                            success: function (coexpression) {
-                                drawHeatmap({ rows: genes, matrix: coexpression });
-                            }
-                        });
-                        $.ajax({
-                            url: dataAPI('/genome/' + self.model.genome + '/ontology'),
-                            dataType: 'json',
-                            data: { genes: sourceGenes },
-                            success: function (data) {
-                                var genes = [];
-                                for (var gene in data.genes) {
-                                    var terms = [], ecs = [], descs = [];
-                                    for (var i in data.genes[gene]) {
-                                        // terms.push(data.terms[i].term);
-                                        // ecs.push(data.terms[i].ec);
-                                        // descs.push(data.terms[i].desc);
-                                        genes.push([
-                                            gene,
-                                            data.terms[i].term,
-                                            data.terms[i].ec,
-                                            data.terms[i].desc,
-                                        ]);
-                                        
-                                    }
-                                    // genes.push([gene,
-                                    //     terms.join("<br/>"),
-                                    //     ecs.join("<br/>"),
-                                    //     descs.join("<br/>")
-                                    // ]);
-                                }
-                                showTable(genes);
-                            }
-                        })
-                        $.ajax({
-                            url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
-                            dataType: 'json',
-                            data: { genes: sourceGenes },
-                            success: function (ontology) {
-                                drawBarChart(ontology);
-                            }
-                        })
                     }
+                })
+                .done(function (genes) {
+                    var $p = $("<p>")
+                        .css("text-align",  "center")
+                        .css("vertical-align", "middle")
+                        .css("font-weight", "bold")
+                        .css("min-height",  "30px");
+                    if (genes.length > 0) {
+                        $p.text(genes.length + " genes");
+                    } else {
+                        $p.text("No genes found");
+                    }
+                    var sourceGenes = _.map(genes, function (g) { return g[1] });
+                    dismissSpinner($hud);
+                    $hud.append($p);
+                    $("#subviews").empty();
+                    // addSpinner($("#subviews"));
+                    $.ajax({
+                        url: dataAPI('/coexpression'),
+                        dataType: 'json',
+                        data: { genes: sourceGenes },
+                        success: function (coexpression) {
+                            drawHeatmap({ rows: genes, matrix: coexpression });
+                        }
+                    });
+                    $.ajax({
+                        url: dataAPI('/genome/' + self.model.genome + '/ontology'),
+                        dataType: 'json',
+                        data: { genes: sourceGenes },
+                        success: function (data) {
+                            var genes = [];
+                            for (var gene in data.genes) {
+                                var terms = [], ecs = [], descs = [];
+                                for (var i in data.genes[gene]) {
+                                    // terms.push(data.terms[i].term);
+                                    // ecs.push(data.terms[i].ec);
+                                    // descs.push(data.terms[i].desc);
+                                    genes.push([
+                                        gene,
+                                        data.terms[i].term,
+                                        data.terms[i].ec,
+                                        data.terms[i].desc,
+                                    ]);
+                                        
+                                }
+                                // genes.push([gene,
+                                //     terms.join("<br/>"),
+                                //     ecs.join("<br/>"),
+                                //     descs.join("<br/>")
+                                // ]);
+                            }
+                            showTable(genes);
+                        }
+                    })
+                    $.ajax({
+                        url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
+                        dataType: 'json',
+                        data: { genes: sourceGenes },
+                        success: function (ontology) {
+                            drawBarChart(ontology);
+                        }
+                    })
                 });
             });
             vis.on("pinpoint", function () { $hud.fadeOut(); });
