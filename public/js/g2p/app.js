@@ -151,6 +151,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 if (pmin > pmax) {
                     var tmp = pmin; pmin = pmax; pmax = tmp;
                 }
+                console.log("AJAX", ranges);
                 genesXHR = $.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
@@ -279,7 +280,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
         },
         itemLink: function (item) {
             return "#" + item.type + "/" + item.id;
-        }
+        },
+        sortBy: function (item) { return item.title.toLowerCase(); }
     });
     for (var type in dropdowns) {
         var dd = dropdowns[type];
