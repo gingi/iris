@@ -1,5 +1,5 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
-    var MAX_CELLS = 6400; // 80 x 80
+    var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 3;
     var MAX_CELL_SIZE = 12;
     var DEFAULT_BORDER_WIDTH = 0.5;

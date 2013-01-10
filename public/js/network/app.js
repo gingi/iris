@@ -30,10 +30,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
         },
         render: function () {
             $("#datavis").empty();
-            vis = new NetworkVis("#datavis");
+            vis = new NetworkVis("#datavis", { dock: true });
             vis.setNodes(this.model.get('nodes'));
             vis.setEdges(this.model.get('edges'));
-            vis.start();
+            vis.render();
             return this;
         },
     });    

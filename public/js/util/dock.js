@@ -52,8 +52,8 @@ define(['jquery', 'd3', 'util/eventemitter'], function ($, d3, EventEmitter) {
         self.drag = function () {
             return d3.behavior.drag()
                 .on("dragstart", nodeDragstart)
-                .on("drag", nodeDragmove)
-                .on("dragend", nodeDragend);
+                .on("drag",      nodeDragmove)
+                .on("dragend",   nodeDragend);
         }
 
         function nodeDragstart() {
