@@ -20,6 +20,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     function ($, Backbone, _, ManhattanPlot, Spinner, DropDown, EventEmitter) {
   
     var MANHATTAN_HEIGHT = "300px";
+    var PVALUE_THRESHOLD = 1;
     
     function dataAPI(path) { return "/data" + path; }
     function addSpinner(el) {
@@ -325,13 +326,16 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
             for (var i = 0; i < data.length; i++) {
-                chartData.push({
-                    x: data[i].goID, y: data[i].pvalue,
-                    title: data[i].goDesc.join("\n")
-                });
+                var normalized = -Math.log(data[i].pvalue) / Math.LN10;
+                if (normalized >= PVALUE_THRESHOLD) {
+                    chartData.push({
+                        x: data[i].goID, y: normalized,
+                        title: data[i].goDesc.join("\n")
+                    });
+                }
             }
             subviewDiv("go-histogram", "Gene Ontology Enrichment");
-            var chart = new BarChart("#go-histogram", { yTitle: "P value" });
+            var chart = new BarChart("#go-histogram", { yTitle: "-log10 p" });
             chart.setData(chartData);
             chart.display();
         });

@@ -47,8 +47,8 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                     "translate(" + margin.left + "," + margin.top + ")");
             
 
-            x.domain(_.map(data, function(d) {return d.x; }));
-            y.domain([0, d3.max(data, function(d) { return d.y; })]);
+            x.domain(_.map(data, function (d) {return d.x; }));
+            y.domain([0, d3.max(data, function (d) { return d.y; }) ]);
 
             function drawXAxis(elem) {
                 if (x.rangeBand() > labelFontHeight(svg)) {
