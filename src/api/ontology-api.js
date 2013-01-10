@@ -17,18 +17,6 @@ function Ontology(url) {
 	json_call_ajax_async("Ontology.getGOIDList", [sname, geneIDList, domainList, ecList], 1, _callback, _error_callback)
     }
 
-    this.getGOIDLimitedList = function(sname, geneIDList, domainList, ecList, minCount, maxCount)
-    {
-	var resp = json_call_ajax_sync("Ontology.getGOIDLimitedList", [sname, geneIDList, domainList, ecList, minCount, maxCount]);
-//	var resp = json_call_sync("Ontology.getGOIDLimitedList", [sname, geneIDList, domainList, ecList, minCount, maxCount]);
-        return resp[0];
-    }
-
-    this.getGOIDLimitedList_async = function(sname, geneIDList, domainList, ecList, minCount, maxCount, _callback, _error_callback)
-    {
-	json_call_ajax_async("Ontology.getGOIDLimitedList", [sname, geneIDList, domainList, ecList, minCount, maxCount], 1, _callback, _error_callback)
-    }
-
     this.getGoDesc = function(goIDList)
     {
 	var resp = json_call_ajax_sync("Ontology.getGoDesc", [goIDList]);
@@ -51,18 +39,6 @@ function Ontology(url) {
     this.getGOEnrichment_async = function(sname, geneIDList, domainList, ecList, type, _callback, _error_callback)
     {
 	json_call_ajax_async("Ontology.getGOEnrichment", [sname, geneIDList, domainList, ecList, type], 1, _callback, _error_callback)
-    }
-
-    this.getGOLimitedEnrichment = function(sname, geneIDList, domainList, ecList, minCount, maxCount, type)
-    {
-	var resp = json_call_ajax_sync("Ontology.getGOLimitedEnrichment", [sname, geneIDList, domainList, ecList, minCount, maxCount, type]);
-//	var resp = json_call_sync("Ontology.getGOLimitedEnrichment", [sname, geneIDList, domainList, ecList, minCount, maxCount, type]);
-        return resp[0];
-    }
-
-    this.getGOLimitedEnrichment_async = function(sname, geneIDList, domainList, ecList, minCount, maxCount, type, _callback, _error_callback)
-    {
-	json_call_ajax_async("Ontology.getGOLimitedEnrichment", [sname, geneIDList, domainList, ecList, minCount, maxCount, type], 1, _callback, _error_callback)
     }
 
     function _json_call_prepare(url, method, params, async_flag)
