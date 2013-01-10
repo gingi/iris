@@ -94,7 +94,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
     function div(id) {
         return $("<div>")
             .attr("id", id)
-            .addClass("vis-wrap")
+            .addClass("viewport")
             .css("height", "400px")
             .css("width", "400px")
     }

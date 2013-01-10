@@ -33,10 +33,9 @@ body,html { height:100%;}
 #nodeInfo {
     font-size: 10pt;
 }
-#subviews {
-    padding: 20px;
-}
-.vis-wrap {
+.row { margin-bottom: 5px; }
+[class*="span"] { padding-right: 0; }
+.viewport {
     display: inline-block;
     position: relative;
     border: 1px solid #DDD;
@@ -45,9 +44,9 @@ body,html { height:100%;}
     border-radius: 4px;
     padding: 5px;
     padding-top: 30px;
-    margin-left: 5px;
+    width: 100%;
 }
-.vis-wrap::after{
+.viewport::after{
     content: attr(data-title);
     position: absolute;
     top: -1px;
