@@ -282,7 +282,7 @@ exports.getGOTerms = function (params) {
         // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
         for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
         api('ontology').getGOIDList_async(
-            sname, params.genes, GO_DOMAINS, GO_ECS,
+            sname, params.genes, GO_DOMAINS, [],
         function (goTerms) {
             var terms = [];
             var genes = {};
