@@ -92,7 +92,6 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             } else {
                 drawDragBox(x1, y1, x2 - x1 + 1, y2 - y1 + 1)
                 tool.started = false;
-                // self.emit("selection", [x1, y1, x2, y2]);
                 handlers.selection(x1, y1, x2, y2);
             }
             tool.clicked = false;
