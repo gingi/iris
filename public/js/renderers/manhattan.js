@@ -6,8 +6,6 @@ function ($, EventEmitter, DragBox, Scale) {
             .attr("width", container.width())
             .attr("height", container.height())
             .css("position", "absolute")
-            .css("left", 0)
-            .css("top", 0)
             .css("z-index", options.z || 10);
         container.append(canvas);
         return canvas[0].getContext('2d');
@@ -57,15 +55,18 @@ function ($, EventEmitter, DragBox, Scale) {
         self.render = function (args) {
             args = (args || {});
             $element.empty();
+            
+            // Fix height/width to prevent resizing artifacts
+            $element.height($element.height());
+            $element.width($element.width());
+            
             var containerHeight = $element.height();
             var containerWidth  = $element.width();
             canvasHeight = containerHeight - XAXIS_HEIGHT;
             canvasWidth  = containerWidth  - YAXIS_WIDTH;
-            $element.css("position", "relative")
-                .width(containerWidth)
-                .height(containerHeight);
+            $element.css("position", "relative");
             var plotArea =
-                $('<div>').css("position", "absolute").css("right", 0);
+                $('<div>').css("position", "absolute").css("left", YAXIS_WIDTH);
             plotArea.width(canvasWidth).height(canvasHeight);
             ctx = createCanvas(plotArea);
             $element.append(plotArea);

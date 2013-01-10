@@ -12,28 +12,15 @@
     <script src="/js/bootstrap.js"></script>
     <style>
     .dataTable { font-size: 85%; }
-    .manhattan { margin: 0 20px;}
-    .vis-wrap {
-        height: 400px;
-        width: 400px;
+    .viewport {
         padding-top: 30px;
     }
-    .vis-wrap::after{
-        content: attr(data-title);
-        position: absolute;
-        top: -1px;
-        left: -1px;
-        padding: 3px 7px;
-        font-size: 12px;
-        font-weight: bold;
-        background-color: #f5f5f5;
-        border: 1px solid #ddd;
-        color: #9da0a4;
-        -webkit-border-radius: 4px 0 4px 0;
-        -moz-border-radius: 4px 0 4px 0;
-        border-radius: 4px 0 4px 0;
+    #subviews .viewport {
+        height: 400px;
+        min-width: 300px;
     }
-    li.dropdown { width: 150px;}
+    li.dropdown { width: 150px; }
+    .dropdown-toggle { min-height: 50px;}
     #infoBox {
         z-index: 10;
         top: 50px;
@@ -47,14 +34,12 @@
     </style>
 </head>
 <body>
-    <div id="container">
-        <div class="row">
+    <div class="row">
         <div class="span12">
             <ul id="g2pnav" class="nav nav-pills"></ul>
-            <!-- <ul class="breadcrumb" id="breadcrumbs"></ul> -->
         </div>
     </div>
-    </div>
+    <div id="container" class="container"></div>
 <div class="hud" id="infoBox" style="display:none"></div>
 <script type="text/template" id="ddItemTemplate">
     <a href="<%= link %>"><%= title %></a>

@@ -46,9 +46,13 @@ function errorHandler(response, type, errorMessage) {
         : function (err) { return err };
     return function (err) {
         console.error("Error (%s):", type, err);
-        response.send(503, {
-            error: getError(err)
-        });
+        try {
+            response.send(503, {
+                error: getError(err)
+            });
+        } catch (err) {
+            console.error("Error sending error response", err);
+        }
     }
 }
 
@@ -162,6 +166,10 @@ exports.getVariations = function (params) {
 
 exports.getTraitGenes = function (params) {
     params = validateParams(params, ['traitId', 'pmin', 'pmax', 'loci']);
+    if (Object.prototype.toString.call(params.loci) === '[object Array]') {
+        return errorHandler(params.response)
+            ("'loci' argument must be an array");
+    }
     api('g2p').selected_locations_to_genes_async(
         params.traitId,
         params.pmin,
@@ -263,7 +271,8 @@ exports.getNetworkDatasets = function (params) {
     }
 }
 
-var GO_DOMAINS = ["biological_process", "molecular_function", "cellular_component"];
+var GO_DOMAINS = 
+    ["biological_process", "molecular_function", "cellular_component"];
 var GO_ECS     = ["IEA", "IEP", "ISS"];
 exports.getGOTerms = function (params) {
     params = validateParams(params, ['genomeId', 'genes']);
@@ -307,7 +316,8 @@ exports.getGOEnrichment = function (params) {
         var sname = genome[params.genomeId].source_id;
         // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
         for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
-        api('ontology').getGOEnrichment_async(sname, params.genes, GO_DOMAINS, GO_ECS,
+        api('ontology').getGOEnrichment_async(
+            sname, params.genes, GO_DOMAINS, GO_ECS,
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
         );

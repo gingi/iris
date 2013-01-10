@@ -92,7 +92,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             // Prepare transitions
             $hud = $("#infoBox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
-            this.$el.find(".manhattan").fadeTo(0, 0.3);
+            this.$el.find("#manhattan-row-container").fadeTo(0, 0.3);
             $("#subviews").fadeTo(0, 0.3);
             this.$el.find(".alert").remove();
             addSpinner(this.$el);
@@ -106,33 +106,33 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 return;
             }
             dismissSpinner($el);
-            $el.find(".manhattan").remove();
-            $el.find("#subviews").remove();
-            var $newVis = $("<div>")
-                .addClass("manhattan")
-                .css("min-width",
-                    Math.min($el.width()-80,
-                        genomePixelWidth(self.model.get('contigs'))))
+            $el.find("#manhattan-row-container").remove();
+            $el.find("#subviews").empty();
+            var $rowContainer  = $("<div>").addClass("row")
+                .attr("id", "manhattan-row-container");
+            var $spanContainer = $("<div>").addClass("span12")
+                // .css("min-width",
+                //     Math.min($el.width()-80,
+                //         genomePixelWidth(self.model.get('contigs'))))
                 .css("position", "relative")
                 .outerHeight(MANHATTAN_HEIGHT);
-            var $visElement = $("<div>")
-                .css("width", "100%")
+            var $viewport = $("<div>")
+                .addClass("viewport manhattan")
+                .attr("data-title", "Manhattan Plot")
                 .attr("id", "manhattan-vis");
-            $newVis.append($visElement);
-            $el.append($newVis);
-            $visElement.outerHeight(
-                $newVis.outerHeight(true)
-            );
+            
+            $el.append($rowContainer.append($spanContainer.append($viewport)));
+            $viewport.outerHeight($spanContainer.height());
             $el.append(subviewBar());
             
-            vis = new ManhattanPlot($visElement, {});
+            vis = new ManhattanPlot($viewport, {});
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
                 maxscore:   model.get('maxscore')
             });
             vis.render();
-            $newVis.fadeIn();
+            $spanContainer.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 var tbody = $("<tbody>");
                 $hud.empty();
@@ -236,7 +236,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                     "Stack:   " + details.stack].join("\n")));
             }
             dismissSpinner(this.$el);
-            this.$el.find(".manhattan").remove();
+            this.$el.find("#manhattan-row-container").remove();
             this.$el.find("#subviews").remove();
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
@@ -309,9 +309,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
     Backbone.history.start();
     
     function subviewDiv(id, title) {
-        var view = $("<div>").addClass("vis-wrap span4").attr("id", id);
-        view.attr('data-title', title);
-        $("#subviews").append(view);
+        $("#subviews").append(
+            $("<div>").addClass("span4").append(
+                $("<div>").addClass("viewport")
+                    .attr("id", id)
+                    .attr('data-title', title)));
     }    
     
     function drawBarChart(data) {
