@@ -209,9 +209,11 @@ app.get('/data/coexpression', function (request, response, next) {
         response.send([]);
         return;
     }
+    var MAX_GENES = 80;
+    var numGenes = Math.min(MAX_GENES, genes.length);
     var matrix = [];
-    for (var i = 0; i < genes.length; i++) {
-        for (var j = 0; j < genes.length; j++) {
+    for (var i = 0; i < numGenes; i++) {
+        for (var j = 0; j < numGenes; j++) {
             if (i != j) {
                 matrix.push([i, j, Math.random()]);
             }
