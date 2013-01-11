@@ -155,7 +155,7 @@ app.get('/data/genome/:id/ontology', function (request, response, next) {
     kbase.getGOTerms({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes || []
+        genes: request.query.genes.split(",")
     });
 });
 
@@ -163,7 +163,14 @@ app.get('/data/genome/:id/go-enrichment', function (request, response, next) {
     kbase.getGOEnrichment({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes || []
+        genes: request.query.genes.split(",")
+    });
+});
+
+app.get('/data/genes/functions', function (request, response, next) {
+    kbase.getGeneFunctions({
+        response: response,
+        genes: request.query.genes.split(",")
     });
 });
 
