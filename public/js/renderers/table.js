@@ -3,7 +3,7 @@ requirejs.config({
         columnfilter: 'DataTables/extras/ColumnFilterWidgets'
     },
     shim: {
-        columnfilter: [ "jquery.DataTables" ]
+        columnfilter: [ "jquery.dataTables" ]
     }
 })
 define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
