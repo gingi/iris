@@ -84,7 +84,8 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
             vis = new Table({ element: this.$el });
             vis.setData({
                 data: data,
-                columns: ['Chromosome', 'Length']
+                columns: ['Chromosome', 'Length'],
+                filter: ['Chromosome']
             });
             vis.display();
             return this;
