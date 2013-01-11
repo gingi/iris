@@ -4,6 +4,7 @@
   , "private"      : true
   , "dependencies" : {
       "express"          : ">=3.0.5"
+    , "async"            : ">=0.1.22"
     , "backbone"         : ">=0.9.9"
     , "underscore"       : ">=1.4.3"
     , "ejs"              : ">=0.8.2"
