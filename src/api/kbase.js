@@ -91,11 +91,36 @@ function validateParams(target, reqs) {
     return target;
 }
 
+function exceptionWrapper(fn, object) {
+    return function () {
+        try {
+            fn.apply(object, arguments);
+        } catch (err) {
+            console.error("API error: ", err);
+            var lastArg = arguments[arguments.length - 1];
+            if (typeof lastArg === 'function') {
+                lastArg.apply(object, {
+                    error: err
+                });
+            }
+        }
+    }
+}
+
 function api(key) {
     var params = apis[key];
     if (!params.object) {
         var proto = apiRequire(path.join(__dirname, params.src), params.fn);
-        params.object = new proto(params.url);
+        var object = new proto(params.url);
+        var proxyObject = new Object();
+        for (var key in object) {
+            if (typeof object[key] === 'function') {
+                proxyObject[key] = exceptionWrapper(object[key], object);
+            } else {
+                proxyObject[key] = object[key];
+            }
+        }
+        params.object = proxyObject;
     }
     return params.object;
 }
@@ -257,8 +282,10 @@ exports.getGeneFunctions = function (params) {
         function (data) {
             var functions = {};
             for (var gene in data) {
-                functions[gene] =
-                    data[gene].replace(/\s*\[Source.*$/, '');
+                if (data[gene] != null) {
+                    functions[gene] =
+                        data[gene].replace(/\s*\[Source.*$/, '');
+                }
             }
             params.callback(functions);
         },
