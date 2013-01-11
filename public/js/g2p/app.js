@@ -136,6 +136,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                 if (genesXHR) {
                     // If a prior query is in progress
                     genesXHR.abort();
+                    genesXHR = null;
                 }
                 var tbody = $("<tbody>");
                 $hud.empty();
@@ -169,7 +170,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                         $p.text("No genes found");
                     }
                     var sourceGenes =
-                        _.map(genes, function (g) { return g[1] });
+                        _.map(genes, function (g) { return g[0] }).join(',');
                     dismissSpinner($hud);
                     $hud.append($p);
                     $("#subviews").empty();

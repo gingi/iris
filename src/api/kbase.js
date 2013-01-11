@@ -1,7 +1,8 @@
-var vm     = require('vm');
-var jQuery = require('jquery');
-var fs     = require('fs');
-var path   = require('path');
+var vm    = require('vm');
+var $     = require('jquery');
+var fs    = require('fs');
+var path  = require('path');
+var async = require('async');
 
 var P_DECIMALS = 5;
 var FLANKING_DISTANCE = 1e5;
@@ -102,7 +103,7 @@ function api(key) {
 var sandboxes = {};
 function apiRequire(path, fn) {
     if (!sandboxes[path]) {
-        var sandbox = sandboxes[path] = { jQuery: jQuery, console: console };
+        var sandbox = sandboxes[path] = { jQuery: $, console: console };
         var data = fs.readFileSync(path, 'utf8');
         var ret = vm.runInNewContext(data, sandbox, path);
     }
@@ -249,6 +250,15 @@ exports.getNeighborNetwork = function (params) {
     );
 }
 
+exports.getGeneFunctions = function (params) {
+    params = validateParams(params, ["genes"]);
+    api('cdmi').fids_to_functions_async(
+        params.genes,
+        params.callback,
+        rpcErrorHandler(params.response)
+    );
+}
+
 exports.getNetworkDatasets = function (params) {
     params = validateParams(params);
     if (params.geneId) {
@@ -274,15 +284,38 @@ exports.getNetworkDatasets = function (params) {
 var GO_DOMAINS = 
     ["biological_process", "molecular_function", "cellular_component"];
 var GO_ECS     = ["IEA", "IEP", "ISS"];
-exports.getGOTerms = function (params) {
+
+function genomeWithCanonicalGenes(params, resultCallback) {
     params = validateParams(params, ['genomeId', 'genes']);
-    api('cdmiEntity').get_entity_Genome_async([params.genomeId], ['source_id'],
-    function (genome) {
-        var sname = genome[params.genomeId].source_id;
-        // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
-        for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
-        api('ontology').getGOIDList_async(
-            sname, params.genes, [], [],
+    async.parallel({
+        genome: function (asyncCallback) {
+            api('cdmiEntity').get_entity_Genome_async(
+                [params.genomeId], ['source_id'], function (genome) {
+                var sname = genome[params.genomeId].source_id;
+                asyncCallback(null, sname);
+            }, rpcErrorHandler(params.response))
+        },
+        genes: function (asyncCallback) {
+            api('cdmiEntity').get_entity_Feature_async(
+                params.genes, ['source_id'], function (genes) {
+                    var sourceIds = [];
+                    // FIXME: API expects versioned source IDs
+                    // (e.g.,'POPTR_0019s05010.1')
+                    for (id in genes)
+                        sourceIds.push(genes[id].source_id + ".1");
+                    asyncCallback(null, sourceIds);
+                }, rpcErrorHandler(params.response)
+            )
+        }
+    },
+    function (err, result) {
+        resultCallback(result.genome, result.genes);
+    });
+}    
+
+exports.getGOTerms = function (params) {
+    genomeWithCanonicalGenes(params, function (genome, geneIDs) {
+        api('ontology').getGOIDList_async(genome, geneIDs, [], [],
         function (goTerms) {
             var terms = [];
             var genes = {};
@@ -306,18 +339,13 @@ exports.getGOTerms = function (params) {
                 terms: terms
             })
         }, rpcErrorHandler(params.response));
-    }, rpcErrorHandler(params.response));
+    });
 }
 
 exports.getGOEnrichment = function (params) {
-    params = validateParams(params, ['genomeId', 'genes']);
-    api('cdmiEntity').get_entity_Genome_async([params.genomeId], ['source_id'],
-    function (genome) {
-        var sname = genome[params.genomeId].source_id;
-        // FIXME: API expects versioned source IDs (e.g.,'POPTR_0019s05010.1')
-        for (var i = 0; i < params.genes.length; i++) params.genes[i] += ".1";
+    genomeWithCanonicalGenes(params, function (genome, genes) {
         api('ontology').getGOEnrichment_async(
-            sname, params.genes, GO_DOMAINS, GO_ECS,
+            genome, genes, GO_DOMAINS, GO_ECS,
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
         );
