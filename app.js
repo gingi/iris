@@ -42,6 +42,11 @@ app.configure(function() {
     }));
 });
 
+http.createServer(app)
+    .listen(app.get('port'), function() {
+    console.log("Express server listening on port " + app.get('port'));
+});
+
 app.configure('development', function() {
     app.use(express.errorHandler());
 });
@@ -152,6 +157,12 @@ app.get('/data/experiment/:id', function (request, response, next) {
 });
 
 app.get('/data/genome/:id/ontology', function (request, response, next) {
+    if (typeof request.query.genes !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
     kbase.getGOTerms({
         response: response,
         genomeId: request.params.id,
@@ -294,10 +305,6 @@ app.get('/data/network/:network', function (request, response, next) {
     })
 });
 
-http.createServer(app)
-    .listen(app.get('port'), function() {
-    console.log("Express server listening on port " + app.get('port'));
-});
 
 function randomNetwork(nNodes, nEdges, nClusters) {
     var nodes = [], edges = [];
