@@ -254,7 +254,14 @@ exports.getGeneFunctions = function (params) {
     params = validateParams(params, ["genes"]);
     api('cdmi').fids_to_functions_async(
         params.genes,
-        params.callback,
+        function (data) {
+            var functions = {};
+            for (var gene in data) {
+                functions[gene] =
+                    data[gene].replace(/\s*\[Source.*$/, '');
+            }
+            params.callback(functions);
+        },
         rpcErrorHandler(params.response)
     );
 }
@@ -298,11 +305,12 @@ function genomeWithCanonicalGenes(params, resultCallback) {
         genes: function (asyncCallback) {
             api('cdmiEntity').get_entity_Feature_async(
                 params.genes, ['source_id'], function (genes) {
-                    var sourceIds = [];
+                    var sourceIds = {};
                     // FIXME: API expects versioned source IDs
                     // (e.g.,'POPTR_0019s05010.1')
-                    for (id in genes)
-                        sourceIds.push(genes[id].source_id + ".1");
+                    for (id in genes) {
+                        sourceIds[id] = genes[id].source_id + ".1";
+                    }
                     asyncCallback(null, sourceIds);
                 }, rpcErrorHandler(params.response)
             )
@@ -315,7 +323,13 @@ function genomeWithCanonicalGenes(params, resultCallback) {
 
 exports.getGOTerms = function (params) {
     genomeWithCanonicalGenes(params, function (genome, geneIDs) {
-        api('ontology').getGOIDList_async(genome, geneIDs, [], [],
+        var canonicals = [];
+        var canonical2kb = {};
+        for (var id in geneIDs) {
+            canonicals.push(geneIDs[id]);
+            canonical2kb[geneIDs[id]] = id;
+        }
+        api('ontology').getGOIDList_async(genome, canonicals, [], [],
         function (goTerms) {
             var terms = [];
             var genes = {};
@@ -332,7 +346,10 @@ exports.getGOTerms = function (params) {
                     }
                     geneTerms.push(index);
                 }
-                genes[gene] = geneTerms;
+                genes[canonical2kb[gene]] = {
+                    name:  gene,
+                    terms: geneTerms
+                };
             }
             params.callback({
                 genes: genes,
@@ -344,8 +361,10 @@ exports.getGOTerms = function (params) {
 
 exports.getGOEnrichment = function (params) {
     genomeWithCanonicalGenes(params, function (genome, genes) {
+        var canonicals = [];
+        for (var gene in genes) canonicals.push(genes[gene]);
         api('ontology').getGOEnrichment_async(
-            genome, genes, GO_DOMAINS, GO_ECS,
+            genome, canonicals, GO_DOMAINS, GO_ECS,
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
         );

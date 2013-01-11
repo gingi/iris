@@ -1,12 +1,28 @@
-define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
+requirejs.config({
+    paths: {
+        columnfilter: 'DataTables/extras/ColumnFilterWidgets'
+    },
+    shim: {
+        columnfilter: [ "jquery.DataTables" ]
+    }
+})
+define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
+    function ($, _) {
     function Table(options) {
         var self = this;
         options = options ? _.clone(options) : {};
         options.scrollY = options.scrollY || 300;
+        var filterExclude = [];
         var $element = $(options.element);
         var elementOffset = $element.offset();
         self.setData = function (data) {
             self.data = data;
+            data.filter = data.filter || [];
+            for (var i = 0; i < data.columns.length; i++) {
+                if (!_.contains(data.filter, data.columns[i])) {
+                    filterExclude.push(i);
+                }
+            }
         };
         self.display = function () {
             var $table = $("<table>").attr("cellpadding", 0)
@@ -25,11 +41,15 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
                 bPaginate: false,
         		oLanguage: {
         			sLengthMenu: "_MENU_ per page"
-        		}
+        		},
+                oColumnFilterWidgets: {
+                    aiExclude: filterExclude,
+                    bGroupTerms: true
+                }
             });
             adjustHeight('.dataTables_wrapper');
             adjustHeight('.table-wrapper');
-            // adjustHeight('.dataTable');
+            $(".column-filter-widget").find("select").addClass("mini");
             $element.offset({
                 top: elementOffset.top, left: elementOffset.left
             });
@@ -57,7 +77,8 @@ define(['jquery', 'underscore', 'jquery.dataTables'], function ($, _) {
     }
     /* Set the defaults for DataTables initialization */
     $.extend(true, $.fn.dataTable.defaults, {
-    	sDom: "<'dt-top'lfr><'table-wrapper't><'dt-bottom'ip>",
+    	sDom: "<'dt-top row'<'span6'Wl><'span6'fr>>" +
+             "<'table-wrapper't><'dt-bottom'ip>",
         fnInitComplete: function (table) {
             $('.dataTables_length').find("select").addClass("span2");
             $('.dataTables_filter').find(":input")

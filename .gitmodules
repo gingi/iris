@@ -19,3 +19,9 @@
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
 	url = https://github.com/jeromegn/Backbone.localStorage.git
+[submodule "external/datatables"]
+	path = external/datatables
+	url = git@github.com:DataTables/DataTables.git
+[submodule "external/dt-columnfilter"]
+	path = external/dt-columnfilter
+	url = git@github.com:cyberhobo/ColumnFilterWidgets.git
