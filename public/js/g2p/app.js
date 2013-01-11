@@ -15,9 +15,9 @@ requirejs.config({
         }
     },
 })
-require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
-'util/dropdown', 'util/eventemitter'],
-    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown, EventEmitter) {
+require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
+     'util/spin', 'util/dropdown'],
+    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown) {
   
     var MANHATTAN_HEIGHT = "300px";
     var PVALUE_THRESHOLD = 1;
@@ -186,34 +186,34 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
                     // }).done(function (coexpression) {
                     //     drawHeatmap({ rows: genes, matrix: coexpression });
                     // });
-                    $.ajax({
-                        url: dataAPI('/genome/' + self.model.genome + '/ontology'),
-                        dataType: 'json',
-                        data: { genes: sourceGenes },
-                        success: function (data) {
-                            var genes = [];
-                            for (var gene in data.genes) {
-                                var terms = [], ecs = [], descs = [];
-                                for (var i in data.genes[gene]) {
-                                    // terms.push(data.terms[i].term);
-                                    // ecs.push(data.terms[i].ec);
-                                    // descs.push(data.terms[i].desc);
-                                    genes.push([
-                                        gene,
-                                        data.terms[i].term,
-                                        data.terms[i].ec,
-                                        data.terms[i].desc,
-                                    ]);
-                                        
-                                }
-                                // genes.push([gene,
-                                //     terms.join("<br/>"),
-                                //     ecs.join("<br/>"),
-                                //     descs.join("<br/>")
-                                // ]);
+                    $.when(
+                        $.ajax({
+                            url: dataAPI('/genome/' +
+                                self.model.genome + '/ontology'),
+                            dataType: 'json',
+                            data: { genes: sourceGenes }
+                        }),
+                        $.ajax({
+                            url: dataAPI('/genes/functions'),
+                            dataType: 'json',
+                            data: { genes: sourceGenes }
+                        })
+                    ).done(function (ajax1, ajax2) {
+                        var ontology  = ajax1[0];
+                        var functions = ajax2[0];
+                        var genes = [];
+                        for (var id in ontology.genes) {
+                            for (var i in ontology.genes[id].terms) {
+                                genes.push([
+                                    ontology.genes[id].name,
+                                    ontology.terms[i].term,
+                                    ontology.terms[i].ec,
+                                    ontology.terms[i].desc,
+                                    functions[id]
+                                ]);
                             }
-                            showTable(genes);
                         }
+                        showTable(genes);
                     })
                     $.ajax({
                         url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
@@ -386,7 +386,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan', 'util/spin',
             var table = new Table({element: "#gene-table", scrollY: 250});
             table.setData({
                 data: data,
-                columns: ['Name', 'GO Term', 'EC', 'Description']
+                columns: ['Name', 'GO Term', 'EC', 'Description', 'Function'],
+                filter: ['EC']
             })
             table.display();
         })
