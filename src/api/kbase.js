@@ -99,9 +99,7 @@ function exceptionWrapper(fn, object) {
             console.error("API error: ", err);
             var lastArg = arguments[arguments.length - 1];
             if (typeof lastArg === 'function') {
-                lastArg.apply(object, {
-                    error: err
-                });
+                lastArg.apply(null, { error: err });
             }
         }
     }
