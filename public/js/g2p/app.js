@@ -159,8 +159,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                         locations: ranges
                     }
                 })
-                .done(function (data) {
-                    self.handleGeneSelection(data)
+                .done(function () {
+                    self.handleGeneSelection.apply(self, arguments)
                 });
             });
             vis.on("pinpoint", function () { $hud.fadeOut(); });
@@ -187,7 +187,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
         },
-        handleGeneSelection: function (genes) {
+        handleGeneSelection: function (genes, status, jqXhr) {
             var self = this;
             var $p = $("<p>")
                 .css("text-align",  "center")
@@ -209,6 +209,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             }
             dismissSpinner($hud);
             $hud.append($p);
+            if (jqXhr.status == 206) {
+                $hud.append($("<div>").addClass("alert mini").html(
+                    "<h4>Warning!</h4> Not all genes are shown. The app can't handle more genes at this time. Please select a smaller window."
+                ));
+            }
+            
             $("#subviews").empty();
             
             // Network
@@ -376,9 +382,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     function drawBarChart(data) {
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
+            var threshold = data.length < 30 ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
             for (var i = 0; i < data.length; i++) {
                 var normalized = -Math.log(data[i].pvalue) / Math.LN10;
-                if (normalized >= PVALUE_THRESHOLD) {
+                if (normalized >= threshold) {
                     chartData.push({
                         x: data[i].goID, y: normalized,
                         title: data[i].goDesc.join("\n")
@@ -411,7 +418,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             chart.display();
         })
     }
-    
+
     function drawHeatmap(data) {
         require(['renderers/heatmap'], function (Heatmap) {
             subviewDiv("heatmap", "Expression Profile");
@@ -422,11 +429,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             } catch (e) {
                 $("#heatmap").append($("<div>")
                     .addClass("text text-error")
-                    .css("margin", "20px").html([e, "Try selecting a smaller window"].join("<br>")));
+                    .css("margin", "20px").html(
+                        [e, "Try selecting a smaller window"].join("<br>")));
             }
         });
     }
-    
+
     function showTable(data) {
         require(['renderers/table'], function (Table) {
             subviewDiv("gene-table", "Trait Genes");
