@@ -20,7 +20,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             .css("position", "absolute")
             .css("left", 0)
             .css("top", 0)
-            .css("z-index", options.z || 1);
+            .css("z-index", options.z || 10);
         element.append(canvas);
         
         canvas.on('mousedown', startDrag);
