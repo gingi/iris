@@ -218,16 +218,24 @@ function KBaseNetworks(url) {
                                     url: _url,
                                     success: function (data, status, xhr)
 				{
-				    var result = data["result"];
-				    if (num_rets == 1)
-				    {
-					callback(result[0]);
-				    }
-				    else
-				    {
-					callback(result);
-				    }
-				    
+                    try {
+    				    var result = data["result"];
+    				    if (num_rets == 1)
+    				    {
+    					callback(result[0]);
+    				    }
+    				    else
+    				    {
+    					callback(result);
+    				    }
+                    } catch (err) {
+                        error_callback({
+                            status: 503,
+                            error: err,
+                            url: _url,
+                            body: body
+                        });
+                    }
 				},
 				    error: function(xhr, textStatus, errorThrown)
 				{
