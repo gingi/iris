@@ -21,6 +21,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
   
     var MANHATTAN_HEIGHT = "300px";
     var PVALUE_THRESHOLD = 1;
+    var MAX_GENES_PER_REQUEST = 100;
     
     function dataAPI(path) { return "/data" + path; }
     function addSpinner(el) {
@@ -158,71 +159,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                         locations: ranges
                     }
                 })
-                .done(function (genes) {
-                    var $p = $("<p>")
-                        .css("text-align",  "center")
-                        .css("vertical-align", "middle")
-                        .css("font-weight", "bold")
-                        .css("min-height",  "30px");
-                    if (genes.length > 0) {
-                        $p.text(genes.length + " genes");
-                    } else {
-                        $p.text("No genes found");
-                    }
-                    var sourceGenes =
-                        _.map(genes, function (g) { return g[0] }).join(',');
-                    dismissSpinner($hud);
-                    $hud.append($p);
-                    $("#subviews").empty();
-                    $.ajax({
-                        url: dataAPI('/network/random'),
-                        dataType: 'json',
-                        data: { clusters: 2, nodes: 10 }
-                    }).done(function (json) { drawNetwork(json); });
-                    // $.ajax({
-                    //     url: dataAPI('/coexpression'),
-                    //     dataType: 'json',
-                    //     data: { genes: sourceGenes }
-                    // }).done(function (coexpression) {
-                    //     drawHeatmap({ rows: genes, matrix: coexpression });
-                    // });
-                    $.when(
-                        $.ajax({
-                            url: dataAPI('/genome/' +
-                                self.model.genome + '/ontology'),
-                            dataType: 'json',
-                            data: { genes: sourceGenes }
-                        }),
-                        $.ajax({
-                            url: dataAPI('/genes/functions'),
-                            dataType: 'json',
-                            data: { genes: sourceGenes }
-                        })
-                    ).done(function (ajax1, ajax2) {
-                        var ontology  = ajax1[0];
-                        var functions = ajax2[0];
-                        var genes = [];
-                        for (var id in ontology.genes) {
-                            for (var i in ontology.genes[id].terms) {
-                                genes.push([
-                                    ontology.genes[id].name,
-                                    ontology.terms[i].term,
-                                    ontology.terms[i].ec,
-                                    ontology.terms[i].desc,
-                                    functions[id]
-                                ]);
-                            }
-                        }
-                        showTable(genes);
-                    })
-                    $.ajax({
-                        url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
-                        dataType: 'json',
-                        data: { genes: sourceGenes },
-                        success: function (ontology) {
-                            drawBarChart(ontology);
-                        }
-                    })
+                .done(function (data) {
+                    self.handleGeneSelection(data)
                 });
             });
             vis.on("pinpoint", function () { $hud.fadeOut(); });
@@ -248,8 +186,117 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             this.$el.find("#subviews").remove();
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
+        },
+        handleGeneSelection: function (genes) {
+            var self = this;
+            var $p = $("<p>")
+                .css("text-align",  "center")
+                .css("vertical-align", "middle")
+                .css("font-weight", "bold")
+                .css("min-height",  "30px");
+            if (genes.length > 0) {
+                $p.text(genes.length + " genes");
+            } else {
+                $p.text("No genes found");
+            }
+            var geneIDs =
+                _.map(genes, function (g) { return g[0] });
+            var geneRequests = [];
+            for (var i = 0; i < geneIDs.length;
+                i += MAX_GENES_PER_REQUEST) {
+                geneRequests.push(
+                    geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
+            }
+            dismissSpinner($hud);
+            $hud.append($p);
+            $("#subviews").empty();
+            
+            // Network
+            $.ajax({
+                url: dataAPI('/network/random'),
+                dataType: 'json',
+                data: { clusters: 2, nodes: 10 }
+            }).done(function (json) { drawNetwork(json); });
+            
+            // Heatmap
+            fetchGeneData({
+                url: dataAPI('/coexpression'),
+                genes: geneRequests
+            }).done(function (json) {
+                drawHeatmap({ rows: json.genes, matrix: json.matrix });
+            });
+            
+            // Table
+            $.when(
+                fetchGeneData({
+                    url: dataAPI('/genome/' +
+                        self.model.genome + '/ontology'),
+                    genes: geneRequests
+                }),
+                fetchGeneData({
+                    url: dataAPI('/genes/functions'),
+                    genes: geneRequests
+                })
+            ).done(function (ontology, functions) {
+                var genes = [];
+                for (var id in ontology.genes) {
+                    for (var i in ontology.genes[id].terms) {
+                        genes.push([
+                            ontology.genes[id].name,
+                            ontology.terms[i].term,
+                            ontology.terms[i].ec,
+                            ontology.terms[i].desc,
+                            functions[id]
+                        ]);
+                    }
+                }
+                showTable(genes);
+            })
+            
+            // Barchart
+            fetchGeneData({
+                url: dataAPI(
+                    '/genome/' + self.model.genome + '/go-enrichment'),
+                genes: geneRequests
+            }).done(drawBarChart);
         }
     });
+    
+    function fetchGeneData(params) {
+        var promises = [];
+        function makeRequest(genes) {
+            return $.ajax({
+                url: params.url,
+                dataType: 'json',
+                data: { genes: genes.join(",") },
+            });
+        }
+        for (var i = 0; i < params.genes.length; i++) {
+            promises.push(makeRequest(params.genes[i]));
+        }
+        return $.when.apply($, promises).then(function () {
+            var json;
+            if (arguments.length == 0) {
+                return null;
+            }
+            if (params.genes.length == 1) {
+                // Single request, no merging necessary
+                return arguments[0];
+            }
+            var args = _.map(arguments, function (arg) { return arg[0]; });
+            if (_.isArray(args[0])) {
+                json = [];
+                args.forEach(function (arg) {
+                    $.merge(json, arg);
+                });
+            } else {
+                json = {};
+                args.unshift(true, json);
+                $.extend.apply($, args);
+            }
+            return json;
+        });
+    }
     
     var dropdowns = {
         genome: {

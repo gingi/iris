@@ -40,7 +40,8 @@ define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
                 sScrollY: options.scrollY,
                 bPaginate: false,
         		oLanguage: {
-        			sLengthMenu: "_MENU_ per page"
+        			sLengthMenu: "_MENU_ per page",
+                    sInfoThousands: ","
         		},
                 oColumnFilterWidgets: {
                     aiExclude: filterExclude,
