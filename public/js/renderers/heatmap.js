@@ -39,20 +39,33 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 throw new Error("Too many cells");
             }
         };
+        
+        function adjustedDim(arr) {
+            return Math.floor(arr.length *
+                (cellSize + options.borderWidth));
+        }
         self.render = function () {
             element.css("position", "relative");
             cellSize = Math.min(MAX_CELL_SIZE,
                 Math.max(MIN_CELL_SIZE,
-                    (minDim - options.borderWidth * (rows.length+1)) / rows.length)
+                    (minDim - options.borderWidth * (rows.length+1)) /
+                         rows.length)
                 );
-            var adjWidth  = (rows.length)    * (cellSize + options.borderWidth)
-            var adjHeight = (columns.length) * (cellSize + options.borderWidth)
-    	    var svg  = d3.select("#" + element.attr('id')).append("svg")
+            var adjWidth  = adjustedDim(columns);
+            var adjHeight = adjustedDim(rows);
+            var containerId = element.attr('id') + "-container";
+            var container = $("<div>").attr("id", containerId)
+                .css("position", "relative")
+                .width(adjWidth)
+                .height(adjHeight);
+            element.append(container);
+    	    var svg  = d3.select("#" + containerId).append("svg")
     	        .attr("class", options.colorscheme)
     	        .attr("width", adjWidth)
     	        .attr("height", adjHeight);
-    	    var quantize = d3.scale.quantile().domain([0, 1]).range(d3.range(9));
-            var dragbox = new DragBox(element);
+    	    var quantize = d3.scale
+                .quantile().domain([0, 1]).range(d3.range(9));
+            var dragbox = new DragBox(container);
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
             })
