@@ -17,6 +17,7 @@ var kbase = require('./src/api/kbase');
 var ONE_YEAR = 31557600000;
 
 var RANDOM_NEIGHBORHOOD_NODES = 20;
+var MAX_ITEMS = 300;
 
 var app = express();
 
@@ -102,7 +103,16 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         pmin:     request.query.pmin,
         pmax:     request.query.pmax,
         loci:     request.query.locations,
-        response: response
+        response: response,
+        callback: function (data) {
+            if (data.length > MAX_ITEMS) {
+                console.log("Way too big");
+                data = data.slice(0, MAX_ITEMS);
+                response.send(206, data);
+            } else {
+                response.send(200, data);
+            }
+        }
     });
 });
 
@@ -229,15 +239,17 @@ app.get('/data/coexpression', function (request, response, next) {
     }
     var MAX_GENES = 80;
     var numGenes = Math.min(MAX_GENES, genes.length);
+    var rGenes = [];
     var matrix = [];
     for (var i = 0; i < numGenes; i++) {
+        rGenes.push(genes[i]);
         for (var j = 0; j < numGenes; j++) {
             if (i != j) {
                 matrix.push([i, j, Math.random()]);
             }
         }
     }
-    response.send(matrix);
+    response.send({ genes: rGenes, matrix: matrix });
 });
 
 Object.clone = function(obj) {
