@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'underscore', 'util/spin','backbone.localstorage'],
+define(['jquery', 'backbone', 'underscore', 'util/spin', 'backbone.localstorage'],
 function($, Backbone, _, Spinner) {
     function addSpinner(el) {
         var opts = {
@@ -27,10 +27,33 @@ function($, Backbone, _, Spinner) {
             $(options.listTemplate) : $("#ddListTemplate");
         options.itemTemplate = options.itemTemplate ?
             $(options.itemTemplate) : $("#ddItemTemplate")
-        options.parseItem = (options.parseItem || function () {});
+        options.parseItem = (options.parseItem || function (data, item) {
+            item.id    = data[0];
+            item.title = data[1];
+        });
         options.itemLink  = (options.itemLink  || function (item) {
             return "#" + item.id;
         });
+        options.itemSelect = options.itemSelect || function (item, $el) {
+            $el.parents("li.dropdown").find("#copy").text(item.title);
+        }
+        
+        if (!options.itemTemplate.html()) {
+            options.itemTemplate =
+                $("<script>").attr("type", "text/template").html(
+                    '<a href="<%= link %>"><%= title %></a>'
+                );
+        }
+        if (!options.listTemplate.html()) {
+            options.listTemplate = $("<script>").attr("type", "text/template").html(
+                '<li class="dropdown">' +
+                '<a class="dropdown-toggle" id="<%= label %>" ' +
+                'data-toggle="dropdown"data-target="#" href="#">' +
+                '<%= title %> <b class="caret"></b><br/>' +
+                '<small id="copy" class="muted"></small></a>' +
+                '<ul id="<%= listId %>" class="dropdown-menu" ' + 
+                'role="menu" aria-labelledby="<%= label %>"></ul></li>');
+        }
         var DDItem = Backbone.Model.extend({
             defaults: {
                 title: "blank",
@@ -96,7 +119,7 @@ function($, Backbone, _, Spinner) {
             args = (args || {});
             args.label = (args.label || args.name + "-label");
             args.title = (args.title || args.name);
-            args.itemSelect = (args.itemSelect || function () {});
+            args.itemSelect = (args.itemSelect || options.itemSelect);
             
             var TypedDDItem = DDItem.extend({
                 type:   args.itemType,

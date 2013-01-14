@@ -8,7 +8,11 @@ exports.index = function (req, res) {
 };
 
 exports.charts = function (req, res) {
-    res.render('charts', { title: 'Charts Demo' });
+    res.render('charts', { title: 'Charts Demo', js: 'demo' });
+};
+
+exports.charts2 = function (req, res) {
+    res.render('charts', { title: 'Charts Demo', js: 'demo2' });
 };
 
 exports.heatmap = function (req, res) {

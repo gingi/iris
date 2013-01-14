@@ -8,12 +8,18 @@ requirejs.config({
             exports: 'Backbone',
             deps: [ 'underscore', 'jquery' ]
         },
+        'backbone.localstorage': {
+            exports: 'Backbone',
+            deps: [ 'backbone' ]
+        },
         colorbrewer: { exports: 'colorbrewer' },
         "jquery.dataTables": [ 'jquery' ]
     },
 })
-require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'renderers/table'],
-    function ($, Backbone, _, BarChart, PieChart, Table) {
+require(['jquery', 'backbone', 'underscore',
+    'charts/bar', 'charts/pie', 'renderers/table',
+    'util/dropdown'],
+    function ($, Backbone, _, BarChart, PieChart, Table, DropDown) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
         url: function () { return "/data/genome/" + this.id + "/chromosomes"; },
@@ -29,6 +35,12 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar', 'charts/pie', 'render
             return data;
         }
     });
+
+    var dropdown = new DropDown({ container: "#nav" });
+    dropdown.create({
+        name: "Genome",
+        url: "/data/genome"
+    }).fetch();
     
     var vis;
     var PieView = Backbone.View.extend({
