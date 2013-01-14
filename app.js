@@ -64,6 +64,7 @@ app.get('/g2p', function (req, res, next) {
 });
 
 app.get('/charts', routes.charts);
+app.get('/charts2', routes.charts2);
 app.get('/heatmap', routes.heatmap);
 app.get('/heatmap-chunking', routes.heatmapChunked);
 
