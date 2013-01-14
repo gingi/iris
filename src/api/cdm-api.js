@@ -8,8 +8,8 @@ function CDMI_API(url) {
     function deprecationWarning() {
         if (!deprecationWarningSent) {
             console.log(
-                "WARNING: '*_async' method names will be deprecated ",
-                "on 2/4/2013. Please use the methods without the ",
+                "WARNING: '*_async' method names will be deprecated",
+                "on 2/4/2013. Please use the methods without the",
                 "'_async' suffix.");
             deprecationWarningSent = true;
         }
@@ -627,8 +627,8 @@ function CDMI_EntityAPI(url) {
     function deprecationWarning() {
         if (!deprecationWarningSent) {
             console.log(
-                "WARNING: '*_async' method names will be deprecated ",
-                "on 2/4/2013. Please use the methods without the ",
+                "WARNING: '*_async' method names will be deprecated",
+                "on 2/4/2013. Please use the methods without the",
                 "'_async' suffix.");
             deprecationWarningSent = true;
         }
