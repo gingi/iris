@@ -23,7 +23,7 @@ require(['jquery', 'backbone', 'underscore', 'charts/bar'],
         .height(400).width(400);
         $("#container")
             .append($("<div>").addClass("row")
-                .append($("<div>").addClass("span4")
+                .append($("<div>").addClass("span6 offset4")
                     .append(demo)));
         var vis = new BarChart("#bar", {});
         vis.setData([
