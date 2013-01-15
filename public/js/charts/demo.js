@@ -83,7 +83,6 @@ require(['jquery', 'backbone', 'underscore',
             var genome = new Genome;
             genomeId = (genomeId || 'kb|g.22476');
             genome.set({id: genomeId});
-            console.log(dropdown);
             dropdown.select(genomeId);
             for (var elementId in charts) {
                 var $div = div(elementId);
