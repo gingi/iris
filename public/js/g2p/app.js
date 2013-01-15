@@ -393,7 +393,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 }
             }
             subviewDiv("go-histogram", "Gene Ontology Enrichment");
-            var chart = new BarChart("#go-histogram", { yTitle: "-log10 p" });
+            var chart = new BarChart({ element: "#go-histogram", yTitle: "-log10 p" });
             chart.setData(chartData);
             chart.display();
         });
@@ -413,7 +413,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 chartData.push([domain, domains[domain]]);
             }
             subviewDiv("go-domains", "Gene Ontology Domains");
-            var chart = new PieChart("#go-domains", { categories: 3 });
+            var chart = new PieChart({ element: "#go-domains", categories: 3 });
             chart.setData(chartData);
             chart.display();
         })
