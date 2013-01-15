@@ -1,15 +1,3 @@
-requirejs.config({
-    baseUrl: '/js',
-    shim: {
-        jquery:     { exports: '$' },
-        d3:         { exports: 'd3' },
-        underscore: { exports: '_' },
-        backbone:   {
-            exports: 'Backbone',
-            deps: [ 'underscore', 'jquery' ]
-        }
-    },
-})
 require(['jquery', 'backbone', 'underscore', 'd3', 'util/ajaxstream'], function ($, Backbone, _, d3, Stream) {
     
     var width = $("#container").width();
