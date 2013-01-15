@@ -1,21 +1,3 @@
-requirejs.config({
-    baseUrl: '/js',
-    shim: {
-        jquery:     { exports: '$' },
-        d3:         { exports: 'd3' },
-        underscore: { exports: '_' },
-        backbone:   {
-            exports: 'Backbone',
-            deps: [ 'underscore', 'jquery' ]
-        },
-        'backbone.localstorage': {
-            exports: 'Backbone',
-            deps: [ 'backbone' ]
-        },
-        colorbrewer: { exports: 'colorbrewer' },
-        "jquery.dataTables": [ 'jquery' ]
-    },
-})
 require(['jquery', 'backbone', 'underscore',
     'charts/bar', 'charts/pie', 'renderers/table',
     'util/dropdown'],
