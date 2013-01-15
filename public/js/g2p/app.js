@@ -343,11 +343,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         dd.view = dropDownFactory.create({
             name:       dd.name,
             url:        dd.url,
-            itemType:   type,
-            itemSelect: function (item, $el) {
-                $el.parents("li.dropdown")
-                    .find("#copy").text(item.title);
-            } 
+            itemType:   type
         });
     }
     dropdowns.genome.view.fetch();
@@ -360,12 +356,14 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             _.each(dropdowns[type].listeners, function (l) {
                 dropdowns[l].view.fetch({ parentId: id });
             });
+            dropdowns[type].view.select(id);
         },
         show: function (traitId) {
             var trait = new Trait;
             trait.set({id: decodeURIComponent(traitId)});
             var mview = new ManhattanView({ model: trait });
             trait.fetch({ data: { p: 30 } });
+            dropdowns.trait.view.select(traitId);
         }
     });
     var router = new Router;

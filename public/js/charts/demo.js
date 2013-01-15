@@ -36,8 +36,8 @@ require(['jquery', 'backbone', 'underscore',
         }
     });
 
-    var dropdown = new DropDown({ container: "#nav" });
-    dropdown.create({
+    var dropdownFactory = new DropDown({ container: "#nav" });
+    var dropdown = dropdownFactory.create({
         name: "Genome",
         url: "/data/genome"
     }).fetch();
@@ -61,28 +61,6 @@ require(['jquery', 'backbone', 'underscore',
             return this;
         },
     });
-
-    var PieView = ChartView.extend({
-        dataPoint: function (chromosomes, chr) { return [chr, chromosomes[chr]] },
-        chartType: PieChart
-    });
-    
-    var BarView = ChartView.extend({
-        dataPoint: function (chromosomes, chr) { return { x: chr, y: chromosomes[chr] } },
-        chartType: BarChart
-    });
-
-    var TableView = ChartView.extend({
-        dataPoint: function (chromosomes, chr) { return [ chr, chromosomes[chr] ] },
-        chartType: Table,
-        dataSpec: function (data) {
-            return {
-                data: data,
-                columns: ['Chromosome', 'Length'],
-                filter: ['Chromosome']
-            }
-        }
-    });
     
     function div(id) {
         return $("<div>")
@@ -92,27 +70,49 @@ require(['jquery', 'backbone', 'underscore',
             .css("width", "400px")
     }
 
+    var charts = {
+        barchart: {
+            dataPoint: function (chromosomes, chr) { return { x: chr, y: chromosomes[chr] } },
+            chartType: BarChart
+        },
+        piechart: {
+            dataPoint: function (chromosomes, chr) { return [chr, chromosomes[chr]] },
+            chartType: PieChart
+        },
+        tablesum: {
+            dataPoint: function (chromosomes, chr) { return [ chr, chromosomes[chr] ] },
+            chartType: Table,
+            dataSpec: function (data) {
+                return {
+                    data: data,
+                    columns: ['Chromosome', 'Length'],
+                    filter: ['Chromosome']
+                }
+            }
+        }
+    }
+
     var Router = Backbone.Router.extend({
         routes: {
             "*actions": "show"
         },
         show: function (genomeId) {
-            var $barchart = div("barchart");
-            var $piechart = div("piechart");
-            var $table    = div("tablesum");
-            $("#container").empty()
-                .append($barchart)
-                .append($piechart)
-                .append($table);
+            $("#container").empty();
             var genome = new Genome;
             genomeId = (genomeId || 'kb|g.22476');
             genome.set({id: genomeId});
-            var view      = new BarView({ model: genome, el: $barchart });
-            var piechart  = new PieView({ model: genome, el: $piechart });
-            var tableview = new TableView({ model: genome, el: $table });
+            console.log(dropdown);
+            dropdown.select(genomeId);
+            for (var elementId in charts) {
+                var $div = div(elementId);
+                $("#container").append($div);
+                var View = ChartView.extend(charts[elementId]);
+                var view = new View({ model: genome, el: $div });
+            }
             genome.fetch();
         },
     });
+    
     var router = new Router;
     Backbone.history.start();
 });
