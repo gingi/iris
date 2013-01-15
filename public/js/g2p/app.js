@@ -5,6 +5,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var MANHATTAN_HEIGHT = "300px";
     var PVALUE_THRESHOLD = 1;
     var MAX_GENES_PER_REQUEST = 100;
+    var BP2PX = 25e4;
+    
+    var genesXHR;
     
     function dataAPI(path) { return "/data" + path; }
     function addSpinner(el) {
@@ -35,7 +38,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         }
     });
         
-    var BP2PX = 25e4;
     var vis;
     var $hud;
 
@@ -50,10 +52,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             .append($("<a>").attr("href", href).text(title));
     }
 
-    function subviewBar() {
-        return $("<div>").attr("id", "subviews").addClass("row");
-    }
-    
     function dismissSpinner($el) {
         $el.find(".spinner").fadeOut(function () { $(this).remove() });
     }
@@ -63,6 +61,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         events: {
             "click":     "clickEvent",
             "selection": "selectionEvent",
+        },
+        makeRowDiv: function (id) {
+            var $div = this.$el.find("#" + id);
+            if (!$div.length) {
+                $div = $("<div>").attr("id", id);
+                this.$el.append($div);
+            }
+            if (!$div.hasClass('row')) $div.addClass("row");
+            return $div;
         },
         clickEvent: function () {},
         selectionEvent: function () {},
@@ -77,10 +84,14 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             // Prepare transitions
             $hud = $("#infoBox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
-            this.$el.find("#manhattan-row-container").fadeTo(0, 0.3);
-            $("#subviews").fadeTo(0, 0.3);
+            $hud.fadeOut(function () { $hud.empty(); });
+            this.manhattanContainer = this.makeRowDiv("manhattan-row-container");
+            this.subviewBar         = this.makeRowDiv("subviews");
+            this.manhattanContainer.fadeTo(0, 0.3);
+            this.subviewBar.fadeTo(0, 0.3);
             this.$el.find(".alert").remove();
             addSpinner(this.$el);
+            
         },
         render: function () {
             var self = this;
@@ -91,10 +102,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 return;
             }
             dismissSpinner($el);
-            $el.find("#manhattan-row-container").remove();
-            $el.find("#subviews").empty();
-            var $rowContainer  = $("<div>").addClass("row")
-                .attr("id", "manhattan-row-container");
+            self.manhattanContainer.fadeTo(0, 1).empty();
+            self.subviewBar.fadeTo(0, 1).empty();
             var $spanContainer = $("<div>").addClass("span12")
                 .css("position", "relative")
                 .outerHeight(MANHATTAN_HEIGHT);
@@ -103,9 +112,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 .attr("data-title", "Manhattan Plot")
                 .attr("id", "manhattan-vis");
             
-            $el.append($rowContainer.append($spanContainer.append($viewport)));
+            self.manhattanContainer.append($spanContainer.append($viewport));
             $viewport.outerHeight($spanContainer.height());
-            $el.append(subviewBar());
             
             vis = new ManhattanPlot($viewport, {});
             vis.setData({
@@ -115,12 +123,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             });
             vis.render();
             $spanContainer.fadeIn();
-            var genesXHR;
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 if (genesXHR) {
                     // If a prior query is in progress
                     genesXHR.abort();
-                    genesXHR = null;
+                    $hud.empty();
+                    self.subviewBar.empty();
                 }
                 var tbody = $("<tbody>");
                 $hud.empty();
@@ -165,8 +173,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     "Stack:   " + details.stack].join("\n")));
             }
             dismissSpinner(this.$el);
-            this.$el.find("#manhattan-row-container").remove();
-            this.$el.find("#subviews").remove();
+            this.manhattanContainer.empty();
+            this.subviewBar.empty();
             this.$el.append($("<div>")
                 .addClass("alert alert-warning").html(text));
         },
@@ -187,18 +195,19 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             var geneRequests = [];
             for (var i = 0; i < geneIDs.length;
                 i += MAX_GENES_PER_REQUEST) {
-                geneRequests.push(
-                    geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
+                geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
             }
             dismissSpinner($hud);
             $hud.append($p);
             if (jqXhr.status == 206) {
                 $hud.append($("<div>").addClass("alert mini").html(
-                    "<h4>Warning!</h4> Not all genes are shown. The app can't handle more genes at this time. Please select a smaller window."
+                    "<h4>Warning!</h4> Not all genes are shown. " +
+                    "The app can't handle more genes at this time. " +
+                    "Please select a smaller window."
                 ));
             }
             
-            $("#subviews").empty();
+            this.subviewBar.empty();
             
             // Network
             $.ajax({
@@ -212,7 +221,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 url: dataAPI('/coexpression'),
                 genes: geneRequests
             }).done(function (json) {
-                drawHeatmap({ rows: json.genes, matrix: json.matrix });
+                if (json) 
+                    drawHeatmap({ rows: json.genes, matrix: json.matrix });
             });
             
             // Table
@@ -227,6 +237,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     genes: geneRequests
                 })
             ).done(function (ontology, functions) {
+                if (!ontology) return;
                 var genes = [];
                 for (var id in ontology.genes) {
                     for (var i in ontology.genes[id].terms) {
@@ -361,6 +372,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     }    
     
     function drawBarChart(data) {
+        if (!data) return;
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
             var threshold = data.length < 30 ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
