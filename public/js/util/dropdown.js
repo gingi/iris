@@ -18,6 +18,10 @@ function($, Backbone, _, Spinner) {
         el.find(".spinner").remove();
     }
     
+    function updateCopy(el) {
+        el.find("#copy").text(el.find("li.active").text());
+    }
+    
     function DropDownMenu(options) {
         var self = this;
         options = (options || {});
@@ -34,9 +38,6 @@ function($, Backbone, _, Spinner) {
         options.itemLink  = (options.itemLink  || function (item) {
             return "#" + item.id;
         });
-        options.itemSelect = options.itemSelect || function (item, $el) {
-            $el.parents("li.dropdown").find("#copy").text(item.title);
-        }
         
         if (!options.itemTemplate.html()) {
             options.itemTemplate =
@@ -73,7 +74,7 @@ function($, Backbone, _, Spinner) {
             selectItem: function () {
                 this.$el.parent().children().removeClass('active');
                 this.$el.addClass('active');
-                this.model.select(this.model, this.$el);
+                updateCopy(this.$el.parent().parent());
             },
             render: function() {
                 this.$el.append(this.template(this.model));
@@ -89,11 +90,12 @@ function($, Backbone, _, Spinner) {
                 this.render();
             },
             render: function() {
-                this.$el.append(this.template({
+                this.container = $(this.template({
                     label:  this.options.label,
                     listId: this.options.listId,
                     title:  this.options.title
-                }));
+                })); 
+                this.$el.append(this.container);
             },
             renderItems: function () {
                 var $topics = this.$el.find("#" + this.options.listId);
@@ -119,11 +121,9 @@ function($, Backbone, _, Spinner) {
             args = (args || {});
             args.label = (args.label || args.name + "-label");
             args.title = (args.title || args.name);
-            args.itemSelect = (args.itemSelect || options.itemSelect);
             
             var TypedDDItem = DDItem.extend({
                 type:   args.itemType,
-                select: args.itemSelect
             })
             TypedDDItem.type = args.itemType;
             var ddList = new (Backbone.Collection.extend({
@@ -156,6 +156,15 @@ function($, Backbone, _, Spinner) {
                     spinTarget.fadeTo(1, 1);
                     fetched = true;
                 }});
+                return this;
+            };
+            ddListView.select = function (selected) {
+                ddList.once("all", function () {
+                    var item = ddList.get(selected);
+                    if (item)
+                        ddListView.container.find("#copy").text(item.title);
+                });
+                return this;
             };
             return ddListView;
         }
