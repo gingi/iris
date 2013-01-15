@@ -42,65 +42,45 @@ require(['jquery', 'backbone', 'underscore',
         url: "/data/genome"
     }).fetch();
     
-    var vis;
-    var PieView = Backbone.View.extend({
+    var ChartView = Backbone.View.extend({
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('sync', this.render);
         },
+        dataSpec: function (data) { return data; },
         render: function () {
             $(this.el).empty();
             var chartData = [];
             var chromosomes = this.model.get('chromosomes');
             for (var chr in chromosomes) {
-                chartData.push([ chr, chromosomes[chr] ]);
+                chartData.push(this.dataPoint(chromosomes, chr));
             }
-            vis = new PieChart("#" + this.el.id, {});
-            vis.setData(chartData);
+            var vis = new this.chartType({ element: "#" + this.el.id });
+            vis.setData(this.dataSpec(chartData));
             vis.display();
             return this;
         },
-    });
-    
-    var BarView = Backbone.View.extend({
-        initialize: function () {
-            _.bindAll(this, 'render');
-            this.model.on('sync', this.render);
-        },
-        render: function () {
-            $(this.el).empty();
-            var chartData = [];
-            var chromosomes = this.model.get('chromosomes');
-            for (var chr in chromosomes) {
-                chartData.push({ x: chr, y: chromosomes[chr] });
-            }
-            vis = new BarChart("#" + this.el.id, {});
-            vis.setData(chartData);
-            vis.display();
-            return this;
-        }
     });
 
-    var TableView = Backbone.View.extend({
-        initialize: function () {
-            _.bindAll(this, 'render');
-            this.model.on('sync', this.render);
-        },
-        render: function () {
-            $(this.el).empty();
-            var data = [];
-            var chromosomes = this.model.get('chromosomes');
-            for (var chr in chromosomes) {
-                data.push([ chr, chromosomes[chr] ]);
-            }
-            vis = new Table({ element: this.$el });
-            vis.setData({
+    var PieView = ChartView.extend({
+        dataPoint: function (chromosomes, chr) { return [chr, chromosomes[chr]] },
+        chartType: PieChart
+    });
+    
+    var BarView = ChartView.extend({
+        dataPoint: function (chromosomes, chr) { return { x: chr, y: chromosomes[chr] } },
+        chartType: BarChart
+    });
+
+    var TableView = ChartView.extend({
+        dataPoint: function (chromosomes, chr) { return [ chr, chromosomes[chr] ] },
+        chartType: Table,
+        dataSpec: function (data) {
+            return {
                 data: data,
                 columns: ['Chromosome', 'Length'],
                 filter: ['Chromosome']
-            });
-            vis.display();
-            return this;
+            }
         }
     });
     
@@ -127,7 +107,7 @@ require(['jquery', 'backbone', 'underscore',
             var genome = new Genome;
             genomeId = (genomeId || 'kb|g.22476');
             genome.set({id: genomeId});
-            var view = new BarView({ model: genome, el: $barchart });
+            var view      = new BarView({ model: genome, el: $barchart });
             var piechart  = new PieView({ model: genome, el: $piechart });
             var tableview = new TableView({ model: genome, el: $table });
             genome.fetch();

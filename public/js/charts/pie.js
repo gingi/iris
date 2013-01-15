@@ -1,12 +1,12 @@
 define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
-    function PieChart(elementId, options) {
+    function PieChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
         options.padding = (options.padding || 20);
         options.categories = (options.categories || 9);
         options.colorscheme = (options.colorscheme || 'Spectral'); 
         
-        var $el = $(elementId);
+        var $el = $(options.element);
         var data;
         self.setData = function (inData) {
             data = inData;
@@ -27,7 +27,7 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
                 });
             }
             piedata.sort(function (a, b) { return a.value - b.value; });
-            var vis = d3.select(elementId)
+            var vis = d3.select(options.element)
                 .append("svg:svg").data([piedata])
                     .attr("width", w).attr("height", h)
                 .append("svg:g")

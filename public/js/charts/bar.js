@@ -7,13 +7,13 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         return height;
     }
     
-    function BarChart(elementId, options) {
+    function BarChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
         options.yTitle = options.yTitle || 'Y Axis';
         options.axisLabelFontSize = options.axisLabelFontSize || 10;
         options.padding =           options.padding || 10;
-        var $el = $(elementId);
+        var $el = $(options.element);
         var data;
         self.setData = function (inData) {
             data = inData;
@@ -37,7 +37,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             var xAxis = d3.svg.axis().scale(x).orient("bottom");
             var yAxis = d3.svg.axis().scale(y).orient("left").tickFormat(format);
 
-            var svg = d3.select(elementId)
+            var svg = d3.select(options.element)
                 .append("svg")
                 .attr("width", $el.width() - options.padding)
                 .attr("height", $el.height() - options.padding)
