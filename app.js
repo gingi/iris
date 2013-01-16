@@ -437,8 +437,8 @@ app.get('/streaming', function (request, response, next) {
                 kbase.getExperiments({
                     response: response,
                     genomeId: genome[0],
-                    callback: function (experiments) {
-                        experiments.forEach(function (experiment) {
+                    callback: function (data) {
+                        data.experiments.forEach(function (experiment) {
                             kbase.getTraits({
                                 response: response,
                                 experimentId: experiment[0],
