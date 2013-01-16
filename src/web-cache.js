@@ -2,11 +2,13 @@ var redis    = require('redis').createClient();
 
 function cacheResponse(res, fn, key) {
     return function (body) {
-        redis.set(key, JSON.stringify(body));
+        if (body) {
+            var value = JSON.stringify(body);
+            redis.set(key, value);
+        }
         fn.call(res, body);
     }
 }
-
 
 exports.middleware = function (params) {
     params      = params      || {};
@@ -20,13 +22,14 @@ exports.middleware = function (params) {
         }
         res.contentType = 'application/json';
         redis.get(req.url, function (err, reply) {
-            if (reply) {
-                res.send(JSON.parse(reply));
-            } else {
-                var original = res.end;
-                res.end = cacheResponse(res, original, req.url);
-                next();
+            if (reply && reply !== "") {
+                var body = JSON.parse(reply);
+                if (body !== null && body !== {})
+                    return res.send(JSON.parse(reply));
             }
+            var original = res.end;
+            res.end = cacheResponse(res, original, req.url);
+            next();
         });
     }
 }
