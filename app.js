@@ -11,10 +11,11 @@ var express  = require('express'),
     util     = require('util'),
     gzippo   = require('gzippo'),
     argv     = require('optimist').argv;
-
+    
 var kbase = require('./src/api/kbase');
 
 var ONE_YEAR = 31557600000;
+var ONE_DAY  = 86400;
 
 var RANDOM_NEIGHBORHOOD_NODES = 20;
 var MAX_ITEMS = 300;
@@ -24,15 +25,20 @@ var app = express();
 if (argv.fake) {
     console.log("Starting in fake API mode");
 }
+var cacheMode = argv.cache == true;
 
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
     app.use(express.static(path.join(__dirname, 'public')));
-    app.use(gzippo.compress());
+    // app.use(gzippo.compress());
     app.use(express.favicon());
     app.use(express.logger('dev'));
+    if (cacheMode) {
+        var cache = require('./src/web-cache');
+        app.use(cache.middleware({ path: '/data', expire: ONE_DAY }));
+    }
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.cookieParser('your secret here'));
@@ -68,22 +74,22 @@ app.get('/heatmap', routes.heatmap);
 app.get('/heatmap-chunking', routes.heatmapChunked);
 
 app.get('/data/trait/:id', function (request, response, next) {
-    var getVarArgs = {
+    var args = {
         traitId:  request.params.id,
         pcutoff:  request.query.p,
         response: response
     };
     if (argv.fake || request.params.id == 'fake') {
-        getVarArgs.variationFetcher = function (arg1, arg2, callback) {
+        args.variationFetcher = function (arg1, arg2, processJSON) {
             var json = require('./data/fake/trait-variations.json');
-            callback(json);
+            processJSON(json);
         };
-        getVarArgs.contigFetcher = function (arg1, callback) {
+        args.contigFetcher = function (arg1, processJSON) {
             var json = require('./data/fake/chromosome-lengths.json');
-            callback(json);
+            processJSON(json);
         };
     }
-    kbase.getVariations(getVarArgs);
+    kbase.getVariations(args);
 });
 
 app.get('/data/trait/:id/genes', function (request, response, next) {
