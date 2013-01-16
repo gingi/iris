@@ -32,10 +32,11 @@ app.configure(function() {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
     app.use(express.static(path.join(__dirname, 'public')));
-    // app.use(gzippo.compress());
+    app.use(gzippo.compress());
     app.use(express.favicon());
     app.use(express.logger('dev'));
     if (cacheMode) {
+        console.log("Using web cache.");
         var cache = require('./src/web-cache');
         app.use(cache.middleware({ path: '/data', expire: ONE_DAY }));
     }
