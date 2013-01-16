@@ -244,7 +244,10 @@ exports.getExperiments = function (params) {
             data.forEach(function (exp) {
                 GenomeExperiments[exp[0]] = params.genomeId;
             });
-            params.callback(data);
+            params.callback({
+                genome: params.genomeId,
+                experiments: data
+            });
         },
         rpcErrorHandler(params.response)
     );
@@ -275,7 +278,11 @@ exports.getTraits = function (params) {
             trait[1] = trait[1].replace(/:.*$/, '');
             ExperimentTraits[trait[0]] = params.experimentId;
         });
-        params.callback(json);
+        params.callback({
+            genome: GenomeExperiments[params.experimentId],
+            experiment: params.experimentId,
+            traits: json
+        });
     }, rpcErrorHandler(params.response));
 }
 

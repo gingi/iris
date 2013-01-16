@@ -57,13 +57,15 @@ function($, Backbone, _, Spinner) {
         }
         var DDItem = Backbone.Model.extend({
             defaults: {
-                title: "blank",
+                title: null,
+                link: null
             },
             parse: function (data) {
-                options.parseItem(data, this);
+                this.parseItem(data, this);
                 this.link = options.itemLink(this);
                 return data;
-            }
+            },
+            parseItem: options.parseItem
         });
         var DDItemView = Backbone.View.extend({
             tagName: "li",
@@ -122,13 +124,17 @@ function($, Backbone, _, Spinner) {
             args.label = (args.label || args.name + "-label");
             args.title = (args.title || args.name);
             
-            var TypedDDItem = DDItem.extend({
-                type:   args.itemType,
-            })
+            var itemParams = { type: args.itemType };
+            if (args.parseItem) itemParams[parseItem] = args.parseItem;
+            var TypedDDItem = DDItem.extend(itemParams);
             TypedDDItem.type = args.itemType;
-            var ddList = new (Backbone.Collection.extend({
-                model: TypedDDItem
-            }));
+            
+            var listParams = { model: TypedDDItem };
+            listParams.parse = function (data) {
+                if (args.listParse) { args.listParse(data) }
+                return args.array ? data[args.array] : data;
+            }
+            var ddList = new (Backbone.Collection.extend(listParams));
             ddList.url = args.url;
             var ddListView = new DDListView({
                 collection: ddList,
@@ -148,22 +154,26 @@ function($, Backbone, _, Spinner) {
                         spinTarget.fadeTo(1, 0.2);
                     }
                 }, 500);
-                for (var opt in options) {
-                    ddList[opt] = options[opt];
+                for (var opt in options.data) {
+                    ddList[opt] = options.data[opt];
                 }
-                ddList.fetch({ success: function () {
+                ddList.fetch({ success: function (collection, response, opts) {
                     removeSpinner(spinTarget);
                     spinTarget.fadeTo(1, 1);
                     fetched = true;
-                }});
+                    if (options.success) { options.success(collection, response, opts) };
+                    return collection;
+                }, error: function ()  { console.error(arguments); }});
                 return this;
             };
             ddListView.select = function (selected) {
-                ddList.once("all", function () {
+                function doSelect() {
                     var item = ddList.get(selected);
                     if (item)
                         ddListView.container.find("#copy").text(item.title);
-                });
+                }
+                doSelect();
+                ddList.once("all", doSelect);
                 return this;
             };
             return ddListView;
