@@ -38,7 +38,10 @@ app.configure(function() {
     if (cacheMode) {
         console.log("Using web cache.");
         var cache = require('./src/web-cache');
-        app.use(cache.middleware({ path: '/data', expire: ONE_DAY }));
+        app.use(cache.middleware({
+            path: '/data',
+            exclude: [ /trait\/.*\/genes/ ],
+            expire: ONE_DAY }));
     }
     app.use(express.bodyParser());
     app.use(express.methodOverride());
@@ -113,7 +116,6 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         response: response,
         callback: function (data) {
             if (data.length > MAX_ITEMS) {
-                console.log("Way too big");
                 data = data.slice(0, MAX_ITEMS);
                 response.send(206, data);
             } else {
