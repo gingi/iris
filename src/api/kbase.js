@@ -139,9 +139,9 @@ function log10(val) { return Math.log(val) / Math.LN10; }
 exports.getVariations = function (params) {
     params = validateParams(params, ['traitId']);
     params.contigFetcher =
-        (params.contigFetcher || api('cdmi').contigs_to_lengths_async);
+        (params.contigFetcher || api('cdmi').contigs_to_lengths);
     params.variationFetcher =
-        (params.variationFetcher || api('g2p').traits_to_variations_async);
+        (params.variationFetcher || api('g2p').traits_to_variations);
     params.pcutoff    = (params.pcutoff || 1);
     params.variationFetcher(params.traitId, params.pcutoff,
     function (json) {
@@ -194,7 +194,7 @@ exports.getTraitGenes = function (params) {
         return errorHandler(params.response)
             ("'loci' argument must be an array");
     }
-    api('g2p').selected_locations_to_genes_async(
+    api('g2p').selected_locations_to_genes(
         params.traitId,
         params.pmin,
         params.pmax,
@@ -207,11 +207,11 @@ exports.getTraitGenes = function (params) {
 
 exports.getContigLengths = function (params) {
     params = validateParams(params, ['genomeId']);
-    api('cdmiEntity').get_relationship_IsComposedOf_async(
+    api('cdmiEntity').get_relationship_IsComposedOf(
         [params.genomeId], ['id'], [], ['id'], function (data) {
         var ids = [];
         data.forEach(function (c) { ids.push(c[2].id); });
-        api('cdmi').contigs_to_lengths_async(ids, function (lengths) {
+        api('cdmi').contigs_to_lengths(ids, function (lengths) {
             params.callback(lengths);
         }, rpcErrorHandler(params.response));
     }, rpcErrorHandler(params.response));
@@ -219,7 +219,7 @@ exports.getContigLengths = function (params) {
 
 exports.getGenomes = function (params) {
     params = validateParams(params);
-    api('cdmiEntity').all_entities_Genome_async(
+    api('cdmiEntity').all_entities_Genome(
         0, 100, ['id', 'scientific_name'], function (json) {
         var genomes = [];
         for (var id in json) {
@@ -232,7 +232,7 @@ exports.getGenomes = function (params) {
 
 exports.getExperiments = function (params) {
     params = validateParams(params, ['genomeId']);
-    api('g2p').get_experiments_async(
+    api('g2p').get_experiments(
         params.genomeId,
         params.callback,
         rpcErrorHandler(params.response)
@@ -241,7 +241,7 @@ exports.getExperiments = function (params) {
 
 exports.getExperiment = function (params) {
     params = validateParams(params, ['experimentId']);
-    api('cdmiEntity').get_entity_PhenotypeExperiment_async(
+    api('cdmiEntity').get_entity_PhenotypeExperiment(
         [params.experimentId], ['source_id', 'description', 'metadata'],
         params.callback,
         rpcErrorHandler(params.response)
@@ -250,7 +250,7 @@ exports.getExperiment = function (params) {
 
 exports.getTraits = function (params) {
     params = validateParams(params, ['experimentId']);
-    api('g2p').get_traits_async(params.experimentId, function (json) {
+    api('g2p').get_traits(params.experimentId, function (json) {
         json.forEach(function (trait) {
             trait[1] = trait[1].replace(/:.*$/, '');
         });
@@ -260,7 +260,7 @@ exports.getTraits = function (params) {
 
 exports.getNeighborNetwork = function (params) {
     params = validateParams(params, ['nodeId']);
-    api('network').buildFirstNeighborNetwork_async(
+    api('network').buildFirstNeighborNetwork(
         [ "kb|netdataset.regprecise.301",
           "kb|netdataset.modelseed.0",
           "kb|netdataset.ppi.7" ],
@@ -275,7 +275,7 @@ exports.getNeighborNetwork = function (params) {
 
 exports.getGeneFunctions = function (params) {
     params = validateParams(params, ["genes"]);
-    api('cdmi').fids_to_functions_async(
+    api('cdmi').fids_to_functions(
         params.genes,
         function (data) {
             var functions = {};
@@ -295,13 +295,13 @@ exports.getNetworkDatasets = function (params) {
     params = validateParams(params);
     if (params.geneId) {
         console.log("Looking up gene [%s]", params.geneId);
-        api('network').entity2Datasets_async(
+        api('network').entity2Datasets(
             params.geneId,
             params.callback,
             rpcErrorHandler(params.response)
         );
     } else if (params.genomeId) {
-        api('network').taxon2Datasets_async(
+        api('network').taxon2Datasets(
             params.genomeId,
             params.callback,
             rpcErrorHandler(params.response)
@@ -321,14 +321,14 @@ function genomeWithCanonicalGenes(params, resultCallback) {
     params = validateParams(params, ['genomeId', 'genes']);
     async.parallel({
         genome: function (asyncCallback) {
-            api('cdmiEntity').get_entity_Genome_async(
+            api('cdmiEntity').get_entity_Genome(
                 [params.genomeId], ['source_id'], function (genome) {
                 var sname = genome[params.genomeId].source_id;
                 asyncCallback(null, sname);
             }, rpcErrorHandler(params.response))
         },
         genes: function (asyncCallback) {
-            api('cdmiEntity').get_entity_Feature_async(
+            api('cdmiEntity').get_entity_Feature(
                 params.genes, ['source_id'], function (genes) {
                     var sourceIds = {};
                     // FIXME: API expects versioned source IDs
@@ -354,7 +354,7 @@ exports.getGOTerms = function (params) {
             canonicals.push(geneIDs[id]);
             canonical2kb[geneIDs[id]] = id;
         }
-        api('ontology').getGOIDList_async(genome, canonicals, [], [],
+        api('ontology').getGOIDList(genome, canonicals, [], [],
         function (goTerms) {
             var terms = [];
             var genes = {};
@@ -388,7 +388,7 @@ exports.getGOEnrichment = function (params) {
     genomeWithCanonicalGenes(params, function (genome, genes) {
         var canonicals = [];
         for (var gene in genes) canonicals.push(genes[gene]);
-        api('ontology').getGOEnrichment_async(
+        api('ontology').getGOEnrichment(
             genome, canonicals, GO_DOMAINS, GO_ECS,
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
