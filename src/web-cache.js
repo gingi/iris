@@ -35,7 +35,6 @@ exports.middleware = function (params) {
             if (reply && reply !== "") {
                 var body = JSON.parse(reply);
                 if (body !== null && body !== {}) {
-                    console.log("Got cache")
                     return res.send(JSON.parse(reply));
                 }
             }
