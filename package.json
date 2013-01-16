@@ -9,7 +9,9 @@
         "gzippo"          : ">=0.2.0",
         "backbone"        : ">=0.9.9",
         "underscore"      : ">=1.4.3",
-        "async"           : ">=0.1.22"
+        "async"           : ">=0.1.22",
+        "hiredis"         : ">=0.1.14",
+        "redis"           : ">=0.8.2"
     }, 
     "name": "datavis", 
     "private": true, 
