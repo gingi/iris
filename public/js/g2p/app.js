@@ -313,7 +313,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             listeners:  ['trait'],
             parent: 'genome',
             idAttribute: 'genome',
-            collection: 'experiments',
+            array: 'experiments',
             listParse: function (data) {
                 this.parentId = data.genome;
             }
@@ -325,7 +325,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             },
             parent: 'experiment',
             idAttribute: 'experiment',
-            collection: 'traits'
+            array: 'traits'
         }
     };
 
@@ -342,7 +342,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             name:       dd.name,
             url:        dd.url,
             itemType:   type,
-            array:      dd.collection,
+            array:      dd.array,
             listParse:  dd.listParse
         });
     }
@@ -354,14 +354,18 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         },
         dropdownSelect: function (type, id) {
             _.each(dropdowns[type].listeners, function (l) {
+                setCollection = false;
                 dropdowns[l].view.fetch({
                     data: { parentId: id },
-                    success: function (d) {
-                        updateDropdownParents(l, id, d.parentId);
+                    success: function (collection, response) {
+                        if (!setCollection) {
+                            updateDropdownParents(
+                                type, id, response[dropdowns[type].parent]);
+                            setCollection = true;
+                        }
                     }
                 });
             });
-            dropdowns[type].view.select(id);
         },
         show: function (traitId) {
             var trait = new Trait;
@@ -380,24 +384,24 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     Backbone.history.start();
     
     function updateDropdownParents(type, id, parentId) {
-        console.log("Updating parents of %s [id=%s parent=%s]", type, id, parentId);
         var dd = dropdowns[type];
         if (dd.view.collection.length == 0) {
             dd.view.fetch({
                 data: { parentId: parentId },
                 success: function (collection, response) {
-                    dd.view.select(id);
-                    console.log(collection, response);
                     if (!dd.parent) return;
                     var parent = dropdowns[dd.parent];
-                    updateDropdownParents(dd.parent, response[dd.parent], response[parent.idAttribute]);
+                    updateDropdownParents(
+                        dd.parent,
+                        response[dd.parent],
+                        response[parent.idAttribute]
+                    );
+                    dd.view.select(id);
                 }
             });
         } else {
             dd.view.select(id);
         }
-        
-        
     }
     
     function subviewDiv(id, title) {

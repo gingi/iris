@@ -157,7 +157,7 @@ function($, Backbone, _, Spinner) {
                 for (var opt in options.data) {
                     ddList[opt] = options.data[opt];
                 }
-                ddList.fetch({ success: function (collection, response, opts) {
+                ddList.fetch({ data: options.data, success: function (collection, response, opts) {
                     removeSpinner(spinTarget);
                     spinTarget.fadeTo(1, 1);
                     fetched = true;
