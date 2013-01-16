@@ -427,3 +427,27 @@ app.get('/streaming', function (request, response, next) {
         }
     }, 500);
 });
+
+(function () {
+    var response = { send: console.error };
+    kbase.getGenomes({
+        response: response,
+        callback: function (genomes) {
+            genomes.forEach(function (genome) {
+                kbase.getExperiments({
+                    response: response,
+                    genomeId: genome[0],
+                    callback: function (experiments) {
+                        experiments.forEach(function (experiment) {
+                            kbase.getTraits({
+                                response: response,
+                                experimentId: experiment[0],
+                                callback: function () { }
+                            });
+                        });
+                    }
+                });
+            });
+        }
+    })
+})()

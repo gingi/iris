@@ -135,6 +135,9 @@ function apiRequire(path, fn) {
 
 function log10(val) { return Math.log(val) / Math.LN10; }
 
+var GenomeExperiments = {};
+var ExperimentTraits  = {};
+
 /* ADAPTED METHODS */
 exports.getVariations = function (params) {
     params = validateParams(params, ['traitId']);
@@ -178,6 +181,9 @@ exports.getVariations = function (params) {
                 })
             });
             trait.name = trait.trait_name;
+            if (!trait.experiment) {
+                trait.experiment = ExperimentTraits[trait.id];
+            }
             params.callback({
                 maxscore:   maxscore,
                 trait:      trait,
@@ -234,7 +240,12 @@ exports.getExperiments = function (params) {
     params = validateParams(params, ['genomeId']);
     api('g2p').get_experiments(
         params.genomeId,
-        params.callback,
+        function (data) {
+            data.forEach(function (exp) {
+                GenomeExperiments[exp[0]] = params.genomeId;
+            });
+            params.callback(data);
+        },
         rpcErrorHandler(params.response)
     );
 }
@@ -243,7 +254,16 @@ exports.getExperiment = function (params) {
     params = validateParams(params, ['experimentId']);
     api('cdmiEntity').get_entity_PhenotypeExperiment(
         [params.experimentId], ['source_id', 'description', 'metadata'],
-        params.callback,
+        function (data) {
+            var metadata = {};
+            for (var property in data) {
+                metadata[property] = data[property];
+            }
+            if (!metadata.genome) {
+                metadata.genome = GenomeExperiments[params.experimentId];
+            }
+            params.callback(metadata);
+        },
         rpcErrorHandler(params.response)
     );
 }
@@ -253,6 +273,7 @@ exports.getTraits = function (params) {
     api('g2p').get_traits(params.experimentId, function (json) {
         json.forEach(function (trait) {
             trait[1] = trait[1].replace(/:.*$/, '');
+            ExperimentTraits[trait[0]] = params.experimentId;
         });
         params.callback(json);
     }, rpcErrorHandler(params.response));
