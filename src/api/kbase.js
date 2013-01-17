@@ -4,38 +4,41 @@ var fs    = require('fs');
 var path  = require('path');
 var async = require('async');
 
+var KBaseAPI    = apiRequire(path.join(__dirname, 'api.js'));
+
+function apiRequire(path) {
+    var sandbox = { $: $, jQuery: $, console: console };
+    var data = fs.readFileSync(path, 'utf8');
+    var ret = vm.runInNewContext(data, sandbox, path);
+    return sandbox;
+}
+
 var P_DECIMALS = 5;
 var FLANKING_DISTANCE = 1e5;
 
 var apis = {
     network: {
         url: 'http://140.221.84.160:7064/KBaseNetworksRPC/networks',
-        src: "networks-api.js",
         fn:  "KBaseNetworks"
     },
     g2p: {
         url: 'http://140.221.84.160:7068',
-        src: "g2p-api.js",
         fn:  "Genotype_PhenotypeAPI"
     },
     cdmi: {
         url: 'http://140.221.84.160:7032',
-        src: "cdm-api.js",
         fn:  "CDMI_API"
     },
     cdmiEntity: {
         url: 'http://140.221.84.160:7032',
-        src: "cdm-api.js",
         fn:  "CDMI_EntityAPI"        
     },
     ontology:   {
         url: 'http://140.221.84.160:7062',
-        src: "ontology-api.js",
         fn:  "Ontology"
     },
     expression: {
         url: 'http://140.221.84.160:7063',
-        src: "expression-api.js",
         fn:  "PlantExpression"
     }
 }
@@ -108,7 +111,7 @@ function exceptionWrapper(fn, object) {
 function api(key) {
     var params = apis[key];
     if (!params.object) {
-        var proto = apiRequire(path.join(__dirname, params.src), params.fn);
+        var proto = KBaseAPI[params.fn];
         var object = new proto(params.url);
         var proxyObject = new Object();
         for (var key in object) {
@@ -121,16 +124,6 @@ function api(key) {
         params.object = proxyObject;
     }
     return params.object;
-}
-
-var sandboxes = {};
-function apiRequire(path, fn) {
-    if (!sandboxes[path]) {
-        var sandbox = sandboxes[path] = { jQuery: $, console: console };
-        var data = fs.readFileSync(path, 'utf8');
-        var ret = vm.runInNewContext(data, sandbox, path);
-    }
-    return sandboxes[path][fn];
 }
 
 function log10(val) { return Math.log(val) / Math.LN10; }
