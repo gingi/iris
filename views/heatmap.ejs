@@ -6,7 +6,13 @@
     <link rel="stylesheet" href="/css/kbase.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="/css/colorbrewer.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="/css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
-    <script src="/js/require.js" data-main="/js/heatmap/<%= js %>.js" data-config='/js/config.js'></script>
+    <script src="/js/require.js"></script>
+    <script>
+        require(["/js/config.js"], function () {
+            require(["/js/heatmap/<%= js %>.js"])
+        })
+    </script>
+
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
 </head>
