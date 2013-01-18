@@ -4,7 +4,13 @@
     <meta charset="utf-8">
     <title>Network</title>
     <link rel="stylesheet" href="/css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
-    <script src="/js/require.js" data-main="/js/network/app.js" data-config='/js/config.js'></script>
+    <script src="/js/require.js"></script>
+    <script>
+        require(["/js/config.js"], function () {
+            require(["/js/network/app.js"])
+        })
+    </script>
+
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
     <style>
