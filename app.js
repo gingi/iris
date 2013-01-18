@@ -37,11 +37,12 @@ app.configure(function() {
     app.use(express.logger('dev'));
     if (cacheMode) {
         console.log("Using web cache.");
-        var cache = require('./src/web-cache');
+        var cache = require('web-cache');
         app.use(cache.middleware({
             path: '/data',
             exclude: [ /trait\/.*\/genes/ ],
-            expire: ONE_DAY }));
+            expire: ONE_DAY
+        }));
     }
     app.use(express.bodyParser());
     app.use(express.methodOverride());
