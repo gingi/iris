@@ -161,7 +161,8 @@ function($, Backbone, _, Spinner) {
                     removeSpinner(spinTarget);
                     spinTarget.fadeTo(1, 1);
                     fetched = true;
-                    if (options.success) { options.success(collection, response, opts) };
+                    if (options.success) {
+                        options.success(collection, response, opts) };
                     return collection;
                 }, error: function ()  { console.error(arguments); }});
                 return this;
