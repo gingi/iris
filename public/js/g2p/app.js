@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
-     'util/spin', 'util/dropdown'],
-    function ($, Backbone, _, ManhattanPlot, Spinner, DropDown) {
+     'util/spin', 'g2p/dropdowns'],
+    function ($, Backbone, _, ManhattanPlot, Spinner, DropDowns) {
   
     var MANHATTAN_HEIGHT = "300px";
     var PVALUE_THRESHOLD = 1;
@@ -8,6 +8,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var BP2PX = 25e4;
     
     var genesXHR;
+    var $hud;
     
     function dataAPI(path) { return "/data" + path; }
     function addSpinner(el) {
@@ -39,9 +40,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         }
     });
         
-    var vis;
-    var $hud;
-
     function genomePixelWidth(contigs) {
         var genomeLength = 0;
         contigs.forEach(function (c) { genomeLength += c.len });
@@ -116,7 +114,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             self.manhattanContainer.append($spanContainer.append($viewport));
             $viewport.outerHeight($spanContainer.height());
             
-            vis = new ManhattanPlot($viewport, {});
+            var vis = new ManhattanPlot($viewport, {});
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
@@ -299,73 +297,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         });
     }
     
-    var dropdowns = {
-        genome: {
-            name:       "Genomes",
-            url:        dataAPI("/genome"),
-            listeners:  ['experiment'],
-        },     
-        experiment: {
-            name: "Experiments",
-            url:  function () {
-                return dataAPI("/genome/" + this.parentId + "/experiments")
-            },
-            listeners:  ['trait'],
-            parent: 'genome',
-            idAttribute: 'genome',
-            array: 'experiments',
-            listParse: function (data) {
-                this.parentId = data.genome;
-            }
-        },
-        trait: {
-            name: "Traits",
-            url: function () {
-                return dataAPI("/experiment/" + this.parentId + "/traits");
-            },
-            parent: 'experiment',
-            idAttribute: 'experiment',
-            array: 'traits'
-        }
-    };
+    var dropdowns = new DropDowns(dataAPI);
 
-    var dropDownFactory = new DropDown({
-        container: "#g2pnav",
-        template:  "#dropdownTemplate",
-        sortBy: function (item) { return item.title.toLowerCase(); },
-        itemLink: function (item) { return "#" + item.type + "/" + item.id; }
-    });
-    for (var type in dropdowns) {
-        var dd = dropdowns[type];
-        var select;
-        dd.view = dropDownFactory.create({
-            name:       dd.name,
-            url:        dd.url,
-            itemType:   type,
-            array:      dd.array,
-            listParse:  dd.listParse
-        });
-    }
-    dropdowns.genome.view.fetch();
     var Router = Backbone.Router.extend({
         routes: {
             "trait/:traitId": "show",
             ":type/:id": "dropdownSelect",
         },
         dropdownSelect: function (type, id) {
-            _.each(dropdowns[type].listeners, function (l) {
-                setCollection = false;
-                dropdowns[l].view.fetch({
-                    data: { parentId: id },
-                    success: function (collection, response) {
-                        if (!setCollection) {
-                            updateDropdownParents(
-                                type, id, response[dropdowns[type].parent]);
-                            setCollection = true;
-                        }
-                    }
-                });
-            });
+            dropdowns.listen(type, id);
         },
         show: function (traitId) {
             var trait = new Trait;
@@ -374,10 +314,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             trait.fetch({
                 data: { p: 30 },
                 success: function (t) {
-                    updateDropdownParents('trait', traitId, t.parentId);
+                    dropdowns.update('trait', traitId, t.parentId);
                 }
             });
-            dropdowns.trait.view.select(traitId);
+            dropdowns.select('trait', traitId);
         }
     });
     var router = new Router;
