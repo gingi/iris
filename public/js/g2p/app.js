@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
-     'util/spin', 'g2p/dropdowns'],
-    function ($, Backbone, _, ManhattanPlot, Spinner, DropDowns) {
+     'util/progress', 'g2p/dropdowns'],
+    function ($, Backbone, _, ManhattanPlot, Progress, DropDowns) {
   
     var MANHATTAN_HEIGHT = "300px";
     var PVALUE_THRESHOLD = 1;
@@ -11,23 +11,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var $hud;
     
     function dataAPI(path) { return "/data" + path; }
-    function addSpinner(el) {
-        var opts = {
-            lines: 13, // The number of lines to draw
-            length: 5, // The length of each line
-            width: 2, // The line thickness
-            radius: 5, // The radius of the inner circle
-            corners: 1, // Corner roundness (0..1)
-            rotate: 69, // The rotation offset
-            color: '#666', // #rgb or #rrggbb
-            speed: 1.3, // Rounds per second
-            trail: 42, // Afterglow percentage
-            className: 'spinner', // The CSS class to assign to the spinner
-            top: 'auto', // Top position relative to parent in px
-            left: 'auto' // Left position relative to parent in px
-        };
-        var spinner = new Spinner(opts).spin(el[0]);
-    }
 
     var Trait = Backbone.Model.extend({
         defaults: { name: "", genome: "" },
@@ -49,10 +32,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     function linkItem(href, title) {
         return $("<li>")
             .append($("<a>").attr("href", href).text(title));
-    }
-
-    function dismissSpinner($el) {
-        $el.find(".spinner").fadeOut(function () { $(this).remove() });
     }
     
     var ManhattanView = Backbone.View.extend({
@@ -84,14 +63,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             $hud = $("#infoBox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
             $hud.fadeOut(function () { $hud.empty(); });
+            $hud.progress = new Progress({ element: $hud, fade: false });
             this.manhattanContainer =
                 this.makeRowDiv("manhattan-row-container");
             this.subviewBar = this.makeRowDiv("subviews");
-            this.manhattanContainer.fadeTo(0, 0.3);
-            this.subviewBar.fadeTo(0, 0.3);
             this.$el.find(".alert").remove();
-            addSpinner(this.$el);
-            
+            this.progress = new Progress({
+                element: this.manhattanContainer
+            });
+            this.progress.show();
         },
         render: function () {
             var self = this;
@@ -101,9 +81,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 self.errorHandler(model, { status: '404' });
                 return;
             }
-            dismissSpinner($el);
-            self.manhattanContainer.fadeTo(0, 1).empty();
-            self.subviewBar.fadeTo(0, 1).empty();
+            self.progress.dismiss();
+            self.manhattanContainer.empty();
+            self.subviewBar.empty();
             var $spanContainer = $("<div>").addClass("span12")
                 .css("position", "relative")
                 .outerHeight(MANHATTAN_HEIGHT);
@@ -134,7 +114,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 $hud.empty();
                 $hud.fadeIn();
                 setInterval(function () {
-                    if ($hud.is(":empty")) { addSpinner($hud); }
+                    if ($hud.is(":empty")) { $hud.progress.show(); }
                 }, 500);
                 var pmin = Math.pow(10, -scoreA);
                 var pmax = Math.pow(10, -scoreB);
@@ -172,7 +152,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     "Message: " + details.message,
                     "Stack:   " + details.stack].join("\n")));
             }
-            dismissSpinner(this.$el);
+            this.progress.dismiss();
             this.manhattanContainer.empty();
             this.subviewBar.empty();
             this.$el.append($("<div>")
@@ -197,7 +177,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 i += MAX_GENES_PER_REQUEST) {
                 geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
             }
-            dismissSpinner($hud);
+            $hud.progress.dismiss();
             $hud.append($p);
             if (jqXhr.status == 206) {
                 $hud.append($("<div>").addClass("alert mini").html(
