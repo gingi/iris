@@ -315,7 +315,6 @@ exports.getGeneFunctions = function (params) {
 exports.getNetworkDatasets = function (params) {
     params = validateParams(params);
     if (params.geneId) {
-        console.log("Looking up gene [%s]", params.geneId);
         api('network').entity2Datasets(
             params.geneId,
             params.callback,

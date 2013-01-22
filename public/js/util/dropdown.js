@@ -1,23 +1,6 @@
-define(['jquery', 'backbone', 'underscore', 'util/spin', 'backbone.localstorage'],
-function($, Backbone, _, Spinner) {
-    function addSpinner(el) {
-        var opts = {
-            length: 5,
-            width: 2,
-            radius: 5,
-            corners: 1,
-            rotate: 69,
-            color: '#666',
-            speed: 1.3,
-            trail: 42
-        };
-        var spinner = new Spinner(opts).spin(el[0]);
-    }
-    
-    function removeSpinner(el) {
-        el.find(".spinner").remove();
-    }
-    
+define(['jquery', 'backbone', 'underscore',
+    'util/progress', 'backbone.localstorage'],
+function($, Backbone, _, Progress) {
     function updateCopy(el) {
         el.find("#copy").text(el.find("li.active").text());
     }
@@ -46,7 +29,8 @@ function($, Backbone, _, Spinner) {
                 );
         }
         if (!options.listTemplate.html()) {
-            options.listTemplate = $("<script>").attr("type", "text/template").html(
+            options.listTemplate = $("<script>")
+                .attr("type", "text/template").html(
                 '<li class="dropdown">' +
                 '<a class="dropdown-toggle" id="<%= label %>" ' +
                 'data-toggle="dropdown"data-target="#" href="#">' +
@@ -148,18 +132,15 @@ function($, Backbone, _, Spinner) {
                 var fetched = false;
                 var spinTarget =
                     ddListView.$el.find("#" + this.options.listId).parent();
-                setInterval(function () {
-                    if (!fetched) {
-                        addSpinner(spinTarget);
-                        spinTarget.fadeTo(1, 0.2);
-                    }
+                var progress = new Progress({ element: spinTarget });
+                setTimeout(function () {
+                    if (!fetched) progress.show();
                 }, 500);
                 for (var opt in options.data) {
                     ddList[opt] = options.data[opt];
                 }
                 ddList.fetch({ success: function (collection, response, opts) {
-                    removeSpinner(spinTarget);
-                    spinTarget.fadeTo(1, 1);
+                    progress.dismiss();
                     fetched = true;
                     if (options.success) {
                         options.success(collection, response, opts) };
