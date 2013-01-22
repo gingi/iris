@@ -17,6 +17,7 @@ define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
         var elementOffset = $element.offset();
         self.setData = function (data) {
             self.data = data;
+            console.log("Table data", data);
             data.filter = data.filter || [];
             for (var i = 0; i < data.columns.length; i++) {
                 if (!_.contains(data.filter, data.columns[i])) {
