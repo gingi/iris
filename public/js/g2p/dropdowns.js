@@ -102,6 +102,5 @@ define(["util/dropdown"], function (DropDown) {
         return self;
     }
     
-    
     return DropDowns;
 });

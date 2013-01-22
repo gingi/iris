@@ -6,9 +6,10 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
     };
     var color = d3.scale.category10();
     
-    var Network = function (el, options) {
+    var Network = function (options) {
         var self = this;
         options = options ? _.clone(options) : {};
+        var $el = $(options.element) || $(options.el);
         var _idSequence = 1;
         var _autoUpdate = true;
         
@@ -40,6 +41,11 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             }
             nodes.splice(findNodeIndex(id),1);
             update();
+        }
+        
+        this.setData  = function (data) {
+            this.setNodes(data.nodes);
+            this.setEdges(data.edges);
         }
         
         this.setNodes = function (nodesArg) {
@@ -82,7 +88,7 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
                 .style("stroke-location", "outside")   
         }
         
-        this.render = function () { update(); }
+        this.display = function () { update(); }
 
         this.findNode = function (key, type) {
             type = (type || 'id');
@@ -93,10 +99,10 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             for (var i in nodes) {if (nodes[i].id === id) return i};
         }
 
-        var w = $(el).width(),
-            h = $(el).height();
+        var w = $el.width(),
+            h = $el.height();
 
-        var vis = this.vis = d3.select(el).append("svg:svg")
+        var vis = this.vis = d3.select($el[0]).append("svg:svg")
             .attr("width", w)
             .attr("height", h);
             

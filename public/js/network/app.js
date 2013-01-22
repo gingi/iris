@@ -18,10 +18,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
         },
         render: function () {
             $("#datavis").empty();
-            vis = new NetworkVis("#datavis", { dock: true });
-            vis.setNodes(this.model.get('nodes'));
-            vis.setEdges(this.model.get('edges'));
-            vis.render();
+            vis = new NetworkVis({ el: "#datavis", dock: true });
+            vis.setData({
+                nodes: this.model.get('nodes'),
+                edges: this.model.get('edges')
+            });
+            vis.display();
             return this;
         },
     });    

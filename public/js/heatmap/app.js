@@ -27,9 +27,9 @@ function ($, Backbone, _, Heatmap) {
         },
         render: function () {
             var NUM_GENES = 10;
-            var heatmap = new Heatmap(this.$el);
+            var heatmap = new Heatmap({ element: this.$el });
             heatmap.setData(randomData(NUM_GENES));
-            heatmap.render();
+            heatmap.display();
         }
     });
     

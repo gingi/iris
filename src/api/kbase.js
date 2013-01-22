@@ -340,6 +340,7 @@ var GO_ECS     = ["IEA", "IEP", "ISS"];
 
 function genomeWithCanonicalGenes(params, resultCallback) {
     params = validateParams(params, ['genomeId', 'genes']);
+    console.log("Looking at genes", params.genes);
     async.parallel({
         genome: function (asyncCallback) {
             api('cdmiEntity').get_entity_Genome(
@@ -407,6 +408,10 @@ exports.getGOTerms = function (params) {
 
 exports.getGOEnrichment = function (params) {
     genomeWithCanonicalGenes(params, function (genome, genes) {
+        // // TEMP!
+        // return params.callback(genes);
+        // 
+        // 
         var canonicals = [];
         for (var gene in genes) canonicals.push(genes[gene]);
         api('ontology').getGOEnrichment(
