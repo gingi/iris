@@ -84,8 +84,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             $hud = $("#infoBox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
             $hud.fadeOut(function () { $hud.empty(); });
-            this.manhattanContainer = this.makeRowDiv("manhattan-row-container");
-            this.subviewBar         = this.makeRowDiv("subviews");
+            this.manhattanContainer =
+                this.makeRowDiv("manhattan-row-container");
+            this.subviewBar = this.makeRowDiv("subviews");
             this.manhattanContainer.fadeTo(0, 0.3);
             this.subviewBar.fadeTo(0, 0.3);
             this.$el.find(".alert").remove();
@@ -207,23 +208,38 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             }
             
             this.subviewBar.empty();
-            
-            // Network
-            $.ajax({
-                url: dataAPI('/network/random'),
-                dataType: 'json',
-                data: { clusters: 2, nodes: 10 }
-            }).done(function (json) { drawNetwork(json); });
-            
-            // Heatmap
-            fetchGeneData({
-                url: dataAPI('/coexpression'),
-                genes: geneRequests
-            }).done(function (json) {
-                if (json) 
-                    drawHeatmap({ rows: json.genes, matrix: json.matrix });
+
+            var networkModel = new (Backbone.Model.extend({
+                url: dataAPI('/network/random')
+            }));
+            var networkView = new SubView({
+                model: networkModel,
+                require: 'renderers/network',
+                elementId: 'network',
+                title: 'Gene Clusters',
+                renderParams: {
+                    hud: $("#subinfobox")
+                }
             });
+            networkModel.fetch({ data: { clusters: 2, nodes: 10 } });
             
+            var coexpModel = new (Backbone.Model.extend({
+                url: dataAPI('/coexpression'),
+                parse: function (data) {
+                    return {
+                        rows:   data.genes,
+                        matrix: data.matrix
+                    };
+                }
+            }));
+            var coexpView = new SubView({
+                model: coexpModel,
+                require: 'renderers/heatmap',
+                elementId: 'heatmap',
+                title: 'Expression Profile'
+            });
+            coexpModel.fetch({ data: { genes: geneIDs.join(',') } });
+
             // Table
             $.when(
                 fetchGeneData({
@@ -251,13 +267,58 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 }
                 showTable(genes);
             })
+
+            var geneEnrich = new (Backbone.Model.extend({
+                url: function () {
+                    var url =
+                        dataAPI('/genome/' + this.genomeId + '/go-enrichment');
+                    return url;
+                },
+                parse: function (data) { return data; }
+            }));
+            geneEnrich.genomeId = self.model.genome;
             
+            var barchart = new SubView({
+                require: 'charts/bar',
+                elementId: "go-histogram",
+                title: "Gene Ontology Enrichment",
+                renderParams: { yTitle: "-log10 p" },
+                model: geneEnrich
+            });
+            geneEnrich.fetch({ data: { genes: geneIDs.join(",") } });
+            
+            /*
             // Barchart
             fetchGeneData({
-                url: dataAPI(
-                    '/genome/' + self.model.genome + '/go-enrichment'),
+                url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
                 genes: geneRequests
             }).done(drawBarChart);
+            */
+        }
+    });
+    
+    var SubView = Backbone.View.extend({
+        defaults: {
+            require: '',
+            title: 'Blank',
+            elementId: '',
+            renderParams: {},
+        },
+        initialize: function (params) {
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
+        },
+        render: function() {
+            var self = this;
+            require([self.options.require], function(Chart) {
+                subviewDiv(self.options.elementId, self.options.title);
+                var chart = new Chart(_.extend({
+                    element: "#" + self.options.elementId
+                }, self.options.renderParams));
+                console.log(self.model.toJSON());
+                chart.setData(self.model.toJSON());
+                chart.display();
+            })
         }
     });
     
@@ -323,27 +384,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var router = new Router;
     Backbone.history.start();
     
-    function updateDropdownParents(type, id, parentId) {
-        var dd = dropdowns[type];
-        if (dd.view.collection.length == 0) {
-            dd.view.fetch({
-                data: { parentId: parentId },
-                success: function (collection, response) {
-                    if (!dd.parent) return;
-                    var parent = dropdowns[dd.parent];
-                    updateDropdownParents(
-                        dd.parent,
-                        response[dd.parent],
-                        response[parent.idAttribute]
-                    );
-                    dd.view.select(id);
-                }
-            });
-        } else {
-            dd.view.select(id);
-        }
-    }
-    
     function subviewDiv(id, title) {
         $("#subviews").append(
             $("<div>").addClass("span4").append(
@@ -356,7 +396,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         if (!data) return;
         require(['charts/bar'], function (BarChart) {
             var chartData = [];
-            var threshold = data.length < 30 ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
+            var threshold = data.length < 30 
+                ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
             for (var i = 0; i < data.length; i++) {
                 var normalized = -Math.log(data[i].pvalue) / Math.LN10;
                 if (normalized >= threshold) {
@@ -367,48 +408,14 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 }
             }
             subviewDiv("go-histogram", "Gene Ontology Enrichment");
-            var chart = new BarChart({ element: "#go-histogram", yTitle: "-log10 p" });
+            var chart = new BarChart({
+                element: "#go-histogram", yTitle: "-log10 p"
+            });
             chart.setData(chartData);
             chart.display();
         });
     }
     
-    function drawPieChart(data) {
-        require(['charts/pie'], function (PieChart) {
-            var domains = {}, chartData = [];
-            for (var i = 0; i < data.length; i++) {
-                var domain = data[i].goDesc[1].replace('_', ' ');
-                if (!domains.hasOwnProperty(domain)) {
-                    domains[domain] = 0;
-                }
-                domains[domain]++;
-            }
-            for (var domain in domains) {
-                chartData.push([domain, domains[domain]]);
-            }
-            subviewDiv("go-domains", "Gene Ontology Domains");
-            var chart = new PieChart({ element: "#go-domains", categories: 3 });
-            chart.setData(chartData);
-            chart.display();
-        })
-    }
-
-    function drawHeatmap(data) {
-        require(['renderers/heatmap'], function (Heatmap) {
-            subviewDiv("heatmap", "Expression Profile");
-            var heatmap = new Heatmap("#heatmap");
-            try {
-                heatmap.setData(data);
-                heatmap.render();
-            } catch (e) {
-                $("#heatmap").append($("<div>")
-                    .addClass("text text-error")
-                    .css("margin", "20px").html(
-                        [e, "Try selecting a smaller window"].join("<br>")));
-            }
-        });
-    }
-
     function showTable(data) {
         require(['renderers/table'], function (Table) {
             subviewDiv("gene-table", "Trait Genes");
@@ -419,20 +426,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 filter: ['EC']
             })
             table.display();
-        })
-    }
-    
-    function drawNetwork(data) {
-        var nodes = data.nodes;
-        var edges = data.edges;
-        require(['renderers/network'], function (NetworkVis) {
-            subviewDiv("network", "Gene Clusters");
-            var network = new NetworkVis("#network", {
-                hud: $("#subinfobox")
-            });
-            network.setNodes(nodes);
-            network.setEdges(edges);
-            network.render();
         })
     }
 });
