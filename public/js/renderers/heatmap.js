@@ -3,12 +3,12 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MIN_CELL_SIZE = 3;
     var MAX_CELL_SIZE = 12;
     var DEFAULT_BORDER_WIDTH = 0.5;
-	function Heatmap(element, options) {
+	function Heatmap(options) {
         var self = this;
-        element = $(element);
         options = (options || {});
         options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
         options.colorscheme = (options.colorscheme || 'RdYlBu');
+        var element = $(options.element);
         
         var matrix = [];
         var rowIndex = {}; var numRows = 0;
@@ -44,7 +44,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
             return Math.floor(arr.length *
                 (cellSize + options.borderWidth));
         }
-        self.render = function () {
+        self.display = function () {
             element.css("position", "relative");
             cellSize = Math.min(MAX_CELL_SIZE,
                 Math.max(MIN_CELL_SIZE,
