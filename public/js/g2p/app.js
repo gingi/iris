@@ -68,9 +68,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 this.makeRowDiv("manhattan-row-container");
             this.subviewBar = this.makeRowDiv("subviews");
             this.$el.find(".alert").remove();
-            this.progress = new Progress({
-                element: this.manhattanContainer
-            });
+            this.progress = new Progress({ element: this.manhattanContainer });
             this.progress.show();
         },
         render: function () {
@@ -246,7 +244,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     }
                 }
                 showTable(genes);
-            })
+            });
 
             var geneEnrich = new (Backbone.Model.extend({
                 url: function () {
@@ -254,9 +252,28 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                         dataAPI('/genome/' + this.genomeId + '/go-enrichment');
                     return url;
                 },
-                parse: function (data) { return data; }
+                toJSON: function () {
+                    return _.values(this.attributes);
+                },
+                parse: function (data) {
+                    var filtered = [];
+                    var threshold = data.length < 100 
+                        ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
+                    for (var i = 0; i < data.length; i++) {
+                        var normalized = -Math.log(data[i].pvalue) / Math.LN10;
+                        if (normalized >= threshold) {
+                            filtered.push({
+                                x: data[i].goID,
+                                y: normalized,
+                                title: data[i].goDesc.join("\n")
+                            });
+                        }
+                    }
+                    return filtered;
+                },
             }));
             geneEnrich.genomeId = self.model.genome;
+            
             
             var barchart = new SubView({
                 require: 'charts/bar',
@@ -266,14 +283,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 model: geneEnrich
             });
             geneEnrich.fetch({ data: { genes: geneIDs.join(",") } });
-            
-            /*
-            // Barchart
-            fetchGeneData({
-                url: dataAPI('/genome/' + self.model.genome + '/go-enrichment'),
-                genes: geneRequests
-            }).done(drawBarChart);
-            */
         }
     });
     
@@ -295,7 +304,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 var chart = new Chart(_.extend({
                     element: "#" + self.options.elementId
                 }, self.options.renderParams));
-                console.log(self.model.toJSON());
                 chart.setData(self.model.toJSON());
                 chart.display();
             })
@@ -347,6 +355,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         },
         dropdownSelect: function (type, id) {
             dropdowns.listen(type, id);
+            dropdowns.select(type, id);
         },
         show: function (traitId) {
             var trait = new Trait;
@@ -356,9 +365,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 data: { p: 30 },
                 success: function (t) {
                     dropdowns.update('trait', traitId, t.parentId);
+                    dropdowns.select('trait', traitId);
                 }
             });
-            dropdowns.select('trait', traitId);
         }
     });
     var router = new Router;

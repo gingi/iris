@@ -1,4 +1,10 @@
 define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
+    var defaults = {
+        yTitle: 'Y Axis',
+        axisLabelFontSize: 10,
+        padding: 10
+    };
+    
     function labelFontHeight(svg) {
         var text = svg.append("g").attr("class", "x axis")
             .append("svg:text").text("M");
@@ -10,13 +16,12 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
     function BarChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
-        options.yTitle = options.yTitle || 'Y Axis';
-        options.axisLabelFontSize = options.axisLabelFontSize || 10;
-        options.padding =           options.padding || 10;
+        _.defaults(options, defaults);
         var $el = $(options.element);
         var data;
         self.setData = function (inData) {
             data = inData;
+            return self;
         };
         self.display = function () {
             $el.empty();
@@ -26,8 +31,10 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                 bottom: 40,
                 left: 40
             },
-            width  = $el.width()  - margin.left - margin.right - options.padding,
-            height = $el.height() - margin.top  - margin.bottom - options.padding;
+            width  =
+                $el.width()  - margin.left - margin.right - options.padding,
+            height =
+                $el.height() - margin.top  - margin.bottom - options.padding;
 
             var format = d3.format(".0");
 
@@ -35,7 +42,8 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             var y = d3.scale.linear().range([height, 0]);
 
             var xAxis = d3.svg.axis().scale(x).orient("bottom");
-            var yAxis = d3.svg.axis().scale(y).orient("left").tickFormat(format);
+            var yAxis =
+                 d3.svg.axis().scale(y).orient("left").tickFormat(format);
 
             var svg = d3.select(options.element)
                 .append("svg")
@@ -117,6 +125,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                     
                 this.checked = !this.checked;
             }
+            return self;
         }
     }
     return BarChart;
