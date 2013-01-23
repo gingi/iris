@@ -35,6 +35,9 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 columns = rows;
             }
             matrix = data.matrix;
+            if (matrix == null) {
+                throw new Error("Empty matrix");
+            }
             if (matrix.length > MAX_CELLS) {
                 throw new Error("Too many cells");
             }
