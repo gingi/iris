@@ -27,12 +27,12 @@ define(['jquery', 'd3', 'util/eventemitter'], function ($, d3, EventEmitter) {
         dock
             .on("mouseover", function () { dock.style("opacity", "0.2"); })
             .on("mouseout",  function () { dock.style("opacity", "0.1"); })
-            .on("click", dockHud);
+            .on("click", dockhud);
 
         self.changedState = false;
         
         self.updateHud = function () {
-            var $hud = $("#dockHud");
+            var $hud = $("#dockhud");
             $hud.empty();
             $hud.append("<h4>Dock</h4>");
             for (d in docked) {
@@ -40,9 +40,9 @@ define(['jquery', 'd3', 'util/eventemitter'], function ($, d3, EventEmitter) {
             }            
         }
         
-        function dockHud() {
+        function dockhud() {
             self.updateHud();
-            var $hud = $("#dockHud");
+            var $hud = $("#dockhud");
             $hud.fadeIn();
             $hud.on("click", function () {
                 $hud.fadeOut();
