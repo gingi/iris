@@ -339,7 +339,6 @@ var GO_ECS     = ["IEA", "IEP", "ISS"];
 
 function genomeWithCanonicalGenes(params, resultCallback) {
     params = validateParams(params, ['genomeId', 'genes']);
-    console.log("Looking at genes", params.genes);
     async.parallel({
         genome: function (asyncCallback) {
             api('cdmiEntity').get_entity_Genome(
@@ -380,8 +379,11 @@ exports.getGOTerms = function (params) {
             var terms = [];
             var genes = {};
             var termIndex = {};
-            for (var gene in goTerms) {
+            var count = 0;
+            for (var kbid in geneIDs) {
                 var geneTerms = [];
+                var gene = geneIDs[kbid];
+                genes[kbid] = { name: gene };
                 for (var term in goTerms[gene]) {
                     var index = termIndex[term];
                     if (index == null) {
@@ -392,10 +394,8 @@ exports.getGOTerms = function (params) {
                     }
                     geneTerms.push(index);
                 }
-                genes[canonical2kb[gene]] = {
-                    name:  gene,
-                    terms: geneTerms
-                };
+                if (geneTerms.length > 0)
+                    genes[kbid].terms = geneTerms;
             }
             params.callback({
                 genes: genes,
@@ -407,10 +407,6 @@ exports.getGOTerms = function (params) {
 
 exports.getGOEnrichment = function (params) {
     genomeWithCanonicalGenes(params, function (genome, genes) {
-        // // TEMP!
-        // return params.callback(genes);
-        // 
-        // 
         var canonicals = [];
         for (var gene in genes) canonicals.push(genes[gene]);
         api('ontology').getGOEnrichment(
@@ -418,6 +414,32 @@ exports.getGOEnrichment = function (params) {
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
         );
+    });
+}
+
+exports.getFunctionalAnnotations = function (params) {
+    var params = validateParams(params, ['genomeId', 'genes']);
+    async.parallel([
+        function (asyncCallback) {
+            var nParams = Object.clone(params);
+            nParams.callback = function (result) {
+                asyncCallback(null, result);
+            };
+            exports.getGeneFunctions(nParams);
+        },
+        function (asyncCallback) {
+            var nParams = Object.clone(params);
+            nParams.callback = function (result) {
+                asyncCallback(null, result);
+            };
+            exports.getGOTerms(nParams);
+        }
+    ], function (err, results) {
+        var funcs = results[0], ontology = results[1];
+        for (var gene in ontology.genes) {
+            ontology.genes[gene].function = funcs[gene];
+        }
+        params.callback(ontology);
     });
 }
 
