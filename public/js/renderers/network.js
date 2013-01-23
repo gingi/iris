@@ -187,7 +187,6 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             var $hud = $(options.hud);
             if (selected) {
                 selected.style["fill"] = originalFill;
-                // $(selected).popover('hide');
             }
             if (selected == this) {
                 $hud.fadeOut(function () { $(this).empty(); });
@@ -199,15 +198,7 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             var fill = d3.hsl(originalFill);
             selected.style["fill"] = fill.brighter().toString();
         
-            // $(selected).popover({
-            //     title: $(selected).children('title').text(),
-            //     placement: 'bottom',
-            //     toggle: 'click',
-            //     delay: { hide: 1000 }
-            // });
-            // $(selected).popover("show");]
-            $hud.empty()
-                .append(nodeInfo(d))
+            $hud.empty().append(nodeInfo(d))
             $hud.fadeIn();
             $hud.on("click", function () {
                 $(this).fadeOut(function () { $(this).empty(); });
