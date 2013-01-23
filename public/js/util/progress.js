@@ -27,7 +27,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
             if (options.fade) {
                 container = $("<div>")
                     .attr("id", _id)
-                    .css("z-index", 5)
+                    .css("z-index", 30)
                     .css("background-color", "rgba(100%, 100%, 100%, 0.8)")
                     .css("position", "absolute")
                     .css("top", 0)
