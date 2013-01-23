@@ -13,6 +13,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var $hud;
     var dropdowns = new DropDowns(dataAPI);
 
+    // Vent: Event Aggregator
+    var Vent = _.extend({}, Backbone.Events);
+
     // Models
     var Trait = Backbone.Model.extend({
         defaults: { name: "", genome: "" },
@@ -86,38 +89,47 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     
     var SubView = Backbone.View.extend({
         defaults: {
-            require: '',
-            title: 'Blank',
-            elementId: '',
+            require:      '',
+            title:        'Blank',
+            elementId:    '',
             renderParams: {},
+            fetchParams:  {}
         },
         initialize: function (params) {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
+            Vent.on('genes', this.fetchModel, this);
+            $("#subviews").append(
+                $("<div>").addClass("span4").append(
+                    $("<div>").addClass("viewport")
+                        .attr("id", this.options.elementId)
+                        .attr('data-title', this.options.title)));
+            this.progress =
+                new Progress({ element: "#" + this.options.elementId });
+            this.progress.show();
         },
         render: function() {
             var self = this;
             require([self.options.require], function(Chart) {
-                $("#subviews").append(
-                    $("<div>").addClass("span4").append(
-                        $("<div>").addClass("viewport")
-                            .attr("id", self.options.elementId)
-                            .attr('data-title', self.options.title)));
+                self.progress.dismiss();
                 var chart = new Chart(_.extend({
                     element: "#" + self.options.elementId
                 }, self.options.renderParams));
                 chart.setData(self.model.get('data'));
                 chart.display();
             })
+        },
+        fetchModel: function (genes) {
+            var data = { genes: genes };
+            for (var prop in this.options.fetchParams) {
+                data[prop] = this.options.fetchParams[prop];
+            }
+            this.model.fetch({ data: data });
         }
     });
     
     var ManhattanView = Backbone.View.extend({
         el: $("#container"),
-        events: {
-            "click":     "clickEvent",
-            "selection": "selectionEvent",
-        },
         makeRowDiv: function (id) {
             var $div = this.$el.find("#" + id);
             if (!$div.length) {
@@ -127,13 +139,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             if (!$div.hasClass('row')) $div.addClass("row");
             return $div;
         },
-        clickEvent: function () {},
-        selectionEvent: function () {},
         initialize: function () {
             //Listeners
             _.bindAll(this, 'render');
+            Vent.bind("selection", this.createSubViews, this);
             this.model.on('change', this.render);
-            this.model.on('error', (this.errorHandler).bind(this));
+            this.model.on('error', this.errorHandler, this);
 
             this.$el.css("position", "relative")
 
@@ -180,11 +191,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             vis.render();
             $spanContainer.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
+                Vent.trigger("selection", [scoreA, scoreB, ranges]);
                 if (genesXHR) {
                     // If a prior query is in progress
                     genesXHR.abort();
                     $hud.empty();
-                    self.subviewBar.empty();
                 }
                 var tbody = $("<tbody>");
                 $hud.empty();
@@ -236,17 +247,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         },
         handleGeneSelection: function (genes, status, jqXhr) {
             var self = this;
-            var genome = self.model.genome;
             var $p = $("<p>")
                 .css("text-align",  "center")
                 .css("vertical-align", "middle")
                 .css("font-weight", "bold")
                 .css("min-height",  "30px");
-            if (genes.length > 0) {
-                $p.text(genes.length + " genes");
-            } else {
-                $p.text("No genes found");
-            }
+            $p.text(genes.length > 0
+                ? genes.length + " genes" : "No genes found");
             var geneIDs = _.map(genes, function (g) { return g[0] });
             var geneRequests = [];
             for (var i = 0; i < geneIDs.length;
@@ -263,49 +270,44 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 ));
             }
             
+            Vent.trigger("genes", geneIDs.join(","));
+        },
+        createSubViews: function () {
             this.subviewBar.empty();
-
-            var networkModel = new Network;
+            var genome = this.model.genome;
             var networkView = new SubView({
-                model: networkModel,
+                model: new Network,
                 require: 'renderers/network',
                 elementId: 'network',
                 title: 'Gene Clusters',
                 renderParams: {
                     hud: $("#subinfobox")
-                }
+                },
+                fetchParams: { clusters: 2, nodes: 5 },
             });
-            networkModel.fetch({ data: { clusters: 2, nodes: 10 } });
             
-            var coexpression = new Coexpression;
             var coexpView = new SubView({
-                model: coexpression,
+                model: new Coexpression,
                 require: 'renderers/heatmap',
                 elementId: 'heatmap',
                 title: 'Expression Profile'
             });
-            coexpression.fetch({ data: { genes: geneIDs.join(',') } });
 
-            // Table
-            var funcModel = new GeneFunctions({ genome: genome });
             var funcView = new SubView({
-                model: funcModel,
+                model: new GeneFunctions({ genome: genome }),
                 require: 'renderers/table',
                 elementId: "gene-table",
                 title: "Trait Genes",
                 renderParams: { scrollY: 250 }
             });
-            funcModel.fetch({ data: { genes: geneIDs.join(",") } });
 
-            var goEnrichment = new GOEnrichment({ genome: genome });
             var barchart = new SubView({
+                model: new GOEnrichment({ genome: genome }),
                 require: 'charts/bar',
                 elementId: "go-histogram",
                 title: "Gene Ontology Enrichment",
-                renderParams: { yTitle: "-log10 p" },
-                model: goEnrichment
+                renderParams: { yTitle: "-log10 p" }
             });
-            goEnrichment.fetch({ data: { genes: geneIDs.join(",") } });
         }
     });
     
