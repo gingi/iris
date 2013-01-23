@@ -18,7 +18,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
         },
         render: function () {
             $("#datavis").empty();
-            vis = new NetworkVis({ el: "#datavis", dock: true });
+            vis = new NetworkVis({ element: "#datavis", dock: true });
             vis.setData({
                 nodes: this.model.get('nodes'),
                 edges: this.model.get('edges')
