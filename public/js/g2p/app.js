@@ -149,7 +149,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             this.$el.css("position", "relative")
 
             // Prepare transitions
-            $hud = $("#infoBox").css("min-height", "30px");
+            $hud = $("#infobox").css("min-height", "30px");
             $hud.on("click", function () { $hud.fadeOut() });
             $hud.fadeOut(function () { $hud.empty(); });
             $hud.progress = new Progress({ element: $hud, fade: false });
