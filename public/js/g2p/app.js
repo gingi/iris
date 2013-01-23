@@ -12,6 +12,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     
     function dataAPI(path) { return "/data" + path; }
 
+    // Models
     var Trait = Backbone.Model.extend({
         defaults: { name: "", genome: "" },
         urlRoot: dataAPI("/trait"),
@@ -21,6 +22,60 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             this.experiment = this.parentId = json["trait"]["experiment"];
             return json;
         }
+    });
+    var Network = Backbone.Model.extend({ url: dataAPI('/network/random') });
+    var Coexpression = Backbone.Model.extend({
+        url: dataAPI('/coexpression'),
+        parse: function (data) {
+            return { rows: data.genes, matrix: data.matrix };
+        }
+    });
+    var GeneFunctions = Backbone.Model.extend({
+        url: function () {
+            return dataAPI('/genome/' + this.genomeId + '/functions');
+        },
+        parse: function (data) {
+            var genes = [];
+            for (var id in data.genes) {
+                for (var i in data.genes[id].terms) {
+                    genes.push([
+                        data.genes[id].name,
+                        data.terms[i].term,
+                        data.terms[i].ec,
+                        data.terms[i].desc,
+                        data.genes[id].function
+                    ]);
+                }
+            }
+            return {
+                data: genes,
+                columns: ['Name', 'GO Term', 'EC', 'Description', 'Function'],
+                filter: ['EC']
+            };
+        },
+    });
+    var GOEnrichment = Backbone.Model.extend({
+        url: function () {
+            var url = dataAPI('/genome/' + this.genomeId + '/go-enrichment');
+            return url;
+        },
+        toJSON: function () { return _.values(this.attributes); },
+        parse: function (data) {
+            var filtered = [];
+            var threshold = data.length < 50 
+                ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
+            for (var i = 0; i < data.length; i++) {
+                var normalized = -Math.log(data[i].pvalue) / Math.LN10;
+                if (normalized >= threshold) {
+                    filtered.push({
+                        x: data[i].goID,
+                        y: normalized,
+                        title: data[i].goDesc.join("\n")
+                    });
+                }
+            }
+            return filtered;
+        },
     });
         
     function genomePixelWidth(contigs) {
@@ -187,9 +242,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             
             this.subviewBar.empty();
 
-            var networkModel = new (Backbone.Model.extend({
-                url: dataAPI('/network/random')
-            }));
+            var networkModel = new Network;
             var networkView = new SubView({
                 model: networkModel,
                 require: 'renderers/network',
@@ -201,88 +254,37 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             });
             networkModel.fetch({ data: { clusters: 2, nodes: 10 } });
             
-            var coexpModel = new (Backbone.Model.extend({
-                url: dataAPI('/coexpression'),
-                parse: function (data) {
-                    return {
-                        rows:   data.genes,
-                        matrix: data.matrix
-                    };
-                }
-            }));
+            var coexpression = new Coexpression;
             var coexpView = new SubView({
-                model: coexpModel,
+                model: coexpression,
                 require: 'renderers/heatmap',
                 elementId: 'heatmap',
                 title: 'Expression Profile'
             });
-            coexpModel.fetch({ data: { genes: geneIDs.join(',') } });
+            coexpression.fetch({ data: { genes: geneIDs.join(',') } });
 
             // Table
-            $.when(
-                fetchGeneData({
-                    url: dataAPI('/genome/' +
-                        self.model.genome + '/ontology'),
-                    genes: geneRequests
-                }),
-                fetchGeneData({
-                    url: dataAPI('/genes/functions'),
-                    genes: geneRequests
-                })
-            ).done(function (ontology, functions) {
-                if (!ontology) return;
-                var genes = [];
-                for (var id in ontology.genes) {
-                    for (var i in ontology.genes[id].terms) {
-                        genes.push([
-                            ontology.genes[id].name,
-                            ontology.terms[i].term,
-                            ontology.terms[i].ec,
-                            ontology.terms[i].desc,
-                            functions[id]
-                        ]);
-                    }
-                }
-                showTable(genes);
+            var funcModel = new GeneFunctions;
+            var funcView = new SubView({
+                model: funcModel,
+                require: 'renderers/table',
+                elementId: "gene-table",
+                title: "Trait Genes",
+                renderParams: { scrollY: 250 }
             });
+            funcModel.genomeId = self.model.genome;
+            funcModel.fetch({ data: { genes: geneIDs.join(",") } });
 
-            var geneEnrich = new (Backbone.Model.extend({
-                url: function () {
-                    var url =
-                        dataAPI('/genome/' + this.genomeId + '/go-enrichment');
-                    return url;
-                },
-                toJSON: function () {
-                    return _.values(this.attributes);
-                },
-                parse: function (data) {
-                    var filtered = [];
-                    var threshold = data.length < 100 
-                        ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
-                    for (var i = 0; i < data.length; i++) {
-                        var normalized = -Math.log(data[i].pvalue) / Math.LN10;
-                        if (normalized >= threshold) {
-                            filtered.push({
-                                x: data[i].goID,
-                                y: normalized,
-                                title: data[i].goDesc.join("\n")
-                            });
-                        }
-                    }
-                    return filtered;
-                },
-            }));
-            geneEnrich.genomeId = self.model.genome;
-            
-            
+            var goEnrichment = new GOEnrichment;
             var barchart = new SubView({
                 require: 'charts/bar',
                 elementId: "go-histogram",
                 title: "Gene Ontology Enrichment",
                 renderParams: { yTitle: "-log10 p" },
-                model: geneEnrich
+                model: goEnrichment
             });
-            geneEnrich.fetch({ data: { genes: geneIDs.join(",") } });
+            goEnrichment.genomeId = self.model.genome;
+            goEnrichment.fetch({ data: { genes: geneIDs.join(",") } });
         }
     });
     
@@ -380,41 +382,4 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     .attr("id", id)
                     .attr('data-title', title)));
     }    
-    
-    function drawBarChart(data) {
-        if (!data) return;
-        require(['charts/bar'], function (BarChart) {
-            var chartData = [];
-            var threshold = data.length < 30 
-                ? PVALUE_THRESHOLD : PVALUE_THRESHOLD * 2;
-            for (var i = 0; i < data.length; i++) {
-                var normalized = -Math.log(data[i].pvalue) / Math.LN10;
-                if (normalized >= threshold) {
-                    chartData.push({
-                        x: data[i].goID, y: normalized,
-                        title: data[i].goDesc.join("\n")
-                    });
-                }
-            }
-            subviewDiv("go-histogram", "Gene Ontology Enrichment");
-            var chart = new BarChart({
-                element: "#go-histogram", yTitle: "-log10 p"
-            });
-            chart.setData(chartData);
-            chart.display();
-        });
-    }
-    
-    function showTable(data) {
-        require(['renderers/table'], function (Table) {
-            subviewDiv("gene-table", "Trait Genes");
-            var table = new Table({element: "#gene-table", scrollY: 250});
-            table.setData({
-                data: data,
-                columns: ['Name', 'GO Term', 'EC', 'Description', 'Function'],
-                filter: ['EC']
-            })
-            table.display();
-        })
-    }
 });
