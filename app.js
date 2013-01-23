@@ -186,38 +186,60 @@ app.get('/data/genome/:id/ontology', function (request, response, next) {
     kbase.getGOTerms({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes.split(",")
+        genes: request.query.genes
+            ? request.query.genes.split(",") : []
     });
 });
 
 app.get('/data/genome/:id/go-enrichment', function (request, response, next) {
+    if (typeof request.query.genes !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
     kbase.getGOEnrichment({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes.split(",")
+        genes: request.query.genes
+            ? request.query.genes.split(",") : []
     });
 });
 
 app.get('/data/genes/functions', function (request, response, next) {
+    if (typeof request.query.genes !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
     kbase.getGeneFunctions({
         response: response,
-        genes: request.query.genes.split(",")
+        genes: request.query.genes
+            ? request.query.genes.split(",") : []
     });
 });
 
 app.get('/data/genome/:id/functions', function (request, response, next) {
+    if (typeof request.query.genes !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
     kbase.getFunctionalAnnotations({
         response: response,
         genomeId: request.params.id,
-        genes: request.query.genes.split(",")
+        genes: request.query.genes
+            ? request.query.genes.split(",") : []
     })
 });
 
 app.get('/data/network/random', function (request, response, next) {
     response.contentType = 'json';
-    var nNodes = request.query.nodes || 20;
-    var nEdges = request.query.edges || 50;
-    var nClusters = request.query.clusters || 3;
+    var nNodes = parseInt(request.query.nodes) || 20;
+    var nEdges = parseInt(request.query.edges) || 50;
+    var nClusters = parseInt(request.query.clusters) || 3;
     var network = randomNetwork(nNodes, nEdges, nClusters);
     response.send(network);
 });
@@ -274,7 +296,8 @@ Object.clone = function(obj) {
     return Object.create(
         Object.getPrototypeOf(obj), 
         Object.getOwnPropertyNames(obj).reduce(function(memo, name) {
-            return (memo[name] = Object.getOwnPropertyDescriptor(obj, name)) && memo;
+            return (memo[name] =
+                Object.getOwnPropertyDescriptor(obj, name)) && memo;
         }, {})
     );
 }
@@ -310,7 +333,9 @@ app.get('/data/network/:network', function (request, response, next) {
         };
     } else {
         var parser = require('./src/parsers/pajek');
-        filename = path.join(__dirname, 'test', 'fixtures', request.params.network) + ".pajek";
+        filename =
+            path.join(__dirname, 'test', 'fixtures', request.params.network) +
+                ".pajek";
         fetcher = function () {
             parser.parse(filename, function (network) {
                 var json = network.json();
@@ -330,13 +355,16 @@ app.get('/data/network/:network', function (request, response, next) {
         if (exists) {
             fetcher();
         } else {
-            response.send(404, { error: "Network " + request.params.network + " not found" });
+            response.send(404, {
+                error: "Network " + request.params.network + " not found"
+            });
         }
     })
 });
 
 
 function randomNetwork(nNodes, nEdges, nClusters) {
+    var RANDOM_TRIES = 50;
     var nodes = [], edges = [];
     var nodeIndex = 0;
     var clusterMasters = [];
@@ -344,25 +372,27 @@ function randomNetwork(nNodes, nEdges, nClusters) {
         var groupName = "group" + Math.ceil(Math.random() * 30);
         for (var i = 0; i < nNodes; i++) {
             nodes.push({
-                id: nodeIndex, name: 'Node' + (Math.ceil(Math.random() * 1000) + 1),
+                id: nodeIndex,
+                name: 'Node' + (Math.ceil(Math.random() * 1000) + 1),
                 group: groupName
             });
             nodeIndex++;
         }
         clusterMasters[c]
             = Math.floor(Math.random() * nNodes) + c * nNodes;
-        var seen = {};
+        var seen = {}, keys = 0;
         for (var i = 0; i < nEdges; i++) {
             var s, t;
-            while (true) {
+            while (keys < nEdges * nEdges) {
                 s = Math.floor(Math.random() * nNodes);
                 t = Math.floor(Math.random() * nNodes);
                 if (s == t) continue;
-                var key = s * nNodes + t;
+                var key = s * nNodes * 100 + t;
                 if (seen[key] != 1) {
                     seen[key] = 1;
                     break;
                 }
+                keys++;
             }
             edges.push({
                 source: c * nNodes + s,
