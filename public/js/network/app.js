@@ -1,33 +1,45 @@
-require(['jquery', 'backbone', 'underscore', 'renderers/network'],
-    function ($, Backbone, _, NetworkVis) {
+require(['jquery', 'backbone', 'underscore',
+    'renderers/network', 'util/progress'],
+    function ($, Backbone, _, NetworkVis, Progress) {
         
-    var Network = Backbone.Model.extend({
-        defaults: { name: "" },
-        urlRoot: "/data/network",
-    });
-    
-    var Neighborhood = Backbone.Model.extend({
-        url: function () {
-            return "/data/node/" + this.get('id') + '/neighbors';
+    var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
+    var networkTemplate  = _.template("/data/network/<%= id %>");
+
+    var App, Search, NetworkData, router, AppProgress;
+    var networkKeep = false;
+        
+    AppProgress = new Progress({ element: "#progress-indicator", fade: false });
+    var NetworkModel = Backbone.Model.extend({
+        parse: function (data) {
+            this.set('data', data);
         }
+    });
+    var Datavis = new NetworkVis({ element: "#datavis", dock: true });
+    Datavis.on("dblclick-node", function (evt, node) {
+        AppProgress.show();
+        if (NetworkData.id == 'random') {
+            NetworkVis.getNeighbors.call(Datavis, node);
+        } else {
+            networkKeep = true;
+            router.navigate("#node/" + node.name + "/" +
+                 NetworkData.get('dataset'), true);
+        }
+    });
+    Datavis.on("click-node", function (evt, node) {
+        Datavis.clickNode(node);
     })
     
-    var vis;
     var AppView = Backbone.View.extend({
         el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            this.model.on('sync', this.render);
         },
         render: function () {
-            $("#datavis").empty();
-            vis = new NetworkVis({ element: "#datavis", dock: true });
-            vis.setData({
-                nodes: this.model.get('nodes'),
-                edges: this.model.get('edges')
-            });
-            vis.display();
-            return this;
+            var self = this;
+            Datavis.merge(self.model.get('data'));
+            AppProgress.dismiss();
+            return self;
         },
     });
     
@@ -91,7 +103,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
         }
     });
 
-    var App;
+    function showApp(params) {
+        if (!networkKeep) { Datavis.reset(); networkKeep = false; }
+        NetworkData = new NetworkModel({ id: params.id });
+        NetworkData.url = params.url({ id: params.id });
+        App = new AppView({ model: NetworkData });
+        NetworkData.fetch({ data: params.fetchData });
+    }
     
     var Router = Backbone.Router.extend({
         routes: {
@@ -100,13 +118,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
             ":network":          "showNetwork"
         },
         showNetwork: function (networkId) {
-            console.log("Showing network")
-            var network = new Network;
-            networkId = (networkId || 'random');
-            network.set({id: networkId});
-            App = new AppView({ model: network });
-            network.fetch();
-            var search = new SearchBox();
+            showApp({
+                id: networkId || 'random',
+                url: networkTemplate
+            })
         },
         networkDatasets: function (nodeId) {
             var datasets = new NetworkDatasets({ id: nodeId });
@@ -114,11 +129,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/network'],
             datasets.fetch();
         },
         neighborhood: function (id, dataset) {
-            var network = new Neighborhood({ id: id, dataset: dataset });
-            var app = new AppView({ model: network });
-            network.fetch({ data: { datasets: dataset }});
-        }
+            showApp({
+                id: id,
+                url: neighborTemplate,
+                fetchData: { datasets: dataset }
+            });
+            NetworkData.set('dataset', dataset);
+        },
     });
-    var router = new Router;
+    router = new Router;
+    search = new SearchBox;
     Backbone.history.start();
 });
