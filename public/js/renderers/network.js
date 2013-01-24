@@ -227,9 +227,11 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
         }
 
         function getNeighbors(d) {
-            var path = d.entityId ? d.entityId + '/network' : d.name + '/neighbors';
+            var path = d.entityId
+                ? 'node/' + d.entityId + '/neighbors'
+                : 'network/random/' + d.name + '/neighbors';
             $.ajax({
-                url: '/data/gene/' + path,
+                url: '/data/' + path,
                 success: function (data) {
                     var origAutoUpdate = _autoUpdate;
                     _autoUpdate = false;
