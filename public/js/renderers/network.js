@@ -1,19 +1,24 @@
-define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
+define(['jquery', 'd3', 'underscore', 'util/dock', 'util/eventemitter'],
+function ($, d3, _, Dock, EventEmitter) {
+    
+    var defaults = {
+        hud:  "#infobox",
+        dock: true
+    };
     
     var NODE_SIZE  = {
         GENE: 8,
-        CLUSTER: 12
+        CLUSTER: 16
     };
     var color = d3.scale.category10();
     
     var Network = function (options) {
         var self = this;
         options = options ? _.clone(options) : {};
-        var $el = $(options.element) || $(options.el);
+        _.defaults(options, defaults);
+        var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
-        
-        options.hud = options.hud || "#infobox";
         
         this.addNode = function (node) {
             if (node.id) {
@@ -41,22 +46,26 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             }
             nodes.splice(findNodeIndex(id),1);
             update();
+            return this;
         }
         
         this.setData  = function (data) {
             this.setNodes(data.nodes);
             this.setEdges(data.edges);
+            return this;
         }
         
         this.setNodes = function (nodesArg) {
             force.nodes(nodesArg);
             nodes = force.nodes();
             _idSequence = d3.max(nodes, function (n) { return n.id }) + 1;
+            return this;
         }
         
         this.setEdges = function (edgesArg) {
             force.links(edgesArg);
             links = force.links();
+            return this;
         }
 
         this.addEdge = function (edge) {
@@ -64,6 +73,7 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             edge.target = this.findNode(edge.target);
             links.push(edge);
             if (_autoUpdate) update();
+            return this;
         }
         
         this.addLink = function (source, target, params) {
@@ -79,24 +89,26 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             }
             links.push(edge);
             if (_autoUpdate) update();
+            return this;
         }
         
         this.highlight = function (name) {
             d3.select("#" + name)
                 .style("stroke", "yellow")
                 .style("stroke-width", 3)
-                .style("stroke-location", "outside")   
+                .style("stroke-location", "outside")
+            return this;
         }
         
-        this.display = function () { update(); }
+        this.display = function () { update(); return this; }
 
         this.findNode = function (key, type) {
             type = (type || 'id');
             for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
         }
 
-        var findNodeIndex = function (id) {
-            for (var i in nodes) {if (nodes[i].id === id) return i};
+        function findNodeIndex(id) {
+            for (var i in nodes) { if (nodes[i].id === id) return i };
         }
 
         var w = $el.width(),
@@ -143,11 +155,17 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
-                .attr("id", function (d) { return d.name })
-                .attr("r", function (d) { return nodeSize(d); })
-                .style("fill", function (d) { return color(d.group); })
-                .on("click", clickNode)
-                .on("dblclick", getNeighbors);
+                .attr("id",     function (d) { return d.name })
+                .attr("r",      function (d) { return nodeSize(d); })
+                .style("fill",  function (d) { return color(d.group); })
+                .on("click",    function (d) {
+                    d3.event.stopPropagation();
+                    self.emit("click-node", [d]);
+                })
+                .on("dblclick", function (d) {
+                    d3.event.stopPropagation();
+                    self.emit("dblclick-node", [d]);
+                });
             if (options.dock) {
                 nodeEnter.call(dock.drag());
             } else {
@@ -183,7 +201,7 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
         }
 
         var selected, originalFill;
-        function clickNode(d) {
+        self.clickNode = function (d) {
             var $hud = $(options.hud);
             if (selected) {
                 selected.style["fill"] = originalFill;
@@ -193,7 +211,7 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
                 selected = null;
                 return;
             }
-            selected = this;
+            selected = d3.select(d);
             originalFill = selected.style["fill"];
             var fill = d3.hsl(originalFill);
             selected.style["fill"] = fill.brighter().toString();
@@ -210,7 +228,8 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
         }
         
         function nodeInfo(d) {
-            var $table = $("<table id='nodeInfo' class='table table-condensed'>")
+            var $table =
+                $("<table id='nodeInfo' class='table table-condensed'>")
                 .append($("<tbody>"));
             function row(key, val) {
                 if (!val) return;
@@ -225,38 +244,54 @@ define(['jquery', 'd3', 'underscore', 'util/dock'], function ($, d3, _, Dock) {
             row("Entity ID", d.entityId);
             return $table;
         }
-
-        function getNeighbors(d) {
-            var path = d.entityId
-                ? 'node/' + d.entityId + '/neighbors'
-                : 'network/random/' + d.name + '/neighbors';
-            $.ajax({
-                url: '/data/' + path,
-                success: function (data) {
-                    var origAutoUpdate = _autoUpdate;
-                    _autoUpdate = false;
-                    var nodeMap = {};
-                    data.nodes.forEach(function (n) {
-                        var node = self.findNode(n.name, "name");
-                        var oldId = n.id;
-                        if (node) {
-                            nodeMap[oldId] = node.id;
-                        } else {
-                            n.id = null;
-                            var newId = self.addNode(n);
-                            nodeMap[oldId] = newId;
-                        }
-                    });
-                    data.edges.forEach(function (e) {
-                        self.addLink(
-                            nodeMap[e.source], nodeMap[e.target],
-                            { weight: e.weight });
-                    });
-                    update();
-                    _autoUpdate = origAutoUpdate;
+        
+        self.merge = function (data) {
+            if (nodes.length == 0 && links.length == 0) {
+                self.setData(data).display();
+                return this;
+            }
+            var origAutoUpdate = _autoUpdate;
+            _autoUpdate = false;
+            var nodeMap = {};
+            data.nodes.forEach(function (n) {
+                var node = self.findNode(n.name, "name");
+                var oldId = n.id;
+                if (node) {
+                    nodeMap[oldId] = node.id;
+                } else {
+                    n.id = null;
+                    var newId = self.addNode(n);
+                    nodeMap[oldId] = newId;
                 }
             });
-        }        
+            data.edges.forEach(function (e) {
+                self.addLink(
+                    nodeMap[e.source], nodeMap[e.target],
+                    { weight: e.weight });
+            });
+            self.display();
+            _autoUpdate = origAutoUpdate;
+            return this;
+        }
+        self.reset = function () {
+            nodes.length = 0; links.length = 0;
+            update();
+            return self;
+        }
     };
+    Network.getNeighbors = function (node) {
+        var network = this;
+        if (!node) return;
+        var path = node.entityId
+            ? 'node/' + node.entityId + '/neighbors'
+            : 'network/random/' + node.name + '/neighbors';
+        $.ajax({
+            url: '/data/' + path,
+            success: function (data) {
+                network.merge(data);
+            }
+        });
+    }
+    $.extend(Network.prototype, EventEmitter);
     return Network;
 });
