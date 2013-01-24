@@ -9,7 +9,9 @@ body,html { height:100%;}
     background-color: black;
     opacity: 0.6;
     border-radius: 5px;
-    padding: 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    padding: 15px 10px 10px;
     color: #eee;
 }
 .hud ul {
@@ -19,6 +21,23 @@ body,html { height:100%;}
     margin-left: 0;
     list-style: none;
 }
+.hud::after{
+    content: "\00d7";
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    padding: 3px 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #666;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-shadow: 0 1px 0 #aaa;
+    opacity: 0.8;
+    filter: alpha(opacity=20);
+}
+
 #infobox {
     width: 200px;
     bottom: 20px;

@@ -25,6 +25,10 @@ var app = express();
 if (argv.fake) {
     console.log("Starting in fake API mode");
 }
+if (argv.debug) {
+    console.log("Debug mode");
+    kbase.debug = true;
+}
 var cacheMode = argv.cache == true;
 
 app.configure(function() {

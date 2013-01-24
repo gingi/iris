@@ -22,17 +22,6 @@
     .navbar li { vertical-align: middle; }
     .label { vertical-align: middle }
     ul { vertical-align: middle }
-    .hud {
-        position: absolute;
-        background-color: black;
-        opacity: 0.6;
-        border-radius: 5px;
-        padding: 10px;
-        color: #eee;
-    }
-    .hud li {
-        list-style: none;
-    }
     #infobox {
         width: 200px;
         bottom: 20px;
@@ -50,6 +39,9 @@
     }
     #nodeInfo {
         font-size: 10pt;
+    }
+    #progress-indicator {
+        height: 40px;
     }
     </style>
 </head>
@@ -80,7 +72,11 @@
                         <li><a href="#node/POPTR_0001s10680">Poplar gene</a></li>
                     </ul>
                 </li>
+                <li>
+                </li>
             </ul>
+            <div id="progress-indicator" class="span1 pull-right"></div>
+            
         </div>
     </div>
     <div id="container" class="container">

@@ -94,34 +94,22 @@ function validateParams(target, reqs) {
     return target;
 }
 
-function exceptionWrapper(fn, object) {
-    return function () {
-        try {
-            fn.apply(object, arguments);
-        } catch (err) {
-            console.error("API error: ", err);
-            var lastArg = arguments[arguments.length - 1];
-            if (typeof lastArg === 'function') {
-                lastArg.apply(null, { error: err });
-            }
-        }
-    }
-}
-
 function api(key) {
+    if (exports.debug) {
+        var jQueryAjax = $.ajax;
+        $.extend({
+            ajax: function () {
+                var params = arguments[0];
+                console.log(
+                    "[DEBUG] curl -d '%s' '%s'", params.data, params.url);
+                return jQueryAjax.apply($, arguments);
+            }
+        });
+    }
     var params = apis[key];
     if (!params.object) {
         var proto = KBaseAPI[params.fn];
-        var object = new proto(params.url);
-        var proxyObject = new Object();
-        for (var key in object) {
-            if (typeof object[key] === 'function') {
-                proxyObject[key] = exceptionWrapper(object[key], object);
-            } else {
-                proxyObject[key] = object[key];
-            }
-        }
-        params.object = proxyObject;
+        params.object = new proto(params.url);
     }
     return params.object;
 }
@@ -447,6 +435,8 @@ exports.getFunctionalAnnotations = function (params) {
         params.callback(ontology);
     });
 }
+
+exports.debug = false;
 
 /* Utility functions */
 Object.clone = function (obj) {
