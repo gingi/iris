@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Network</title>
+    <link rel="stylesheet" href="/css/kbase.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="/css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
     <script src="/js/require.js"></script>
     <script>
@@ -53,31 +54,36 @@
     </style>
 </head>
 <body>
-    <div id="container" class="container">
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-        <ul class="nav">
-            <li>
-                <form class="navbar-search" id="nav-search">
-                    <input class="search-query"
-                        placeholder="Search" type="text">
-                    <button type="sumbit" class="btn btn-small">Lookup</button>
-                </form>
-            </li>
-            <li class="dropdown">
-                <a class="dropdown-toggle" id="dLabel"
-                    data-toggle="dropdown"
-                    data-target="#" href="#">Examples <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a href="#kbase">KBase</a></li>
-                    <li><a href="#example">Hairball</a></li>
-                    <li><a href="#example-small">Small Network</a></li>
-                    <li><a href="#random">Random Network</a></li>
-                </ul>
-            </li>
-        </ul>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner" style="padding: 0 20px">
+            <a class="brand" href="#">Networks Workbench</a>
+            <ul class="nav">
+                <li>
+                    <form class="form-search navbar-search" id="nav-search">
+                        <div class="input-append">
+                        <input class="span2 search-query" type="text">
+                        <button type="submit" class="btn">Lookup</button>
+                        </div>
+                    </form>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" id="dLabel"
+                        data-toggle="dropdown"
+                        data-target="#" href="#">Examples
+                    <b class="caret"></b></a>
+                    <ul class="dropdown-menu" role="menu"
+                         aria-labelledby="dLabel">
+                        <li><a href="#kbase">KBase</a></li>
+                        <li><a href="#example">Hairball</a></li>
+                        <li><a href="#example-small">Small Network</a></li>
+                        <li><a href="#random">Random Network</a></li>
+                        <li><a href="#node/POPTR_0001s10680">Poplar gene</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
+    <div id="container" class="container">
     <div id="datavis"></div>
 </div>
 <div class="hud" id="infobox" style="display:none"></div>

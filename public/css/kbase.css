@@ -12,7 +12,11 @@ body,html { height:100%;}
     padding: 10px;
     color: #eee;
 }
+.hud ul {
+    margin-left: 0;
+}
 .hud li {
+    margin-left: 0;
     list-style: none;
 }
 #infobox {
