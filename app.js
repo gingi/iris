@@ -148,14 +148,14 @@ app.get('/data/genome/:id/experiments', function (request, response, next) {
     });
 });
 
-app.get('/data/genome/:id/network-datasets', function (request, response, next) {
+app.get('/data/genome/:id/datasets', function (request, response, next) {
     kbase.getNetworkDatasets({
         response: response,
         genomeId: request.params.id
     });
 });
 
-app.get('/data/gene/:id/network-datasets', function (request, response, next) {
+app.get('/data/node/:id/datasets', function (request, response, next) {
     kbase.getNetworkDatasets({
         response: response,
         geneId:   request.params.id
@@ -244,7 +244,8 @@ app.get('/data/network/random', function (request, response, next) {
     response.send(network);
 });
 
-app.get('/data/gene/:id/neighbors', function (request, response, next) {
+app.get('/data/network/random/:id/neighbors',
+function (request, response, next) {
     response.contentType = 'json';
     var rootId = RANDOM_NEIGHBORHOOD_NODES + 1;
     var neighborhood = randomNetwork(
@@ -263,10 +264,12 @@ app.get('/data/gene/:id/neighbors', function (request, response, next) {
     response.send(neighborhood);
 });
 
-app.get('/data/gene/:id/network', function (request, response, next) {
+app.get('/data/node/:id/neighbors', function (request, response, next) {
     kbase.getNeighborNetwork({
         response: response,
-        nodeId:   request.params.id
+        nodeId:   request.params.id,
+        datasets: request.query.datasets != null ?
+            request.query.datasets.split(",") : []
     });
 });
 

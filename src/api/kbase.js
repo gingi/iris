@@ -281,12 +281,17 @@ exports.getTraits = function (params) {
 
 exports.getNeighborNetwork = function (params) {
     params = validateParams(params, ['nodeId']);
+    if (params.datasets == null) {
+        params.datasets = [
+            "kb|netdataset.regprecise.301",
+            "kb|netdataset.modelseed.0",
+            "kb|netdataset.ppi.7"
+        ];
+    }
     api('network').buildFirstNeighborNetwork(
-        [ "kb|netdataset.regprecise.301",
-          "kb|netdataset.modelseed.0",
-          "kb|netdataset.ppi.7" ],
-        params.nodeId,
-        ['GENE_CLUSTER'],
+        params.datasets,
+        [params.nodeId],
+        ['GENE_CLUSTER', 'CLUSTER_CLUSTER'],
         function (data) {
             params.callback(transformNetwork(data));
         },
