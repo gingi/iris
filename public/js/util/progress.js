@@ -1,7 +1,9 @@
 define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
+    var _BAR = "bar", _SPIN = "spin";
     var defaults = {
         fade: true,
-        spinner: {}
+        spinner: {},
+        type: _SPIN
     };
     var spinnerDefaults = {
         length: 5,
@@ -13,15 +15,36 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         speed: 1.3,
         trail: 42
     }
-    var spinCounter = 0;
-    function Spin(options) {
-        spinCounter++;
+    var progressCounter = 0;
+    function create(options) {
+        if (options.type == Progress.SPIN) {
+            var spinner = new Spinner(options.spinner);
+            return {
+                show: function (container) { spinner.spin(container[0]) },
+                hide: function ()          { spinner.stop() }
+            };
+        } else {
+            var div = $("<div>")
+                .addClass("progress progress-striped active")
+                .css("display", "none")
+                .append($("<div>").addClass("bar").css("width", "100%"));
+            return {
+                show: function (container) {
+                    container.append(div);
+                    div.fadeIn();
+                },
+                hide: function () { div.fadeOut(); }
+            };
+        }
+    }
+    function Progress(options) {
+        progressCounter++;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
         _.defaults(options.spinner, spinnerDefaults);
         var $el = $(options.element);
-        var _id = "spin-container-" + spinCounter;
-        var spinner;
+        var _id = "progress-container-" + progressCounter;
+        var indicator;
         this.show = function () {
             var container;
             if (options.fade) {
@@ -38,18 +61,20 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
             } else {
                 container = $el;
             }
-            if (!spinner) {
-                spinner = new Spinner(options.spinner);
+            if (!indicator) {
+                indicator = create(options);
             }
-            spinner.spin(container[0]);
+            indicator.show(container);
         };
         this.dismiss = function () {
-            if (spinner) spinner.stop()
+            if (indicator) indicator.hide();
             if (options.fade) {
                 $("#" + _id).remove();
             }
         };
         return this;
     }
-    return Spin;
+    Progress.BAR  = _BAR;
+    Progress.SPIN = _SPIN;
+    return Progress;
 });
