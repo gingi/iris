@@ -31,7 +31,8 @@ require(['jquery', 'backbone', 'underscore',
                 router.navigate("#node/" + node.name + "/datasets", true);
             } else {
                 router.navigate("#node/" + node.name + "/datasets/" +
-                     NetworkDatasets.get('datasets').join(","), true);
+                     NetworkDatasets.get('datasets').join(",") +
+                     "/neighbors", true);
              }
         }
     });
@@ -83,8 +84,7 @@ require(['jquery', 'backbone', 'underscore',
         el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
-            if (this.model)
-                this.model.on('change', this.render);
+            NetworkDatasets.on('change', this.render);
         },
         template: _.template("<li><a href=\"<%=link%>\" title=\"<%=desc%>\">" +
                              "<%=name%></a></li>"),
@@ -105,13 +105,13 @@ require(['jquery', 'backbone', 'underscore',
                 datasets.forEach(function (ds) {
                     list.append(self.template({
                         name: ds.name, desc: ds.description,
-                        link: "#node/" + self.model.get('id') + 
-                              "/" + ds.id
+                        link: "#node/" + NetworkDatasets.get('id') + 
+                              "/datasets/" + ds.id
                     }));
                 })
                 list.append(self.template({
                     name: 'All', desc: "Use all networks",
-                    link: "#node/" + self.model.get('id') +
+                    link: "#node/" + NetworkDatasets.get('id') +
                         "/datasets/" + _.pluck(datasets, 'id').join(',')
                 }))
             }
@@ -142,19 +142,21 @@ require(['jquery', 'backbone', 'underscore',
     var Router = Backbone.Router.extend({
         routes: {
             "node/:id":                          "addNode",
-            "node/:id/datasets/:dataset":        "neighborhood",
+            "node/:id/datasets/:datasets":       "addNode",
             "nodes/:nodes/datasets/:datasets":   "addNodes",
             "node/:node/datasets":               "networkDatasets",
+            "node/:id/datasets/:sets/neighbors": "neighborhood",
             "network/:nodes/datasets/:datasets": "internalNetwork",
             ":network":                          "showNetwork",
             "*path":                             "default"
         },
-        addNode: function (nodeId) {
+        addNode: function (nodeId, datasets) {
             NetworkData.set({ id: nodeId });
             if (resetNetwork) { Datavis.reset(); }
             Datavis.addNode({
                 name: nodeId
             });
+            NetworkDatasets.set('datasets', datasets.split(","));
         },
         addNodes: function (nodeInput, datasetInput) {
             NetworkData.set({ id: null });
