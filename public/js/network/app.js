@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore',
-    'renderers/network', 'util/progress'],
-    function ($, Backbone, _, NetworkVis, Progress) {
+    'renderers/network', 'util/progress', 'util/hud'],
+    function ($, Backbone, _, NetworkVis, Progress, HUD) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -8,7 +8,11 @@ require(['jquery', 'backbone', 'underscore',
     var App, Search, NetworkData, router, AppProgress;
     var resetNetwork = true;
         
-    AppProgress = new Progress({ element: "#progress-indicator", fade: false });
+    AppProgress = new Progress({
+        element: "#progress-indicator",
+        fade: false,
+        type: Progress.BAR
+    });
     var NetworkModel = Backbone.Model.extend({
         parse: function (data) {
             this.set('data', data);
@@ -16,8 +20,8 @@ require(['jquery', 'backbone', 'underscore',
     });
     var Datavis = new NetworkVis({ element: "#datavis", dock: true });
     Datavis.on("dblclick-node", function (evt, node, element) {
-        AppProgress.show();
         if (NetworkData.id == 'random') {
+            AppProgress.show();
             NetworkVis.getNeighbors.call(Datavis, node, element);
         } else {
             resetNetwork = false;
@@ -71,6 +75,7 @@ require(['jquery', 'backbone', 'underscore',
             if (datasets == null || datasets.length == 0) {
                 hud.text("No datasets");
             } else {
+                hud.append($("<h4>").text("Data Sets"))
                 hud.append(list);
                 datasets.forEach(function (ds) {
                     list.append(self.template({
@@ -101,6 +106,7 @@ require(['jquery', 'backbone', 'underscore',
     });
 
     function showApp(params) {
+        AppProgress.show();
         if (resetNetwork) { Datavis.reset(); }
         resetNetwork = true;
         NetworkData = new NetworkModel({ id: params.id });
@@ -123,9 +129,12 @@ require(['jquery', 'backbone', 'underscore',
             })
         },
         networkDatasets: function (nodeId) {
+            AppProgress.show();
             var datasets = new NetworkDatasets({ id: nodeId });
             var datasetView = new DatasetView({ model: datasets });
-            datasets.fetch();
+            datasets.fetch({
+                success: function () { AppProgress.dismiss(); }
+            });
         },
         neighborhood: function (id, dataset) {
             showApp({

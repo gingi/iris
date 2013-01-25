@@ -40,8 +40,14 @@
     #nodeInfo {
         font-size: 10pt;
     }
-    #progress-indicator {
-        height: 40px;
+    #progress-indicator .progress {
+        margin-top: 10px;
+        margin-bottom: 0px;
+    }
+    #progress-indicator .bar {
+        -webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+           -moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+                box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
     }
     </style>
 </head>
@@ -75,8 +81,7 @@
                 <li>
                 </li>
             </ul>
-            <div id="progress-indicator" class="span1 pull-right"></div>
-            
+            <div id="progress-indicator" class="span2 pull-right"></div>
         </div>
     </div>
     <div id="container" class="container">
