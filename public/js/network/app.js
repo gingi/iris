@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore',
-    'renderers/network', 'util/progress', 'util/hud'],
-    function ($, Backbone, _, NetworkVis, Progress, HUD) {
+    'renderers/network', 'util/progress'],
+    function ($, Backbone, _, NetworkVis, Progress) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
