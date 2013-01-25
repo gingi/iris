@@ -1,4 +1,5 @@
-define(['jquery', 'd3', 'util/eventemitter'], function ($, d3, EventEmitter) {
+define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
+function ($, d3, EventEmitter, HUD) {
     
     var Dock = function (element) {  
         var self = this;
@@ -31,22 +32,24 @@ define(['jquery', 'd3', 'util/eventemitter'], function ($, d3, EventEmitter) {
 
         self.changedState = false;
         
+        var hud = new HUD({
+            width: 300,
+            position: { top: 50, right: 20 },
+        });
+        
         self.updateHud = function () {
-            var $hud = $("#dockhud");
-            $hud.empty();
-            $hud.append("<h4>Dock</h4>");
+            hud.empty();
+            hud.append("<h4>Dock</h4>");
+            var list = $("<ul>");
+            hud.append(list);
             for (d in docked) {
-                $hud.append("<li>" + d + "</li>");
+                list.append("<li>" + d + "</li>");
             }            
         }
         
         function dockhud() {
             self.updateHud();
-            var $hud = $("#dockhud");
-            $hud.fadeIn();
-            $hud.on("click", function () {
-                $hud.fadeOut();
-            });
+            hud.show();
         }
         
         self.drag = function () {
