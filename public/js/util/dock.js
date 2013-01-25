@@ -5,6 +5,7 @@ function ($, d3, EventEmitter, HUD) {
         var self = this;
 
         var docked = {};
+        var updateActions = [];
 
         var w = element.attr("width");
         var h = element.attr("height");
@@ -32,7 +33,7 @@ function ($, d3, EventEmitter, HUD) {
 
         self.changedState = false;
         
-        var hud = new HUD({
+        var hud = self.hud = new HUD({
             width: 300,
             position: { top: 50, right: 20 },
         });
@@ -42,9 +43,14 @@ function ($, d3, EventEmitter, HUD) {
             hud.append("<h4>Dock</h4>");
             var list = $("<ul>");
             hud.append(list);
-            for (d in docked) {
+            var nodes = [];
+            for (var d in docked) {
+                nodes.push(d);
                 list.append("<li>" + d + "</li>");
-            }            
+            }
+            updateActions.forEach(function (callback) {
+                callback.call(self, nodes);
+            });
         }
         
         function dockhud() {
@@ -75,11 +81,9 @@ function ($, d3, EventEmitter, HUD) {
             var draggedNode = this;
             var selected = d3.select(draggedNode);
             if (intersects(d)) {
-                self.dockElement(d);
-                self.emit("dock", [d, selected]);             
+                self.dockElement(d, selected);
             } else {
-                self.undockElement(d);
-                self.emit("undock", [d, selected]);
+                self.undockElement(d, selected);
             }
             self.emit("dragend.dock", d);
         }
@@ -91,22 +95,38 @@ function ($, d3, EventEmitter, HUD) {
                    d.py <= dockDims.y2
         }
         
-        self.dockElement = function (d) {
+        self.dockElement = function (d, element) {
             if (d == null) {
                 throw Error("Cannot dock a null element");
             }
             d.fixed = true;
             docked[d.name] = d;
             self.updateHud();
+            self.emit("dock", [d, element]);             
         }
         
-        self.undockElement = function (d) {
+        self.undockElement = function (d, element) {
             if (d == null) {
                 throw Error("Cannot undock a null element");
             }
             d.fixed = false;
             delete docked[d.name];
             self.updateHud();
+            self.emit("undock", [d, element]);
+        }
+        
+        self.set = function (nodes) {
+            for (var d in docked) self.undockElement(d);
+            var interval = dock.attr('width') / (nodes.length + 1);
+            for (var i = 0; i < nodes.length; i++) {
+                var element = d3.select("#" + nodes[i].elementId)
+                self.dockElement(nodes[i], element);
+                nodes[i].px = dockDims.x1 + (i+1) * interval
+                nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
+            }
+        }
+        self.addUpdateAction = function (callback) {
+            updateActions.push(callback);
         }
     };
     
