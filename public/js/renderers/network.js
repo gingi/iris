@@ -2,7 +2,6 @@ define(['jquery', 'd3', 'underscore',
     'util/dock', 'util/eventemitter', 'util/hud', 'renderers/table'],
 function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     
-    var CLUSTER_Y = 400;
     var defaults = {
         dock: true
     };
@@ -20,6 +19,8 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
+        var CLUSTER_Y = $el.height() * 5 / 6;
+        
         
         this.addNode = function (node) {
             if (node.id) {
