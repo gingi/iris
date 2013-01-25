@@ -22,6 +22,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         
         this.addNode = function (node) {
             if (node.id) {
+                node.id = parseInt(node.id);
                 var existing = findNode(node.id);
                 if (!existing) {
                     nodes.push(node);
@@ -155,7 +156,9 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
-                .attr("id",     function (d) { return d.name })
+                .attr("id",     function (d) {
+                    d.elementId = "node-" + d.id; return d.elementId;
+                })
                 .attr("r",      function (d) { return nodeSize(d); })
                 .style("fill",  function (d) { return color(d.group); })
                 .on("click",    function (d) {
@@ -255,17 +258,21 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var origAutoUpdate = _autoUpdate;
             _autoUpdate = false;
             var nodeMap = {};
-            data.nodes.forEach(function (n) {
+            data.nodes = data.nodes || [];
+            for (var i = 0; i < data.nodes.length; i++) {
+                var n = data.nodes[i];
                 var node = self.findNode(n.name, "name");
-                var oldId = n.id;
+                var oldId = i;
                 if (node) {
                     nodeMap[oldId] = node.id;
+                    _.extend(node, n);
+                    node.id = nodeMap[oldId];
                 } else {
                     n.id = null;
                     var newId = self.addNode(n);
                     nodeMap[oldId] = newId;
                 }
-            });
+            }
             data.edges.forEach(function (e) {
                 self.addLink(
                     nodeMap[e.source], nodeMap[e.target],
@@ -280,6 +287,18 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             update();
             return self;
         }
+        self.dockNodes = function (names) {
+            var nodes = [];
+            for (var i in names) {
+                var node = self.findNode(names[i], 'name');
+                if (node) nodes.push(node);
+            }
+            dock.set(nodes);
+        };
+        self.addDockAction = function (callback) {
+            dock.addUpdateAction(callback);
+        }
+        return self;
     };
     Network.getNeighbors = function (node) {
         var network = this;

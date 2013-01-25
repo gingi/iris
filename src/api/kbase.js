@@ -305,11 +305,31 @@ exports.getGeneFunctions = function (params) {
     );
 }
 
+exports.getNodeInfo = function (params) {
+    params = validateParams(params, ["nodeId"]);
+    api('cdmi').external_ids_to_fids(params.nodeId, 0,
+        params.callback, rpcErrorHandler(params.response)
+    );
+}
+
+exports.getInternalNetwork = function (params) {
+    params = validateParams(params, ["nodes", "datasets"]);
+    api('network').buildInternalNetwork(
+        params.datasets,
+        params.nodes,
+        ["GENE_CLUSTER", "GENE_GENE", "CLUSTER_CLUSTER"],
+        function (data) {
+            params.callback(transformNetwork(data));
+        },
+        rpcErrorHandler(params.response)
+    );
+}
+
 exports.getNetworkDatasets = function (params) {
     params = validateParams(params);
-    if (params.geneId) {
+    if (params.nodeId) {
         api('network').entity2Datasets(
-            params.geneId,
+            params.nodeId,
             params.callback,
             rpcErrorHandler(params.response)
         );
