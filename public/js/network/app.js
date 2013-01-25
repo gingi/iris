@@ -23,12 +23,16 @@ require(['jquery', 'backbone', 'underscore',
     var Datavis = new NetworkVis({ element: "#datavis", dock: true });
     Datavis.on("dblclick-node", function (evt, node, element) {
         if (NetworkData.id == 'random') {
-            AppProgress.show();
+            AppProgress.show("Fetching fake data");
             NetworkVis.getNeighbors.call(Datavis, node, element);
         } else {
             resetNetwork = false;
-            router.navigate("#node/" + node.name + "/" +
-                 NetworkDatasets.get('datasets').join(","), true);
+            if (NetworkDatasets.get('datasets') == null) {
+                router.navigate("#node/" + node.name + "/datasets", true);
+            } else {
+                router.navigate("#node/" + node.name + "/datasets/" +
+                     NetworkDatasets.get('datasets').join(","), true);
+             }
         }
     });
     Datavis.on("click-node", function (evt, node, element) {
@@ -44,7 +48,7 @@ require(['jquery', 'backbone', 'underscore',
                 resetNetwork = false;
                 router.navigate(
                     "#network/" + nodes.join(",") +
-                    "/" + NetworkDatasets.get('datasets').join(","), true);
+                    "/datasets/" + NetworkDatasets.get('datasets').join(","), true);
             })
             dock.hud.append(button);
         }
@@ -79,7 +83,8 @@ require(['jquery', 'backbone', 'underscore',
         el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            if (this.model)
+                this.model.on('change', this.render);
         },
         template: _.template("<li><a href=\"<%=link%>\" title=\"<%=desc%>\">" +
                              "<%=name%></a></li>"),
@@ -107,7 +112,7 @@ require(['jquery', 'backbone', 'underscore',
                 list.append(self.template({
                     name: 'All', desc: "Use all networks",
                     link: "#node/" + self.model.get('id') +
-                        "/" + _.pluck(datasets, 'id').join(',')
+                        "/datasets/" + _.pluck(datasets, 'id').join(',')
                 }))
             }
             hud.show();
@@ -125,7 +130,7 @@ require(['jquery', 'backbone', 'underscore',
     });
 
     function showApp(params) {
-        AppProgress.show();
+        AppProgress.show("Fetching network");
         if (resetNetwork) { Datavis.reset(); }
         resetNetwork = true;
         NetworkData.set({ id: params.id });
@@ -136,20 +141,23 @@ require(['jquery', 'backbone', 'underscore',
     
     var Router = Backbone.Router.extend({
         routes: {
-            "node/:id":                 "addNode",
-            "node/:id/:dataset":        "neighborhood",
-            "nodes/:nodes/:datasets":   "addNodes",
-            "network/:nodes/:datasets": "internalNetwork",
-            ":network":                 "showNetwork",
-            "*path":                    "default"
+            "node/:id":                          "addNode",
+            "node/:id/datasets/:dataset":        "neighborhood",
+            "nodes/:nodes/datasets/:datasets":   "addNodes",
+            "node/:node/datasets":               "networkDatasets",
+            "network/:nodes/datasets/:datasets": "internalNetwork",
+            ":network":                          "showNetwork",
+            "*path":                             "default"
         },
         addNode: function (nodeId) {
+            NetworkData.set({ id: nodeId });
             if (resetNetwork) { Datavis.reset(); }
             Datavis.addNode({
                 name: nodeId
             });
         },
         addNodes: function (nodeInput, datasetInput) {
+            NetworkData.set({ id: null });
             if (resetNetwork) { Datavis.reset(); }
             var nodes = nodeInput.split(",");
             var datasets = datasetInput.split(",");
@@ -176,7 +184,7 @@ require(['jquery', 'backbone', 'underscore',
             })
         },
         networkDatasets: function (nodeId) {
-            AppProgress.show();
+            AppProgress.show("Fetching data sets");
             NetworkDatasets.set({ id: nodeId });
             var datasetView = new DatasetView();
             NetworkDatasets.fetch({
@@ -192,7 +200,7 @@ require(['jquery', 'backbone', 'underscore',
             NetworkDatasets.set('dataset', dataset);
         },
         internalNetwork: function (nodes, datasets) {
-            AppProgress.show();
+            AppProgress.show("Building");
             showApp({
                 id: "internal",
                 url: internalTemplate,
@@ -200,7 +208,9 @@ require(['jquery', 'backbone', 'underscore',
             });
         },
         default: function () {
-            this.showNetwork("random");
+            console.log("Unrecognized route.");
+            
+            // this.showNetwork("random");
         }
     });
     router = new Router;
