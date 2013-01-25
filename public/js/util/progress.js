@@ -29,8 +29,10 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                 .css("display", "none")
                 .append($("<div>").addClass("bar").css("width", "100%"));
             return {
-                show: function (container) {
+                show: function (container, message) {
                     container.append(div);
+                    if (message)
+                        div.find(".bar").text(message);
                     div.fadeIn();
                 },
                 hide: function () { div.fadeOut(); }
@@ -45,7 +47,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         var $el = $(options.element);
         var _id = "progress-container-" + progressCounter;
         var indicator;
-        this.show = function () {
+        this.show = function (message) {
             var container;
             if (options.fade) {
                 container = $("<div>")
@@ -64,7 +66,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
             if (!indicator) {
                 indicator = create(options);
             }
-            indicator.show(container);
+            indicator.show(container, message);
         };
         this.dismiss = function () {
             if (indicator) indicator.hide();
