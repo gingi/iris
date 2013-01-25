@@ -258,7 +258,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var origAutoUpdate = _autoUpdate;
             _autoUpdate = false;
             var nodeMap = {};
-            data.nodes = data.nodes || [];
+            if (data.nodes == null) data.nodes = [];
+            if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
                 var n = data.nodes[i];
                 var node = self.findNode(n.name, "name");
