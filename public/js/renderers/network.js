@@ -2,6 +2,7 @@ define(['jquery', 'd3', 'underscore',
     'util/dock', 'util/eventemitter', 'util/hud'],
 function ($, d3, _, Dock, EventEmitter, HUD) {
     
+    var CLUSTER_Y = 400;
     var defaults = {
         dock: true
     };
@@ -138,11 +139,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var svgNodes, svgLinks;
         function tick() {
             svgLinks.attr("x1", function (d) { return d.source.x; })
-                    .attr("y1", function (d) { return d.source.y; })
+                    .attr("y1", function (d) {
+                        return d.source.type == 'CLUSTER' ? CLUSTER_Y : d.source.y; })
                     .attr("x2", function (d) { return d.target.x; })
-                    .attr("y2", function (d) { return d.target.y; });
+                    .attr("y2", function (d) {
+                        return d.target.type == 'CLUSTER' ? CLUSTER_Y : d.target.y; });
             svgNodes.attr("cx", function (d) { return d.x; })
-                    .attr("cy", function (d) { return d.y; });
+                    .attr("cy", function (d) {
+                        return d.type == 'CLUSTER' ? CLUSTER_Y : d.y; });
         }
         
         function update() {
@@ -285,6 +289,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         self.reset = function () {
             nodes.length = 0; links.length = 0;
+            if (dock) { dock.reset() }
             update();
             return self;
         }
