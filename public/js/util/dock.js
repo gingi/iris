@@ -16,7 +16,7 @@ function ($, d3, EventEmitter, HUD) {
             .attr("rx", 5)
             .attr("ry", 5)
             .attr("x", (w - 600) / 2)
-            .attr("y", h * 5 / 6)
+            .attr("y", h * 3 / 6)
             .style("fill", "black")
             .style("opacity", "0.1");
         var dockDims = {
@@ -115,8 +115,12 @@ function ($, d3, EventEmitter, HUD) {
             self.emit("undock", [d, element]);
         }
         
-        self.set = function (nodes) {
+        self.reset = function () {
             for (var d in docked) self.undockElement(d);
+        }
+        
+        self.set = function (nodes) {
+            self.reset();
             var interval = dock.attr('width') / (nodes.length + 1);
             for (var i = 0; i < nodes.length; i++) {
                 var element = d3.select("#" + nodes[i].elementId)
