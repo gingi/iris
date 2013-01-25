@@ -39,21 +39,96 @@ require(['jquery', 'backbone', 'underscore',
     Datavis.on("click-node", function (evt, node, element) {
         Datavis.clickNode(node, element);
     });
+/*
+    Datavis.dockHudContent(function (nodes) {
+        var dock = this;
+        require(['renderers/table'], function (Table) {
+            var $div = $("<div>").attr("id", "dock-hud-content");
+            dock.hud.append($div);
+            var table = new Table({ element: "#dock-hud-content" });
+            table.setData({
+                data: nodes,
+                columns: ['Name']
+            });
+            table.display();
+        })
+    })
+*/
     Datavis.addDockAction(function (nodes) {
         var dock = this;
         if (nodes.length > 1) {
             var button = $("<button>")
-                .addClass("btn btn-primary")
-                .text("Build internal network");
+                .addClass("btn btn-small btn-primary")
+                .text("Shared clusters");
             button.on("click", function () {
                 resetNetwork = false;
-                router.navigate(
-                    "#network/" + nodes.join(",") +
-                    "/datasets/" + NetworkDatasets.get('datasets').join(","), true);
+                AppProgress.show("Getting clusters");
+                var fetched = 0;
+                nodes.forEach(function (id) {
+                    var neighbors = new NetworkModel;
+                    neighbors.url = neighborTemplate({ id: id });
+                    neighbors.fetch({
+                        data: {
+                            datasets: NetworkDatasets.get('datasets').join(",")
+                        },
+                        success: function (model, data) {
+                            fetched++;
+                            Datavis.merge(data);
+                            if (fetched == nodes.length) {
+                                AppProgress.dismiss();
+                                enableBuildNetwork();
+                            }
+                        }
+                    })
+                })
+                // router.navigate(
+                //     "#network/" + nodes.join(",") +
+                //     "/datasets/" + NetworkDatasets.get('datasets').join(","), true);
             })
             dock.hud.append(button);
         }
     });
+    Datavis.addDockAction(function () {
+        var dock = this;
+        button = $("<button>").addClass("btn btn-small")
+            .attr("id", "btn-build-network")
+            .css("margin-left", 10)
+            .attr("disabled", true)
+            .text("Build internal network");
+            dock.hud.append(button);
+    });
+    function enableBuildNetwork() {
+        var button = $("#btn-build-network")
+        var clusters = Datavis.find("CLUSTER", "type");
+        if (clusters.length) {
+            button.attr("disabled", null);
+        }
+        button.on("click", function () {
+/*
+            AppProgress.show("Building network");
+            var fetched = 0;
+            clusters.forEach(function (cluster) {
+                var neighbors = new NetworkModel;
+                neighbors.url = neighborTemplate(cluster);
+                neighbors.fetch({
+                    data: {
+                        datasets: NetworkDatasets.get('datasets').join(",")
+                    },
+                    success: function (model, data) {
+                        fetched++;
+                        Datavis.merge(data);
+                        if (fetched == nodes.length) {
+                            AppProgress.dismiss();
+                            enableBuildNetwork();
+                        }
+                    }
+                })
+            })
+*/
+            router.navigate("#network/" + _.pluck(clusters, "entityId") +
+                "/datasets/" + NetworkDatasets.get('datasets').join(","), true);
+        });
+    }
     
     var AppView = Backbone.View.extend({
         el: $("#container"),
@@ -210,9 +285,7 @@ require(['jquery', 'backbone', 'underscore',
             });
         },
         default: function () {
-            console.log("Unrecognized route.");
-            
-            // this.showNetwork("random");
+            console.log("Default route.");
         }
     });
     router = new Router;
