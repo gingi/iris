@@ -179,7 +179,7 @@ app.get('/data/node/:id', function (request, response, next) {
     kbase.getNodeInfo({
         response: response,
         nodeId: request.params.id
-    })
+    });
 });
 
 app.get('/data/node/:id/datasets', function (request, response, next) {
@@ -266,7 +266,8 @@ app.get('/data/network/internal', function (request, response, next) {
     kbase.getInternalNetwork({
         response: response,
         datasets: request.query.datasets.split(","),
-        nodes:    request.query.nodes.split(",")
+        nodes:    request.query.nodes.split(","),
+        rels:     request.query.rel ? [request.query.rel] : null
     });
 });
 

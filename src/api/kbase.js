@@ -6,6 +6,11 @@ var async = require('async');
 
 var KBaseAPI    = apiRequire(path.join(__dirname, 'api.js'));
 
+var PLANT_GENOMES = {
+    "Ptrichocarpa.JGI2.0": /^POPTR_/,
+    "Athaliana.TAIR10": /^AT\dG\d+/,
+}
+
 function apiRequire(path) {
     var sandbox = { $: $, jQuery: $, console: console };
     var data = fs.readFileSync(path, 'utf8');
@@ -40,6 +45,14 @@ var apis = {
     expression: {
         url: 'http://140.221.84.160:7063',
         fn:  "PlantExpression"
+    },
+    idserver: {
+        url: 'http://kbase.us/services/idserver',
+        fn:  "IDServerAPI"
+    },
+    cdmiEntityProd: {
+        url: 'http://kbase.us/services/cdmi_api',
+        fn:  "CDMI_EntityAPI"
     }
 }
 
@@ -310,17 +323,37 @@ exports.getGeneFunctions = function (params) {
 
 exports.getNodeInfo = function (params) {
     params = validateParams(params, ["nodeId"]);
-    api('cdmi').external_ids_to_fids(params.nodeId, 0,
-        params.callback, rpcErrorHandler(params.response)
+    console.log("Looking at", params.nodeId);
+    for (var genome in PLANT_GENOMES) {
+        if (PLANT_GENOMES[genome].test(params.nodeId)) {
+            params.nodeId = [genome, params.nodeId].join(":");
+            continue;
+        }
+    }
+    api('idserver').external_ids_to_kbase_ids("EnsemblPlant", [params.nodeId],
+        function (data) {
+            if (!data || !data.hasOwnProperty(params.nodeId)) {
+                return params.response(404, {
+                    error: "Node ID not found"
+                });
+            }
+            var kbid = data[params.nodeId];
+            api('cdmiEntityProd').get_entity_Feature([kbid],
+                ["feature_type", "source_id", "sequence_length", "function"],
+                params.callback, rpcErrorHandler(params.response)
+            )
+        }, rpcErrorHandler(params.response)
     );
 }
 
 exports.getInternalNetwork = function (params) {
     params = validateParams(params, ["nodes", "datasets"]);
+    params.rels =
+        params.rels || ["GENE_CLUSTER", "GENE_GENE", "CLUSTER_CLUSTER"];
     api('network').buildInternalNetwork(
         params.datasets,
         params.nodes,
-        ["GENE_CLUSTER", "GENE_GENE", "CLUSTER_CLUSTER"],
+        params.rels,
         function (data) {
             params.callback(transformNetwork(data));
         },
