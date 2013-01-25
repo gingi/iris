@@ -159,10 +159,17 @@ app.get('/data/genome/:id/datasets', function (request, response, next) {
     });
 });
 
+app.get('/data/node/:id', function (request, response, next) {
+    kbase.getNodeInfo({
+        response: response,
+        nodeId: request.params.id
+    })
+});
+
 app.get('/data/node/:id/datasets', function (request, response, next) {
     kbase.getNetworkDatasets({
         response: response,
-        geneId:   request.params.id
+        nodeId:   request.params.id
     });
 });
 
@@ -237,6 +244,14 @@ app.get('/data/genome/:id/functions', function (request, response, next) {
         genes: request.query.genes
             ? request.query.genes.split(",") : []
     })
+});
+
+app.get('/data/network/internal', function (request, response, next) {
+    kbase.getInternalNetwork({
+        response: response,
+        datasets: request.query.datasets.split(","),
+        nodes:    request.query.nodes.split(",")
+    });
 });
 
 app.get('/data/network/random', function (request, response, next) {

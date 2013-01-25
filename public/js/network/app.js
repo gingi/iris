@@ -4,8 +4,9 @@ require(['jquery', 'backbone', 'underscore',
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
+    var internalTemplate = _.template("/data/network/internal");
 
-    var App, Search, NetworkData, router, AppProgress;
+    var App, Search, router, AppProgress;
     var resetNetwork = true;
         
     AppProgress = new Progress({
@@ -18,6 +19,7 @@ require(['jquery', 'backbone', 'underscore',
             this.set('data', data);
         }
     });
+    var NetworkData = new NetworkModel;
     var Datavis = new NetworkVis({ element: "#datavis", dock: true });
     Datavis.on("dblclick-node", function (evt, node, element) {
         if (NetworkData.id == 'random') {
@@ -26,18 +28,34 @@ require(['jquery', 'backbone', 'underscore',
         } else {
             resetNetwork = false;
             router.navigate("#node/" + node.name + "/" +
-                 NetworkData.get('dataset'), true);
+                 NetworkDatasets.get('datasets').join(","), true);
         }
     });
     Datavis.on("click-node", function (evt, node, element) {
         Datavis.clickNode(node, element);
-    })
+    });
+    Datavis.addDockAction(function (nodes) {
+        var dock = this;
+        if (nodes.length > 1) {
+            var button = $("<button>")
+                .addClass("btn btn-primary")
+                .text("Build internal network");
+            button.on("click", function () {
+                resetNetwork = false;
+                router.navigate(
+                    "#network/" + nodes.join(",") +
+                    "/" + NetworkDatasets.get('datasets').join(","), true);
+            })
+            dock.hud.append(button);
+        }
+    });
     
     var AppView = Backbone.View.extend({
         el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
-            NetworkData.on('sync', this.render);
+            if (NetworkData)
+                NetworkData.on('sync', this.render);
         },
         render: function () {
             var self = this;
@@ -47,7 +65,7 @@ require(['jquery', 'backbone', 'underscore',
         },
     });
     
-    var NetworkDatasets = Backbone.Model.extend({
+    var DatasetModel = Backbone.Model.extend({
         url: function () {
             return '/data/node/' + this.get('id') + '/datasets';
         },
@@ -55,6 +73,7 @@ require(['jquery', 'backbone', 'underscore',
             this.set('datasets', data);
         }
     });
+    var NetworkDatasets = new DatasetModel;
     
     var DatasetView = Backbone.View.extend({
         el: $("#container"),
@@ -71,10 +90,11 @@ require(['jquery', 'backbone', 'underscore',
                 width: 400
             });
             var list = $("<ul>");
-            var datasets = this.model.get('datasets');
-            if (datasets == null || datasets.length == 0) {
+            if (NetworkDatasets == null ||
+                    NetworkDatasets.get('datasets') == null) {
                 hud.text("No datasets");
             } else {
+                var datasets = NetworkDatasets.get('datasets');
                 hud.append($("<h4>").text("Data Sets"))
                 hud.append(list);
                 datasets.forEach(function (ds) {
@@ -96,12 +116,11 @@ require(['jquery', 'backbone', 'underscore',
     
     var SearchBox = Backbone.View.extend({
         el: $("#nav-search"),
-        events: {
-            "submit": "search"
-        },
+        events: { "submit": "search" },
         search: function (data) {
             var query = $("#nav-search [type=text]").val();
-            router.navigate("#node/" + query);
+            resetNetwork = false;
+            router.navigate("#node/" + query, true);
         }
     });
 
@@ -109,7 +128,7 @@ require(['jquery', 'backbone', 'underscore',
         AppProgress.show();
         if (resetNetwork) { Datavis.reset(); }
         resetNetwork = true;
-        NetworkData = new NetworkModel({ id: params.id });
+        NetworkData.set({ id: params.id });
         NetworkData.url = params.url({ id: params.id });
         App = new AppView({ model: NetworkData });
         NetworkData.fetch({ data: params.fetchData });
@@ -117,10 +136,38 @@ require(['jquery', 'backbone', 'underscore',
     
     var Router = Backbone.Router.extend({
         routes: {
-            "node/:id":          "networkDatasets",
-            "node/:id/:dataset": "neighborhood",
-            ":network":          "showNetwork",
-            "*path":             "default"
+            "node/:id":                 "addNode",
+            "node/:id/:dataset":        "neighborhood",
+            "nodes/:nodes/:datasets":   "addNodes",
+            "network/:nodes/:datasets": "internalNetwork",
+            ":network":                 "showNetwork",
+            "*path":                    "default"
+        },
+        addNode: function (nodeId) {
+            if (resetNetwork) { Datavis.reset(); }
+            Datavis.addNode({
+                name: nodeId
+            });
+        },
+        addNodes: function (nodeInput, datasetInput) {
+            if (resetNetwork) { Datavis.reset(); }
+            var nodes = nodeInput.split(",");
+            var datasets = datasetInput.split(",");
+            for (var i = 0; i < nodes.length; i++) {
+                var type, group;
+                if (nodes[i].match(/^kb\|/)) {
+                    type = 'CLUSTER';
+                    group = 'clusters';
+                } else {
+                    type = 'GENE';
+                    group = 'genes';
+                }
+                Datavis.addNode({
+                    name: nodes[i], type: type, group: group
+                });
+            }
+            NetworkDatasets.set('datasets', datasets);
+            Datavis.dockNodes(nodes);
         },
         showNetwork: function (networkId) {
             showApp({
@@ -130,9 +177,9 @@ require(['jquery', 'backbone', 'underscore',
         },
         networkDatasets: function (nodeId) {
             AppProgress.show();
-            var datasets = new NetworkDatasets({ id: nodeId });
-            var datasetView = new DatasetView({ model: datasets });
-            datasets.fetch({
+            NetworkDatasets.set({ id: nodeId });
+            var datasetView = new DatasetView();
+            NetworkDatasets.fetch({
                 success: function () { AppProgress.dismiss(); }
             });
         },
@@ -142,7 +189,15 @@ require(['jquery', 'backbone', 'underscore',
                 url: neighborTemplate,
                 fetchData: { datasets: dataset }
             });
-            NetworkData.set('dataset', dataset);
+            NetworkDatasets.set('dataset', dataset);
+        },
+        internalNetwork: function (nodes, datasets) {
+            AppProgress.show();
+            showApp({
+                id: "internal",
+                url: internalTemplate,
+                fetchData: { datasets: datasets, nodes: nodes }
+            });
         },
         default: function () {
             this.showNetwork("random");
