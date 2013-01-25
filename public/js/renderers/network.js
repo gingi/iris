@@ -1,8 +1,8 @@
-define(['jquery', 'd3', 'underscore', 'util/dock', 'util/eventemitter'],
-function ($, d3, _, Dock, EventEmitter) {
+define(['jquery', 'd3', 'underscore',
+    'util/dock', 'util/eventemitter', 'util/hud'],
+function ($, d3, _, Dock, EventEmitter, HUD) {
     
     var defaults = {
-        hud:  "#infobox",
         dock: true
     };
     
@@ -160,11 +160,11 @@ function ($, d3, _, Dock, EventEmitter) {
                 .style("fill",  function (d) { return color(d.group); })
                 .on("click",    function (d) {
                     d3.event.stopPropagation();
-                    self.emit("click-node", [d]);
+                    self.emit("click-node", [d, this]);
                 })
                 .on("dblclick", function (d) {
                     d3.event.stopPropagation();
-                    self.emit("dblclick-node", [d]);
+                    self.emit("dblclick-node", [d, this]);
                 });
             if (options.dock) {
                 nodeEnter.call(dock.drag());
@@ -200,26 +200,28 @@ function ($, d3, _, Dock, EventEmitter) {
             return size;
         }
 
-        var selected, originalFill;
-        self.clickNode = function (d) {
-            var $hud = $(options.hud);
+        var selected, originalFill,
+            hud = new HUD({
+                position: { bottom: 20, left: 20 },
+                width: 300
+            });
+        self.clickNode = function (d, element) {
             if (selected) {
                 selected.style["fill"] = originalFill;
             }
-            if (selected == this) {
-                $hud.fadeOut(function () { $(this).empty(); });
+            if (selected == element) {
+                hud.dismiss();
                 selected = null;
                 return;
             }
-            selected = d3.select(d);
+            selected = element;
             originalFill = selected.style["fill"];
             var fill = d3.hsl(originalFill);
             selected.style["fill"] = fill.brighter().toString();
         
-            $hud.empty().append(nodeInfo(d))
-            $hud.fadeIn();
-            $hud.on("click", function () {
-                $(this).fadeOut(function () { $(this).empty(); });
+            hud.empty().append(nodeInfo(d))
+            hud.show();
+            hud.on("dismiss", function () {
                 if (selected != null) {
                     selected.style["fill"] = originalFill;
                     selected = null;

@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore',
-    'renderers/network', 'util/progress'],
-    function ($, Backbone, _, NetworkVis, Progress) {
+    'renderers/network', 'util/progress', 'util/hud'],
+    function ($, Backbone, _, NetworkVis, Progress, HUD) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -15,18 +15,18 @@ require(['jquery', 'backbone', 'underscore',
         }
     });
     var Datavis = new NetworkVis({ element: "#datavis", dock: true });
-    Datavis.on("dblclick-node", function (evt, node) {
+    Datavis.on("dblclick-node", function (evt, node, element) {
         AppProgress.show();
         if (NetworkData.id == 'random') {
-            NetworkVis.getNeighbors.call(Datavis, node);
+            NetworkVis.getNeighbors.call(Datavis, node, element);
         } else {
             resetNetwork = false;
             router.navigate("#node/" + node.name + "/" +
                  NetworkData.get('dataset'), true);
         }
     });
-    Datavis.on("click-node", function (evt, node) {
-        Datavis.clickNode(node);
+    Datavis.on("click-node", function (evt, node, element) {
+        Datavis.clickNode(node, element);
     })
     
     var AppView = Backbone.View.extend({
@@ -62,19 +62,12 @@ require(['jquery', 'backbone', 'underscore',
                              "<%=name%></a></li>"),
         render: function () {
             var self = this;
-            var hud = $("#dataset-hud");
-            if (hud[0] == null) {
-                hud = $("<div>")
-                    .addClass("hud")
-                    .attr("id", "dataset-hud")
-                    .css("top", 50)
-                    .css("left", 20)
-                    .css("width", 400)
-                this.$el.append(hud);
-            }
+            var hud = new HUD({
+                position: { top: 50, left: 20 },
+                width: 400
+            });
             var list = $("<ul>");
             var datasets = this.model.get('datasets');
-            hud.empty();
             if (datasets == null || datasets.length == 0) {
                 hud.text("No datasets");
             } else {
@@ -92,7 +85,7 @@ require(['jquery', 'backbone', 'underscore',
                         "/" + _.pluck(datasets, 'id').join(',')
                 }))
             }
-            hud.fadeIn();
+            hud.show();
         }
     })
     
