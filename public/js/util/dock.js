@@ -6,6 +6,14 @@ function ($, d3, EventEmitter, HUD) {
 
         var docked = {};
         var updateActions = [];
+        var dockHudContentCallback = function (nodes) {
+            var dock = this;
+            var list = $("<ul>");
+            dock.hud.append(list);
+            nodes.forEach(function (d) {
+                list.append("<li>" + d + "</li>");
+            });
+        }
 
         var w = element.attr("width");
         var h = element.attr("height");
@@ -15,7 +23,7 @@ function ($, d3, EventEmitter, HUD) {
             .attr("height", 30)
             .attr("rx", 5)
             .attr("ry", 5)
-            .attr("x", (w - 600) / 2)
+            .attr("x", w / 4)
             .attr("y", h * 3 / 6)
             .style("fill", "black")
             .style("opacity", "0.1");
@@ -41,13 +49,11 @@ function ($, d3, EventEmitter, HUD) {
         self.updateHud = function () {
             hud.empty();
             hud.append("<h4>Dock</h4>");
-            var list = $("<ul>");
-            hud.append(list);
             var nodes = [];
             for (var d in docked) {
                 nodes.push(d);
-                list.append("<li>" + d + "</li>");
             }
+            dockHudContentCallback.call(self, nodes);
             updateActions.forEach(function (callback) {
                 callback.call(self, nodes);
             });
@@ -131,6 +137,9 @@ function ($, d3, EventEmitter, HUD) {
         }
         self.addUpdateAction = function (callback) {
             updateActions.push(callback);
+        }
+        self.hudContent = function (callback) {
+            dockHudContentCallback = callback;
         }
     };
     

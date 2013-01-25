@@ -4458,6 +4458,127 @@ function Genotype_PhenotypeAPI(url) {
 
 
 
+function IDServerAPI(url) {
+
+    var _url = url;
+    var deprecationWarningSent = false;
+    
+    function deprecationWarning() {
+        if (!deprecationWarningSent) {
+            console.log(
+                "WARNING: '*_async' method names will be deprecated",
+                "on 2/4/2013. Please use the methods without the",
+                "'_async' suffix.");
+            deprecationWarningSent = true;
+        }
+    }
+
+
+    this.kbase_ids_to_external_ids = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("IDServerAPI.kbase_ids_to_external_ids", [ids], 1, _callback, _error_callback);
+    };
+
+    this.kbase_ids_to_external_ids_async = function(ids, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("IDServerAPI.kbase_ids_to_external_ids", [ids], 1, _callback, _error_callback);
+    };
+
+    this.external_ids_to_kbase_ids = function(external_db, ext_ids, _callback, _error_callback) {
+        return json_call_ajax_async("IDServerAPI.external_ids_to_kbase_ids", [external_db, ext_ids], 1, _callback, _error_callback);
+    };
+
+    this.external_ids_to_kbase_ids_async = function(external_db, ext_ids, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("IDServerAPI.external_ids_to_kbase_ids", [external_db, ext_ids], 1, _callback, _error_callback);
+    };
+
+    this.register_ids = function(prefix, db_name, ids, _callback, _error_callback) {
+        return json_call_ajax_async("IDServerAPI.register_ids", [prefix, db_name, ids], 1, _callback, _error_callback);
+    };
+
+    this.register_ids_async = function(prefix, db_name, ids, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("IDServerAPI.register_ids", [prefix, db_name, ids], 1, _callback, _error_callback);
+    };
+
+    this.allocate_id_range = function(kbase_id_prefix, count, _callback, _error_callback) {
+        return json_call_ajax_async("IDServerAPI.allocate_id_range", [kbase_id_prefix, count], 1, _callback, _error_callback);
+    };
+
+    this.allocate_id_range_async = function(kbase_id_prefix, count, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("IDServerAPI.allocate_id_range", [kbase_id_prefix, count], 1, _callback, _error_callback);
+    };
+
+    this.register_allocated_ids = function(prefix, db_name, assignments, _callback, _error_callback) {
+        return json_call_ajax_async("IDServerAPI.register_allocated_ids", [prefix, db_name, assignments], 0, _callback, _error_callback);
+    };
+
+    this.register_allocated_ids_async = function(prefix, db_name, assignments, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("IDServerAPI.register_allocated_ids", [prefix, db_name, assignments], 0, _callback, _error_callback);
+    };
+
+    function json_call_ajax_async(method, params, num_rets, callback, error_callback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof error_callback === 'function') {
+           deferred.fail(error_callback);
+        }
+
+        var rpc = {
+            params:  params,
+            method:  method,
+            version: "1.1"
+        };
+        
+        var body = JSON.stringify(rpc);
+        jQuery.ajax({
+            dataType:    "text",
+            url:         _url,
+            data:        body,
+            processData: false,
+            type:        "POST",
+            success: function (data, status, xhr) {
+                try {
+                    var resp = JSON.parse(data);
+                    var result = resp.result;
+                    if (num_rets === 1) {
+                        deferred.resolve(result[0]);
+                    } else {
+                        deferred.resolve(result);
+                    }
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        body: body
+                    });
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                if (xhr.responseText) {
+                    var resp = JSON.parse(xhr.responseText);
+                    deferred.reject(resp.error);
+                } else {
+                    deferred.reject({
+                        message: "Unknown Error"
+                    });
+                }
+            }
+        });
+
+        return deferred.promise();
+    }
+}
+
+
+
 function KBaseNetworks(url) {
 
     var _url = url;
