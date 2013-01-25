@@ -1,6 +1,6 @@
 define(['jquery', 'd3', 'underscore',
-    'util/dock', 'util/eventemitter', 'util/hud'],
-function ($, d3, _, Dock, EventEmitter, HUD) {
+    'util/dock', 'util/eventemitter', 'util/hud', 'renderers/table'],
+function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     
     var CLUSTER_Y = 400;
     var defaults = {
@@ -107,6 +107,15 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         this.findNode = function (key, type) {
             type = (type || 'id');
             for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
+        }
+        
+        this.find = function (key, type) {
+            type = (type || 'id');
+            var result = [];
+            for (var i in nodes) {
+                if (nodes[i][type] === key) result.push(nodes[i]);
+            }
+            return result;
         }
 
         function findNodeIndex(id) {
@@ -300,9 +309,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 if (node) nodes.push(node);
             }
             dock.set(nodes);
-        };
+        }
         self.addDockAction = function (callback) {
             dock.addUpdateAction(callback);
+        }
+        self.dockHudContent = function (callback) {
+            dock.hudContent(callback);
         }
         return self;
     };
