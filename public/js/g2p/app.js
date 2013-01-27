@@ -281,7 +281,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 elementId: 'network',
                 title: 'Gene Clusters',
                 renderParams: {
-                    hud: $("#subinfobox")
+                    hud: $("#subinfobox"),
+                    dock: false
                 },
                 fetchParams: { clusters: 2, nodes: 5 },
             });
