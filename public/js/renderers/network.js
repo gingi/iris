@@ -275,16 +275,16 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             if (data.nodes == null) data.nodes = [];
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
-                var n = data.nodes[i];
-                var node = self.findNode(n.name, "name");
+                var newNode = data.nodes[i];
+                var oldNode = self.findNode(newNode.name, "name");
                 var oldId = i;
-                if (node) {
-                    nodeMap[oldId] = node.id;
-                    _.extend(node, n);
-                    node.id = nodeMap[oldId];
+                if (oldNode != null) {
+                    nodeMap[oldId] = oldNode.id;
+                    _.extend(oldNode, newNode);
+                    oldNode.id = nodeMap[oldId];
                 } else {
-                    n.id = null;
-                    var newId = self.addNode(n);
+                    newNode.id = null;
+                    var newId = self.addNode(newNode);
                     nodeMap[oldId] = newId;
                 }
             }
