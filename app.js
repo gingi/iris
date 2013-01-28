@@ -283,7 +283,7 @@ app.get('/data/network/random', function (request, response, next) {
 app.get('/data/network/random/:id/neighbors',
 function (request, response, next) {
     response.contentType = 'json';
-    var rootId = RANDOM_NEIGHBORHOOD_NODES + 1;
+    var rootId = RANDOM_NEIGHBORHOOD_NODES;
     var neighborhood = randomNetwork(
         RANDOM_NEIGHBORHOOD_NODES,
         RANDOM_NEIGHBORHOOD_NODES + 5,
@@ -401,14 +401,31 @@ app.get('/data/network/:network', function (request, response, next) {
     })
 });
 
+var Random = new Object();
+var randomGroupName = function () {
+    if (!Random.clusters) {
+        Random.clusters = [];
+        Random.clusterStart = 1;
+        Random.clusterNum   = 30;
+    }
+    if (Random.clusters.length == 0) {
+        for (var i = 0; i < Random.clusterNum; i++) {
+            Random.clusters.push("Group" + (Random.clusterStart + i));
+        }
+        shuffle(Random.clusters);
+        Random.clusterStart += Random.clusterNum;
+    }
+    return Random.clusters.pop();
+}
 
 function randomNetwork(nNodes, nEdges, nClusters) {
+    delete Random.clusters;
     var RANDOM_TRIES = 50;
     var nodes = [], edges = [];
     var nodeIndex = 0;
     var clusterMasters = [];
     for (var c = 0; c < nClusters; c++) {
-        var groupName = "group" + Math.ceil(Math.random() * 30);
+        var groupName = randomGroupName();
         for (var i = 0; i < nNodes; i++) {
             nodes.push({
                 id: nodeIndex,
