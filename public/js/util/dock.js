@@ -1,14 +1,12 @@
 define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
 function ($, d3, EventEmitter, HUD) {
     
-    
     var DOCK_HEIGHT = 30;
     var Dock = function (element) {  
         var self = this;
 
         var docked = {};
         var updateActions = [];
-        
         
         var dockHudContentCallback = function (nodes) {
             var dock = this;

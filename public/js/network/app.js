@@ -285,7 +285,7 @@ require(['jquery', 'backbone', 'underscore',
             });
         },
         default: function () {
-            console.log("Default route.");
+            // Default route
         }
     });
     router = new Router;
