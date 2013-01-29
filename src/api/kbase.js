@@ -85,6 +85,8 @@ function validateParams(target, reqs) {
     } catch (err) {
         if (target.response) {
             errorHandler(target.response)(err)
+        } else {
+            throw new Error("No response object!");
         }
     }
     target.callback = (target.callback || function (json) {
@@ -102,9 +104,10 @@ function api(key) {
                 var params = arguments[0];
                 console.log(
                     "[DEBUG] curl -d '%s' '%s'", params.data, params.url);
-                return jQueryAjax.apply($, arguments);
+                return jQueryAjax.apply(null, arguments);
             }
         });
+        exports.debug = false; // Just avoid this being overloaded again.
     }
     var params = apis[key];
     if (!params.object) {
@@ -344,6 +347,46 @@ exports.getNetworkDatasets = function (params) {
             "Either 'geneId' or 'genomeId' need to be specified"
         );
     }
+}
+
+exports.getOntology = function (params) {
+    params = validateParams(params, ['type']);
+    var fn, expAPI = api('expression');
+    switch (params.type) {
+        case 'plant':       fn = expAPI.getAllPO; break;
+        case 'environment': fn = expAPI.getAllEO; break;
+        default:
+            errorHandler(params.response)("Unsupported ontology");
+            return;
+    }
+    fn.call(expAPI, params.callback, rpcErrorHandler(params.response));
+}
+
+exports.getOntologyTermSamples = function (params) {
+    params = validateParams(params, ['type', 'term']);
+    var fn, expAPI = api('expression');
+    switch (params.type) {
+        case 'plant':       fn = expAPI.getPOSampleIDList; break;
+        case 'environment': fn = expAPI.getEOSampleIDList; break;
+        default:
+            errorHandler(params.response)("Unsupported ontology");
+            return;
+    }
+    fn.call(expAPI, [params.term],
+        function (data) {
+            var result = {};
+            for (var term in data) {
+                var samples = result[term] = {};
+                for (var i = 0; i < data[term].length; i++) {
+                    var tokens = data[term][i].split(/\t/);
+                    var species = tokens[0], sample = tokens[1];
+                    if (!samples.hasOwnProperty(species))
+                        samples[species] = [];
+                    samples[species].push(sample);
+                }
+            }
+            params.callback(result);
+        }, rpcErrorHandler(params.response));
 }
 
 var GO_DOMAINS = 

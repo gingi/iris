@@ -159,6 +159,22 @@ app.get('/data/genome/:id/datasets', function (request, response, next) {
     });
 });
 
+app.get('/data/ontology/:ontologyId', function (request, response, next) {
+    kbase.getOntology({
+        response: response,
+        type: request.params.ontologyId
+    });
+});
+
+app.get('/data/ontology/:ontologyId/:term/samples',
+function (request, response, next) {
+    kbase.getOntologyTermSamples({
+        response: response,
+        type: request.params.ontologyId,
+        term: request.params.term
+    });
+});
+
 app.get('/data/node/:id', function (request, response, next) {
     kbase.getNodeInfo({
         response: response,
