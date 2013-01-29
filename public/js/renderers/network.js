@@ -22,10 +22,10 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var CLUSTER_Y = $el.height() * 5 / 6;
         
         
-        this.addNode = function (node) {
+        self.addNode = function (node) {
             if (node.id) {
                 node.id = parseInt(node.id);
-                var existing = findNode(node.id);
+                var existing = self.findNode(node.id);
                 if (!existing) {
                     nodes.push(node);
                     _idSequence = d3.max(_idSequence, node.id + 1);
@@ -38,12 +38,13 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             return node.id;
         }
 
-        this.removeNode = function (id) {
+        self.removeNode = function (id) {
             var i = 0;
-            var n = findNode(id);
+            var n = self.findNode(id);
+            if (n == null) return;
             while (i < links.length) {
-                if ((links[i]['source'] == n) ||
-                    (links[i]['target'] == n))
+                if ((links[i].source == n) ||
+                    (links[i].target == n))
                     links.splice(i,1);
                 else i++;
             }
@@ -52,7 +53,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             return this;
         }
         
-        this.setData  = function (data) {
+        self.setData  = function (data) {
             this.setNodes(data.nodes);
             this.setEdges(data.edges);
             return this;
@@ -262,6 +263,92 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             row("Type", d.type);
             row("Entity ID", d.entityId);
             return $table;
+        }
+        
+        // Get neighbors for a given node.
+        self.neighbors = function (node) {
+            var neigh = [];
+            links.forEach(function (link) {
+                var n;
+                if (link.source == node )
+                    n = link.target;
+                else if (link.target == node)
+                    n = link.source;
+                if (n != null && n !== node)
+                    neigh.push([ n, link ]);
+            });
+            return neigh;
+        }
+        
+        self.collapse = function (node) {
+            var collapsed = node._collapsed = {};
+            var neighbors = self.neighbors(node);
+
+            // Create hash of primary neighbors
+            var seen = {};
+            for (var i = 0; i < neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                seen[n.id] = true;
+            }
+            for (var i = 0; i < neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                
+                var cousins = self.neighbors(n);
+                var cousinEdges = [];
+                var j = 0;
+                
+                // Handle neighbors to the collapsing nodes that
+                // link with each other. Filter out all seen nodes.
+                while (j < cousins.length) {
+                    if (seen[cousins[j][0].id]) {
+                        var edge = _.clone(cousins[j][1]);
+                        edge.source = edge.source.id;
+                        edge.target = edge.target.id;
+                        cousinEdges.push(edge);
+                        cousins.splice(j, 1);
+                    } else j++
+                }
+                // Collapse nodes if not implicated with other nodes.
+                if (cousins.length <= 1) {
+                    var edge = _.clone(neighbor[1]);
+                    edge.source = edge.source.id;
+                    edge.target = edge.target.id;
+                    collapsed[n.id] = {
+                        node: n,
+                        edges: _.flatten([edge, cousinEdges])
+                    };
+                }
+            }
+            for (var id in collapsed) {
+                self.removeNode(parseInt(id));
+            }
+            return this;
+        }
+        
+        self.uncollapse = function (node) {
+            if (!node._collapsed) return this;
+            var origAutoUpdate = _autoUpdate;
+            _autoUpdate = false;
+            // First add the nodes
+            for (var id in node._collapsed) {
+                var d = node._collapsed[id];
+                nodes.push(d.node);
+            }
+            
+            // Then add the edges
+            for (var id in node._collapsed) {
+                var d = node._collapsed[id];
+                d.edges.forEach(function (edge) {
+                    self.addEdge(edge);
+                });
+                delete node._collapsed[id];
+            }
+            self.display();
+            _autoUpdate = true;
+            delete node._collapsed;
+            return this;
         }
         
         self.merge = function (data) {
