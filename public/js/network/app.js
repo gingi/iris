@@ -22,9 +22,21 @@ require(['jquery', 'backbone', 'underscore',
     var NetworkData = new NetworkModel;
     var Datavis = new NetworkVis({ element: "#datavis", dock: true });
     Datavis.on("dblclick-node", function (evt, node, element) {
+        if (node.isExpanded) {
+            Datavis.collapse(node);
+            node.isExpanded = false;
+            node.isCollapsed = true;
+            return;
+        } else if (node.isCollapsed) {
+            Datavis.uncollapse(node);
+            node.isCollapsed = false;
+            node.isExpanded = true;
+            return;
+        }
         if (NetworkData.id == 'random') {
             AppProgress.show("Fetching fake data");
             NetworkVis.getNeighbors.call(Datavis, node, element);
+            AppProgress.dismiss();
         } else {
             resetNetwork = false;
             if (NetworkDatasets.get('datasets') == null) {
@@ -35,6 +47,7 @@ require(['jquery', 'backbone', 'underscore',
                      "/neighbors", true);
              }
         }
+        node.isExpanded = true;
     });
     Datavis.on("click-node", function (evt, node, element) {
         Datavis.clickNode(node, element);
