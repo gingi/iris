@@ -107,7 +107,8 @@ app.get('/data/trait/:id/genes', function (request, response, next) {
         var genes = [];
         request.query.locations.forEach(function () {
             for (var i = 0; i < 10; i++) {
-                genes.push("kb|g.fake.locus." + locus++);
+                genes.push(["kb|g.fake.locus." + locus++,
+                    "GeneName" + locus]);
             }
         });
         response.send(genes);
@@ -325,6 +326,7 @@ app.get('/data/coexpression', function (request, response, next) {
         response.send([]);
         return;
     }
+    genes = genes.split(",")
     var MAX_GENES = 80;
     var numGenes = Math.min(MAX_GENES, genes.length);
     var rGenes = [];

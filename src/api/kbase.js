@@ -31,11 +31,11 @@ var apis = {
         fn:  "Genotype_PhenotypeAPI"
     },
     cdmi: {
-        url: 'http://140.221.84.160:7032',
+        url: 'http://kbase.us/services/cdmi_api/',
         fn:  "CDMI_API"
     },
     cdmiEntity: {
-        url: 'http://140.221.84.160:7032',
+        url: 'http://kbase.us/services/cdmi_api/',
         fn:  "CDMI_EntityAPI"        
     },
     ontology:   {
@@ -222,8 +222,8 @@ exports.getContigLengths = function (params) {
 
 exports.getGenomes = function (params) {
     params = validateParams(params);
-    api('cdmiEntity').all_entities_Genome(
-        0, 100, ['id', 'scientific_name'], function (json) {
+    api('cdmiEntity').query_entity_Genome(
+        [['domain', '=', 'Eukaryota']], ['id', 'scientific_name'], function (json) {
         var genomes = [];
         for (var id in json) {
             var genome = json[id];
@@ -532,7 +532,7 @@ exports.getGOTerms = function (params) {
             canonicals.push(geneIDs[id]);
             canonical2kb[geneIDs[id]] = id;
         }
-        api('ontology').getGOIDList(genome, canonicals, [], [],
+        api('ontology').get_goidlist(genome, canonicals, [], [],
         function (goTerms) {
             var terms = [];
             var genes = {};
@@ -567,7 +567,7 @@ exports.getGOEnrichment = function (params) {
     genomeWithCanonicalGenes(params, function (genome, genes) {
         var canonicals = [];
         for (var gene in genes) canonicals.push(genes[gene]);
-        api('ontology').getGOEnrichment(
+        api('ontology').get_go_enrichment(
             genome, canonicals, GO_DOMAINS, GO_ECS,
             'hypergeometric',
             params.callback, rpcErrorHandler(params.response)
