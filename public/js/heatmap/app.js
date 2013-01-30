@@ -1,5 +1,5 @@
-require(['jquery', 'backbone', 'underscore', 'renderers/heatmap'],
-function ($, Backbone, _, Heatmap) {
+require(['jquery', 'backbone', 'underscore', 'renderers/heatmap', 'util/viewport'],
+function ($, Backbone, _, Heatmap, Viewport) {
     function randomData(num) {
         var genes = new Array(num);
         var matrix = [];
@@ -21,21 +21,74 @@ function ($, Backbone, _, Heatmap) {
         }
         return { rows: genes, matrix: matrix };
     }
+    var RandomHeatmapModel = Backbone.Model.extend({
+        initialize: function () {
+            var NUM_GENES = 10;
+            this.set(randomData(NUM_GENES));
+        },
+    })
     var View = Backbone.View.extend({
         initialize: function () {
-            this.render();
+            _.bindAll(this, 'render');
+            this.model.on('sync', this.render);
         },
         render: function () {
-            var NUM_GENES = 10;
             var heatmap = new Heatmap({ element: this.$el });
-            heatmap.setData(randomData(NUM_GENES));
+            heatmap.setData(this.model.toJSON());
             heatmap.display();
         }
     });
     
-    $("#container").append(
-        $("<div>").attr("id", "heatmap")
-            .addClass("datavis").width(600).height(600));
+    var randomView = new View({
+        el: new Viewport({
+            parent: $("#datavis"),
+            width: 150,
+            height: 150,
+            title: "Random Heatmap"
+        }),
+        model: new RandomHeatmapModel,
+    });
+    randomView.render();
     
-    new View({ el: $("#heatmap") });
+    var ExpressionModel = Backbone.Model.extend({
+        defaults: {
+            term: "PO:0025296",
+            genes: "kb|g.3899.locus.2366,kb|g.3899.locus.1892," +
+                   "kb|g.3899.locus.2354,kb|g.3899.locus.2549," +
+                   "kb|g.3899.locus.2420,kb|g.3899.locus.2253," + 
+                   "kb|g.3899.locus.2229".split(","),
+        },
+        url: function () {
+            return "/data/ontology/plant/" + this.get('term') + "/expression"
+        },
+        parse: function (data) {
+            var matrix = [];
+            var columns = [];
+            var i = 0;
+            var maxScore = 0;
+            for (var sample in data.series) {
+                columns.push(sample);
+                var values = data.series[sample];
+                for (var j = 0; j < values.length; j++) {
+                    var val = parseFloat(values[j]);
+                    matrix.push([i, j, val]);
+                    maxScore = Math.max(val, maxScore);
+                }
+                i++;
+            }
+            this.set('rows', data.genes);
+            this.set('columns', columns);
+            this.set('matrix', matrix);
+            this.set('maxScore', maxScore);
+        }
+    });
+    var expression = new ExpressionModel;
+    new View({
+        el: new Viewport({
+            parent: $("#datavis"),
+            title: "Expression Profile"
+        }),
+        model: expression,
+    });
+    expression.fetch({ data: { genes: expression.get('genes') }});
 });
