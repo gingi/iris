@@ -27,7 +27,7 @@ var apis = {
         fn:  "KBaseNetworks"
     },
     g2p: {
-        url: 'http://140.221.84.160:7068',
+        url: 'http://140.221.84.160:7067',
         fn:  "Genotype_PhenotypeAPI"
     },
     cdmi: {
@@ -386,8 +386,8 @@ exports.getOntology = function (params) {
     params = validateParams(params, ['type']);
     var fn, expAPI = api('expression');
     switch (params.type) {
-        case 'plant':       fn = expAPI.getAllPO; break;
-        case 'environment': fn = expAPI.getAllEO; break;
+        case 'plant':       fn = expAPI.get_all_po; break;
+        case 'environment': fn = expAPI.get_all_eo; break;
         default:
             errorHandler(params.response)("Unsupported ontology");
             return;
@@ -399,8 +399,8 @@ exports.getOntologyTermSamples = function (params) {
     params = validateParams(params, ['type', 'term']);
     var fn, expAPI = api('expression');
     switch (params.type) {
-        case 'plant':       fn = expAPI.getPOSampleIDList; break;
-        case 'environment': fn = expAPI.getEOSampleIDList; break;
+        case 'plant':       fn = expAPI.get_po_sampleidlist; break;
+        case 'environment': fn = expAPI.get_eo_sampleidlist; break;
         default:
             errorHandler(params.response)("Unsupported ontology");
             return;
@@ -420,6 +420,75 @@ exports.getOntologyTermSamples = function (params) {
             }
             params.callback(result);
         }, rpcErrorHandler(params.response));
+}
+
+function genomeNamesForGenes(genes, callback) {
+    api('cdmi').fids_to_genomes(genes, function (json) {
+        var genomes = [];
+        var seen = {};
+        for (var id in json) {
+            var genome = json[id]
+            if (!seen.hasOwnProperty(genome)) {
+                genomes.push(genome);
+                seen[genome] = 1;
+            }
+        }
+        api('cdmiEntityProd').get_entity_Genome(genomes, 
+            ['scientific_name'],
+            function (json) {
+                var names = [];
+                for (var i in json) {
+                    var gen = json[i];
+                    names.push(gen.scientific_name);
+                }
+                callback(names);
+            }, function (err) { throw new Error(err); }
+        );
+    }, function (err) { throw new Error(err); });
+}
+
+exports.getExpressionData = function (params) {
+    params = validateParams(params, ['type', 'term', 'genes']);
+    var expAPI = api('expression');
+    async.waterfall([
+        function (callback) {
+            async.parallel({
+                genomes: function (parCallback) {
+                    genomeNamesForGenes(params.genes, function (data) {
+                        parCallback(null, data);
+                    });
+                },
+                samples: function (parCallback) {
+                    var nParams = Object.clone(params);
+                    nParams.callback = function (data) {
+                        parCallback(null, data);
+                    }
+                    exports.getOntologyTermSamples(nParams);
+                }
+            }, function (err, results) {
+                callback(null, results);
+            })
+        },
+        function (results, callback) {
+            var samples = results.samples[params.term];
+            var genSamples = [];
+            results.genomes.forEach(function (g) {
+                if (samples[g]) {
+                    samples[g].forEach(function (s) {
+                        genSamples.push(s);
+                    });
+                }
+            });
+            expAPI.get_experiments_by_sampleid_geneid(genSamples,
+                params.genes, function (json) {
+                    callback(null, json);
+                },
+                rpcErrorHandler(params.response)
+            );
+        }], function (err, results) {
+            params.callback(results);
+        }
+    );
 }
 
 var GO_DOMAINS = 
