@@ -4770,31 +4770,31 @@ function Ontology(url) {
     }
 
 
-    this.getGOIDList = function(sname, geneIDList, domainList, ecList, _callback, _error_callback) {
-        return json_call_ajax_async("Ontology.getGOIDList", [sname, geneIDList, domainList, ecList], 1, _callback, _error_callback);
+    this.get_goidlist = function(sname, geneIDList, domainList, ecList, _callback, _error_callback) {
+        return json_call_ajax_async("Ontology.get_goidlist", [sname, geneIDList, domainList, ecList], 1, _callback, _error_callback);
     };
 
-    this.getGOIDList_async = function(sname, geneIDList, domainList, ecList, _callback, _error_callback) {
+    this.get_goidlist_async = function(sname, geneIDList, domainList, ecList, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("Ontology.getGOIDList", [sname, geneIDList, domainList, ecList], 1, _callback, _error_callback);
+        return json_call_ajax_async("Ontology.get_goidlist", [sname, geneIDList, domainList, ecList], 1, _callback, _error_callback);
     };
 
-    this.getGoDesc = function(goIDList, _callback, _error_callback) {
-        return json_call_ajax_async("Ontology.getGoDesc", [goIDList], 1, _callback, _error_callback);
+    this.get_go_description = function(goIDList, _callback, _error_callback) {
+        return json_call_ajax_async("Ontology.get_go_description", [goIDList], 1, _callback, _error_callback);
     };
 
-    this.getGoDesc_async = function(goIDList, _callback, _error_callback) {
+    this.get_go_description_async = function(goIDList, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("Ontology.getGoDesc", [goIDList], 1, _callback, _error_callback);
+        return json_call_ajax_async("Ontology.get_go_description", [goIDList], 1, _callback, _error_callback);
     };
 
-    this.getGOEnrichment = function(sname, geneIDList, domainList, ecList, type, _callback, _error_callback) {
-        return json_call_ajax_async("Ontology.getGOEnrichment", [sname, geneIDList, domainList, ecList, type], 1, _callback, _error_callback);
+    this.get_go_enrichment = function(sname, geneIDList, domainList, ecList, type, _callback, _error_callback) {
+        return json_call_ajax_async("Ontology.get_go_enrichment", [sname, geneIDList, domainList, ecList, type], 1, _callback, _error_callback);
     };
 
-    this.getGOEnrichment_async = function(sname, geneIDList, domainList, ecList, type, _callback, _error_callback) {
+    this.get_go_enrichment_async = function(sname, geneIDList, domainList, ecList, type, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("Ontology.getGOEnrichment", [sname, geneIDList, domainList, ecList, type], 1, _callback, _error_callback);
+        return json_call_ajax_async("Ontology.get_go_enrichment", [sname, geneIDList, domainList, ecList, type], 1, _callback, _error_callback);
     };
 
     function json_call_ajax_async(method, params, num_rets, callback, error_callback) {
