@@ -1,13 +1,14 @@
 define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 3;
-    var MAX_CELL_SIZE = 12;
+    var MAX_CELL_SIZE = 60;
     var DEFAULT_BORDER_WIDTH = 0.5;
 	function Heatmap(options) {
         var self = this;
         options = (options || {});
         options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
         options.colorscheme = (options.colorscheme || 'RdYlBu');
+        options.maxScore    = options.maxScore || 1;
         var element = $(options.element);
         
         var matrix = [];
@@ -41,6 +42,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
             if (matrix.length > MAX_CELLS) {
                 throw new Error("Too many cells");
             }
+            if (data.maxScore) options.maxScore = data.maxScore;
         };
         
         function adjustedDim(arr) {
@@ -67,7 +69,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
     	        .attr("width", adjWidth)
     	        .attr("height", adjHeight);
     	    var quantize = d3.scale
-                .quantile().domain([0, 1]).range(d3.range(9));
+                .quantile().domain([0, options.maxScore]).range(d3.range(9));
             var dragbox = new DragBox(container);
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
