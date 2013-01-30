@@ -4873,94 +4873,94 @@ function PlantExpression(url) {
     }
 
 
-    this.getRepIDBySampleID = function(ids, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getRepIDBySampleID", [ids], 1, _callback, _error_callback);
+    this.get_repid_by_sampleid = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_repid_by_sampleid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getRepIDBySampleID_async = function(ids, _callback, _error_callback) {
+    this.get_repid_by_sampleid_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getRepIDBySampleID", [ids], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_repid_by_sampleid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySeriesID = function(ids, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getExperimentsBySeriesID", [ids], 1, _callback, _error_callback);
+    this.get_experiments_by_seriesid = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_experiments_by_seriesid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySeriesID_async = function(ids, _callback, _error_callback) {
+    this.get_experiments_by_seriesid_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getExperimentsBySeriesID", [ids], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_experiments_by_seriesid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySampleID = function(ids, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getExperimentsBySampleID", [ids], 1, _callback, _error_callback);
+    this.get_experiments_by_sampleid = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_experiments_by_sampleid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySampleID_async = function(ids, _callback, _error_callback) {
+    this.get_experiments_by_sampleid_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getExperimentsBySampleID", [ids], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_experiments_by_sampleid", [ids], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySampleIDnGeneID = function(ids, gl, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getExperimentsBySampleIDnGeneID", [ids, gl], 1, _callback, _error_callback);
+    this.get_experiments_by_sampleid_geneid = function(ids, gl, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_experiments_by_sampleid_geneid", [ids, gl], 1, _callback, _error_callback);
     };
 
-    this.getExperimentsBySampleIDnGeneID_async = function(ids, gl, _callback, _error_callback) {
+    this.get_experiments_by_sampleid_geneid_async = function(ids, gl, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getExperimentsBySampleIDnGeneID", [ids, gl], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_experiments_by_sampleid_geneid", [ids, gl], 1, _callback, _error_callback);
     };
 
-    this.getEOSampleIDList = function(lst, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getEOSampleIDList", [lst], 1, _callback, _error_callback);
+    this.get_eo_sampleidlist = function(lst, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_eo_sampleidlist", [lst], 1, _callback, _error_callback);
     };
 
-    this.getEOSampleIDList_async = function(lst, _callback, _error_callback) {
+    this.get_eo_sampleidlist_async = function(lst, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getEOSampleIDList", [lst], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_eo_sampleidlist", [lst], 1, _callback, _error_callback);
     };
 
-    this.getPOSampleIDList = function(lst, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getPOSampleIDList", [lst], 1, _callback, _error_callback);
+    this.get_po_sampleidlist = function(lst, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_po_sampleidlist", [lst], 1, _callback, _error_callback);
     };
 
-    this.getPOSampleIDList_async = function(lst, _callback, _error_callback) {
+    this.get_po_sampleidlist_async = function(lst, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getPOSampleIDList", [lst], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_po_sampleidlist", [lst], 1, _callback, _error_callback);
     };
 
-    this.getAllPO = function(_callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getAllPO", [], 1, _callback, _error_callback);
+    this.get_all_po = function(_callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_all_po", [], 1, _callback, _error_callback);
     };
 
-    this.getAllPO_async = function(_callback, _error_callback) {
+    this.get_all_po_async = function(_callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getAllPO", [], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_all_po", [], 1, _callback, _error_callback);
     };
 
-    this.getAllEO = function(_callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getAllEO", [], 1, _callback, _error_callback);
+    this.get_all_eo = function(_callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_all_eo", [], 1, _callback, _error_callback);
     };
 
-    this.getAllEO_async = function(_callback, _error_callback) {
+    this.get_all_eo_async = function(_callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getAllEO", [], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_all_eo", [], 1, _callback, _error_callback);
     };
 
-    this.getPODescriptions = function(ids, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getPODescriptions", [ids], 1, _callback, _error_callback);
+    this.get_po_descriptions = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_po_descriptions", [ids], 1, _callback, _error_callback);
     };
 
-    this.getPODescriptions_async = function(ids, _callback, _error_callback) {
+    this.get_po_descriptions_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getPODescriptions", [ids], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_po_descriptions", [ids], 1, _callback, _error_callback);
     };
 
-    this.getEODescriptions = function(ids, _callback, _error_callback) {
-        return json_call_ajax_async("PlantExpression.getEODescriptions", [ids], 1, _callback, _error_callback);
+    this.get_eo_descriptions = function(ids, _callback, _error_callback) {
+        return json_call_ajax_async("PlantExpression.get_eo_descriptions", [ids], 1, _callback, _error_callback);
     };
 
-    this.getEODescriptions_async = function(ids, _callback, _error_callback) {
+    this.get_eo_descriptions_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
-        return json_call_ajax_async("PlantExpression.getEODescriptions", [ids], 1, _callback, _error_callback);
+        return json_call_ajax_async("PlantExpression.get_eo_descriptions", [ids], 1, _callback, _error_callback);
     };
 
     function json_call_ajax_async(method, params, num_rets, callback, error_callback) {
