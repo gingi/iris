@@ -24,7 +24,7 @@ exports.charts = function (req, res) {
 };
 
 exports.heatmap = function (req, res) {
-    res.render('heatmap', { title: 'Heatmap'});
+    res.render('datavis', { title: 'Heatmap', js: 'heatmap/app' });
 };
 
 exports.heatmapChunked = function (req, res) {
