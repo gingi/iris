@@ -1,8 +1,7 @@
 define(['jquery', 'd3', 'underscore',
-    'util/dock', 'util/eventemitter', 'util/hud'],
-function ($, d3, _, Dock, EventEmitter, HUD) {
+    'util/dock', 'util/eventemitter', 'util/hud', 'renderers/table'],
+function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     
-    var CLUSTER_Y = 400;
     var defaults = {
         dock: true
     };
@@ -20,11 +19,13 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
+        var CLUSTER_Y = $el.height() * 5 / 6;
         
-        this.addNode = function (node) {
+        
+        self.addNode = function (node) {
             if (node.id) {
                 node.id = parseInt(node.id);
-                var existing = findNode(node.id);
+                var existing = self.findNode(node.id);
                 if (!existing) {
                     nodes.push(node);
                     _idSequence = d3.max(_idSequence, node.id + 1);
@@ -37,12 +38,13 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return node.id;
         }
 
-        this.removeNode = function (id) {
+        self.removeNode = function (id) {
             var i = 0;
-            var n = findNode(id);
+            var n = self.findNode(id);
+            if (n == null) return;
             while (i < links.length) {
-                if ((links[i]['source'] == n) ||
-                    (links[i]['target'] == n))
+                if ((links[i].source == n) ||
+                    (links[i].target == n))
                     links.splice(i,1);
                 else i++;
             }
@@ -51,7 +53,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        this.setData  = function (data) {
+        self.setData  = function (data) {
             this.setNodes(data.nodes);
             this.setEdges(data.edges);
             return this;
@@ -107,6 +109,15 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         this.findNode = function (key, type) {
             type = (type || 'id');
             for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
+        }
+        
+        this.find = function (key, type) {
+            type = (type || 'id');
+            var result = [];
+            for (var i in nodes) {
+                if (nodes[i][type] === key) result.push(nodes[i]);
+            }
+            return result;
         }
 
         function findNodeIndex(id) {
@@ -254,6 +265,92 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return $table;
         }
         
+        // Get neighbors for a given node.
+        self.neighbors = function (node) {
+            var neigh = [];
+            links.forEach(function (link) {
+                var n;
+                if (link.source == node )
+                    n = link.target;
+                else if (link.target == node)
+                    n = link.source;
+                if (n != null && n !== node)
+                    neigh.push([ n, link ]);
+            });
+            return neigh;
+        }
+        
+        self.collapse = function (node) {
+            var collapsed = node._collapsed = {};
+            var neighbors = self.neighbors(node);
+
+            // Create hash of primary neighbors
+            var seen = {};
+            for (var i = 0; i < neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                seen[n.id] = true;
+            }
+            for (var i = 0; i < neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                
+                var cousins = self.neighbors(n);
+                var cousinEdges = [];
+                var j = 0;
+                
+                // Handle neighbors to the collapsing nodes that
+                // link with each other. Filter out all seen nodes.
+                while (j < cousins.length) {
+                    if (seen[cousins[j][0].id]) {
+                        var edge = _.clone(cousins[j][1]);
+                        edge.source = edge.source.id;
+                        edge.target = edge.target.id;
+                        cousinEdges.push(edge);
+                        cousins.splice(j, 1);
+                    } else j++
+                }
+                // Collapse nodes if not implicated with other nodes.
+                if (cousins.length <= 1) {
+                    var edge = _.clone(neighbor[1]);
+                    edge.source = edge.source.id;
+                    edge.target = edge.target.id;
+                    collapsed[n.id] = {
+                        node: n,
+                        edges: _.flatten([edge, cousinEdges])
+                    };
+                }
+            }
+            for (var id in collapsed) {
+                self.removeNode(parseInt(id));
+            }
+            return this;
+        }
+        
+        self.uncollapse = function (node) {
+            if (!node._collapsed) return this;
+            var origAutoUpdate = _autoUpdate;
+            _autoUpdate = false;
+            // First add the nodes
+            for (var id in node._collapsed) {
+                var d = node._collapsed[id];
+                nodes.push(d.node);
+            }
+            
+            // Then add the edges
+            for (var id in node._collapsed) {
+                var d = node._collapsed[id];
+                d.edges.forEach(function (edge) {
+                    self.addEdge(edge);
+                });
+                delete node._collapsed[id];
+            }
+            self.display();
+            _autoUpdate = true;
+            delete node._collapsed;
+            return this;
+        }
+        
         self.merge = function (data) {
             if (nodes.length == 0 && links.length == 0) {
                 self.setData(data).display();
@@ -265,16 +362,16 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             if (data.nodes == null) data.nodes = [];
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
-                var n = data.nodes[i];
-                var node = self.findNode(n.name, "name");
+                var newNode = data.nodes[i];
+                var oldNode = self.findNode(newNode.name, "name");
                 var oldId = i;
-                if (node) {
-                    nodeMap[oldId] = node.id;
-                    _.extend(node, n);
-                    node.id = nodeMap[oldId];
+                if (oldNode != null) {
+                    nodeMap[oldId] = oldNode.id;
+                    _.extend(oldNode, newNode);
+                    oldNode.id = nodeMap[oldId];
                 } else {
-                    n.id = null;
-                    var newId = self.addNode(n);
+                    newNode.id = null;
+                    var newId = self.addNode(newNode);
                     nodeMap[oldId] = newId;
                 }
             }
@@ -300,9 +397,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 if (node) nodes.push(node);
             }
             dock.set(nodes);
-        };
+        }
         self.addDockAction = function (callback) {
             dock.addUpdateAction(callback);
+        }
+        self.dockHudContent = function (callback) {
+            dock.hudContent(callback);
         }
         return self;
     };

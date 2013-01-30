@@ -1,34 +1,74 @@
 define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
 function ($, d3, EventEmitter, HUD) {
     
+    var DOCK_HEIGHT = 30;
     var Dock = function (element) {  
         var self = this;
 
         var docked = {};
         var updateActions = [];
+        
+        var dockHudContentCallback = function (nodes) {
+            var dock = this;
+            var list = $("<ul>");
+            dock.hud.append(list);
+            nodes.forEach(function (d) {
+                list.append("<li>" + d + "</li>");
+            });
+        }
+        
+        function dockDragStart() {
+            this._elemOffsets = [];
+            this._yoffset = d3.event.sourceEvent.pageY - dockDims.y1;
+            for (var n in docked) {
+                this._elemOffsets[n] = docked[n][0].py - dockDims.y1;
+            }
+        }
+        
+        function dockDrag() {
+            dock.attr("y", dockDims.y1 = d3.event.y - this._yoffset);
+            for (var name in docked) {
+                var el = docked[name];
+                var y = dockDims.y1 + this._elemOffsets[name];
+                el[1].attr("cy", y);
+                el[0].py = el[0].y = y;
+            }
+        }
+        
+        function dockDragEnd() {
+            for (var name in docked) {
+                var el = docked[name];
+                var y = dockDims.y1 + this._elemOffsets[name];
+                el[1].attr("cy", y);
+                el[0].py = el[0].y = y;
+            }
+            dockDims.y2 = dockDims.y1 + dockDims.h;
+        }
 
         var w = element.attr("width");
         var h = element.attr("height");
+        var dockDims = { x1: w / 4, y1: h / 2, w: w / 2, h: DOCK_HEIGHT };
+        dockDims.x2 = dockDims.x1 + dockDims.w; // For convenience
+        dockDims.y2 = dockDims.y1 + dockDims.h; // For convenience
         var dock = element.append("rect")
             .attr("id", "networkDock")
-            .attr("width", w / 2)
-            .attr("height", 30)
+            .attr("width",  dockDims.w)
+            .attr("height", dockDims.h)
             .attr("rx", 5)
             .attr("ry", 5)
-            .attr("x", (w - 600) / 2)
-            .attr("y", h * 3 / 6)
+            .attr("x", dockDims.x1)
+            .attr("y", dockDims.y1)
             .style("fill", "black")
-            .style("opacity", "0.1");
-        var dockDims = {
-            x1: parseInt(dock.attr("x")),
-            x2: parseInt(dock.attr("x")) + parseInt(dock.attr("width")),
-            y1: parseInt(dock.attr("y")),
-            y2: parseInt(dock.attr("y")) + parseInt(dock.attr("height")),
-        };
+            .style("opacity", "0.1")
+            .call(d3.behavior.drag()
+                .on("dragstart", dockDragStart)
+                .on("drag", dockDrag)
+                .on("dragend", dockDragEnd)
+            );
             
         dock
-            .on("mouseover", function () { dock.style("opacity", "0.2"); })
-            .on("mouseout",  function () { dock.style("opacity", "0.1"); })
+            .on("mouseover", function () { dock.style("opacity", 0.2); })
+            .on("mouseout",  function () { dock.style("opacity", 0.1); })
             .on("click", dockhud);
 
         self.changedState = false;
@@ -41,13 +81,11 @@ function ($, d3, EventEmitter, HUD) {
         self.updateHud = function () {
             hud.empty();
             hud.append("<h4>Dock</h4>");
-            var list = $("<ul>");
-            hud.append(list);
             var nodes = [];
             for (var d in docked) {
                 nodes.push(d);
-                list.append("<li>" + d + "</li>");
             }
+            dockHudContentCallback.call(self, nodes);
             updateActions.forEach(function (callback) {
                 callback.call(self, nodes);
             });
@@ -100,7 +138,7 @@ function ($, d3, EventEmitter, HUD) {
                 throw Error("Cannot dock a null element");
             }
             d.fixed = true;
-            docked[d.name] = d;
+            docked[d.name] = [d, element];
             self.updateHud();
             self.emit("dock", [d, element]);             
         }
@@ -116,7 +154,8 @@ function ($, d3, EventEmitter, HUD) {
         }
         
         self.reset = function () {
-            for (var d in docked) self.undockElement(d);
+            for (var d in docked)
+                self.undockElement(docked[d][0], docked[d][1]);
         }
         
         self.set = function (nodes) {
@@ -131,6 +170,9 @@ function ($, d3, EventEmitter, HUD) {
         }
         self.addUpdateAction = function (callback) {
             updateActions.push(callback);
+        }
+        self.hudContent = function (callback) {
+            dockHudContentCallback = callback;
         }
     };
     
