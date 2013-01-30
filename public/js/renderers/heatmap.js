@@ -1,25 +1,35 @@
-define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
+define(['jquery', 'd3', 'underscore', 'util/dragbox'],
+function ($, d3, _, DragBox) {
     var MAX_CELLS = 24000;
-    var MIN_CELL_SIZE = 3;
+    var MIN_CELL_SIZE = 4;
     var MAX_CELL_SIZE = 60;
-    var DEFAULT_BORDER_WIDTH = 0.5;
+    var M = { y: 50, x: 50 };
+
+    var defaults = {
+        borderWidth: 1,
+        colorscheme: 'RdYlBu',
+        element: 'body'
+    };
 	function Heatmap(options) {
         var self = this;
-        options = (options || {});
-        options.borderWidth = (options.borderWidth || DEFAULT_BORDER_WIDTH);
-        options.colorscheme = (options.colorscheme || 'RdYlBu');
-        options.maxScore    = options.maxScore || 1;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
         var element = $(options.element);
         
-        var matrix = [];
-        var rowIndex = {}; var numRows = 0;
-        var colIndex = {}; var numCols = 0;
+        var matrix = [], row, columns;
+        var maxScore;
 
         var cellSize = options.cellSize || 5;
 
 	    var width = element.width();
 	    var height = element.height();
         var minDim = Math.min(width, height);
+        
+        function maxStrLen(strarr) {
+            return _.reduce(strarr, function (m, str) {
+                return Math.max(m, str.length)
+            }, 0);
+        }
         
         self.setData = function (data) {
             if (data == null) return;
@@ -34,6 +44,8 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
             rows = data.rows;
             if (!data.hasOwnProperty('columns')) {
                 columns = rows;
+            } else {
+                columns = data.columns;
             }
             matrix = data.matrix;
             if (matrix == null) {
@@ -42,35 +54,71 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
             if (matrix.length > MAX_CELLS) {
                 throw new Error("Too many cells");
             }
-            if (data.maxScore) options.maxScore = data.maxScore;
+            M.x = Math.max(M.x, 6 * maxStrLen(rows));
+            M.y = Math.max(M.y, 6 * maxStrLen(columns));
+            maxScore = data.maxScore || 1;
         };
         
         function adjustedDim(arr) {
-            return Math.floor(arr.length *
-                (cellSize + options.borderWidth));
+            return Math.floor(arr.length * (cellSize + options.borderWidth));
         }
         self.display = function () {
             element.css("position", "relative");
             cellSize = Math.min(MAX_CELL_SIZE,
                 Math.max(MIN_CELL_SIZE,
-                    (minDim - options.borderWidth * (rows.length+1)) /
-                         rows.length)
+                    (minDim - Math.min(M.y, M.x) -
+                        options.borderWidth * (rows.length+1)) / rows.length)
                 );
             var adjWidth  = adjustedDim(columns);
             var adjHeight = adjustedDim(rows);
             var containerId = element.attr('id') + "-container";
             var container = $("<div>").attr("id", containerId)
                 .css("position", "relative")
-                .width(adjWidth)
-                .height(adjHeight);
+                .width(width)
+                .height(height);
             element.append(container);
+            
     	    var svg  = d3.select("#" + containerId).append("svg")
+    	        .attr("width", width)
+    	        .attr("height", height);
+
+            var xLabels = d3.scale.ordinal()
+                .domain(columns).rangeBands([0, adjWidth]);
+            var yLabels = d3.scale.ordinal()
+                .domain(rows).rangeBands([0, adjHeight]);
+            var xAxis =d3.svg.axis().scale(xLabels)
+                .ticks(columns.length).orient("top");
+            var yAxis = d3.svg.axis().scale(yLabels)
+                .ticks(rows.length).orient("left");
+            
+            var plot = svg.append("g")
     	        .attr("class", options.colorscheme)
-    	        .attr("width", adjWidth)
-    	        .attr("height", adjHeight);
+                .attr("id", element.attr('id') + "-plotarea")
+                .attr("width", adjWidth)
+                .attr("height", adjHeight)
+                .attr("transform", "translate(" + M.x + "," + M.y +")");
+
+            var yAxisG = svg.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + M.x + "," + M.y + ")")
+                .call(yAxis);
+            var xAxisG = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + M.x +"," + M.y + ")")
+                .call(xAxis).selectAll("text")
+                    .attr("transform", function (d, i) {
+                        var bbox = this.getBBox();
+                        return [
+                            "rotate(-90)translate(", bbox.width/2 + 6,
+                            ",", bbox.height,")"
+                        ].join("")
+                    });
+            
+
     	    var quantize = d3.scale
-                .quantile().domain([0, options.maxScore]).range(d3.range(9));
-            var dragbox = new DragBox(container);
+                .quantile().domain([0, maxScore]).range(d3.range(9));
+            var dragbox =
+                new DragBox($("#" + element.attr('id') + "-plotarea"));
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
             })
@@ -79,7 +127,7 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 var cell = matrix[i];
                 var row = cell[0];
                 var col = cell[1];
-                svg.append("rect")
+                plot.append("rect")
                     .attr("width", cellSize).attr("height", cellSize)
                     .attr("x", options.borderWidth * (row + 1) + cellSize * row)
                     .attr("y", options.borderWidth * (col + 1) + cellSize * col)
@@ -95,13 +143,6 @@ define(['jquery', 'd3', 'util/dragbox'], function ($, d3, DragBox) {
                 }
             }
             schemes.unshift(options.colorscheme);
-            // element.append($("<button>")
-            //     .addClass("btn btn-mini").text("Change Scheme")
-            //     .on('click', function () {
-            //         schemeIndex = (schemeIndex + 1) % schemes.length;
-            //         svg.attr("class", schemes[schemeIndex]);
-            //     }
-            // ));
         }
         return self;
 	}

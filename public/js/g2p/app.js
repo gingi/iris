@@ -28,7 +28,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         }
     });
     var SubViewModel = Backbone.Model.extend({
-        parse: function (data) { this.set('data', data); }
+        parse: function (data) { this.set(data); }
     });
     var Network = SubViewModel.extend({
         url: dataAPI('/network/random')
@@ -115,7 +115,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 var chart = new Chart(_.extend({
                     element: "#" + self.options.elementId
                 }, self.options.renderParams));
-                chart.setData(self.model.get('data'));
+                chart.setData(self.model.toJSON());
                 chart.display();
             })
         },
@@ -255,11 +255,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             $p.text(genes.length > 0
                 ? genes.length + " genes" : "No genes found");
             var geneIDs = _.map(genes, function (g) { return g[0] });
-            var geneRequests = [];
-            for (var i = 0; i < geneIDs.length;
-                i += MAX_GENES_PER_REQUEST) {
-                geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
-            }
+            // var geneRequests = [];
+            // for (var i = 0; i < geneIDs.length;
+            //     i += MAX_GENES_PER_REQUEST) {
+            //     geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
+            // }
             $hud.progress.dismiss();
             $hud.append($p);
             if (jqXhr.status == 206) {
