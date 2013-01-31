@@ -23,7 +23,7 @@ var FLANKING_DISTANCE = 1e5;
 
 var apis = {
     network: {
-        url: 'http://140.221.84.160:7064/KBaseNetworksRPC/networks',
+        url: 'http://140.221.92.76:7064/KBaseNetworksRPC/networks',
         fn:  "KBaseNetworks"
     },
     g2p: {
