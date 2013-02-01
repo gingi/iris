@@ -281,7 +281,7 @@ app.get('/data/network/internal', function (request, response, next) {
     });
 });
 
-app.get('/data/network/random', function (request, response, next) {
+app.get('/data/network/fake', function (request, response, next) {
     response.contentType = 'json';
     var nNodes = parseInt(request.query.nodes) || 20;
     var nEdges = parseInt(request.query.edges) || 50;
@@ -290,8 +290,7 @@ app.get('/data/network/random', function (request, response, next) {
     response.send(network);
 });
 
-app.get('/data/network/random/:id/neighbors',
-function (request, response, next) {
+function fakeNeighborhood(request, response) {
     response.contentType = 'json';
     var rootId = RANDOM_NEIGHBORHOOD_NODES;
     var neighborhood = randomNetwork(
@@ -299,7 +298,12 @@ function (request, response, next) {
         RANDOM_NEIGHBORHOOD_NODES + 5,
         1
     );
-    neighborhood.nodes.push({id: rootId, name: request.params.id});
+    neighborhood.nodes.push({
+        id:       rootId,
+        name:     request.params.id,
+        entityId: request.params.id
+        
+    });
     for (var i in neighborhood.nodes) {
         neighborhood.edges.push({
             source: rootId,
@@ -308,9 +312,18 @@ function (request, response, next) {
         })
     }
     response.send(neighborhood);
+}
+
+app.get('/data/network/fake/:id/neighbors',
+function (request, response, next) {
+    fakeNeighborhood(request, response);
 });
 
 app.get('/data/node/:id/neighbors', function (request, response, next) {
+    request.query.datasets = request.query.datasets || [];
+    if (request.query.datasets == ["fake"]) {
+        return fakeNeighborhood(request, response);
+    }
     kbase.getNeighborNetwork({
         response: response,
         nodeId:   request.params.id,
@@ -438,10 +451,12 @@ function randomNetwork(nNodes, nEdges, nClusters) {
     for (var c = 0; c < nClusters; c++) {
         var groupName = randomGroupName();
         for (var i = 0; i < nNodes; i++) {
+            var name = 'Node' + (Math.ceil(Math.random() * 1000) + 1);
             nodes.push({
                 id: nodeIndex,
-                name: 'Node' + (Math.ceil(Math.random() * 1000) + 1),
-                group: groupName
+                name: name,
+                group: groupName,
+                entityId: name
             });
             nodeIndex++;
         }
