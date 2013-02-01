@@ -60,6 +60,7 @@ require(['jquery', 'backbone', 'underscore',
         }
         node.isExpanded = true;
     });
+    
     Datavis.on("click-node", function (evt, node, element) {
         Datavis.clickNode(node, element);
     });
@@ -78,6 +79,7 @@ require(['jquery', 'backbone', 'underscore',
         })
     })
 */
+    var nodeClusters = {};
     Datavis.addDockAction(function (nodes) {
         var dock = this;
         if (nodes.length > 1) {
@@ -89,6 +91,13 @@ require(['jquery', 'backbone', 'underscore',
                 AppProgress.show("Getting clusters");
                 var fetched = 0;
                 nodes.forEach(function (id) {
+                    if (nodeClusters[id]) {
+                        fetched++;
+                        if (fetched == clusters.length) {
+                            AppProgress.dismiss();
+                        }
+                        return;
+                    }
                     var neighbors = new NetworkModel;
                     neighbors.url = neighborTemplate({ id: id });
                     neighbors.fetch({
@@ -98,6 +107,7 @@ require(['jquery', 'backbone', 'underscore',
                         },
                         success: function (model, data) {
                             fetched++;
+                            nodeClusters[id] = true;
                             if (!data) return;
                             data.nodes.forEach(function (node) {
                                 // Ensure distinct colors.
@@ -115,11 +125,12 @@ require(['jquery', 'backbone', 'underscore',
             dock.hud.append(button);
         }
     });
+    var clusterNeighbors = {};
     Datavis.addDockAction(function () {
         var dock = this;
         var button = $("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
-            .css("margin-left", 10)
+            .css("margin-left", 5)
             .attr("disabled", !clusters || clusters.length == 0)
             .text("Find Co-Neighbors");
         dock.hud.append(button);
@@ -127,12 +138,20 @@ require(['jquery', 'backbone', 'underscore',
             AppProgress.show("Getting co-neighbors");
             var fetched = 0;
             clusters.forEach(function (cluster) {
+                if (clusterNeighbors[cluster.entityId]) {
+                    fetched++;
+                    if (fetched == clusters.length) {
+                        AppProgress.dismiss();
+                    }
+                    return;
+                }
                 var neighbors = new NetworkModel;
                 neighbors.url = neighborTemplate({ id: cluster.entityId });
                 neighbors.fetch({
                     data: { datasets: DataSets.asString() },
                     success: function (model, data) {
                         fetched++;
+                        clusterNeighbors[cluster.entityId] = true;
                         fetchCoNeighbors(model, data, cluster);
                         if (fetched == clusters.length) {
                             AppProgress.dismiss();
@@ -146,6 +165,22 @@ require(['jquery', 'backbone', 'underscore',
             //     "/datasets/" + DataSets.asString(), true);
         });
     });
+    Datavis.addDockAction(function () {
+        var dock = this;
+        dock.hud.append($("<button>")
+            .addClass("btn btn-small")
+            .css("margin-left", 5)
+            .text("||").on("click", function () {
+                this._paused = !this._paused;
+                if (this._paused) {
+                    Datavis.pause();
+                    $(this).text(">");
+                } else {
+                    Datavis.resume();
+                    $(this).text("||");
+                }
+            }));
+    });
     function enableBuildNetwork() {
         clusters = Datavis.find("CLUSTER", "type");
         if (clusters.length) {
@@ -153,11 +188,12 @@ require(['jquery', 'backbone', 'underscore',
         }
     }
     function unhideCoNeighbors(nodes) {
-nodes.length = Math.min(nodes.length, 15);
+nodes.length = Math.min(nodes.length, 10);
         var docked = Datavis.dockedNodes();
         for (var i = 0; i < nodes.length; i++) {
             for (var j = 0; j < docked.length; j++) {
-                var target = Datavis.findNode(nodes[i].entityId, "entityId")
+                var target = Datavis.findNode(nodes[i].entityId, "entityId");
+                if (!target) continue;
                 target.group = nodes[i].group;
                 var link = Datavis.findEdge(target, docked[j]);
                 if (link != null) {
