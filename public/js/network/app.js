@@ -346,6 +346,7 @@ nodes.length = Math.min(nodes.length, 10);
             Datavis.dockNodes(nodes);
         },
         showNetwork: function (networkId) {
+            Datavis.reset();
             showApp({
                 id: networkId || 'fake',
                 url: networkTemplate

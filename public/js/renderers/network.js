@@ -175,7 +175,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var nodeG = vis.append("g").attr("id", "networkNodes");
             
         var force = d3.layout.force()
-            .gravity(-0.1)
+            .gravity(0.08)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? .5 : 0.05;
             // })
