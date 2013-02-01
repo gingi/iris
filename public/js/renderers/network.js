@@ -4,7 +4,8 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     
     var defaults = {
         dock: true,
-        joinAttribute: "name"
+        joinAttribute: "name",
+        label: {}
     };
     
     var NODE_SIZE  = {
@@ -126,6 +127,17 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
         }
         
+        this.findEdge = function (source, target) {
+            for (var i in links) {
+                if ((links[i].source.id == source.id &&
+                     links[i].target.id == target.id) ||
+                    (links[i].source.id == target.id &&
+                     links[i].target.id == source.id))
+                    return links[i];
+            }
+            return null;
+        }
+        
         this.find = function (key, type) {
             type = (type || 'id');
             var result = [];
@@ -184,15 +196,19 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                     .attr("cy", function (d) { return nodeY(d); });
         }
         
+        function notHidden(d) { return !d.hidden || d.hidden == false }
+        
         function update() {
-            svgLinks = linkG.selectAll("line.link").data(links);
+            svgLinks = linkG.selectAll("line.link")
+                .data(_.filter(links, notHidden));
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
             svgLinks.exit().remove();
 
-            svgNodes = nodeG.selectAll("circle.node").data(nodes);
+            svgNodes = nodeG.selectAll("circle.node")
+                .data(_.filter(nodes, notHidden));
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
                 .attr("id",     function (d) {
@@ -287,14 +303,25 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         }
         
         // Get neighbors for a given node.
-        self.neighbors = function (node) {
+        self.neighbors = function (node, args) {
+            args = args || {};
             var neigh = [];
+            
             links.forEach(function (link) {
                 var n;
-                if (link.source.id == node.id)
+                if (link.source.id == node.id) {
                     n = link.target;
-                else if (link.target.id == node.id)
+                    for (var prop in args) {
+                        if (n[prop] != args[prop])
+                            n = null;
+                    }
+                } else if (link.target.id == node.id) {
                     n = link.source;
+                    for (var prop in args) {
+                        if (n[prop] != args[prop])
+                            n = null;
+                    }
+                }    
                 if (n != null && n !== node)
                     neigh.push([ n, link ]);
             });
@@ -371,7 +398,9 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             return this;
         }
         
-        self.merge = function (data) {
+        self.merge = function (data, args) {
+            args = args ? _.clone(args) : {};
+            args.hidden = args.hidden != null ? args.hidden : false;
             if (nodes.length == 0 && links.length == 0) {
                 self.setData(data).display();
                 return this;
@@ -383,6 +412,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
                 var node = data.nodes[i];
+                node.hidden = args.hidden;
                 var index = node.id;
                 node = self.findOrCreateNode(node, options.joinAttribute);
                 nodeMap[index] = node.id;
@@ -390,7 +420,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             data.edges.forEach(function (e) {
                 self.addLink(
                     nodeMap[e.source], nodeMap[e.target],
-                    { weight: e.weight });
+                    { weight: e.weight, hidden: args.hidden });
             });
             self.display();
             _autoUpdate = origAutoUpdate;
@@ -409,6 +439,9 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                 if (node) nodes.push(node);
             }
             dock.set(nodes);
+        }
+        self.dockedNodes = function () {
+            return dock.get();
         }
         self.addDockAction = function (callback) {
             dock.addUpdateAction(callback);
