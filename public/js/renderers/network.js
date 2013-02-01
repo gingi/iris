@@ -3,12 +3,13 @@ define(['jquery', 'd3', 'underscore',
 function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     
     var defaults = {
-        dock: true
+        dock: true,
+        joinAttribute: "name"
     };
     
     var NODE_SIZE  = {
         GENE: 8,
-        CLUSTER: 16
+        CLUSTER: 20
     };
     var color = d3.scale.category10();
     
@@ -19,8 +20,22 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
-        var CLUSTER_Y = $el.height() * 5 / 6;
+        var CLUSTER_Y = $el.height() * 4.5 / 6;
         
+        self.findOrCreateNode = function (node, idKey) {
+            var ret;
+            var existing = self.findNode(node[idKey], idKey);
+            if (existing) {
+                var tmp = _.extend({}, node, existing);
+                ret = _.extend(existing, tmp);
+            } else {
+                node.id = _idSequence++;
+                nodes.push(node);
+                ret = node;
+            }
+            if (_autoUpdate) update();
+            return ret;
+        }
         
         self.addNode = function (node) {
             if (node.id) {
@@ -140,24 +155,33 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             
         var force = d3.layout.force()
             .gravity(.05)
+            // function (d, i) {
+            //     return d.type && d.type == 'CLUSTER' ? .5 : 0.05;
+            // })
             .distance(100)
-            .charge(-60)
+            // function (d, i) {
+            //     return d.type && d.type == 'CLUSTER' ? 200 : 100;
+            // })
+            .charge(-80)
+            // function (d, i) {
+            //     return d.type && d.type == 'CLUSTER' ? -120 : -60
+            // })
             .size([w, h]);
             
         var nodes = force.nodes(),
             links = force.links();
             
+        function nodeY(n) {
+            return n.type == 'CLUSTER' ? Math.max(n.y, CLUSTER_Y) : n.y;
+        }
         var svgNodes, svgLinks;
         function tick() {
             svgLinks.attr("x1", function (d) { return d.source.x; })
-                    .attr("y1", function (d) {
-                        return d.source.type == 'CLUSTER' ? CLUSTER_Y : d.source.y; })
+                    .attr("y1", function (d) { return nodeY(d.source); })
                     .attr("x2", function (d) { return d.target.x; })
-                    .attr("y2", function (d) {
-                        return d.target.type == 'CLUSTER' ? CLUSTER_Y : d.target.y; });
+                    .attr("y2", function (d) { return nodeY(d.target); });
             svgNodes.attr("cx", function (d) { return d.x; })
-                    .attr("cy", function (d) {
-                        return d.type == 'CLUSTER' ? CLUSTER_Y : d.y; });
+                    .attr("cy", function (d) { return nodeY(d); });
         }
         
         function update() {
@@ -184,11 +208,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                     d3.event.stopPropagation();
                     self.emit("dblclick-node", [d, this]);
                 });
-            if (options.dock) {
-                nodeEnter.call(dock.drag());
-            } else {
-                nodeEnter.call(force.drag);
-            }
+            nodeEnter.call(options.dock ? dock.drag() : force.drag);
             svgNodes.exit().remove();
 
             force.on("tick", tick);            
@@ -262,6 +282,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             row("KBase ID", d.kbid);
             row("Type", d.type);
             row("Entity ID", d.entityId);
+            row("Neighbors", self.neighbors(d).length);
             return $table;
         }
         
@@ -270,9 +291,9 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             var neigh = [];
             links.forEach(function (link) {
                 var n;
-                if (link.source == node )
+                if (link.source.id == node.id)
                     n = link.target;
-                else if (link.target == node)
+                else if (link.target.id == node.id)
                     n = link.source;
                 if (n != null && n !== node)
                     neigh.push([ n, link ]);
@@ -283,7 +304,6 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         self.collapse = function (node) {
             var collapsed = node._collapsed = {};
             var neighbors = self.neighbors(node);
-
             // Create hash of primary neighbors
             var seen = {};
             for (var i = 0; i < neighbors.length; i++) {
@@ -362,18 +382,10 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             if (data.nodes == null) data.nodes = [];
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
-                var newNode = data.nodes[i];
-                var oldNode = self.findNode(newNode.name, "name");
-                var oldId = i;
-                if (oldNode != null) {
-                    nodeMap[oldId] = oldNode.id;
-                    _.extend(oldNode, newNode);
-                    oldNode.id = nodeMap[oldId];
-                } else {
-                    newNode.id = null;
-                    var newId = self.addNode(newNode);
-                    nodeMap[oldId] = newId;
-                }
+                var node = data.nodes[i];
+                var index = node.id;
+                node = self.findOrCreateNode(node, options.joinAttribute);
+                nodeMap[index] = node.id;
             }
             data.edges.forEach(function (e) {
                 self.addLink(
@@ -406,19 +418,6 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         }
         return self;
     };
-    Network.getNeighbors = function (node) {
-        var network = this;
-        if (!node) return;
-        var path = node.entityId
-            ? 'node/' + node.entityId + '/neighbors'
-            : 'network/random/' + node.name + '/neighbors';
-        $.ajax({
-            url: '/data/' + path,
-            success: function (data) {
-                network.merge(data);
-            }
-        });
-    }
     $.extend(Network.prototype, EventEmitter);
     return Network;
 });
