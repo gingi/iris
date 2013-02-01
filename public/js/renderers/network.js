@@ -175,15 +175,15 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var nodeG = vis.append("g").attr("id", "networkNodes");
             
         var force = d3.layout.force()
-            .gravity(.08)
+            .gravity(-0.1)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? .5 : 0.05;
             // })
-            .distance(60)
+            .distance(80)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? 200 : 100;
             // })
-            .charge(-150)
+            .charge(-70)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? -120 : -60
             // })
