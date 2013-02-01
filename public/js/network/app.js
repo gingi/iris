@@ -23,7 +23,10 @@ require(['jquery', 'backbone', 'underscore',
     });
     var NetworkData = new NetworkModel;
     var Datavis = new NetworkVis({
-        element: "#datavis", dock: true, joinAttribute: "entityId"
+        element: "#datavis",
+        dock: true,
+        joinAttribute: "entityId",
+        label: { type: "CLUSTER" }
     });
     Datavis.on("dblclick-node", function (evt, node, element) {
         evt.stopPropagation();
@@ -46,7 +49,7 @@ require(['jquery', 'backbone', 'underscore',
                 url: neighborTemplate({ id: node.entityId }),
                 dataType: 'json',
                 data: { datasets: DataSets.get("datasets").join(",") }
-            }).done(function (n) { Datavis.merge(n); });
+            }).done(function (n) { Datavis.merge(n, { hidden: false }); });
             
             // FIXME: This stopped working for some reason
             //        Getting objects within edge.source/link
@@ -123,10 +126,11 @@ require(['jquery', 'backbone', 'underscore',
                     data: { datasets: DataSets.get('datasets').join(",") },
                     success: function (model, data) {
                         fetched++;
-                        Datavis.merge(data);
+                        Datavis.merge(data, { hidden: true });
                         if (fetched == clusters.length) {
                             AppProgress.dismiss();
                             enableBuildNetwork();
+                            unhideCoNeighbors();
                         }
                     }
                 })
@@ -140,6 +144,29 @@ require(['jquery', 'backbone', 'underscore',
         if (clusters.length) {
             $("#btn-co-neighbors").attr("disabled", false);
         }
+    }
+    function unhideCoNeighbors() {
+        var docked = Datavis.dockedNodes();
+        var hiddenNodes = Datavis.find(true, "hidden");
+        for (var i = 0; i < hiddenNodes.length; i++) {
+            // var neighbors =
+            //     Datavis.neighbors(hiddenNodes[i], { type: "CLUSTER" });
+            // if (neighbors.length > 1) {
+            //     console.log("Neighbors", neighbors);
+            //     hiddenNodes[i].hidden = false;
+            //     neighbors.forEach(function (n) {
+            //         n[1].hidden = false;
+            //     })
+            // }
+            for (var j = 0; j < docked.length; j++) {
+                var link = Datavis.findEdge(hiddenNodes[i], docked[j]);
+                if (link != null) {
+                    link.hidden = false;
+                    hiddenNodes[i].hidden = false;
+                }
+            }
+        }
+        Datavis.display();
     }
     
     var AppView = Backbone.View.extend({
