@@ -122,11 +122,19 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         
         this.display = function () { update(); return this; }
 
-        this.findNode = function (key, type) {
+        var _nodeCache = {};
+        self.findNode = function(key, type) {
             type = (type || 'id');
-            for (var i in nodes) {if (nodes[i][type] === key) return nodes[i]};
+            var hash = [key, type].join("-");
+            if (_nodeCache.hasOwnProperty(hash)) return _nodeCache[hash];
+            for (var i in nodes) {
+                if (nodes[i][type] === key) {
+                    _nodeCache[hash] = nodes[i];
+                    return nodes[i]
+                }
+            }
+            return null;
         }
-        
         this.findEdge = function (source, target) {
             for (var i in links) {
                 if ((links[i].source.id == source.id &&
@@ -154,6 +162,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var w = $el.width(),
             h = $el.height();
 
+        var _paused = false;
         var vis = this.vis = d3.select($el[0]).append("svg:svg")
             .attr("width", w)
             .attr("height", h);
@@ -166,15 +175,15 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var nodeG = vis.append("g").attr("id", "networkNodes");
             
         var force = d3.layout.force()
-            .gravity(.05)
+            .gravity(.08)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? .5 : 0.05;
             // })
-            .distance(100)
+            .distance(60)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? 200 : 100;
             // })
-            .charge(-80)
+            .charge(-150)
             // function (d, i) {
             //     return d.type && d.type == 'CLUSTER' ? -120 : -60
             // })
@@ -234,8 +243,8 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             nodeEnter.call(options.dock ? dock.drag() : force.drag);
             svgNodes.exit().remove();
 
-            force.on("tick", tick);            
-            force.start();
+            force.on("tick", tick);
+            if (!_paused) force.start();
         }
         
         if (options.dock) {
@@ -458,6 +467,15 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         self.dockHudContent = function (callback) {
             dock.hudContent(callback);
         }
+        self.pause = function () {
+            force.stop();
+            _paused = true;
+        }
+        self.resume = function () {
+            force.resume();
+            _paused = false;
+        }
+        
         return self;
     };
     $.extend(Network.prototype, EventEmitter);
