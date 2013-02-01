@@ -8,6 +8,7 @@ require(['jquery', 'backbone', 'underscore',
     var datasetsTemplate = _.template("/data/node/<%= id %>/datasets");
     var datasetLinkItemTemplate = _.template(
         "<li><a href=\"<%=link%>\" title=\"<%=desc%>\"><%=name%></a></li>");
+    var neighborQueryTemplate = _.template("/data/query/network/neighbors");
 
     var App, Search, router, AppProgress;
     var resetNetwork = true;
@@ -48,13 +49,13 @@ require(['jquery', 'backbone', 'underscore',
             $.ajax({
                 url: neighborTemplate({ id: node.entityId }),
                 dataType: 'json',
-                data: { datasets: DataSets.get("datasets").join(",") }
+                data: { datasets: DataSets.asString() }
             }).done(function (n) { Datavis.merge(n, { hidden: false }); });
             
             // FIXME: This stopped working for some reason
             //        Getting objects within edge.source/link
             // router.navigate("#node/" + node.name + "/datasets/" +
-            //      DataSets.get('datasets').join(",") +
+            //      DataSets.asString() +
             //      "/neighbors", true);
         }
         node.isExpanded = true;
@@ -92,10 +93,16 @@ require(['jquery', 'backbone', 'underscore',
                     neighbors.url = neighborTemplate({ id: id });
                     neighbors.fetch({
                         data: {
-                            datasets: DataSets.get('datasets').join(",")
+                            datasets: DataSets.asString(),
+                            rels: "gc"
                         },
                         success: function (model, data) {
                             fetched++;
+                            if (!data) return;
+                            data.nodes.forEach(function (node) {
+                                // Ensure distinct colors.
+                                node.group = node.entityId;
+                            });
                             Datavis.merge(data);
                             if (fetched == nodes.length) {
                                 AppProgress.dismiss();
@@ -110,7 +117,7 @@ require(['jquery', 'backbone', 'underscore',
     });
     Datavis.addDockAction(function () {
         var dock = this;
-        button = $("<button>").addClass("btn btn-small")
+        var button = $("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
             .css("margin-left", 10)
             .attr("disabled", !clusters || clusters.length == 0)
@@ -123,20 +130,20 @@ require(['jquery', 'backbone', 'underscore',
                 var neighbors = new NetworkModel;
                 neighbors.url = neighborTemplate({ id: cluster.entityId });
                 neighbors.fetch({
-                    data: { datasets: DataSets.get('datasets').join(",") },
+                    data: { datasets: DataSets.asString() },
                     success: function (model, data) {
                         fetched++;
-                        Datavis.merge(data, { hidden: true });
+                        fetchCoNeighbors(model, data, cluster);
                         if (fetched == clusters.length) {
                             AppProgress.dismiss();
                             enableBuildNetwork();
-                            unhideCoNeighbors();
+                            Datavis.display();
                         }
                     }
                 })
             })
-            router.navigate("#network/" + _.pluck(clusters, "entityId") +
-                "/datasets/" + DataSets.get('datasets').join(","), true);
+            // router.navigate("#network/" + _.pluck(clusters, "entityId") +
+            //     "/datasets/" + DataSets.asString(), true);
         });
     });
     function enableBuildNetwork() {
@@ -145,28 +152,43 @@ require(['jquery', 'backbone', 'underscore',
             $("#btn-co-neighbors").attr("disabled", false);
         }
     }
-    function unhideCoNeighbors() {
+    function unhideCoNeighbors(nodes) {
+nodes.length = Math.min(nodes.length, 15);
         var docked = Datavis.dockedNodes();
-        var hiddenNodes = Datavis.find(true, "hidden");
-        for (var i = 0; i < hiddenNodes.length; i++) {
-            // var neighbors =
-            //     Datavis.neighbors(hiddenNodes[i], { type: "CLUSTER" });
-            // if (neighbors.length > 1) {
-            //     console.log("Neighbors", neighbors);
-            //     hiddenNodes[i].hidden = false;
-            //     neighbors.forEach(function (n) {
-            //         n[1].hidden = false;
-            //     })
-            // }
+        for (var i = 0; i < nodes.length; i++) {
             for (var j = 0; j < docked.length; j++) {
-                var link = Datavis.findEdge(hiddenNodes[i], docked[j]);
+                var target = Datavis.findNode(nodes[i].entityId, "entityId")
+                target.group = nodes[i].group;
+                var link = Datavis.findEdge(target, docked[j]);
                 if (link != null) {
                     link.hidden = false;
-                    hiddenNodes[i].hidden = false;
+                    target.hidden = false;
                 }
             }
         }
-        Datavis.display();
+    }
+    function fetchCoNeighbors(model, data, cluster) {
+        Datavis.merge(data, { hidden: true });
+        var nodes = _.pluck(_.filter(data.nodes, function (d) {
+                return d.type == 'GENE'
+            }), "entityId").join(",");
+        if (nodes == "") return;
+        $.ajax({
+            url: neighborQueryTemplate(),
+            dataType: "json",
+            data: {
+                nodes: nodes,
+                datasets: DataSets.asString,
+                rels: "gg"
+            }
+        }).done(function (neighbors) {
+            if (!neighbors || !neighbors.nodes) return;
+            neighbors.nodes.forEach(function (node) {
+                node.group = cluster.group;
+            });
+            Datavis.merge(neighbors, { hidden: true });
+            unhideCoNeighbors(neighbors.nodes);
+        });
     }
     
     var AppView = Backbone.View.extend({
@@ -186,9 +208,12 @@ require(['jquery', 'backbone', 'underscore',
     
     var DataSetModel = Backbone.Model.extend({
         url:   function () {return datasetsTemplate(this); },
-        parse: function (data) { this.set('datasets', data); }
+        parse: function (data) { this.set("datasets", data); }
     });
     var DataSets = new DataSetModel;
+    DataSets.asString = function () {
+        return DataSets.get("datasets").join(",")
+    };
     
     var DataSetView = Backbone.View.extend({
         el: $("#container"),
