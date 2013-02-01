@@ -319,18 +319,34 @@ function (request, response, next) {
     fakeNeighborhood(request, response);
 });
 
+function splitQueryParam(req, param) {
+    return req.query[param] ?
+        req.query[param].split(",") : [];
+}
+
 app.get('/data/node/:id/neighbors', function (request, response, next) {
-    request.query.datasets = request.query.datasets || [];
+    var datasets = splitQueryParam(request, 'datasets');
     if (request.query.datasets == ["fake"]) {
         return fakeNeighborhood(request, response);
     }
     kbase.getNeighborNetwork({
         response: response,
-        nodeId:   request.params.id,
-        datasets: request.query.datasets != null ?
-            request.query.datasets.split(",") : []
+        nodes:    [request.params.id],
+        datasets: datasets
     });
 });
+
+app.get('/data/query/network/neighbors', function (request, response, next) {
+    var datasets = splitQueryParam(request, "datasets");
+    var nodes    = splitQueryParam(request, "nodes");
+    var rels     = splitQueryParam(request, "rels");
+    kbase.getNeighborNetwork({
+        response: response,
+        nodes:    nodes,
+        datasets: datasets,
+        rels:     rels
+    });
+})
 
 app.get('/data/coexpression', function (request, response, next) {
     response.contentType = 'json';

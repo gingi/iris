@@ -283,8 +283,14 @@ exports.getTraits = function (params) {
     }, rpcErrorHandler(params.response));
 }
 
+var EdgeTypes = {
+    gg: "GENE_GENE",
+    gc: "GENE_CLUSTER",
+    cc: "CLUSTER_CLUSTER"
+}
+
 exports.getNeighborNetwork = function (params) {
-    params = validateParams(params, ['nodeId']);
+    params = validateParams(params, ['nodes', 'datasets']);
     if (params.datasets == null) {
         params.datasets = [
             "kb|netdataset.regprecise.301",
@@ -292,10 +298,17 @@ exports.getNeighborNetwork = function (params) {
             "kb|netdataset.ppi.7"
         ];
     }
+    if (params.rels == null || params.rels.length == 0) {
+        params.rels = ['GENE_CLUSTER', 'CLUSTER_CLUSTER'];
+    } else {
+        for (var i = 0; i < params.rels.length; i++) {
+            params.rels[i] = EdgeTypes[params.rels[i]] || params.rels[i];
+        }
+    }
     api('network').buildFirstNeighborNetwork(
         params.datasets,
-        [params.nodeId],
-        ['GENE_CLUSTER', 'CLUSTER_CLUSTER'],
+        params.nodes,
+        params.rels,
         function (data) {
             params.callback(transformNetwork(data));
         },
