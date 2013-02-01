@@ -12,7 +12,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         GENE: 8,
         CLUSTER: 20
     };
-    var color = d3.scale.category10();
+    var color = d3.scale.category20();
     
     var Network = function (options) {
         var self = this;
@@ -186,7 +186,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         function nodeY(n) {
             return n.type == 'CLUSTER' ? Math.max(n.y, CLUSTER_Y) : n.y;
         }
-        var svgNodes, svgLinks;
+        var svgNodes, svgLinks, svgLabels;
         function tick() {
             svgLinks.attr("x1", function (d) { return d.source.x; })
                     .attr("y1", function (d) { return nodeY(d.source); })
@@ -194,6 +194,9 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                     .attr("y2", function (d) { return nodeY(d.target); });
             svgNodes.attr("cx", function (d) { return d.x; })
                     .attr("cy", function (d) { return nodeY(d); });
+            // svgLabels.attr("transform", function (d) {
+            //     return "translate(" + d.x + "," + d.y + ")"
+            // })
         }
         
         function notHidden(d) { return !d.hidden || d.hidden == false }
@@ -224,6 +227,10 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                     d3.event.stopPropagation();
                     self.emit("dblclick-node", [d, this]);
                 });
+            // svgLabels = svgNodes.enter().append("svg:g");
+            // svgLabels.append("svg:text")
+            //     .attr("x", 10).attr("y", ".31em")
+            //     .text(function (d) { return d.name });
             nodeEnter.call(options.dock ? dock.drag() : force.drag);
             svgNodes.exit().remove();
 
@@ -387,8 +394,10 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             // Then add the edges
             for (var id in node._collapsed) {
                 var d = node._collapsed[id];
+                d.hidden = false;
                 d.edges.forEach(function (edge) {
                     self.addEdge(edge);
+                    edge.hidden = false;
                 });
                 delete node._collapsed[id];
             }
@@ -412,8 +421,8 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
                 var node = data.nodes[i];
-                node.hidden = args.hidden;
                 var index = node.id;
+                node.hidden = args.hidden;
                 node = self.findOrCreateNode(node, options.joinAttribute);
                 nodeMap[index] = node.id;
             }
