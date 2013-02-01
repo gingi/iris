@@ -168,6 +168,13 @@ function ($, d3, EventEmitter, HUD) {
                 nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
             }
         }
+        self.get = function () {
+            var nodes = [];
+            for (var name in docked) {
+                nodes.push(docked[name][0]);
+            }
+            return nodes;
+        }
         self.addUpdateAction = function (callback) {
             updateActions.push(callback);
         }
