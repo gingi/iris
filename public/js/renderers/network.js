@@ -5,8 +5,30 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
     var defaults = {
         dock: true,
         joinAttribute: "name",
-        label: {}
+        nodeLabel: {}
     };
+    
+    var Physics = {
+        GENE:    { charge: -80 },
+        CLUSTER: { charge: -120 },
+        "GENE:GENE": {
+            linkDistance:  40,
+            linkStrength:  0.1
+        },
+        "CLUSTER:GENE": {
+            linkDistance:  120,
+            linkStrength:  0.7,
+        },
+        "CLUSTER:CLUSTER": {
+            linkDistance:   100,
+            linkStrength:   1
+        },
+        default: {
+            linkDistance:   80,
+            linkStrength:    1,
+            charge:        -70
+        }
+    }
     
     var NODE_SIZE  = {
         GENE: 8,
@@ -21,7 +43,30 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
-        var CLUSTER_Y = $el.height() * 4.5 / 6;
+        var Foci = {
+            CLUSTER: {
+                x: Math.round($el.width() / 2),
+                y: Math.round($el.height() * 5 / 6),
+                spreadx: Math.floor($el.width() * 0.8),
+                spready: 50,
+                binx: 10,
+                biny: 3
+            },
+            GENE:    {
+                x: Math.round($el.width() / 2),
+                y: Math.round($el.height() * 1 / 6),
+                spreadx: Math.floor($el.width() * 0.5),
+                spready: Math.floor($el.height() * 0.1),
+                binx: 10,
+                biny: 1
+            }
+        }
+        for (var f in Foci) {
+            Foci[f].intx   = Math.floor(Foci[f].spreadx / Foci[f].binx);
+            Foci[f].inty   = Math.floor(Foci[f].spready / Foci[f].biny);
+            Foci[f].startx = Math.floor(Foci[f].x - Foci[f].spreadx / 2);
+            Foci[f].starty = Math.floor(Foci[f].y - Foci[f].spready / 2);
+        }
         
         self.findOrCreateNode = function (node, idKey) {
             var ret;
@@ -33,9 +78,21 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                 node.id = _idSequence++;
                 nodes.push(node);
                 ret = node;
+                labelStatus(node);
             }
             if (_autoUpdate) update();
             return ret;
+        }
+        
+        function labelStatus(node) {
+            var label = true;
+            for (var prop in options.nodeLabel) {
+                if (!node.hasOwnProperty(prop) ||
+                     node[prop] != options.nodeLabel[prop]) {
+                    label = false;
+                }
+            }
+            if (label) node.hasLabel = true;
         }
         
         self.addNode = function (node) {
@@ -46,6 +103,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                     nodes.push(node);
                     _idSequence = d3.max(_idSequence, node.id + 1);
                 }
+                labelStatus(node);
             } else {
                 node.id = _idSequence++;
                 nodes.push(node);
@@ -166,6 +224,18 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         var vis = this.vis = d3.select($el[0]).append("svg:svg")
             .attr("width", w)
             .attr("height", h);
+
+/*
+for (var t in Foci) {
+    var f = Foci[t];
+    for (var x = f.startx; x < f.startx + f.spreadx; x += f.intx) {
+        for (var y = f.starty; y < f.starty + f.spready; y += f.inty) {
+            vis.append("circle")
+                .attr("cx", x).attr("cy", y).attr("r", 3).style("fill", "pink");
+        }
+    }
+}
+*/
             
         var dock;
         if (options.dock) { dock = new Dock(vis) };
@@ -173,42 +243,83 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         // This order matters (nodes painted on top of links)
         var linkG = vis.append("g").attr("id", "networkLinks");
         var nodeG = vis.append("g").attr("id", "networkNodes");
+        var labelG = vis.append("g").attr("id", "networkLabels");
+        
+        var physics = function (key, prop) {
+            if (!Physics.hasOwnProperty(key)) key = "default";
+            var ret = Physics[key].hasOwnProperty(prop)
+                ? Physics[key][prop] : Physics["default"][prop];
+            return ret;
+        }
+        
+        function nodePhysics(node, prop) {
+            return physics(node.type || "default", prop);
+        }
+        
+        function linkPhysics(link, prop) {
+            var key =
+                _.pluck([link.source, link.target], "type").sort().join(":");
+            return physics(key, prop);
+        }
+        
+        function nodeCharge(d)   { return nodePhysics(d, "charge") }
+        function linkDistance(d) { return linkPhysics(d, "linkDistance") }
+        function linkStrength(d) { return linkPhysics(d, "linkStrength") }
             
         var force = d3.layout.force()
-            .gravity(0.08)
-            // function (d, i) {
-            //     return d.type && d.type == 'CLUSTER' ? .5 : 0.05;
-            // })
-            .distance(80)
-            // function (d, i) {
-            //     return d.type && d.type == 'CLUSTER' ? 200 : 100;
-            // })
-            .charge(-70)
-            // function (d, i) {
-            //     return d.type && d.type == 'CLUSTER' ? -120 : -60
-            // })
+            .linkDistance(linkDistance)
+            .linkStrength(linkStrength)
+            .charge(nodeCharge)
             .size([w, h]);
             
         var nodes = force.nodes(),
             links = force.links();
             
-        function nodeY(n) {
-            return n.type == 'CLUSTER' ? Math.max(n.y, CLUSTER_Y) : n.y;
-        }
         var svgNodes, svgLinks, svgLabels;
-        function tick() {
+        
+        
+        function calcbin(o, f) {
+            return {
+                x: f.x, // + Math.round((o.x - f.x) / f.spreadx) * f.intx,
+                y: f.y, // + Math.round((o.y - f.y) / f.spready) * f.inty
+            }
+        }
+        
+        var nodebins = {};
+        function tick (e) {
+            if (e) {
+                var k = 1 * e.alpha;
+                // TODO: Unhidden nodes only
+                nodes.forEach(function (o, i) {
+                    if (o.fixed) return;
+                    var f = Foci[o.type];
+                    if (!f) return;
+                    o.y += (f.y - o.y) * k;
+                });
+            }
             svgLinks.attr("x1", function (d) { return d.source.x; })
-                    .attr("y1", function (d) { return nodeY(d.source); })
+                    .attr("y1", function (d) { return d.source.y; })
                     .attr("x2", function (d) { return d.target.x; })
-                    .attr("y2", function (d) { return nodeY(d.target); });
+                    .attr("y2", function (d) { return d.target.y; });
             svgNodes.attr("cx", function (d) { return d.x; })
-                    .attr("cy", function (d) { return nodeY(d); });
-            // svgLabels.attr("transform", function (d) {
-            //     return "translate(" + d.x + "," + d.y + ")"
-            // })
+                    .attr("cy", function (d) { return d.y; });
+            svgLabels.attr("transform", function (d) {
+                return "translate(" + d.x + "," + d.y + ")"
+            });
         }
         
         function notHidden(d) { return !d.hidden || d.hidden == false }
+        function hasLabel(d) { return d.hasLabel }
+        function isDocked(d) {
+            var docked = dock.get();
+            for (var id in docked) {
+                var n = docked[id];
+                if (d[options.joinAttribute] == n[options.joinAttribute]) {
+                    return true;
+                }
+            }
+            return false;
+        }
         
         function update() {
             svgLinks = linkG.selectAll("line.link")
@@ -226,20 +337,27 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
                 .attr("id",     function (d) {
                     d.elementId = "node-" + d.id; return d.elementId;
                 })
-                .attr("r",      function (d) { return nodeSize(d); })
-                .style("fill",  function (d) { return color(d.group); })
+                .attr("r",       function (d) { return nodeSize(d); })
+                .style("fill",   function (d) { return color(d.group); })
+                .style("stroke", function (d) {
+                    return d3.rgb(color(d.group)).darker(1); 
+                })
                 .on("click",    function (d) {
                     d3.event.stopPropagation();
+                    if (!isDocked(d)) d.fixed = !d.fixed;
                     self.emit("click-node", [d, this]);
                 })
                 .on("dblclick", function (d) {
                     d3.event.stopPropagation();
                     self.emit("dblclick-node", [d, this]);
-                });
-            // svgLabels = svgNodes.enter().append("svg:g");
-            // svgLabels.append("svg:text")
-            //     .attr("x", 10).attr("y", ".31em")
-            //     .text(function (d) { return d.name });
+                })
+            svgLabels = labelG.selectAll("text")
+                .data(_.filter(nodes, hasLabel));
+            svgLabels.enter().append("svg:text")
+                .attr("y", ".35em")
+                .attr("text-anchor", "middle")
+                .style("fill", "white")
+                .text(function (d) { return d.name.substring(0,6) });
             nodeEnter.call(options.dock ? dock.drag() : force.drag);
             svgNodes.exit().remove();
 
@@ -247,10 +365,16 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             if (!_paused) force.start();
         }
         
+        function toggleFixed(d) {
+            d.fixed = !d.fixed;
+        }
+        
         if (options.dock) {
             dock.on("dragstart.dock", function () { force.stop(); })
                 .on("dragmove.dock",  function () { tick() })
-                .on("dragend.dock",   function () { tick(); force.start(); })
+                .on("dragend.dock",   function (evt, d) {
+                    tick(); force.start();
+                })
                 .on("dock", function (evt, d, element) {
                     element
                         .style("stroke", "yellow")
@@ -287,7 +411,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
             selected = element;
             originalFill = selected.style["fill"];
             var fill = d3.hsl(originalFill);
-            selected.style["fill"] = fill.brighter().toString();
+            selected.style["fill"] = fill.brighter(1).toString();
         
             hud.empty().append(nodeInfo(d))
             hud.show();
@@ -446,6 +570,7 @@ function ($, d3, _, Dock, EventEmitter, HUD, Table) {
         }
         self.reset = function () {
             nodes.length = 0; links.length = 0;
+            labelG.selectAll("text").remove();
             if (dock) { dock.reset() }
             update();
             return self;
