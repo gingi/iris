@@ -126,11 +126,14 @@ function ($, d3, EventEmitter, HUD) {
             self.emit("dragend.dock", d);
         }
         
-        function intersects(d) {
-            return d.px >= dockDims.x1 &&
-                   d.px <= dockDims.x2 &&
-                   d.py >= dockDims.y1 &&
-                   d.py <= dockDims.y2
+        function intersects(d, a) {
+            a = (a || "");
+            var x = a + "x";
+            var y = a + "y";
+            return d[x] >= dockDims.x1 &&
+                   d[x] <= dockDims.x2 &&
+                   d[y] >= dockDims.y1 &&
+                   d[y] <= dockDims.y2
         }
         
         self.dockElement = function (d, element) {

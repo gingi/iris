@@ -27,7 +27,7 @@ require(['jquery', 'backbone', 'underscore',
         element: "#datavis",
         dock: true,
         joinAttribute: "entityId",
-        label: { type: "CLUSTER" }
+        nodeLabel: { type: "CLUSTER" }
     });
     Datavis.on("dblclick-node", function (evt, node, element) {
         evt.stopPropagation();
@@ -44,7 +44,7 @@ require(['jquery', 'backbone', 'underscore',
         }
         resetNetwork = false;
         if (DataSets.get('datasets') == null) {
-            router.navigate("#node/" + node.name + "/datasets", true);
+            router.navigate("#node/" + node.entityId + "/datasets", true);
         } else {
             $.ajax({
                 url: neighborTemplate({ id: node.entityId }),
@@ -82,48 +82,46 @@ require(['jquery', 'backbone', 'underscore',
     var nodeClusters = {};
     Datavis.addDockAction(function (nodes) {
         var dock = this;
-        if (nodes.length > 1) {
-            var button = $("<button>")
-                .addClass("btn btn-small btn-primary")
-                .text("Get clusters");
-            button.on("click", function () {
-                resetNetwork = false;
-                AppProgress.show("Getting clusters");
-                var fetched = 0;
-                nodes.forEach(function (id) {
-                    if (nodeClusters[id]) {
-                        fetched++;
-                        if (fetched == clusters.length) {
-                            AppProgress.dismiss();
-                        }
-                        return;
+        var button = $("<button>")
+            .addClass("btn btn-small btn-primary")
+            .text("Get clusters");
+        button.on("click", function () {
+            resetNetwork = false;
+            AppProgress.show("Getting clusters");
+            var fetched = 0;
+            nodes.forEach(function (id) {
+                if (nodeClusters[id]) {
+                    fetched++;
+                    if (fetched == clusters.length) {
+                        AppProgress.dismiss();
                     }
-                    var neighbors = new NetworkModel;
-                    neighbors.url = neighborTemplate({ id: id });
-                    neighbors.fetch({
-                        data: {
-                            datasets: DataSets.asString(),
-                            rels: "gc"
-                        },
-                        success: function (model, data) {
-                            fetched++;
-                            nodeClusters[id] = true;
-                            if (!data) return;
-                            data.nodes.forEach(function (node) {
-                                // Ensure distinct colors.
-                                node.group = node.entityId;
-                            });
-                            Datavis.merge(data);
-                            if (fetched == nodes.length) {
-                                AppProgress.dismiss();
-                                enableBuildNetwork();
-                            }
+                    return;
+                }
+                var neighbors = new NetworkModel;
+                neighbors.url = neighborTemplate({ id: id });
+                neighbors.fetch({
+                    data: {
+                        datasets: DataSets.asString(),
+                        rels: "gc"
+                    },
+                    success: function (model, data) {
+                        fetched++;
+                        nodeClusters[id] = true;
+                        if (!data) return;
+                        data.nodes.forEach(function (node) {
+                            // Ensure distinct colors.
+                            node.group = node.entityId;
+                        });
+                        Datavis.merge(data);
+                        if (fetched == nodes.length) {
+                            AppProgress.dismiss();
+                            enableBuildNetwork();
                         }
-                    })
+                    }
                 })
             })
-            dock.hud.append(button);
-        }
+        })
+        dock.hud.append(button);
     });
     var clusterNeighbors = {};
     Datavis.addDockAction(function () {
@@ -188,7 +186,7 @@ require(['jquery', 'backbone', 'underscore',
         }
     }
     function unhideCoNeighbors(nodes) {
-nodes.length = Math.min(nodes.length, 10);
+nodes.length = Math.min(nodes.length, 30);
         var docked = Datavis.dockedNodes();
         for (var i = 0; i < nodes.length; i++) {
             for (var j = 0; j < docked.length; j++) {
@@ -204,10 +202,9 @@ nodes.length = Math.min(nodes.length, 10);
         }
     }
     function fetchCoNeighbors(model, data, cluster) {
-        Datavis.merge(data, { hidden: true });
         var nodes = _.pluck(_.filter(data.nodes, function (d) {
-                return d.type == 'GENE'
-            }), "entityId").join(",");
+            return d.type == 'GENE'
+        }), "entityId").join(",");
         if (nodes == "") return;
         $.ajax({
             url: neighborQueryTemplate(),
@@ -306,7 +303,6 @@ nodes.length = Math.min(nodes.length, 10);
             DataSets.set('datasets', ["fake"]);
         }
         NetworkData.clear();
-        // NetworkData.set({ id: params.id });
         NetworkData.url = params.url({ id: params.id });
         App = new AppView;
         NetworkData.fetch({ data: params.fetchData });
