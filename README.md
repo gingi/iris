@@ -83,6 +83,16 @@ NOTES
 -----
 All the conventions above are so far tentative and up for discussion.
 
+## Library Deployment
+The client-side JavaScript libraries that drive all the visualizations are managed in separate module files using RequireJS, but they can be packaged into a single library that can be dropped into any page. To build that library, run
+
+    make dist
+
+Which will, by default, create a minified library as '`dist/iris.js`'. To specify a different output file for the library, use the `DISTLIB=/path/to/target.js`. To avoid minification (useful for debugging), add `MINIFY=0`. For example, to create a non-optimized library as `/tmp/foo.js`, run:
+
+    make dist MINIFY=0 DISTLIB=/tmp/foo.js
+
+
 ## Visualization Example
 The client-side library can be used on the browser as in the following example:
 
