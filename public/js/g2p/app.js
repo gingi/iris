@@ -182,7 +182,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             self.manhattanContainer.append($spanContainer.append($viewport));
             $viewport.outerHeight($spanContainer.height());
             
-            var vis = new ManhattanPlot($viewport, {});
+            var vis = new ManhattanPlot({ element: $viewport });
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
