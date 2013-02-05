@@ -1,5 +1,8 @@
 requirejs.config({
     baseUrl: '/js',
+    paths: {
+        columnfilter: 'DataTables/extras/ColumnFilterWidgets.js'
+    },
     shim: {
         jquery:      { exports: '$' },
         d3:          { exports: 'd3' },
@@ -12,6 +15,7 @@ requirejs.config({
         'backbone.localstorage': {
             exports: 'Backbone',
             deps: [ 'backbone' ]
-        }
+        },
+        columnfilter: { exports: "jquery.dataTables" }
     },
-});
+})

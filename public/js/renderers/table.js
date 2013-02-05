@@ -1,11 +1,3 @@
-requirejs.config({
-    paths: {
-        columnfilter: 'DataTables/extras/ColumnFilterWidgets'
-    },
-    shim: {
-        columnfilter: [ "jquery.dataTables" ]
-    }
-})
 define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
     function ($, _) {
     function Table(options) {
