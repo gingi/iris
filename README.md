@@ -1,22 +1,55 @@
 # KBase Data Visualization Library
 The library provides web-based client-side JavaScript visualizations for the KBase project. It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
 
+The library makes heavy use of the excellent [D3.js](http://d3js.org/ "D3.js") library, although some novel visualizations are written using native HTML5 technologies such as Canvas and SVG. And just like almost every JavaScript library, it relies on [jQuery](http://jquery.com/ "jQuery").
+
+The code is managed with [RequireJS](http://requirejs.org/ "RequireJS") for Asynchronous Module Definition (AMD). This allows the separation of various modules and greatly helps in development.
+
+The library includes a distribution mechanism that wraps all the renderers and external dependencies into a single library that can be dropped into any page (see below).
+
 ##Dependencies
 * [Node.js](http://nodejs.org/ "node.js")
 * [Git](http://git-scm.com/ "Git")
 
 ##Installation
+Various external modules are managed either through [NPM](https://npmjs.org/ "npm") or as Git modules. They can be downloaded and installed by running:
 
-    git submodule update --init
-    npm install    
+    make init
 
-##Deployment
+The client-side JavaScript libraries that drive all the visualizations
 
-1. Start the the app:
-        
-        node app
+##Server Deployment
+The provided server connecting to the KBase API can be started by
 
-2. Point your browser at [http://0:3000](http://0:3000)
+    node app
+
+This starts the web server at [http://0:3000](http://0:3000), which shows various widgets that make use of the visualization library. The startup script takes the following options:
+
+* `--cache`: Use a Redis cache for API endpoints (Redis must be running)
+* `--debug`: Prints debug information, including RPC calls to the API
+
+##Usage and Documentation
+The client-side library can be used on the browser as in the following example:
+
+    <!DOCTYPE html>
+    <head>
+        <link rel="stylesheet" href="kbase.css" type="text/css">
+        <script src="datavis.js" type="text/javascript"></script>
+        <script>
+            datavis.require(['charts/bar'], function (Chart) {
+                var chart = new Chart({
+                    element: "body",
+                    // other options
+                });
+                chart.setData([ /* Data here */ ]);
+                chart.display();
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+
+Please refer to the [API documentation](https://bitbucket.org/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
 
 ## License
 
