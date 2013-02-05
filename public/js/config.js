@@ -1,7 +1,7 @@
 requirejs.config({
     baseUrl: '/js',
     paths: {
-        columnfilter: 'DataTables/extras/ColumnFilterWidgets.js'
+        columnfilter: 'DataTables/extras/ColumnFilterWidgets'
     },
     shim: {
         jquery:      { exports: '$' },
@@ -16,6 +16,7 @@ requirejs.config({
             exports: 'Backbone',
             deps: [ 'backbone' ]
         },
-        columnfilter: { exports: "jquery.dataTables" }
+        columnfilter: { exports: "jquery.dataTables" },
+        'util/spin':  { exports: "Spinner" }
     },
 })
