@@ -16,7 +16,7 @@ define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
                 }
             }
         };
-        self.display = function () {
+        self.render = function () {
             var $table = $("<table>").attr("cellpadding", 0)
                 .attr("cellspacing",0).attr("border", 0)
                 .addClass('table table-striped table-bordered');

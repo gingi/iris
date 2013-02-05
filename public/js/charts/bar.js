@@ -23,7 +23,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             data = inData;
             return self;
         };
-        self.display = function () {
+        self.render = function () {
             $el.empty();
             var margin = {
                 top: 20,

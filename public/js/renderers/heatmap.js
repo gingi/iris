@@ -62,7 +62,7 @@ function ($, d3, _, DragBox) {
         function adjustedDim(arr) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
         }
-        self.display = function () {
+        self.render = function () {
             element.css("position", "relative");
             cellSize = Math.min(MAX_CELL_SIZE,
                 Math.max(MIN_CELL_SIZE,
