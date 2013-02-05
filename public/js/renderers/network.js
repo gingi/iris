@@ -1,6 +1,6 @@
 define(['jquery', 'd3', 'underscore',
-    'util/dock', 'util/eventemitter', 'util/hud', 'renderers/table'],
-function ($, d3, _, Dock, EventEmitter, HUD, Table) {
+    'util/dock', 'util/eventemitter', 'util/hud'],
+function ($, d3, _, Dock, EventEmitter, HUD) {
     
     var defaults = {
         dock: true,
