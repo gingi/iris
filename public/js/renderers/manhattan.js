@@ -11,12 +11,12 @@ function ($, EventEmitter, DragBox, Scale) {
         return canvas[0].getContext('2d');
     }
     
-    function ManhattanPlot(element, options) {
+    function ManhattanPlot(options) {
         var self = this;
-        options = (options || {});
+        options = options || {};
         options.filterContig =
             (options.filterContig || function () { return false; });
-        var $element = $(element);
+        var $element = $(options.element);
         
         var yAxis = new Scale(),
             xAxis = new Scale();
