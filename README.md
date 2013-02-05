@@ -1,5 +1,5 @@
 # KBase Data Visualization Library
-The library provides web-based client-side JavaScript visualizations for the KBase project. It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
+The library provides web-based client-side JavaScript visualizations for [the KBase project](http://kbase.us). It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
 
 The library makes heavy use of the excellent [D3.js](http://d3js.org/ "D3.js") library, although some novel visualizations are written using native HTML5 technologies such as Canvas and SVG. And just like almost every JavaScript library, it relies on [jQuery](http://jquery.com/ "jQuery").
 
@@ -16,7 +16,14 @@ Various external modules are managed either through [NPM](https://npmjs.org/ "np
 
     make init
 
-The client-side JavaScript libraries that drive all the visualizations
+The client-side JavaScript libraries that drive all the visualizations are managed in separate module files using RequireJS, but they can be packaged into a single library that can be dropped into any page. To build that library, run
+
+    make dist
+
+Which will, by default, create a minified library as '`dist/datavis.js`'. To specify a different output file for the library, use the `DISTLIB=/path/to/target.js`. To avoid minification (useful for debugging), add `MINIFY=0`. For example, to create a non-optimized library as `/tmp/foo.js`, run:
+
+    make dist MINIFY=0 DISTLIB=/tmp/foo.js
+
 
 ##Server Deployment
 The provided server connecting to the KBase API can be started by
@@ -25,7 +32,7 @@ The provided server connecting to the KBase API can be started by
 
 This starts the web server at [http://0:3000](http://0:3000), which shows various widgets that make use of the visualization library. The startup script takes the following options:
 
-* `--cache`: Use a Redis cache for API endpoints (Redis must be running)
+* `--cache`: Use a [Redis](http://redis.io/ "Redis") cache for API endpoints (Redis must be running)
 * `--debug`: Prints debug information, including RPC calls to the API
 
 ##Usage and Documentation
