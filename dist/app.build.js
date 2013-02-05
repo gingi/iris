@@ -24,5 +24,4 @@
         "util/hud",
         "util/viewport"
     ],
-    // optimize: "none"
 })
