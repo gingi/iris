@@ -83,6 +83,28 @@ NOTES
 -----
 All the conventions above are so far tentative and up for discussion.
 
+## Visualization Example
+The client-side library can be used on the browser as in the following example:
+
+    <!DOCTYPE html>
+    <head>
+        <link rel="stylesheet" href="kbase.css" type="text/css">
+        <script src="iris.js" type="text/javascript"></script>
+        <script>
+            iris.require(['charts/bar'], function (Chart) {
+                var chart = new Chart({
+                    element: "body",
+                    // other options
+                });
+                chart.setData([ /* Data here */ ]);
+                chart.display();
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+
+
 ## License
 
     Copyright (c) 2012-2013 Jer-Ming Chia <jermth at gmail.com>
