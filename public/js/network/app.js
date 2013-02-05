@@ -75,7 +75,7 @@ require(['jquery', 'backbone', 'underscore',
                 data: nodes,
                 columns: ['Name']
             });
-            table.display();
+            table.render();
         })
     })
 */
@@ -154,7 +154,7 @@ require(['jquery', 'backbone', 'underscore',
                         if (fetched == clusters.length) {
                             AppProgress.dismiss();
                             enableBuildNetwork();
-                            Datavis.display();
+                            Datavis.render();
                         }
                     }
                 })

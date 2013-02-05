@@ -534,7 +534,7 @@ for (var t in Foci) {
                 });
                 delete node._collapsed[id];
             }
-            self.display();
+            self.render();
             _autoUpdate = true;
             delete node._collapsed;
             return this;
@@ -544,7 +544,7 @@ for (var t in Foci) {
             args = args ? _.clone(args) : {};
             args.hidden = args.hidden != null ? args.hidden : false;
             if (nodes.length == 0 && links.length == 0) {
-                self.setData(data).display();
+                self.setData(data).render();
                 return this;
             }
             var origAutoUpdate = _autoUpdate;
@@ -564,7 +564,7 @@ for (var t in Foci) {
                     nodeMap[e.source], nodeMap[e.target],
                     { weight: e.weight, hidden: args.hidden });
             });
-            self.display();
+            self.render();
             _autoUpdate = origAutoUpdate;
             return this;
         }

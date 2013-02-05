@@ -116,7 +116,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     element: "#" + self.options.elementId
                 }, self.options.renderParams));
                 chart.setData(self.model.toJSON());
-                chart.display();
+                chart.render();
             })
         },
         fetchModel: function (genes) {

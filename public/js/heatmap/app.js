@@ -35,7 +35,7 @@ function ($, Backbone, _, Heatmap, Viewport) {
         render: function () {
             var heatmap = new Heatmap({ element: this.$el });
             heatmap.setData(this.model.toJSON());
-            heatmap.display();
+            heatmap.render();
         }
     });
     
