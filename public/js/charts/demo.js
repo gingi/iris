@@ -39,7 +39,7 @@ require(['jquery', 'backbone', 'underscore',
             }
             var vis = new this.chartType({ element: "#" + this.el.id });
             vis.setData(this.dataSpec(chartData));
-            vis.display();
+            vis.render();
             return this;
         },
     });

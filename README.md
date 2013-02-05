@@ -107,7 +107,7 @@ The client-side library can be used on the browser as in the following example:
                     // other options
                 });
                 chart.setData([ /* Data here */ ]);
-                chart.display();
+                chart.render();
             });
         </script>
     </head>

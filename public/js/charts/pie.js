@@ -12,7 +12,7 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
             data = inData;
         };
             
-        self.display = function () {
+        self.render = function () {
             var w = $el.width();
             var h = $el.height();
             var r = Math.min(w, h) / 2 - options.padding;
