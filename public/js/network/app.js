@@ -186,7 +186,7 @@ require(['jquery', 'backbone', 'underscore',
         }
     }
     function unhideCoNeighbors(nodes) {
-nodes.length = Math.min(nodes.length, 30);
+nodes.length = Math.min(nodes.length, 2);
         var docked = Datavis.dockedNodes();
         for (var i = 0; i < nodes.length; i++) {
             for (var j = 0; j < docked.length; j++) {

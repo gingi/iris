@@ -9,10 +9,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     };
     
     var Physics = {
-        GENE:    { charge: -80 },
+        GENE:    { charge: -100 },
         CLUSTER: { charge: -120 },
         "GENE:GENE": {
-            linkDistance:  40,
+            linkDistance:  80,
             linkStrength:  0.1
         },
         "CLUSTER:GENE": {
@@ -344,7 +344,6 @@ for (var t in Foci) {
                 })
                 .on("click",    function (d) {
                     d3.event.stopPropagation();
-                    if (!isDocked(d)) d.fixed = !d.fixed;
                     self.emit("click-node", [d, this]);
                 })
                 .on("dblclick", function (d) {
@@ -373,6 +372,7 @@ for (var t in Foci) {
             dock.on("dragstart.dock", function () { force.stop(); })
                 .on("dragmove.dock",  function () { tick() })
                 .on("dragend.dock",   function (evt, d) {
+                    if (!isDocked(d)) d.fixed = !d.fixed;
                     tick(); force.start();
                 })
                 .on("dock", function (evt, d, element) {
