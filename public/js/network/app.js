@@ -132,36 +132,7 @@ require(['jquery', 'backbone', 'underscore',
             .attr("disabled", !clusters || clusters.length == 0)
             .text("Find Co-Neighbors");
         dock.hud.append(button);
-        button.on("click", function () {
-            AppProgress.show("Getting co-neighbors");
-            var fetched = 0;
-            clusters.forEach(function (cluster) {
-                if (clusterNeighbors[cluster.entityId]) {
-                    fetched++;
-                    if (fetched == clusters.length) {
-                        AppProgress.dismiss();
-                    }
-                    return;
-                }
-                var neighbors = new NetworkModel;
-                neighbors.url = neighborTemplate({ id: cluster.entityId });
-                neighbors.fetch({
-                    data: { datasets: DataSets.asString() },
-                    success: function (model, data) {
-                        fetched++;
-                        clusterNeighbors[cluster.entityId] = true;
-                        fetchCoNeighbors(model, data, cluster);
-                        if (fetched == clusters.length) {
-                            AppProgress.dismiss();
-                            enableBuildNetwork();
-                            Datavis.render();
-                        }
-                    }
-                })
-            })
-            // router.navigate("#network/" + _.pluck(clusters, "entityId") +
-            //     "/datasets/" + DataSets.asString(), true);
-        });
+        button.on("click", coNeighborAction);
     });
     Datavis.addDockAction(function () {
         var dock = this;
@@ -179,6 +150,36 @@ require(['jquery', 'backbone', 'underscore',
                 }
             }));
     });
+    function coNeighborAction() {
+        AppProgress.show("Getting co-neighbors");
+        var deferred = $.Deferred(),
+            chained = deferred;
+        clusters.forEach(function (cluster) {
+            chained = chained.then(function () {
+                if (clusterNeighbors[cluster.entityId]) {
+                    return true;
+                }
+                var codeferred = $.Deferred();
+                var neighbors = new NetworkModel;
+                neighbors.url = neighborTemplate({ id: cluster.entityId });
+                neighbors.fetch({
+                    data: { datasets: DataSets.asString() },
+                    success: function (model, data) {
+                        clusterNeighbors[cluster.entityId] = true;
+                        fetchCoNeighbors(model, data, cluster)
+                            .then(function () { codeferred.resolve() });
+                    }
+                });
+                return codeferred;
+            });
+        });
+        chained.done(function () {
+            AppProgress.dismiss();
+            enableBuildNetwork();
+            Datavis.render();
+        });
+        deferred.resolve();
+    }
     function enableBuildNetwork() {
         clusters = Datavis.find("CLUSTER", "type");
         if (clusters.length) {
@@ -186,7 +187,7 @@ require(['jquery', 'backbone', 'underscore',
         }
     }
     function unhideCoNeighbors(nodes) {
-nodes.length = Math.min(nodes.length, 2);
+// nodes.length = Math.min(nodes.length, 30);
         var docked = Datavis.dockedNodes();
         for (var i = 0; i < nodes.length; i++) {
             for (var j = 0; j < docked.length; j++) {
@@ -206,7 +207,7 @@ nodes.length = Math.min(nodes.length, 2);
             return d.type == 'GENE'
         }), "entityId").join(",");
         if (nodes == "") return;
-        $.ajax({
+        return $.ajax({
             url: neighborQueryTemplate(),
             dataType: "json",
             data: {
