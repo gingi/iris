@@ -12,7 +12,7 @@ require(['jquery', 'backbone', 'underscore',
 
     var App, Search, router, AppProgress;
     var resetNetwork = true;
-    var clusters;
+    var clusters = [];
         
     AppProgress = new Progress({
         element: "#progress-indicator",
@@ -68,62 +68,49 @@ require(['jquery', 'backbone', 'underscore',
     Datavis.on("click-node", function (evt, node, element) {
         Datavis.clickNode(node, element);
     });
-/*
-    Datavis.dockHudContent(function (nodes) {
-        var dock = this;
-        require(['renderers/table'], function (Table) {
-            var $div = $("<div>").attr("id", "dock-hud-content");
-            dock.hud.append($div);
-            var table = new Table({ element: "#dock-hud-content" });
-            table.setData({
-                data: nodes,
-                columns: ['Name']
-            });
-            table.render();
-        })
-    })
-*/
     var nodeClusters = {};
     Datavis.addDockAction(function (nodes) {
         var dock = this;
         var button = $("<button>")
             .addClass("btn btn-small btn-primary")
+            .attr("id", "btn-get-clusters")
             .text("Get clusters");
         button.on("click", function () {
             resetNetwork = false;
             AppProgress.show("Getting clusters");
-            var fetched = 0;
+            var deferred = $.Deferred(), chained = deferred;
             nodes.forEach(function (id) {
-                if (nodeClusters[id]) {
-                    fetched++;
-                    if (fetched == clusters.length) {
-                        AppProgress.dismiss();
+                chained = chained.then(function() {
+                    if (nodeClusters[id]) {
+                        return true;
                     }
-                    return;
-                }
-                var neighbors = new NetworkModel;
-                neighbors.url = neighborTemplate({ id: id });
-                neighbors.fetch({
-                    data: {
-                        datasets: DataSets.asString(),
-                        rels: "gc"
-                    },
-                    success: function (model, data) {
-                        fetched++;
-                        nodeClusters[id] = true;
-                        if (!data) return;
-                        data.nodes.forEach(function (node) {
-                            // Ensure distinct colors.
-                            node.group = node.entityId;
-                        });
-                        Datavis.merge(data);
-                        if (fetched == nodes.length) {
-                            AppProgress.dismiss();
-                            enableBuildNetwork();
+                    var neighbors = new NetworkModel;
+                    neighbors.url = neighborTemplate({ id: id });
+                    var promise = $.Deferred();
+                    neighbors.fetch({
+                        data: {
+                            datasets: DataSets.asString(),
+                            rels: "gc"
+                        },
+                        success: function(model, data) {
+                            nodeClusters[id] = true;
+                            if (!data) { promise.resolve(); return; }
+                            data.nodes.forEach(function(node) {
+                                // Ensure distinct colors.
+                                node.group = node.entityId;
+                            });
+                            Datavis.merge(data);
+                            promise.resolve();
                         }
-                    }
-                })
-            })
+                    })
+                    return promise;
+                });
+            });
+            chained.done(function () {
+                AppProgress.dismiss();
+                enableBuildNetwork();
+            });
+            deferred.resolve();
         })
         dock.hud.append(button);
     });
@@ -188,23 +175,48 @@ require(['jquery', 'backbone', 'underscore',
         clusters = Datavis.find("CLUSTER", "type");
         if (clusters.length) {
             $("#btn-co-neighbors").attr("disabled", false);
+            showTable();
         }
     }
-    function unhideCoNeighbors(nodes) {
-// nodes.length = Math.min(nodes.length, 30);
-        var docked = Datavis.dockedNodes();
-        for (var i = 0; i < nodes.length; i++) {
-            for (var j = 0; j < docked.length; j++) {
-                var target = Datavis.findNode(nodes[i].entityId, "entityId");
-                if (!target) continue;
-                target.group = nodes[i].group;
-                var link = Datavis.findEdge(target, docked[j]);
-                if (link != null) {
-                    link.hidden = false;
-                    target.hidden = false;
+    function showTable() {
+        require(['renderers/table'], function (Table) {
+            var div = $("<div>").attr("id", "cluster-list")
+                .addClass("span8 offset2");
+            $("#container").find("#cluster-list-row").remove();
+            $("#container")
+                .append($("<div>").addClass("row")
+                .attr("id", "cluster-list-row").append(div));
+            var clusterFill = {};
+            var table = new Table({
+                element: "#cluster-list",
+                scrollY: 100,
+                rowCallback: function (row) {
+                    $(this).css("background-color", clusterFill[row[1]]);
+                    $(this).find("td").css("background-color",
+                        clusterFill[row[1]]);
                 }
-            }
-        }
+            });
+            var data = [];
+            clusters.forEach(function (cluster) {
+                clusterFill[cluster.entityId] =
+                    Datavis.nodeProperty(cluster, "fill");
+                var checkbox = "<input class=\"toggle-cluster\" " +
+                    "type=\"checkbox\" checked data-cluster=\"" +
+                    cluster.entityId + "\"></input>";
+                data.push([checkbox,
+                    cluster.entityId,
+                    cluster.name]);
+            })
+            table.setData({
+                columns: [ "Show", "Entity ID", "Name" ],
+                data: data
+            });
+            table.render();
+            $("input.toggle-cluster").on("click", function () {
+                var node = Datavis.findNode($(this).data("cluster"), "entityId");
+                Datavis.toggleHidden(node);
+            })
+        })
     }
     function fetchCoNeighbors(model, data, cluster) {
         var nodes = _.pluck(_.filter(data.nodes, function (d) {
