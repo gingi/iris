@@ -154,7 +154,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        this.addLink = function (source, target, params) {
+        self.addLink = function (source, target, params) {
             var edge = {
                 source: this.findNode(source),
                 target: this.findNode(target),
@@ -170,7 +170,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        this.highlight = function (name) {
+        self.highlight = function (name) {
             d3.select("#" + name)
                 .style("stroke", "yellow")
                 .style("stroke-width", 3)
@@ -178,7 +178,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        this.display = function () { update(); return this; }
+        self.render = function () { update(); return this; }
 
         var _nodeCache = {};
         self.findNode = function(key, type) {
