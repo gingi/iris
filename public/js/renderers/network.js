@@ -30,6 +30,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
     }
     
+    var groupColor = {};
+    
     var NODE_SIZE  = {
         GENE: 8,
         CLUSTER: 20
@@ -68,6 +70,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             Foci[f].starty = Math.floor(Foci[f].y - Foci[f].spready / 2);
         }
         
+        function setColor(node) {
+            if (!node.hasOwnProperty("group")) {
+                groupColor[node.id] = color(null);
+            } else if (!groupColor.hasOwnProperty(node.id)) {
+                groupColor[node.id] = color(node.group);
+            }
+        }
+        
         self.findOrCreateNode = function (node, idKey) {
             var ret;
             var existing = self.findNode(node[idKey], idKey);
@@ -79,6 +89,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 nodes.push(node);
                 ret = node;
                 labelStatus(node);
+                setColor(node);
             }
             if (_autoUpdate) update();
             return ret;
@@ -107,6 +118,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             } else {
                 node.id = _idSequence++;
                 nodes.push(node);
+                setColor(node);
             }
             if (_autoUpdate) update();
             return node.id;
@@ -338,9 +350,9 @@ for (var t in Foci) {
                     d.elementId = "node-" + d.id; return d.elementId;
                 })
                 .attr("r",       function (d) { return nodeSize(d); })
-                .style("fill",   function (d) { return color(d.group); })
+                .style("fill",   function (d) { return groupColor[d.id]; })
                 .style("stroke", function (d) {
-                    return d3.rgb(color(d.group)).darker(1); 
+                    return d3.rgb(groupColor[d.id]).darker(1); 
                 })
                 .on("click",    function (d) {
                     d3.event.stopPropagation();
@@ -467,7 +479,7 @@ for (var t in Foci) {
             });
             return neigh;
         }
-        
+                
         self.collapse = function (node) {
             var collapsed = node._collapsed = {};
             var neighbors = self.neighbors(node);
@@ -598,6 +610,18 @@ for (var t in Foci) {
         self.resume = function () {
             force.resume();
             _paused = false;
+        }
+        self.nodeProperty = function (node, prop) {
+            var element = d3.select("#" + node.elementId);
+            return element.style(prop);
+        }
+        self.toggleHidden = function (node) {
+            node.hidden = !node.hidden;
+            var neighbors = self.neighbors(node);
+            neighbors.forEach(function (neighbor) {
+                neighbor[1].hidden = node.hidden;
+            });
+            update();
         }
         
         return self;
