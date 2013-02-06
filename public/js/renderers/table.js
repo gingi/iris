@@ -1,9 +1,14 @@
 define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
     function ($, _) {
+    var defaults = {
+        scrollY: 300,
+        element: "body",
+        rowCallback: function () {}
+    };
     function Table(options) {
         var self = this;
         options = options ? _.clone(options) : {};
-        options.scrollY = options.scrollY || 300;
+        _.defaults(options, defaults);
         var filterExclude = [];
         var $element = $(options.element);
         var elementOffset = $element.offset();
@@ -38,6 +43,9 @@ define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
                 oColumnFilterWidgets: {
                     aiExclude: filterExclude,
                     bGroupTerms: true
+                },
+                fnRowCallback: function (tr, data) {
+                    options.rowCallback.call(tr, data);
                 }
             });
             adjustHeight('.dataTables_wrapper');

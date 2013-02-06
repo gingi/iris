@@ -128,6 +128,8 @@ text {
 
 /* DATA TABLES  */
 
+.dataTables_wrapper input.search-query { font-size: 8pt; height: 12px; }
+
 .table-wrapper {
     overflow-y: auto;
     height: 100%;
