@@ -46,17 +46,21 @@ require(['jquery', 'backbone', 'underscore',
         if (DataSets.get('datasets') == null) {
             router.navigate("#node/" + node.entityId + "/datasets", true);
         } else {
-            $.ajax({
-                url: neighborTemplate({ id: node.entityId }),
-                dataType: 'json',
-                data: { datasets: DataSets.asString() }
-            }).done(function (n) { Datavis.merge(n, { hidden: false }); });
+            if (node.type == 'CLUSTER') {
+                coNeighborAction([ node ]);
+            } else {
+                $.ajax({
+                    url: neighborTemplate({ id: node.entityId }),
+                    dataType: 'json',
+                    data: { datasets: DataSets.asString() }
+                }).done(function (n) { Datavis.merge(n, { hidden: false }); });
             
-            // FIXME: This stopped working for some reason
-            //        Getting objects within edge.source/link
-            // router.navigate("#node/" + node.name + "/datasets/" +
-            //      DataSets.asString() +
-            //      "/neighbors", true);
+                // FIXME: This stopped working for some reason
+                //        Getting objects within edge.source/link
+                // router.navigate("#node/" + node.name + "/datasets/" +
+                //      DataSets.asString() +
+                //      "/neighbors", true);
+            }
         }
         node.isExpanded = true;
     });
@@ -132,7 +136,7 @@ require(['jquery', 'backbone', 'underscore',
             .attr("disabled", !clusters || clusters.length == 0)
             .text("Find Co-Neighbors");
         dock.hud.append(button);
-        button.on("click", coNeighborAction);
+        button.on("click", function () { coNeighborAction(clusters) });
     });
     Datavis.addDockAction(function () {
         var dock = this;
@@ -150,7 +154,7 @@ require(['jquery', 'backbone', 'underscore',
                 }
             }));
     });
-    function coNeighborAction() {
+    function coNeighborAction(clusters) {
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
             chained = deferred;
