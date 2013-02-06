@@ -217,11 +217,38 @@ require(['jquery', 'backbone', 'underscore',
             }
         }).done(function (neighbors) {
             if (!neighbors || !neighbors.nodes) return;
-            neighbors.nodes.forEach(function (node) {
-                node.group = cluster.group;
+            var dockedNodes = {};
+            Datavis.dockedNodes().forEach(function (node) {
+                dockedNodes[node.entityId] = true;
             });
-            Datavis.merge(neighbors, { hidden: true });
-            unhideCoNeighbors(neighbors.nodes);
+            var dockIndex = {};
+            
+            var nodes = neighbors.nodes, edges = neighbors.edges;
+            var filtered = { nodes: [], edges: [] };
+            nodes.forEach(function (node) {
+                if (dockedNodes[node.entityId]) {
+                    dockIndex[node.entityId] = filtered.nodes.length;
+                    filtered.nodes.push(node);
+                }
+            });
+            edges.forEach(function (edge) {
+                if (dockedNodes[nodes[edge.source].entityId]) {
+                    var node = nodes[edge.target];
+                    edge.source = dockIndex[nodes[edge.source].entityId];
+                    edge.target = filtered.nodes.length;
+                    filtered.nodes.push(node);
+                    filtered.edges.push(edge);
+                    node.group = cluster.entityId;
+                } else if (dockedNodes[nodes[edge.target].entityId]) {
+                    var node = nodes[edge.source];
+                    edge.target = dockIndex[nodes[edge.target].entityId];
+                    edge.source = filtered.nodes.length;
+                    filtered.nodes.push(node);
+                    filtered.edges.push(edge);
+                    node.group = cluster.entityId;
+                }
+            });
+            Datavis.merge(filtered);
         });
     }
     

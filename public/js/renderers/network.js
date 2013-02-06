@@ -554,10 +554,9 @@ for (var t in Foci) {
             if (data.edges == null) data.edges = [];
             for (var i = 0; i < data.nodes.length; i++) {
                 var node = data.nodes[i];
-                var index = node.id;
                 node.hidden = args.hidden;
                 node = self.findOrCreateNode(node, options.joinAttribute);
-                nodeMap[index] = node.id;
+                nodeMap[i] = node.id;
             }
             data.edges.forEach(function (e) {
                 self.addLink(
