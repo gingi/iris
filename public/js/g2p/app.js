@@ -31,7 +31,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         parse: function (data) { this.set(data); }
     });
     var Network = SubViewModel.extend({
-        url: dataAPI('/network/random')
+        url: dataAPI('/network/fake')
     });
     var Coexpression = SubViewModel.extend({
         url: dataAPI('/coexpression'),
