@@ -213,7 +213,7 @@ app.get('/data/experiment/:id', function (request, response, next) {
     });
 });
 
-app.get('/data/genome/:id/ontology', function (request, response, next) {
+app.get('/data/query/ontology', function (request, response, next) {
     if (typeof request.query.genes !== 'string') {
         response.send(400, {
             error: "'genes' query parameter must be a string"
@@ -222,7 +222,6 @@ app.get('/data/genome/:id/ontology', function (request, response, next) {
     }
     kbase.getGOTerms({
         response: response,
-        genomeId: request.params.id,
         genes: request.query.genes
             ? request.query.genes.split(",") : []
     });
@@ -257,7 +256,7 @@ app.get('/data/genes/functions', function (request, response, next) {
     });
 });
 
-app.get('/data/genome/:id/functions', function (request, response, next) {
+app.get('/data/query/gene-function', function (request, response, next) {
     if (typeof request.query.genes !== 'string') {
         response.send(400, {
             error: "'genes' query parameter must be a string"
@@ -266,7 +265,6 @@ app.get('/data/genome/:id/functions', function (request, response, next) {
     }
     kbase.getFunctionalAnnotations({
         response: response,
-        genomeId: request.params.id,
         genes: request.query.genes
             ? request.query.genes.split(",") : []
     })
