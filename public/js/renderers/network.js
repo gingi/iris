@@ -148,6 +148,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         this.setNodes = function (nodesArg) {
             force.nodes(nodesArg);
             nodes = force.nodes();
+            nodes.forEach(function (node) { setColor(node) });
             _idSequence = d3.max(nodes, function (n) { return n.id }) + 1;
             return this;
         }
