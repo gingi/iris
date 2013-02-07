@@ -576,15 +576,11 @@ exports.getGOTerms = function (params) {
 }
 
 exports.getGOEnrichment = function (params) {
-    genomeWithCanonicalGenes(params, function (genome, genes) {
-        var canonicals = [];
-        for (var gene in genes) canonicals.push(genes[gene]);
-        api('ontology').get_go_enrichment(
-            genome, canonicals, GO_DOMAINS, GO_ECS,
-            'hypergeometric',
-            params.callback, rpcErrorHandler(params.response)
-        );
-    });
+    params = validateParams(params, ['genes']);
+    api('ontology').get_go_enrichment(
+        params.genes, [], [], null, null,
+        params.callback, rpcErrorHandler(params.response)
+    );
 }
 
 function curryAsyncCallback(fetchCb, params) {
