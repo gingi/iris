@@ -407,6 +407,21 @@ exports.getOntology = function (params) {
     fn.call(expAPI, params.callback, rpcErrorHandler(params.response));
 }
 
+exports.getOntologyTermInfo = function (params) {
+    params = validateParams(params, ['type', 'term']);
+    var fn, expAPI = api('expression');
+    switch (params.type) {
+        case 'plant':       fn = expAPI.get_po_descriptions; break;
+        case 'environment': fn = expAPI.get_eo_descriptions; break;
+        default:
+            errorHandler(params.response)("Unsupported ontology");
+            return;
+    }
+    fn.call(expAPI, [params.term],
+        params.callback, rpcErrorHandler(params.response)
+    );
+}
+
 exports.getOntologyTermSamples = function (params) {
     params = validateParams(params, ['type', 'term']);
     var fn, expAPI = api('expression');
@@ -481,13 +496,21 @@ exports.getExpressionProfiles = function (params) {
         }
         try {
             var genes = [];
-            var terms = {};
-            for (var term in results) {
-                var result = results[term].series;
+            var terms = [];
+            var data = [];
+            var counter = 0;
+            for (var termId in results) {
+                var result = results[termId].series;
+                data[counter] = [];
                 var sums = [];
                 if (genes.length == 0)
-                    genes = results[term].genes;
-                terms[term] = [];
+                    genes = results[termId].genes;
+                var termMeta = {};
+                for (var id in results[termId].term) {
+                    termMeta.id = id;
+                    termMeta.name = results[termId].term[id];
+                }
+                terms.push(termMeta);
                 var n = 0;
                 for (var sample in result) {
                     if (result[sample].length) {
@@ -499,10 +522,11 @@ exports.getExpressionProfiles = function (params) {
                     }
                 }
                 sums.forEach(function (sum, i) {
-                    terms[term][i] = sum / n;
+                    data[counter][i] = sum / n;
                 });
+                counter++;
             }
-            params.callback({ genes: genes, terms: terms });
+            params.callback({ genes: genes, terms: terms, data: data });
         } catch (err) {
             return errHandler(err);
         }
@@ -523,7 +547,9 @@ exports.getExpressionData = function (params) {
                 samples:
                     curryAsyncCallback(exports.getOntologyTermSamples, params),
                 geneNames:
-                    curryAsyncCallback(exports.getGeneNames, params)
+                    curryAsyncCallback(exports.getGeneNames, params),
+                termMeta:
+                    curryAsyncCallback(exports.getOntologyTermInfo, params)
             }, function (err, results) {
                 callback(null, results);
             })
@@ -547,7 +573,11 @@ exports.getExpressionData = function (params) {
                     json.genes.forEach(function (id) {
                         genes.push({ id: id, name: results.geneNames[id] });
                     });
-                    callback(null, { genes: genes, series: json.series });
+                    callback(null, {
+                        genes: genes,
+                        term: results.termMeta,
+                        series: json.series
+                    });
                 },
                 rpcErrorHandler(params.response)
             );
