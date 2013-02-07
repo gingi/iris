@@ -54,23 +54,23 @@ function ($, Backbone, _, Heatmap, Viewport) {
     
     var ExpressionModel = Backbone.Model.extend({
         defaults: {
-            term: "PO:0009006",
+            terms: "PO:0009005,PO:0009006,PO:0009025",
             genes: "kb|g.3899.locus.2366,kb|g.3899.locus.1892," +
                    "kb|g.3899.locus.2354,kb|g.3899.locus.2549," +
                    "kb|g.3899.locus.2420,kb|g.3899.locus.2253," + 
                    "kb|g.3899.locus.2229".split(","),
         },
         url: function () {
-            return "/data/ontology/plant/" + this.get('term') + "/expression"
+            return "/data/query/expression"
         },
         parse: function (data) {
             var matrix = [];
             var columns = [];
             var i = 0;
             var maxScore = 0;
-            for (var sample in data.series) {
-                columns.push(sample);
-                var values = data.series[sample];
+            for (var term in data.terms) {
+                columns.push(term);
+                var values = data.terms[term];
                 for (var j = 0; j < values.length; j++) {
                     var val = parseFloat(values[j]);
                     matrix.push([i, j, val]);
@@ -78,9 +78,9 @@ function ($, Backbone, _, Heatmap, Viewport) {
                 }
                 i++;
             }
-            this.set('rows', _.pluck(data.genes, "name"));
-            this.set('columns', columns);
-            this.set('matrix', matrix);
+            this.set('rows',     _.pluck(data.genes, "name"));
+            this.set('columns',  columns);
+            this.set('matrix',   matrix);
             this.set('maxScore', maxScore);
         }
     });
@@ -92,5 +92,9 @@ function ($, Backbone, _, Heatmap, Viewport) {
         }),
         model: expression,
     });
-    expression.fetch({ data: { genes: expression.get('genes') }});
+    expression.fetch({ data: {
+        genes: expression.get('genes'),
+        terms: expression.get('terms'),
+        type: 'plant'
+    }});
 });
