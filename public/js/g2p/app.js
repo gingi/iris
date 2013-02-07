@@ -60,7 +60,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 i++;
             }
             SubViewModel.prototype.parse.call(this, {
-                rows:     data.genes,
+                rows:     _.pluck(data.genes, "name"),
                 columns:  columns,
                 matrix:   matrix,
                 maxScore: maxScore

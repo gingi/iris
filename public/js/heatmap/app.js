@@ -78,7 +78,7 @@ function ($, Backbone, _, Heatmap, Viewport) {
                 }
                 i++;
             }
-            this.set('rows', data.genes);
+            this.set('rows', _.pluck(data.genes, "name"));
             this.set('columns', columns);
             this.set('matrix', matrix);
             this.set('maxScore', maxScore);

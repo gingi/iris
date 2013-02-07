@@ -471,7 +471,9 @@ exports.getExpressionData = function (params) {
                     });
                 },
                 samples:
-                    curryAsyncCallback(exports.getOntologyTermSamples, params)
+                    curryAsyncCallback(exports.getOntologyTermSamples, params),
+                geneNames:
+                    curryAsyncCallback(exports.getGeneNames, params)
             }, function (err, results) {
                 callback(null, results);
             })
@@ -488,7 +490,11 @@ exports.getExpressionData = function (params) {
             });
             expAPI.get_experiments_by_sampleid_geneid(genSamples,
                 params.genes, function (json) {
-                    callback(null, json);
+                    var genes = [];
+                    json.genes.forEach(function (id) {
+                        genes.push({ id: id, name: results.geneNames[id] });
+                    });
+                    callback(null, { genes: genes, series: json.series });
                 },
                 rpcErrorHandler(params.response)
             );
@@ -501,7 +507,13 @@ exports.getExpressionData = function (params) {
 exports.getGeneNames = function (params) {
     params = validateParams(params, ["genes"]);
     api('cdmiEntity').get_entity_Feature(
-        params.genes, ['source_id'], params.callback,
+        params.genes, ['source_id'], function (data) {
+            var genes = {};
+            for (var id in data) {
+                genes[id] = data[id].source_id;
+            }
+            params.callback(genes)
+        },
         rpcErrorHandler(params.response)
     );
 }
@@ -597,7 +609,7 @@ exports.getFunctionalAnnotations = function (params) {
         var funcs = results[0], ontology = results[1], names = results[2];
         for (var gene in ontology.genes) {
             ontology.genes[gene].function = funcs[gene];
-            ontology.genes[gene].name     = names[gene].source_id;
+            ontology.genes[gene].name     = names[gene];
         }
         params.callback(ontology);
     });
