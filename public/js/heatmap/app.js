@@ -52,7 +52,7 @@ function ($, Backbone, _, Heatmap, Viewport) {
     
     var ExpressionModel = Backbone.Model.extend({
         defaults: {
-            term: "PO:0025296",
+            term: "PO:0009006",
             genes: "kb|g.3899.locus.2366,kb|g.3899.locus.1892," +
                    "kb|g.3899.locus.2354,kb|g.3899.locus.2549," +
                    "kb|g.3899.locus.2420,kb|g.3899.locus.2253," + 

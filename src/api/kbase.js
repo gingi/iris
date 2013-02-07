@@ -336,7 +336,6 @@ exports.getGeneFunctions = function (params) {
 
 exports.getNodeInfo = function (params) {
     params = validateParams(params, ["nodeId"]);
-    console.log("Looking at", params.nodeId);
     for (var genome in PLANT_GENOMES) {
         if (PLANT_GENOMES[genome].test(params.nodeId)) {
             params.nodeId = [genome, params.nodeId].join(":");
@@ -471,13 +470,8 @@ exports.getExpressionData = function (params) {
                         parCallback(null, data);
                     });
                 },
-                samples: function (parCallback) {
-                    var nParams = Object.clone(params);
-                    nParams.callback = function (data) {
-                        parCallback(null, data);
-                    }
-                    exports.getOntologyTermSamples(nParams);
-                }
+                samples:
+                    curryAsyncCallback(exports.getOntologyTermSamples, params)
             }, function (err, results) {
                 callback(null, results);
             })
