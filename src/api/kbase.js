@@ -459,6 +459,56 @@ function genomeNamesForGenes(response, genes, callback) {
     }, rpcErrorHandler(response));
 }
 
+exports.getExpressionProfiles = function (params) {
+    params = validateParams(params, ['type', 'terms', 'genes']);
+    var funcs = {};
+    params.terms.forEach(function (term) {
+        funcs[term] = curryAsyncCallback(exports.getExpressionData, {
+            response: params.response,
+            type:     params.type,
+            genes:    params.genes,
+            term:     term,
+            nsamples: 10
+        });
+    })
+    async.parallel(funcs, function (err, results) {
+        var errHandler = rpcErrorHandler(params.response);
+        if (err) {
+            return errHandler(err);
+        }
+        if (results == {}) {
+            return params.callback(results);
+        }
+        try {
+            var genes = [];
+            var terms = {};
+            for (var term in results) {
+                var result = results[term].series;
+                var sums = [];
+                if (genes.length == 0)
+                    genes = results[term].genes;
+                terms[term] = [];
+                var n = 0;
+                for (var sample in result) {
+                    if (result[sample].length) {
+                        n++;
+                        result[sample].forEach(function (value, i) {
+                            if (sums[i] == null) sums[i] = 0;
+                            sums[i] += parseFloat(value);
+                        })
+                    }
+                }
+                sums.forEach(function (sum, i) {
+                    terms[term][i] = sum / n;
+                });
+            }
+            params.callback({ genes: genes, terms: terms });
+        } catch (err) {
+            return errHandler(err);
+        }
+    })
+}
+
 exports.getExpressionData = function (params) {
     params = validateParams(params, ['type', 'term', 'genes']);
     var expAPI = api('expression');
@@ -488,6 +538,9 @@ exports.getExpressionData = function (params) {
                     });
                 }
             });
+            if (params.nsamples && genSamples.length > params.nsamples) {
+                genSamples.length = params.nsamples;
+            }
             expAPI.get_experiments_by_sampleid_geneid(genSamples,
                 params.genes, function (json) {
                     var genes = [];

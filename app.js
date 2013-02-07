@@ -227,6 +227,29 @@ app.get('/data/query/ontology', function (request, response, next) {
     });
 });
 
+app.get('/data/query/expression', function (request, response, next) {
+    if (typeof request.query.genes !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
+    if (typeof request.query.terms !== 'string') {
+        response.send(400, {
+            error: "'genes' query parameter must be a string"
+        });
+        return;
+    }
+    kbase.getExpressionProfiles({
+        response: response,
+        genes: request.query.genes
+            ? request.query.genes.split(",") : [],
+        terms: request.query.terms
+            ? request.query.terms.split(",") : [],
+        type: request.query.type || 'plant'
+    });
+})
+
 app.get('/data/query/go-enrichment', function (request, response, next) {
     if (typeof request.query.genes !== 'string') {
         response.send(400, {
