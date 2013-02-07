@@ -16,10 +16,7 @@ requirejs.config({
             exports: 'Backbone',
             deps: [ 'backbone' ]
         },
-        columnfilter: {
-            // exports: "jquery.dataTables",
-            deps: [ 'jquery' ]
-        },
+        columnfilter: { deps: [ "jquery" ] },
         'util/spin':  { exports: "Spinner" }
     },
 })
