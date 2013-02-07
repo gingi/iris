@@ -1,4 +1,4 @@
-define(["jquery", "underscore"], function ($, _) {
+define(["jquery", "underscore", "util/progress"], function ($, _, Progress) {
     var viewportCounter = 1;
     var defaults = {
         width:  400,
@@ -20,6 +20,7 @@ define(["jquery", "underscore"], function ($, _) {
             .css("height", options.height)
             .css("width", options.width);
         options.parent.append(div);
+        div.progress = new Progress({ element: div });
         return div;
     }
     return Viewport;

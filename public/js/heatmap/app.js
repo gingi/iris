@@ -31,10 +31,12 @@ function ($, Backbone, _, Heatmap, Viewport) {
         initialize: function () {
             _.bindAll(this, 'render');
             this.model.on('sync', this.render);
+            this.$el.progress.show();
         },
         render: function () {
             var heatmap = new Heatmap({ element: this.$el });
             heatmap.setData(this.model.toJSON());
+            this.$el.progress.dismiss();
             heatmap.render();
         }
     });
