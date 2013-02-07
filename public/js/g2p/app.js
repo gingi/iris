@@ -38,7 +38,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     
     var ExpressionProfile = SubViewModel.extend({
         defaults: {
-            term: "PO:0025296"
+            term: "PO:0009006"
         },
         url: function () {
             var url = dataAPI("/ontology/plant/" + this.get('term') + "/expression");
