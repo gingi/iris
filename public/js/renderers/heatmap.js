@@ -3,7 +3,7 @@ function ($, d3, _, DragBox) {
     var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 4;
     var MAX_CELL_SIZE = 60;
-    var M = { y: 50, x: 50 };
+    var M = { y: 65, x: 70 };
 
     var defaults = {
         borderWidth: 1,
