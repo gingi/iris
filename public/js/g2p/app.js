@@ -44,24 +44,20 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             var url = dataAPI("/query/expression");
             return url;
         },
-        parse: function (data) {
+        parse: function (json) {
             var matrix = [];
             var columns = [];
-            var i = 0;
             var maxScore = 0;
-            for (var term in data.terms) {
-                columns.push(term);
-                var values = data.terms[term];
+            json.data.forEach(function (values, i) {
                 for (var j = 0; j < values.length; j++) {
                     var val = parseFloat(values[j]);
                     matrix.push([i, j, val]);
                     maxScore = Math.max(val, maxScore);
                 }
-                i++;
-            }
+            });
             SubViewModel.prototype.parse.call(this, {
-                rows:     _.pluck(data.genes, "name"),
-                columns:  columns,
+                rows:     _.pluck(json.genes, "name"),
+                columns:  _.pluck(json.terms, "name"),
                 matrix:   matrix,
                 maxScore: maxScore
             });
