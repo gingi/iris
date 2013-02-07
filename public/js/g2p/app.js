@@ -38,10 +38,10 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     
     var ExpressionProfile = SubViewModel.extend({
         defaults: {
-            term: "PO:0009006"
+            terms: "PO:0009005,PO:0009006,PO:0009010,PO:0009025,PO:0005352",
         },
         url: function () {
-            var url = dataAPI("/ontology/plant/" + this.get('term') + "/expression");
+            var url = dataAPI("/query/expression");
             return url;
         },
         parse: function (data) {
@@ -49,9 +49,9 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             var columns = [];
             var i = 0;
             var maxScore = 0;
-            for (var sample in data.series) {
-                columns.push(sample);
-                var values = data.series[sample];
+            for (var term in data.terms) {
+                columns.push(term);
+                var values = data.terms[term];
                 for (var j = 0; j < values.length; j++) {
                     var val = parseFloat(values[j]);
                     matrix.push([i, j, val]);
@@ -315,11 +315,13 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 fetchParams: { clusters: 2, nodes: 5 },
             });
             
+            var expressionModel = new ExpressionProfile;
             var expView = new SubView({
-                model: new ExpressionProfile,
+                model: expressionModel,
                 require: 'renderers/heatmap',
                 elementId: 'heatmap',
-                title: 'Expression Profile'
+                title: 'Expression Profile',
+                fetchParams: { terms: expressionModel.get('terms') }
             });
 
             var funcView = new SubView({
