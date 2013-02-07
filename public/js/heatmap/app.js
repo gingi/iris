@@ -63,23 +63,19 @@ function ($, Backbone, _, Heatmap, Viewport) {
         url: function () {
             return "/data/query/expression"
         },
-        parse: function (data) {
+        parse: function (json) {
             var matrix = [];
             var columns = [];
-            var i = 0;
             var maxScore = 0;
-            for (var term in data.terms) {
-                columns.push(term);
-                var values = data.terms[term];
+            json.data.forEach(function (values, i) {
                 for (var j = 0; j < values.length; j++) {
                     var val = parseFloat(values[j]);
                     matrix.push([i, j, val]);
                     maxScore = Math.max(val, maxScore);
                 }
-                i++;
-            }
-            this.set('rows',     _.pluck(data.genes, "name"));
-            this.set('columns',  columns);
+            });
+            this.set('rows',     _.pluck(json.genes, "name"));
+            this.set('columns',  _.pluck(json.terms, "name"));
             this.set('matrix',   matrix);
             this.set('maxScore', maxScore);
         }
