@@ -227,7 +227,7 @@ app.get('/data/query/ontology', function (request, response, next) {
     });
 });
 
-app.get('/data/genome/:id/go-enrichment', function (request, response, next) {
+app.get('/data/query/go-enrichment', function (request, response, next) {
     if (typeof request.query.genes !== 'string') {
         response.send(400, {
             error: "'genes' query parameter must be a string"
@@ -236,7 +236,6 @@ app.get('/data/genome/:id/go-enrichment', function (request, response, next) {
     }
     kbase.getGOEnrichment({
         response: response,
-        genomeId: request.params.id,
         genes: request.query.genes
             ? request.query.genes.split(",") : []
     });

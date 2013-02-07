@@ -93,7 +93,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     });
     var GOEnrichment = SubViewModel.extend({
         url: function () {
-            return dataAPI('/genome/' + this.get('genome') + '/go-enrichment');
+            return dataAPI('/query/go-enrichment');
         },
         parse: function (data) {
             var filtered = [];
@@ -331,7 +331,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             });
 
             var barchart = new SubView({
-                model: new GOEnrichment({ genome: genome }),
+                model: new GOEnrichment,
                 require: 'charts/bar',
                 elementId: "go-histogram",
                 title: "Gene Ontology Enrichment",
