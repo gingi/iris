@@ -5,6 +5,7 @@ body,html { height:100%;}
 .navbar li { vertical-align: middle; }
 .label { vertical-align: middle }
 .hud {
+    z-index: 40;
     position: fixed;
     background-color: black;
     opacity: 0.6;
@@ -95,6 +96,8 @@ body,html { height:100%;}
     border-radius: 4px 0 4px 0;
 }
 
+select.mini { width: auto; }
+
 text {
     font: 10px sans-serif;
     pointer-events: none;
@@ -127,6 +130,8 @@ text {
 
 
 /* DATA TABLES  */
+
+.dt-top div { display: inline-block;}
 
 .dataTables_wrapper input.search-query { font-size: 8pt; height: 12px; }
 

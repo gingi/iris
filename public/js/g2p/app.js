@@ -21,9 +21,11 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         defaults: { name: "", genome: "" },
         urlRoot: dataAPI("/trait"),
         parse: function (json) {
-            this.name = json["trait"]["name"];
-            this.genome = json["trait"]["id"].replace(/\.trait.*$/, '');
-            this.experiment = this.parentId = json["trait"]["experiment"];
+            if (json["trait"]) {
+                this.name = json["trait"]["name"];
+                this.genome = json["trait"]["id"].replace(/\.trait.*$/, '');
+                this.experiment = this.parentId = json["trait"]["experiment"];
+            }
             return json;
         }
     });
@@ -33,17 +35,41 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var Network = SubViewModel.extend({
         url: dataAPI('/network/fake')
     });
-    var Coexpression = SubViewModel.extend({
-        url: dataAPI('/coexpression'),
+    
+    var ExpressionProfile = SubViewModel.extend({
+        defaults: {
+            term: "PO:0025296"
+        },
+        url: function () {
+            var url = dataAPI("/ontology/plant/" + this.get('term') + "/expression");
+            return url;
+        },
         parse: function (data) {
+            var matrix = [];
+            var columns = [];
+            var i = 0;
+            var maxScore = 0;
+            for (var sample in data.series) {
+                columns.push(sample);
+                var values = data.series[sample];
+                for (var j = 0; j < values.length; j++) {
+                    var val = parseFloat(values[j]);
+                    matrix.push([i, j, val]);
+                    maxScore = Math.max(val, maxScore);
+                }
+                i++;
+            }
             SubViewModel.prototype.parse.call(this, {
-                rows: data.genes, matrix: data.matrix
+                rows:     data.genes,
+                columns:  columns,
+                matrix:   matrix,
+                maxScore: maxScore
             });
         }
     });
     var GeneFunctions = SubViewModel.extend({
         url: function () {
-            return dataAPI('/genome/' + this.get('genome') + '/functions');
+            return dataAPI('/query/gene-function');
         },
         parse: function (data) {
             var genes = [];
@@ -164,7 +190,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             var self = this;
             var $el = self.$el;
             var model = self.model;
-            if (model.get('variations').length == 0) {
+            if (!model.get('variations') ||
+                model.get('variations').length == 0) {
                 self.errorHandler(model, { status: '404' });
                 return;
             }
@@ -227,7 +254,8 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         errorHandler: function (model, error) {
             var text = '';
             if (error.status == '404') {
-                text = JSON.parse(error.responseText).error;
+                text = error.responseText ? 
+                    JSON.parse(error.responseText).error : "Not found"
             } else {
                 var details = JSON.parse(error.responseText).error;
                 text = $("<span>")
@@ -287,15 +315,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 fetchParams: { clusters: 2, nodes: 5 },
             });
             
-            var coexpView = new SubView({
-                model: new Coexpression,
+            var expView = new SubView({
+                model: new ExpressionProfile,
                 require: 'renderers/heatmap',
                 elementId: 'heatmap',
                 title: 'Expression Profile'
             });
 
             var funcView = new SubView({
-                model: new GeneFunctions({ genome: genome }),
+                model: new GeneFunctions,
                 require: 'renderers/table',
                 elementId: "gene-table",
                 title: "Trait Genes",
