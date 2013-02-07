@@ -78,7 +78,7 @@ define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
     }
     /* Set the defaults for DataTables initialization */
     $.extend(true, $.fn.dataTable.defaults, {
-    	sDom: "<'dt-top row'<'span6'Wl><'span6'fr>>" +
+    	sDom: "<'dt-top row'<'span4'Wl><'span1'fr>>" +
              "<'table-wrapper't><'dt-bottom'ip>",
         fnInitComplete: function (table) {
             $('.dataTables_length').find("select").addClass("span2");

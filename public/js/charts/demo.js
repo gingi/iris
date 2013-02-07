@@ -1,7 +1,12 @@
-require(['jquery', 'backbone', 'underscore',
-    'charts/bar', 'charts/pie', 'renderers/table',
-    'util/dropdown'],
-    function ($, Backbone, _, BarChart, PieChart, Table, DropDown) {
+require([
+    'jquery',
+    'backbone',
+    'underscore',
+    'charts/bar',
+    'charts/pie',
+    'renderers/table', 
+    'util/dropdown'
+], function ($, Backbone, _, BarChart, PieChart, Table, DropDown) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
         url: function () { return "/data/genome/" + this.id + "/chromosomes"; },
