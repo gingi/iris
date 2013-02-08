@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'jquery.dataTables', 'columnfilter'],
+define(['jquery', 'underscore', 'datatables', 'columnfilter'],
     function ($, _) {
     var defaults = {
         scrollY: 300,
