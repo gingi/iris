@@ -20,8 +20,6 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         var $el = $(options.element);
         var data;
         self.setData = function (inData) {
-            console.log("Bar Data [%s]", typeof inData);
-            console.dir(inData);
             if (typeof inData === "object") {
                 data = [];
                 for (var key in inData) {
