@@ -130,14 +130,14 @@ require(['jquery', 'backbone', 'underscore',
         dock.hud.append($("<button>")
             .addClass("btn btn-small")
             .css("margin-left", 5)
-            .text("||").on("click", function () {
+            .html("<i class=\"icon-pause\"></i>").on("click", function () {
                 this._paused = !this._paused;
                 if (this._paused) {
                     Datavis.pause();
-                    $(this).text(">");
+                    $(this).html("<i class=\"icon-play\"></i>");
                 } else {
                     Datavis.resume();
-                    $(this).text("||");
+                    $(this).html("<i class=\"icon-pause\"></i>");
                 }
             }));
     });
