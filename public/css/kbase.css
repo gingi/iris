@@ -20,15 +20,31 @@ body,html { height:100%;}
 }
 .hud .close {
     color: #ddd;
-    opacity: 0.8;
     margin-right: 10px;
+    opacity: 0.8;
     filter: alpha(opacity=80);
+    text-shadow: none;
+}
+.hud .close:hover {
+    color: #000;
+    text-shadow: 0 1px 0 #ddd;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
 }
 .hud .table td, .hud .table th {
     border: none;
+    padding: 2px 3px;
+}
+.hud #title {
+    font-family: "HelveticaNeue-CondensedBold", "Helvetica Neue", Helvetica;
+    color: #ddd;
+    padding: 0 0 5px 10px;
+    margin-top: 5px;
+    border-bottom: 1px dotted #aaa;
+    font-weight: normal;
 }
 .hud-content {
-    padding: 10px;
+    padding: 0 8px 8px;
 }
 .hud ul {
     margin-left: 0;

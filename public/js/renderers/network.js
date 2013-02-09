@@ -410,8 +410,10 @@ for (var t in Foci) {
         var selected, originalFill,
             hud = new HUD({
                 position: { bottom: 20, left: 20 },
-                width: 300
+                width: 300,
+                title: "Node Properties"
             });
+hud.show();
         self.clickNode = function (d, element) {
             if (selected) {
                 selected.style["fill"] = originalFill;
@@ -426,7 +428,7 @@ for (var t in Foci) {
             var fill = d3.hsl(originalFill);
             selected.style["fill"] = fill.brighter(1).toString();
         
-            hud.empty().append(nodeInfo(d))
+            hud.empty().append(nodeInfo(d));
             hud.show();
             hud.on("dismiss", function () {
                 if (selected != null) {
@@ -436,6 +438,7 @@ for (var t in Foci) {
             });
         }
         
+        // TODO: Get this out of the renderer.
         function nodeInfo(d) {
             var $table =
                 $("<table id='nodeInfo' class='table table-condensed'>")
@@ -448,9 +451,8 @@ for (var t in Foci) {
                 );
             }
             row("Name", d.name);
-            row("KBase ID", d.kbid);
             row("Type", d.type);
-            row("Entity ID", d.entityId);
+            row("KBase ID", d.entityId);
             row("Neighbors", self.neighbors(d).length);
             return $table;
         }
@@ -624,6 +626,7 @@ for (var t in Foci) {
             });
             update();
         }
+        self.dock = dock;
         
         return self;
     };
