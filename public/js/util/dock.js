@@ -76,11 +76,11 @@ function ($, d3, EventEmitter, HUD) {
         var hud = self.hud = new HUD({
             width: 300,
             position: { top: 50, right: 20 },
+            title: "Dock"
         });
         
         self.updateHud = function () {
             hud.empty();
-            hud.append("<h4>Dock</h4>");
             var nodes = [];
             for (var d in docked) {
                 nodes.push(d);
@@ -184,6 +184,7 @@ function ($, d3, EventEmitter, HUD) {
         self.hudContent = function (callback) {
             dockHudContentCallback = callback;
         }
+        self.showHUD = dockhud;
     };
     
     $.extend(Dock.prototype, EventEmitter);
