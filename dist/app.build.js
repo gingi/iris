@@ -24,4 +24,5 @@
         "util/hud",
         "util/viewport"
     ],
+    exclude: [ "columnfilter" ]
 })
