@@ -5,7 +5,7 @@ requirejs.config({
         datatables:   "jquery.dataTables"
     },
     shim: {
-        jquery:      { exports: "$"           },
+        jquery:      { exports: ["$", "jQuery"] },
         d3:          { exports: "d3"          },
         underscore:  { exports: "_"           },
         colorbrewer: { exports: "colorbrewer" },
@@ -13,13 +13,6 @@ requirejs.config({
         "backbone.localstorage": {
             exports: "Backbone",
             deps: [ "backbone" ]
-        },
-        datatables: {
-            deps: [ "jquery" ],
-            exports: "jQuery.fn.dataTableExt"
-        },
-        columnfilter: {
-            deps: [ "datatables" ]
         },
         "util/spin":  { exports: "Spinner" }
     },
