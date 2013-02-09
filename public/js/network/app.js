@@ -125,22 +125,6 @@ require(['jquery', 'backbone', 'underscore',
         dock.hud.append(button);
         button.on("click", function () { coNeighborAction(clusters) });
     });
-    Datavis.addDockAction(function () {
-        var dock = this;
-        dock.hud.append($("<button>")
-            .addClass("btn btn-small")
-            .css("margin-left", 5)
-            .html("<i class=\"icon-pause\"></i>").on("click", function () {
-                this._paused = !this._paused;
-                if (this._paused) {
-                    Datavis.pause();
-                    $(this).html("<i class=\"icon-play\"></i>");
-                } else {
-                    Datavis.resume();
-                    $(this).html("<i class=\"icon-pause\"></i>");
-                }
-            }));
-    });
     function coNeighborAction(clusters) {
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
@@ -384,6 +368,7 @@ require(['jquery', 'backbone', 'underscore',
             }
             DataSets.set('datasets', datasets);
             Datavis.dockNodes(nodes);
+            Datavis.dock.showHUD();
         },
         showNetwork: function (networkId) {
             Datavis.reset();

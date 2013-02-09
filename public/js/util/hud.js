@@ -15,6 +15,9 @@ define(["jquery", "underscore"], function($, _) {
             return button;
         }
         $hud.append(closeButton());
+        if (options.title) {
+            $hud.append($("<h4>").attr("id", "title").text(options.title));
+        }
         $hud.append($content);
         for (var prop in options.position) {
             $hud.css(prop, options.position[prop]);
