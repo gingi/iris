@@ -299,7 +299,7 @@ exports.getNeighborNetwork = function (params) {
         ];
     }
     if (params.rels == null || params.rels.length == 0) {
-        params.rels = ['GENE_CLUSTER', 'CLUSTER_CLUSTER'];
+        params.rels = ['GENE_CLUSTER', 'CLUSTER_CLUSTER', 'GENE_GENE'];
     } else {
         for (var i = 0; i < params.rels.length; i++) {
             params.rels[i] = EdgeTypes[params.rels[i]] || params.rels[i];
