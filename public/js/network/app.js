@@ -77,12 +77,20 @@ require(['jquery', 'backbone', 'underscore',
             .attr("id", "btn-get-clusters")
             .text("Get clusters");
         button.on("click", function () {
+            AppProgress.progress(0);
             AppProgress.show("Getting clusters");
             var deferred = $.Deferred(), chained = deferred;
+            var nodesDone = 0;
+            function incProgress() {
+                nodesDone++;
+                AppProgress.progress(
+                    nodesDone / nodes.length * 100 + "%");
+            }
             nodes.forEach(function (node) {
                 var entityId = node.entityId;
                 chained = chained.then(function() {
                     if (nodeClusters[entityId]) {
+                        incProgress();
                         return true;
                     }
                     var neighbors = new NetworkModel;
@@ -95,6 +103,7 @@ require(['jquery', 'backbone', 'underscore',
                         },
                         success: function(model, data) {
                             nodeClusters[entityId] = true;
+                            incProgress();
                             if (!data) { promise.resolve(); return; }
                             data.nodes.forEach(function(node, ni) {
                                 if (node.type == 'CLUSTER') {
@@ -144,9 +153,11 @@ require(['jquery', 'backbone', 'underscore',
         button.on("click", function () { coNeighborAction(clusters) });
     });
     function coNeighborAction(clusters) {
+        AppProgress.progress(0);
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
             chained = deferred;
+        var clustersDone = 0;
         clusters.forEach(function (cluster) {
             chained = chained.then(function () {
                 if (clusterNeighbors[cluster.entityId]) {
@@ -160,7 +171,11 @@ require(['jquery', 'backbone', 'underscore',
                     success: function (model, data) {
                         clusterNeighbors[cluster.entityId] = true;
                         fetchCoNeighbors(model, data, cluster)
-                            .then(function () { codeferred.resolve() });
+                            .then(function () {
+                                clustersDone++;
+                                AppProgress.progress(clustersDone / clusters.length * 100 + "%");
+                                codeferred.resolve()
+                            });
                     }
                 });
                 return codeferred;
