@@ -322,7 +322,7 @@ for (var t in Foci) {
         }
         
         function notHidden(d) { return !d.hidden || d.hidden == false }
-        function hasLabel(d) { return d.hasLabel }
+        function hasLabel(d) { return d.hasLabel && notHidden(d); }
         function isDocked(d) {
             var docked = dock.get();
             for (var id in docked) {
@@ -343,6 +343,7 @@ for (var t in Foci) {
                 .style("stroke-width", function(d) { return d.weight; });
             svgLinks.exit().remove();
 
+            _.filter(nodes, )
             svgNodes = nodeG.selectAll("circle.node")
                 .data(_.filter(nodes, notHidden));
             var nodeEnter = svgNodes.enter().append("circle")
@@ -619,7 +620,9 @@ for (var t in Foci) {
         }
         self.toggleHidden = function (node) {
             node.hidden = !node.hidden;
+            console.log("Hiding node", node);
             var neighbors = self.neighbors(node);
+            // Hide link
             neighbors.forEach(function (neighbor) {
                 neighbor[1].hidden = node.hidden;
             });

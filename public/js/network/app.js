@@ -268,7 +268,7 @@ require(['jquery', 'backbone', 'underscore',
             })
             table.setData({
                 columns: [
-                    "", "KBase ID", "Name", "Interactions", "Type", "Source"
+                    "<i class=\"icon-eye-open\"></i>", "KBase ID", "Name", "Interactions", "Type", "Source"
                 ],
                 data: data
             });
