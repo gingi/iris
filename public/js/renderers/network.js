@@ -413,7 +413,6 @@ for (var t in Foci) {
                 width: 300,
                 title: "Node Properties"
             });
-hud.show();
         self.clickNode = function (d, element) {
             if (selected) {
                 selected.style["fill"] = originalFill;
