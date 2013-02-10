@@ -21,7 +21,7 @@ define(['jquery', 'underscore'],
                 }
             }
         };
-        self.render = function () {
+        self.render = function (args) {
             var $table = $("<table>").attr("cellpadding", 0)
                 .attr("cellspacing",0).attr("border", 0)
                 .addClass('table table-striped table-bordered');
@@ -48,7 +48,8 @@ define(['jquery', 'underscore'],
                         },
                         fnRowCallback: function (tr, data) {
                             options.rowCallback.call(tr, data);
-                        }
+                        },
+                        fnDrawCallback: args.success
                     });
                     adjustHeight('.dataTables_wrapper');
                     adjustHeight('.table-wrapper');
