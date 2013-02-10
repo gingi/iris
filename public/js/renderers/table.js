@@ -22,6 +22,7 @@ define(['jquery', 'underscore'],
             }
         };
         self.render = function (args) {
+            args = args ? _.clone(args) : {};
             var $table = $("<table>").attr("cellpadding", 0)
                 .attr("cellspacing",0).attr("border", 0)
                 .addClass('table table-striped table-bordered');
