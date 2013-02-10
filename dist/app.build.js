@@ -23,6 +23,5 @@
         "util/progress",
         "util/hud",
         "util/viewport"
-    ],
-    exclude: [ "columnfilter" ]
+    ]
 })

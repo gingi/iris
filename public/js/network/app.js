@@ -91,14 +91,29 @@ require(['jquery', 'backbone', 'underscore',
                     neighbors.fetch({
                         data: {
                             datasets: DataSets.asString(),
-                            rels: "gc"
+                            rels: "gc" // GENE:CLUSTER
                         },
                         success: function(model, data) {
                             nodeClusters[id] = true;
                             if (!data) { promise.resolve(); return; }
-                            data.nodes.forEach(function(node) {
-                                // Ensure distinct colors.
-                                node.group = node.entityId;
+                            data.nodes.forEach(function(node, ni) {
+                                if (node.type == 'CLUSTER') {
+                                    // Ensure distinct colors.
+                                    node.group = node.entityId;
+                                    var datasetIds = [];
+                                    data.edges.forEach(function (edge) {
+                                        if (ni == edge.source ||
+                                            ni == edge.target) {
+                                            datasetIds.push(edge.datasetId);
+                                        }
+                                    });
+                                    if (datasetIds.length == 1) {
+                                        node.dataset = _.find(data.datasets,
+                                            function (d) {
+                                                return d.id == datasetIds[0];
+                                            });
+                                    }
+                                }
                             });
                             Datavis.merge(data);
                             promise.resolve();
@@ -205,18 +220,33 @@ require(['jquery', 'backbone', 'underscore',
                 }
             });
             var data = [];
+            var dockedNodes = {};
+            Datavis.dockedNodes().forEach(function (n) {
+                dockedNodes[n.entityId] = true;
+            });
             clusters.forEach(function (cluster) {
+                var neighbors = Datavis.neighbors(cluster);
+                var interactions = 0, source = "", networkType = "";
+                neighbors.forEach(function (tuple) {
+                    if (dockedNodes[tuple[0].entityId])
+                        interactions++;
+                })
+                if (cluster.dataset) {
+                    networkType = cluster.dataset.networkType;
+                    source      = cluster.dataset.sourceReference;
+                }
                 clusterFill[cluster.entityId] =
                     Datavis.nodeProperty(cluster, "fill");
                 var checkbox = "<input class=\"toggle-cluster\" " +
                     "type=\"checkbox\" checked data-cluster=\"" +
                     cluster.entityId + "\"></input>";
-                data.push([checkbox,
+                data.push([
+                    checkbox,
                     cluster.entityId,
                     cluster.name,
-                    5, // Interactions
-                    "", // Type
-                    "", // Source
+                    interactions,
+                    networkType,
+                    source
                 ]);
             })
             table.setData({
@@ -272,7 +302,6 @@ require(['jquery', 'backbone', 'underscore',
                     candidate.datasets[edge.datasetId] = true;
                     candidate.numDatasets++;
                 }
-                // console.log("candidate %s: [%d edges %d datasets]", ckey, candidate.edges.length, candidate.numDatasets);
             }
             edges.forEach(function (edge) {
                 if (dockedNodes[nodes[edge.source].entityId]) {

@@ -729,5 +729,10 @@ function transformNetwork(networkJson) {
         edge.weight = 1;
         json.edges.push(edge);
     }
+    for (var prop in networkJson) {
+        if (!json.hasOwnProperty(prop)) {
+            json[prop] = networkJson[prop];
+        }
+    }
     return json;
 }
