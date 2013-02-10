@@ -189,10 +189,14 @@ require(['jquery', 'backbone', 'underscore',
                     cluster.entityId + "\"></input>";
                 data.push([checkbox,
                     cluster.entityId,
-                    cluster.name]);
+                    cluster.name,
+                    5, // Interactions
+                    "", // Type
+                    "", // Source
+                ]);
             })
             table.setData({
-                columns: [ "Show", "Entity ID", "Name" ],
+                columns: [ "", "KBase ID", "Name", "Interactions", "Type", "Source"],
                 data: data
             });
             table.render();
