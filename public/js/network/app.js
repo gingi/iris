@@ -77,16 +77,16 @@ require(['jquery', 'backbone', 'underscore',
             .attr("id", "btn-get-clusters")
             .text("Get clusters");
         button.on("click", function () {
-            resetNetwork = false;
             AppProgress.show("Getting clusters");
             var deferred = $.Deferred(), chained = deferred;
-            nodes.forEach(function (id) {
+            nodes.forEach(function (node) {
+                var entityId = node.entityId;
                 chained = chained.then(function() {
-                    if (nodeClusters[id]) {
+                    if (nodeClusters[entityId]) {
                         return true;
                     }
                     var neighbors = new NetworkModel;
-                    neighbors.url = neighborTemplate({ id: id });
+                    neighbors.url = neighborTemplate({ id: entityId });
                     var promise = $.Deferred();
                     neighbors.fetch({
                         data: {
@@ -94,12 +94,14 @@ require(['jquery', 'backbone', 'underscore',
                             rels: "gc" // GENE:CLUSTER
                         },
                         success: function(model, data) {
-                            nodeClusters[id] = true;
+                            nodeClusters[entityId] = true;
                             if (!data) { promise.resolve(); return; }
                             data.nodes.forEach(function(node, ni) {
                                 if (node.type == 'CLUSTER') {
                                     // Ensure distinct colors.
                                     node.group = node.entityId;
+                                    
+                                    // Associate primary dataset with cluster
                                     var datasetIds = [];
                                     data.edges.forEach(function (edge) {
                                         if (ni == edge.source ||
@@ -250,13 +252,16 @@ require(['jquery', 'backbone', 'underscore',
                 ]);
             })
             table.setData({
-                columns: [ "", "KBase ID", "Name", "Interactions", "Type", "Source"],
+                columns: [
+                    "", "KBase ID", "Name", "Interactions", "Type", "Source"
+                ],
                 data: data
             });
             table.render({
                 success: function () {
                     $(".toggle-cluster").click(function () {
-                        var node = Datavis.findNode($(this).data("cluster"), "entityId");
+                        var node = Datavis.findNode(
+                            $(this).data("cluster"), "entityId");
                         Datavis.toggleHidden(node);
                     })
                 }
@@ -267,7 +272,7 @@ require(['jquery', 'backbone', 'underscore',
         var nodes = _.pluck(_.filter(data.nodes, function (d) {
             return d.type == 'GENE'
         }), "entityId").join(",");
-        if (nodes == "") return;
+        if (nodes == "") return $.Deferred().resolve();
         return $.ajax({
             url: neighborQueryTemplate(),
             dataType: "json",
