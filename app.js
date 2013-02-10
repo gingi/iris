@@ -352,7 +352,8 @@ app.get('/data/node/:id/neighbors', function (request, response, next) {
     kbase.getNeighborNetwork({
         response: response,
         nodes:    [request.params.id],
-        datasets: datasets
+        datasets: datasets,
+        rels:     splitQueryParam(request, 'rels')
     });
 });
 

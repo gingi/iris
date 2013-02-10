@@ -386,7 +386,7 @@ for (var t in Foci) {
                 .on("dragmove.dock",  function () { tick() })
                 .on("dragend.dock",   function (evt, d) {
                     if (!isDocked(d)) d.fixed = !d.fixed;
-                    tick(); force.start();
+                    tick(); force.resume();
                 })
                 .on("dock", function (evt, d, element) {
                     element

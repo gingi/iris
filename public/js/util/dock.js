@@ -13,32 +13,32 @@ function ($, d3, EventEmitter, HUD) {
             var list = $("<ul>");
             dock.hud.append(list);
             nodes.forEach(function (d) {
-                list.append("<li>" + d + "</li>");
+                list.append("<li>" + d.name + "</li>");
             });
         }
         
         function dockDragStart() {
             this._elemOffsets = [];
             this._yoffset = d3.event.sourceEvent.pageY - dockDims.y1;
-            for (var n in docked) {
-                this._elemOffsets[n] = docked[n][0].py - dockDims.y1;
+            for (var key in docked) {
+                this._elemOffsets[n] = docked[key][0].py - dockDims.y1;
             }
         }
         
         function dockDrag() {
             dock.attr("y", dockDims.y1 = d3.event.y - this._yoffset);
-            for (var name in docked) {
-                var el = docked[name];
-                var y = dockDims.y1 + this._elemOffsets[name];
+            for (var key in docked) {
+                var el = docked[key];
+                var y = dockDims.y1 + this._elemOffsets[key];
                 el[1].attr("cy", y);
                 el[0].py = el[0].y = y;
             }
         }
         
         function dockDragEnd() {
-            for (var name in docked) {
-                var el = docked[name];
-                var y = dockDims.y1 + this._elemOffsets[name];
+            for (var key in docked) {
+                var el = docked[key];
+                var y = dockDims.y1 + this._elemOffsets[key];
                 el[1].attr("cy", y);
                 el[0].py = el[0].y = y;
             }
@@ -82,8 +82,8 @@ function ($, d3, EventEmitter, HUD) {
         self.updateHud = function () {
             hud.empty();
             var nodes = [];
-            for (var d in docked) {
-                nodes.push(d);
+            for (var key in docked) {
+                nodes.push(docked[key][0]);
             }
             dockHudContentCallback.call(self, nodes);
             updateActions.forEach(function (callback) {
@@ -141,7 +141,7 @@ function ($, d3, EventEmitter, HUD) {
                 throw Error("Cannot dock a null element");
             }
             d.fixed = true;
-            docked[d.name] = [d, element];
+            docked[d.id] = [d, element];
             self.updateHud();
             self.emit("dock", [d, element]);             
         }
@@ -151,14 +151,14 @@ function ($, d3, EventEmitter, HUD) {
                 throw Error("Cannot undock a null element");
             }
             d.fixed = false;
-            delete docked[d.name];
+            delete docked[d.id];
             self.updateHud();
             self.emit("undock", [d, element]);
         }
         
         self.reset = function () {
-            for (var d in docked)
-                self.undockElement(docked[d][0], docked[d][1]);
+            for (var key in docked)
+                self.undockElement(docked[key][0], docked[key][1]);
         }
         
         self.set = function (nodes) {
@@ -173,8 +173,8 @@ function ($, d3, EventEmitter, HUD) {
         }
         self.get = function () {
             var nodes = [];
-            for (var name in docked) {
-                nodes.push(docked[name][0]);
+            for (var key in docked) {
+                nodes.push(docked[key][0]);
             }
             return nodes;
         }
