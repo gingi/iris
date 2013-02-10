@@ -253,11 +253,14 @@ require(['jquery', 'backbone', 'underscore',
                 columns: [ "", "KBase ID", "Name", "Interactions", "Type", "Source"],
                 data: data
             });
-            table.render();
-            $("input.toggle-cluster").on("click", function () {
-                var node = Datavis.findNode($(this).data("cluster"), "entityId");
-                Datavis.toggleHidden(node);
-            })
+            table.render({
+                success: function () {
+                    $(".toggle-cluster").click(function () {
+                        var node = Datavis.findNode($(this).data("cluster"), "entityId");
+                        Datavis.toggleHidden(node);
+                    })
+                }
+            });
         })
     }
     function fetchCoNeighbors(model, data, cluster) {
