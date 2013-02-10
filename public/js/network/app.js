@@ -13,6 +13,7 @@ require(['jquery', 'backbone', 'underscore',
     var App, Search, router, AppProgress;
     var resetNetwork = true;
     var clusters = [];
+    var NodeCandidates = {};
         
     AppProgress = new Progress({
         element: "#progress-indicator",
@@ -149,6 +150,29 @@ require(['jquery', 'backbone', 'underscore',
             });
         });
         chained.done(function () {
+            var filtered = { nodes: [], edges: [] };
+            var dockIndex = {};
+            Datavis.dockedNodes().forEach(function (node) {
+                dockIndex[node.entityId] = filtered.nodes.length;
+                filtered.nodes.push(node);
+            });
+            for (var id in NodeCandidates) {
+                var candidate = NodeCandidates[id];
+                if (candidate.edges.length > 5) {
+                    var nodeIndex = filtered.nodes.length;
+                    filtered.nodes.push(candidate.node);
+                    candidate.edges.forEach(function (edge) {
+                        edge[edge.keyattr] = nodeIndex;
+                        edge[edge.dockattr] = dockIndex[edge.dockedId];
+                        delete edge.keyattr;
+                        delete edge.dockattr;
+                        delete edge.dockedId;
+                        filtered.edges.push(edge);
+                    });
+                }
+            }
+            NodeCandidates = {};
+            Datavis.merge(filtered);
             AppProgress.dismiss();
             enableBuildNetwork();
             Datavis.render();
@@ -225,34 +249,38 @@ require(['jquery', 'backbone', 'underscore',
             Datavis.dockedNodes().forEach(function (node) {
                 dockedNodes[node.entityId] = true;
             });
-            var dockIndex = {};
-            
             var nodes = neighbors.nodes, edges = neighbors.edges;
-            var filtered = { nodes: [], edges: [] };
-            nodes.forEach(function (node) {
-                if (dockedNodes[node.entityId]) {
-                    dockIndex[node.entityId] = filtered.nodes.length;
-                    filtered.nodes.push(node);
+            function setNodeCandidate(edge, edgeKey) {
+                var dockKey = edgeKey == "source" ? "target" : "source";
+                var node = nodes[edge[edgeKey]];
+                var ckey = node.entityId;
+                var candidate = NodeCandidates[ckey];
+                edge.keyattr  = edgeKey;
+                edge.dockattr = dockKey;
+                edge.dockedId = nodes[edge[dockKey]].entityId;
+                node.group = cluster.entityId;
+                if (!candidate) {
+                    candidate = NodeCandidates[ckey] = {
+                        node: node,
+                        edges: [],
+                        datasets: {},
+                        numDatasets: 0
+                    }
                 }
-            });
+                candidate.edges.push(edge);
+                if (!candidate.datasets[edge.datasetId]) {
+                    candidate.datasets[edge.datasetId] = true;
+                    candidate.numDatasets++;
+                }
+                // console.log("candidate %s: [%d edges %d datasets]", ckey, candidate.edges.length, candidate.numDatasets);
+            }
             edges.forEach(function (edge) {
                 if (dockedNodes[nodes[edge.source].entityId]) {
-                    var node = nodes[edge.target];
-                    edge.source = dockIndex[nodes[edge.source].entityId];
-                    edge.target = filtered.nodes.length;
-                    filtered.nodes.push(node);
-                    filtered.edges.push(edge);
-                    node.group = cluster.entityId;
+                    setNodeCandidate(edge, "target");
                 } else if (dockedNodes[nodes[edge.target].entityId]) {
-                    var node = nodes[edge.source];
-                    edge.target = dockIndex[nodes[edge.target].entityId];
-                    edge.source = filtered.nodes.length;
-                    filtered.nodes.push(node);
-                    filtered.edges.push(edge);
-                    node.group = cluster.entityId;
+                    setNodeCandidate(edge, "source");
                 }
             });
-            Datavis.merge(filtered);
         });
     }
     
