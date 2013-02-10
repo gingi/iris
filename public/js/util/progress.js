@@ -3,7 +3,9 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
     var defaults = {
         fade: true,
         spinner: {},
-        type: _SPIN
+        progress: {},
+        type: _SPIN,
+        initialWidth: "100%"
     };
     var spinnerDefaults = {
         length: 5,
@@ -14,7 +16,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         color: '#666',
         speed: 1.3,
         trail: 42
-    }
+    };
     var progressCounter = 0;
     function create(options) {
         if (options.type == Progress.SPIN) {
@@ -27,15 +29,24 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
             var div = $("<div>")
                 .addClass("progress progress-striped active")
                 .css("display", "none")
-                .append($("<div>").addClass("bar").css("width", "100%"));
+                .append($("<div>").addClass("bar")
+                    .css("width", options.width));
             return {
                 show: function (container, message) {
                     container.append(div);
-                    if (message)
-                        div.find(".bar").text(message);
+                    if (message) {
+                        div.find("#progress-message").remove();
+                        div.append($("<span>")
+                            .attr("id", "progress-message")
+                            .text(message)
+                        );
+                    }
                     div.fadeIn();
                 },
-                hide: function () { div.fadeOut(); }
+                hide: function () { div.fadeOut(); },
+                width: function (percent) {
+                    div.find(".bar").css("width", percent);
+                }
             };
         }
     }
@@ -44,6 +55,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
         _.defaults(options.spinner, spinnerDefaults);
+        options.width = options.initialWidth;
         var $el = $(options.element);
         var _id = "progress-container-" + progressCounter;
         var indicator;
@@ -67,6 +79,14 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                 indicator = create(options);
             }
             indicator.show(container, message);
+        };
+        this.progress = function (percent) {
+            if (options.type == Progress.BAR) {
+                if (!indicator) {
+                    indicator = create(options);
+                }
+                indicator.width(percent);
+            }
         };
         this.dismiss = function () {
             if (indicator) indicator.hide();
