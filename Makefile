@@ -9,6 +9,8 @@ BUILD   ?= ./dist/app.build.js
 DISTLIB ?= ./dist/datavis.js
 MINIFY  ?= 1
 
+BUILDDIR = ./build
+
 ifeq ($(MINIFY),0)
 	RJSOPTS = "optimize=none"
 endif
@@ -21,12 +23,16 @@ init:
 
 dist: init
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
+	
+build: init
+	@ $(RJS) -o $(BUILD) \
+		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
 test: init
 	@ $(NODEUNIT) $(TESTDIR)
 
 clean:
-	rm $(DISTLIB)
+	rm -rf $(DISTLIB) $(BUILDDIR)
 	
 dist-clean: clean
 	rm -rf node_modules/
