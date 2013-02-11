@@ -43,6 +43,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var _idSequence = 1;
         var _autoUpdate = true;
 
+        var _linkCache = {};
         var _paused = false;
         var vis, dock;
         var svgNodes, svgLinks, svgLabels;
@@ -122,8 +123,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var n = self.findNode(id);
             if (n == null) return;
             while (i < links.length) {
-                if (links[i].source == n || links[i].target == n)
+                if (links[i].source == n || links[i].target == n) {
+                    var linkKey =
+                        _hashKey([links[i].source.id, linkes[i].target.id]);
+                    _linkCache[linkKey] = undefined;
                     splicedEdges.push.apply(splicedEdges, links.splice(i,1));
+                }
                 else i++;
             }
             nodes.splice(findNodeIndex(id), 1);
@@ -164,10 +169,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        self.addLink = function (source, target, params) {
+        self.addLink = function (sourceId, targetId, params) {
+            var key = _hashKey([sourceId, targetId]);
+            if (_linkCache[key]) {
+                return;
+            }
             var edge = {
-                source: this.findNode(source),
-                target: this.findNode(target),
+                source: this.findNode(sourceId),
+                target: this.findNode(targetId),
             };
             if (edge.source == null || edge.target == null) {
                 console.log("Cannot find edge for ", source, target);
@@ -176,6 +185,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 edge[p] = params[p];
             }
             links.push(edge);
+            _linkCache[key] = edge;
             if (_autoUpdate) update();
             return this;
         }
@@ -538,8 +548,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             }
             data.edges.forEach(function (e) {
                 self.addLink(
-                    nodeMap[e.source], nodeMap[e.target],
-                    { weight: e.weight });
+                    nodeMap[e.source], nodeMap[e.target], { weight: e.weight }
+                );
             });
             if (args.hidden) {
                 addedNodes.forEach(function (node) {
