@@ -2,7 +2,7 @@ define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
 function ($, d3, EventEmitter, HUD) {
     
     var DOCK_HEIGHT = 30;
-    var Dock = function (element) {  
+    var Dock = function (parent) {  
         var self = this;
 
         var docked = {};
@@ -21,7 +21,7 @@ function ($, d3, EventEmitter, HUD) {
             this._elemOffsets = [];
             this._yoffset = d3.event.sourceEvent.pageY - dockDims.y1;
             for (var key in docked) {
-                this._elemOffsets[n] = docked[key][0].py - dockDims.y1;
+                this._elemOffsets[key] = docked[key][0].py - dockDims.y1;
             }
         }
         
@@ -45,12 +45,12 @@ function ($, d3, EventEmitter, HUD) {
             dockDims.y2 = dockDims.y1 + dockDims.h;
         }
 
-        var w = element.attr("width");
-        var h = element.attr("height");
+        var w = parent.attr("width");
+        var h = parent.attr("height");
         var dockDims = { x1: w / 4, y1: h / 2, w: w / 2, h: DOCK_HEIGHT };
         dockDims.x2 = dockDims.x1 + dockDims.w; // For convenience
         dockDims.y2 = dockDims.y1 + dockDims.h; // For convenience
-        var dock = element.append("rect")
+        var dock = parent.append("rect")
             .attr("id", "networkDock")
             .attr("width",  dockDims.w)
             .attr("height", dockDims.h)
@@ -157,15 +157,15 @@ function ($, d3, EventEmitter, HUD) {
         }
         
         self.reset = function () {
-            for (var key in docked)
-                self.undockElement(docked[key][0], docked[key][1]);
+            hud.empty().dismiss();
+            docked = {};
         }
         
         self.set = function (nodes) {
             self.reset();
             var interval = dock.attr('width') / (nodes.length + 1);
             for (var i = 0; i < nodes.length; i++) {
-                var element = d3.select("#" + nodes[i].elementId)
+                var element = parent.select("#" + nodes[i].elementId);
                 self.dockElement(nodes[i], element);
                 nodes[i].px = dockDims.x1 + (i+1) * interval
                 nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
