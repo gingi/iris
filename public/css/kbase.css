@@ -130,6 +130,9 @@ body,html { height:100%;}
     border-radius: 4px 0 4px 0;
 }
 
+.navbar .nav > li > a { padding-top: 15px; }
+.navbar a.brand { line-height: 30px;}
+
 select.mini { width: auto; }
 
 text {
