@@ -190,7 +190,7 @@ require(['jquery', 'backbone', 'underscore',
             });
             for (var id in NodeCandidates) {
                 var candidate = NodeCandidates[id];
-                if (candidate.edges.length > 5) {
+                if (candidate.numDatasets > 1) {
                     var nodeIndex = filtered.nodes.length;
                     filtered.nodes.push(candidate.node);
                     candidate.edges.forEach(function (edge) {
