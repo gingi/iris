@@ -4,15 +4,20 @@
     <meta charset="utf-8">
     <title><%= title %></title>
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/kbase.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
         href="/css/colorbrewer.css">
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
         href="/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
+        href="/css/bootstrap-responsive.css">
     <link rel="stylesheet" type="text/css" charset="utf-8"
         href="/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
+        href="/css/kbase-common.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
+        href="/css/kbase.css">
     <style type="text/css" media="screen">
-        #container { margin-top: 40px; }
+        #container { margin-top: 60px; }
+        img.logo { margin: 0 20px 0 0;}
     </style>
     <script src="/js/require.js"></script>
     <script>
@@ -24,7 +29,10 @@
     <script src="/js/bootstrap.js"></script>
 </head>
     <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner" style="padding: 0 20px">
+        <div class="navbar-inner">
+            <a href="#">
+                <img class="logo" src="/img/kbase-logo-small.png"/>
+            </a>
             <a class="brand" href="#"><%= title %></a>
             <ul class="nav">
                 <li><a href="/">Home</a></li>

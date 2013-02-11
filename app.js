@@ -49,9 +49,8 @@ app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
-    app.use(express.static(path.join(__dirname, PUBLIC_DIR)));
+    app.use(express.static(PUBLIC_DIR));
     if ('production' == app.settings.env) {
-        app.use(express.static(path.join(__dirname, 'build')));
         var stream = fs.createWriteStream('logs/access.log', {flags: 'a'});
         app.use(express.logger({ stream: stream }));
     } else {
