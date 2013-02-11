@@ -30,13 +30,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
     }
     
-    var groupColor = {};
-    
     var NODE_SIZE  = {
         GENE: 8,
         CLUSTER: 20
     };
-    var color = d3.scale.category20();
     
     var Network = function (options) {
         var self = this;
@@ -45,6 +42,17 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var $el = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = true;
+
+        var _paused = false;
+        var vis, dock;
+        var svgNodes, svgLinks, svgLabels;
+        var linkG, nodeG, labelG;
+        var force, nodes, links;
+
+        var groupColor = {};
+        var hiddenNodes = {};
+        var color;
+
         var Foci = {
             CLUSTER: {
                 x: Math.round($el.width() / 2),
@@ -106,42 +114,31 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             if (label) node.hasLabel = true;
         }
         
-        self.addNode = function (node) {
-            if (node.id) {
-                node.id = parseInt(node.id);
-                var existing = self.findNode(node.id);
-                if (!existing) {
-                    nodes.push(node);
-                    _idSequence = d3.max(_idSequence, node.id + 1);
-                }
-                labelStatus(node);
-            } else {
-                node.id = _idSequence++;
-                nodes.push(node);
-                setColor(node);
-            }
-            if (_autoUpdate) update();
-            return node.id;
-        }
+        self.addNode = self.findOrCreateNode;
 
-        self.removeNode = function (id) {
+        self.removeNode = function (id, splicedEdges) {
+            splicedEdges = splicedEdges || [];
             var i = 0;
             var n = self.findNode(id);
             if (n == null) return;
             while (i < links.length) {
-                if ((links[i].source == n) ||
-                    (links[i].target == n))
-                    links.splice(i,1);
+                if (links[i].source == n || links[i].target == n)
+                    splicedEdges.push.apply(splicedEdges, links.splice(i,1));
                 else i++;
             }
-            nodes.splice(findNodeIndex(id),1);
-            update();
+            nodes.splice(findNodeIndex(id), 1);
+            for (var k in _nodeCache) {
+                if (_nodeCache[k] == n) _nodeCache[k] = undefined;
+            }
+            if (_autoUpdate) update();
             return this;
         }
         
         self.setData  = function (data) {
-            this.setNodes(data.nodes);
-            this.setEdges(data.edges);
+            if (data != null) {
+                this.setNodes(data.nodes);
+                this.setEdges(data.edges);
+            }
             return this;
         }
         
@@ -191,17 +188,19 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
+        function _hashKey(arr) { return arr.join("-"); }
+        
         self.render = function () { update(); return this; }
 
         var _nodeCache = {};
         self.findNode = function(key, type) {
             type = (type || 'id');
-            var hash = [key, type].join("-");
-            if (_nodeCache.hasOwnProperty(hash)) return _nodeCache[hash];
+            var hash = _hashKey([key, type]);
+            if (_nodeCache[hash] != null) return _nodeCache[hash];
             for (var i in nodes) {
                 if (nodes[i][type] === key) {
                     _nodeCache[hash] = nodes[i];
-                    return nodes[i]
+                    return nodes[i];
                 }
             }
             return null;
@@ -229,34 +228,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         function findNodeIndex(id) {
             for (var i in nodes) { if (nodes[i].id === id) return i };
         }
-
-        var w = $el.width(),
-            h = $el.height();
-
-        var _paused = false;
-        var vis = this.vis = d3.select($el[0]).append("svg:svg")
-            .attr("width", w)
-            .attr("height", h);
-
-/*
-for (var t in Foci) {
-    var f = Foci[t];
-    for (var x = f.startx; x < f.startx + f.spreadx; x += f.intx) {
-        for (var y = f.starty; y < f.starty + f.spready; y += f.inty) {
-            vis.append("circle")
-                .attr("cx", x).attr("cy", y).attr("r", 3).style("fill", "pink");
-        }
-    }
-}
-*/
-            
-        var dock;
-        if (options.dock) { dock = new Dock(vis) };
-        
-        // This order matters (nodes painted on top of links)
-        var linkG = vis.append("g").attr("id", "networkLinks");
-        var nodeG = vis.append("g").attr("id", "networkNodes");
-        var labelG = vis.append("g").attr("id", "networkLabels");
         
         var physics = function (key, prop) {
             if (!Physics.hasOwnProperty(key)) key = "default";
@@ -278,31 +249,36 @@ for (var t in Foci) {
         function nodeCharge(d)   { return nodePhysics(d, "charge") }
         function linkDistance(d) { return linkPhysics(d, "linkDistance") }
         function linkStrength(d) { return linkPhysics(d, "linkStrength") }
+
+        var w = $el.width(),
+            h = $el.height();
+
+        function initialize() {
+            $el.empty();
+            vis = this.vis = d3.select($el[0]).append("svg:svg")
+                .attr("width", w)
+                .attr("height", h);
+            if (options.dock) { dock = new Dock(vis) };
+
+            // This order matters (nodes painted on top of links)
+            linkG = vis.append("g").attr("id", "networkLinks");
+            nodeG = vis.append("g").attr("id", "networkNodes");
+            labelG = vis.append("g").attr("id", "networkLabels");
+            force = d3.layout.force()
+                .linkDistance(linkDistance)
+                .linkStrength(linkStrength)
+                .charge(nodeCharge)
+                .size([w, h]);
             
-        var force = d3.layout.force()
-            .linkDistance(linkDistance)
-            .linkStrength(linkStrength)
-            .charge(nodeCharge)
-            .size([w, h]);
-            
-        var nodes = force.nodes(),
+            nodes = force.nodes();
             links = force.links();
-            
-        var svgNodes, svgLinks, svgLabels;
-        
-        
-        function calcbin(o, f) {
-            return {
-                x: f.x, // + Math.round((o.x - f.x) / f.spreadx) * f.intx,
-                y: f.y, // + Math.round((o.y - f.y) / f.spready) * f.inty
-            }
+            color = d3.scale.category20();
         }
-        
-        var nodebins = {};
+        initialize();
+            
         function tick (e) {
             if (e) {
                 var k = 1 * e.alpha;
-                // TODO: Unhidden nodes only
                 nodes.forEach(function (o, i) {
                     if (o.fixed) return;
                     var f = Foci[o.type];
@@ -321,8 +297,7 @@ for (var t in Foci) {
             });
         }
         
-        function notHidden(d) { return !d.hidden || d.hidden == false }
-        function hasLabel(d) { return d.hasLabel && notHidden(d); }
+        function hasLabel(d) { return d.hasLabel; }
         function isDocked(d) {
             var docked = dock.get();
             for (var id in docked) {
@@ -335,17 +310,14 @@ for (var t in Foci) {
         }
         
         function update() {
-            svgLinks = linkG.selectAll("line.link")
-                .data(_.filter(links, notHidden));
+            svgLinks = linkG.selectAll("line.link").data(links);
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
                 .style("stroke-width", function(d) { return d.weight; });
             svgLinks.exit().remove();
 
-            _.filter(nodes, )
-            svgNodes = nodeG.selectAll("circle.node")
-                .data(_.filter(nodes, notHidden));
+            svgNodes = nodeG.selectAll("circle.node").data(nodes);
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
                 .attr("id",     function (d) {
@@ -372,6 +344,7 @@ for (var t in Foci) {
                 .style("fill", "white")
                 .text(function (d) { return d.name.substring(0,6) });
             nodeEnter.call(options.dock ? dock.drag() : force.drag);
+            svgLabels.exit().remove();
             svgNodes.exit().remove();
 
             force.on("tick", tick);
@@ -497,34 +470,34 @@ for (var t in Foci) {
                 neighbor = neighbors[i];
                 var n = neighbor[0];
                 
-                var cousins = self.neighbors(n);
-                var cousinEdges = [];
+                var seconds = self.neighbors(n);
+                var secondEdges = [];
                 var j = 0;
                 
                 // Handle neighbors to the collapsing nodes that
                 // link with each other. Filter out all seen nodes.
-                while (j < cousins.length) {
-                    if (seen[cousins[j][0].id]) {
-                        var edge = _.clone(cousins[j][1]);
+                while (j < seconds.length) {
+                    if (seen[seconds[j][0].id]) {
+                        var edge = _.clone(seconds[j][1]);
                         edge.source = edge.source.id;
                         edge.target = edge.target.id;
-                        cousinEdges.push(edge);
-                        cousins.splice(j, 1);
+                        secondEdges.push(edge);
+                        seconds.splice(j, 1);
                     } else j++
                 }
                 // Collapse nodes if not implicated with other nodes.
-                if (cousins.length <= 1) {
+                if (seconds.length <= 1) {
                     var edge = _.clone(neighbor[1]);
                     edge.source = edge.source.id;
                     edge.target = edge.target.id;
                     collapsed[n.id] = {
                         node: n,
-                        edges: _.flatten([edge, cousinEdges])
+                        edges: _.flatten([edge, secondEdges])
                     };
                 }
             }
             for (var id in collapsed) {
-                self.removeNode(parseInt(id));
+                self.hideNode(collapsed[id].node);
             }
             return this;
         }
@@ -533,22 +506,11 @@ for (var t in Foci) {
             if (!node._collapsed) return this;
             var origAutoUpdate = _autoUpdate;
             _autoUpdate = false;
-            // First add the nodes
             for (var id in node._collapsed) {
                 var d = node._collapsed[id];
-                nodes.push(d.node);
+                self.unhideNode(d.node);
             }
             
-            // Then add the edges
-            for (var id in node._collapsed) {
-                var d = node._collapsed[id];
-                d.hidden = false;
-                d.edges.forEach(function (edge) {
-                    self.addEdge(edge);
-                    edge.hidden = false;
-                });
-                delete node._collapsed[id];
-            }
             self.render();
             _autoUpdate = true;
             delete node._collapsed;
@@ -567,29 +529,38 @@ for (var t in Foci) {
             var nodeMap = {};
             if (data.nodes == null) data.nodes = [];
             if (data.edges == null) data.edges = [];
+            var addedNodes = [];
             for (var i = 0; i < data.nodes.length; i++) {
                 var node = data.nodes[i];
-                node.hidden = args.hidden;
                 node = self.findOrCreateNode(node, options.joinAttribute);
                 nodeMap[i] = node.id;
+                if (args.hidden) addedNodes.push(node);
             }
             data.edges.forEach(function (e) {
                 self.addLink(
                     nodeMap[e.source], nodeMap[e.target],
-                    { weight: e.weight, hidden: args.hidden });
+                    { weight: e.weight });
             });
+            if (args.hidden) {
+                addedNodes.forEach(function (node) {
+                    self.hideNode(node);
+                });
+            }
             self.render();
             _autoUpdate = origAutoUpdate;
             return this;
         }
         self.reset = function () {
-            nodes.length = 0; links.length = 0;
-            labelG.selectAll("text").remove();
-            if (dock) { dock.reset() }
+            nodes.length = 0;
+            links.length = 0;
+            _nodeCache = {};
+            if (options.dock) { dock.reset(); }
+            color = d3.scale.category20();
             update();
             return self;
         }
         self.dockNodes = function (names) {
+            update();
             var nodes = [];
             for (var i in names) {
                 var node = self.findNode(names[i], 'name');
@@ -618,15 +589,32 @@ for (var t in Foci) {
             var element = d3.select("#" + node.elementId);
             return element.style(prop);
         }
-        self.toggleHidden = function (node) {
-            node.hidden = !node.hidden;
-            console.log("Hiding node", node);
-            var neighbors = self.neighbors(node);
-            // Hide link
-            neighbors.forEach(function (neighbor) {
-                neighbor[1].hidden = node.hidden;
+        self.hideNode = function (node) {
+            var hNode = hiddenNodes[node.id] = { node: node, edges: [] };
+            var splicedEdges = [];
+            self.removeNode(node.id, splicedEdges);
+            splicedEdges.forEach(function (edge) {
+                hNode.edges.push(edge);
             });
-            update();
+            if (_autoUpdate) update();
+            return node;
+        }
+        self.unhideNode = function (node) {
+            var hNode = hiddenNodes[node.id];
+            if (hNode == null)
+                return node;
+            node = hNode.node;
+            nodes.push(node);
+            hNode.edges.forEach(function (edge) {
+                links.push(edge);
+            });
+            delete hiddenNodes[node.id];
+            if (_autoUpdate) update();
+            return node;
+        }
+        self.toggleHidden = function (node) {
+            return self.findNode(node.id) != null ?
+                self.hideNode(node) : self.unhideNode(node);
         }
         self.dock = dock;
         

@@ -1,1 +1,1 @@
-../../node_modules/backbone/backbone-min.js
+../../node_modules/backbone/backbone.js
