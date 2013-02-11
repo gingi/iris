@@ -275,9 +275,15 @@ require(['jquery', 'backbone', 'underscore',
             table.render({
                 success: function () {
                     $(".toggle-cluster").click(function () {
-                        var node = Datavis.findNode(
-                            $(this).data("cluster"), "entityId");
-                        Datavis.toggleHidden(node);
+                        if (this._hiddenNode) {
+                            Datavis.unhideNode(this._hiddenNode);
+                            delete this._hiddenNode;
+                        } else {
+                            var node = Datavis.findNode(
+                                $(this).data("cluster"), "entityId");
+                            node = Datavis.hideNode(node);
+                            this._hiddenNode = node;
+                        }
                     })
                 }
             });
@@ -340,8 +346,8 @@ require(['jquery', 'backbone', 'underscore',
         el: $("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
-            if (NetworkData)
-                NetworkData.on('change', this.render);
+            if (NetworkData != null)
+                NetworkData.on('reset', this.render);
         },
         render: function () {
             var self = this;
@@ -398,6 +404,11 @@ require(['jquery', 'backbone', 'underscore',
         }
     })
     
+    function resetData() {
+        Datavis.reset();
+        NetworkData.clear({ silent: true });
+    }
+    
     var SearchBox = Backbone.View.extend({
         el: $("#nav-search"),
         events: { "submit": "search" },
@@ -409,15 +420,17 @@ require(['jquery', 'backbone', 'underscore',
     });
 
     function showApp(params) {
-        if (resetNetwork) { Datavis.reset(); }
-        resetNetwork = true;
         if (params.id == 'fake') {
             DataSets.set('datasets', ["fake"]);
         }
-        NetworkData.clear();
         NetworkData.url = params.url({ id: params.id });
         App = new AppView;
-        NetworkData.fetch({ data: params.fetchData });
+        NetworkData.fetch({
+            data: params.fetchData,
+            success: function () {
+                App.render();
+            }
+        });
     }
     
     var Router = Backbone.Router.extend({
@@ -432,14 +445,13 @@ require(['jquery', 'backbone', 'underscore',
             "*path":                             "default"
         },
         addNode: function (nodeId, datasets) {
+            if (resetNetwork) { resetData(); }
             NetworkData.set({ id: nodeId });
-            if (resetNetwork) { Datavis.reset(); }
             Datavis.addNode({ name: nodeId });
             DataSets.set('datasets', datasets.split(","));
         },
         addNodes: function (nodeInput, datasetInput) {
-            NetworkData.set({ id: null });
-            if (resetNetwork) { Datavis.reset(); }
+            resetData();
             var nodes = nodeInput.split(",");
             var datasets = datasetInput.split(",");
             for (var i = 0; i < nodes.length; i++) {
@@ -455,7 +467,7 @@ require(['jquery', 'backbone', 'underscore',
             Datavis.dock.showHUD();
         },
         showNetwork: function (networkId) {
-            Datavis.reset();
+            resetData();
             showApp({
                 id: networkId || 'fake',
                 url: networkTemplate
