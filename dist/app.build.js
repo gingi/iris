@@ -4,7 +4,6 @@
     namespace:      "datavis",
     name:           "datavis",
     create:         true,
-    out:            "datavis.js",
     paths: {
         requireLib: "require"
     },

@@ -31,16 +31,27 @@ if (argv.debug) {
 }
 var cacheMode = argv.cache == true;
 
+var PUBLIC_DIR = path.join(__dirname, 
+    app.settings.env == 'production' ? 'build' : 'public'
+);
 fs.exists("logs", function (exists) {
     if (!exists) fs.mkdirSync("logs");
-})
+});
+fs.exists(PUBLIC_DIR, function (exists) {
+    if (!exists) {
+        console.error(
+            "Public directory '%s' does not exist!\n" +
+            "Make sure you ran 'make build'", PUBLIC_DIR);
+        process.exit(1);
+    }
+});
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
-    app.use(express.static(path.join(__dirname, 'public')));
-    app.use(gzippo.compress());
+    app.use(express.static(path.join(__dirname, PUBLIC_DIR)));
     if ('production' == app.settings.env) {
+        app.use(express.static(path.join(__dirname, 'build')));
         var stream = fs.createWriteStream('logs/access.log', {flags: 'a'});
         app.use(express.logger({ stream: stream }));
     } else {
@@ -49,6 +60,7 @@ app.configure(function() {
         app.use(express.session());
         app.use(express.errorHandler());
     }
+    app.use(gzippo.compress());
     if (cacheMode) {
         console.log("Using web cache.");
         var cache = require('web-cache');
@@ -62,7 +74,7 @@ app.configure(function() {
     app.use(express.methodOverride());
     app.use(app.router);
     app.use(require('less-middleware')({
-        src: __dirname + '/public'
+        src: PUBLIC_DIR
     }));
 });
 
@@ -75,11 +87,11 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 
 app.get('/network', function (req, res, next) {
-    res.sendfile('public/network.html');
+    res.sendfile(PUBLIC_DIR + '/network.html');
 });
 
 app.get('/g2p', function (req, res, next) {
-    res.sendfile('public/g2p.html');
+    res.sendfile(PUBLIC_DIR + '/g2p.html');
 });
 
 app.get('/charts', routes.charts);
