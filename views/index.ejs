@@ -2,20 +2,41 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel="stylesheet" href="/css/bootstrap.css" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
+        href="/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
+        href="/css/bootstrap-responsive.css">
+    <link rel="stylesheet" type="text/css" charset="utf-8"
+        href="/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
+        href="/css/identity.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
+        href="/css/kbase-common.css">
+    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
+        href="/css/kbase.css">
+    <style type="text/css" media="screen">
+    .span3 { position: relative; height: 150px ;}
+    .span3 a.btn { position: absolute; bottom: 0; }
+    .logo { float: right; margin-top: 20px; }
+    </style>
   </head>
   <body>
       <div class="navbar navbar-fixed"></div>
       <div class="container">
           <div class="hero-unit">
-              <h1>KBase DataVis</h1>
-              <h4>A data visualization library for the KBase Project</h4>
+              <a href="http://kbase.us" class="logo">
+                  <img width="200px" align="right" src="/img/kbase-logo.png"/>
+              </a>
+              <div>
+                  <h1>KBase DataVis</h1>
+                  <h4>A data visualization library for the KBase Project</h4>
+              </div>
           </div>
           <div class="row">
               <div class="span3">
                   <h3>Networks</h3>
                   <p>A workbench for network exploration.</p>
-                  <p><a class="btn" href="/network">Launch »</a></p>
+                  <a class="btn" href="/network">Launch »</a>
               </div>
               <div class="span3">
                   <h3>GenoPheno</h3>
