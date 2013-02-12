@@ -28,3 +28,6 @@
 [submodule "external/font-awesome"]
 	path = external/font-awesome
 	url = https://github.com/FortAwesome/Font-Awesome
+[submodule "external/bootstrap-arrows"]
+	path = external/bootstrap-arrows
+	url = https://github.com/iarfhlaith/Bootstrap-Arrows
