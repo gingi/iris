@@ -106,13 +106,34 @@ require([
                     })
                 });
             }
-            genome.fetch({ success: function (model, json) {
+            genome.fetch({
+                success: function (model, json) {
                 $("#genome-name").text(json.info["scientific_name"]);
                 $("#genome-info").empty();
                 $("#genome-info")
                     .append($("<small>").html(json.info["dna_size"] + " bp"))
                     .append($("<small>").html(json.info["pegs"] + " genes"))
-            }});
+                },
+                error: function (model, xhr) {
+                    var content = $("<span>");
+                    if (xhr.status == 404) {
+                        content.append(JSON.parse(xhr.responseText).error);
+                    } else {
+                        content
+                            .append($("<p>")
+                                .text("Couldn't get genome " + model.get('id'))
+                            )
+                            .append($("<h5>").text("Technical details"))
+                            .append($("<pre>").css("font-size", "65%")
+                                .text(xhr.responseText));
+                    }
+                    $("#datavis").empty().prepend(
+                        $("<div>").addClass("alert alert-block alert-error")
+                            .css("margin-top", "50px")
+                            .append($("<h3>").text("Oops!")).append(content)
+                    );
+                }
+            });
         },
     });
     
