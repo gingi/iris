@@ -1,6 +1,16 @@
-require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
-     'util/progress', 'g2p/dropdowns', 'g2p/blurb'],
-    function ($, Backbone, _, ManhattanPlot, Progress, DropDowns, Blurb) {
+require([
+    'jquery',
+    'backbone',
+    'underscore',
+    'renderers/manhattan',
+    'util/progress',
+    'util/viewport',
+    'util/hud',
+    'g2p/dropdowns',
+    'g2p/blurb'],
+    function (
+        $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, DropDowns, Blurb
+    ) {
   
     function dataAPI(path) { return "/data" + path; }
 
@@ -45,6 +55,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             return url;
         },
         parse: function (json) {
+            if (!json || !json.data) return;
             var matrix = [];
             var columns = [];
             var maxScore = 0;
@@ -121,13 +132,15 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
             Vent.on('genes', this.fetchModel, this);
-            $("#subviews").append(
-                $("<div>").addClass("span4").append(
-                    $("<div>").addClass("viewport")
-                        .attr("id", this.options.elementId)
-                        .attr('data-title', this.options.title)));
-            this.progress =
-                new Progress({ element: "#" + this.options.elementId });
+            var wrapper = $("<div>").addClass("span4");
+            $("#subviews").append(wrapper);
+            this.viewport = new Viewport({
+                parent: wrapper,
+                height: 400,
+                title: this.options.title,
+                id: this.options.elementId
+            });
+            this.progress = new Progress({ element: this.viewport });
             this.progress.show();
         },
         render: function() {
@@ -135,7 +148,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             require([self.options.require], function(Chart) {
                 self.progress.dismiss();
                 var chart = new Chart(_.extend({
-                    element: "#" + self.options.elementId
+                    element: self.viewport
                 }, self.options.renderParams));
                 chart.setData(self.model.toJSON());
                 chart.render();
@@ -171,9 +184,12 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             this.$el.css("position", "relative")
 
             // Prepare transitions
-            $hud = $("#infobox").css("min-height", "30px");
-            $hud.on("click", function () { $hud.fadeOut() });
-            $hud.fadeOut(function () { $hud.empty(); });
+            $hud = new HUD({
+                position: { top: 100, right: 20 },
+                element: "#datavis",
+                title: "Selection"
+            });
+            $hud.attr("id", "infobox").css("min-height", "30px");
             $hud.progress = new Progress({ element: $hud, fade: false });
             this.manhattanContainer =
                 this.makeRowDiv("manhattan-row-container");
@@ -222,7 +238,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                 }
                 var tbody = $("<tbody>");
                 $hud.empty();
-                $hud.fadeIn();
+                $hud.show();
                 setInterval(function () {
                     if ($hud.is(":empty")) { $hud.progress.show(); }
                 }, 500);
@@ -402,7 +418,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
         }
     });
    
-    ["infobox", "dockhud"].forEach(function (id) {
+    ["dockhud"].forEach(function (id) {
         $("body").append($("<div>", {
             id: id
         }).addClass("hud").css("display", "none"));

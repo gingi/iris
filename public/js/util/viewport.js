@@ -8,6 +8,8 @@ define(["jquery", "underscore", "util/progress"], function ($, _, Progress) {
     };
     function Viewport(options) {
         options = options ? _.clone(options) : {};
+        if (!options.width)  { options.width  = options.parent.width();  }
+        if (!options.height) { options.height = options.parent.height(); }
         _.defaults(options, defaults);
         options.parent = $(options.parent);
         options.id = options.id || ["viewport", viewportCounter].join("-");
