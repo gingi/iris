@@ -4,26 +4,32 @@ require([
     'underscore',
     'charts/bar',
     'charts/pie',
-    'renderers/table', 
+    'renderers/table',
+    'util/viewport',
     'util/dropdown'
-], function ($, Backbone, _, BarChart, PieChart, Table, DropDown) {
+], function ($, Backbone, _, BarChart, PieChart, Table, Viewport, DropDown) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
-        url: function () { return "/data/genome/" + this.id + "/chromosomes"; },
+        urlRoot: "/data/genome",
         parse: function (data) {
-            var chromosomes = {};
-            for (var chr in data) {
-                var len = parseInt(data[chr]);
+            var contigs = {};
+            for (var id in data.contigs) {
+                var len = parseInt(data.contigs[id].length);
                 if (len > 1e6) {
-                    chromosomes[chr] = len;
+                    contigs[data.contigs[id].name] = len;
                 }
             }
-            this.set('chromosomes', chromosomes);
-            return data;
+            this.set('name',    data.info["scientific_name"]);
+            this.set('genes',   data.info["pegs"]);
+            this.set('length',  data.info["dna_size"]);
+            this.set('contigs', contigs);
         }
     });
 
-    var dropdownFactory = new DropDown({ container: "#nav" });
+    var dropdownFactory = new DropDown({
+        container: "#nav .nav",
+        copyTarget: "#genome-name"
+    });
     var dropdown = dropdownFactory.create({
         name: "Genome",
         url: "/data/genome"
@@ -36,11 +42,11 @@ require([
         },
         dataSpec: function (data) { return data; },
         render: function () {
-            $(this.el).empty();
+            this.$el.empty();
             var chartData = [];
-            var chromosomes = this.model.get('chromosomes');
-            for (var chr in chromosomes) {
-                chartData.push(this.dataPoint(chromosomes, chr));
+            var contigs = this.model.get('contigs');
+            for (var chr in contigs) {
+                chartData.push(this.dataPoint(contigs, chr));
             }
             var vis = new this.chartType({ element: "#" + this.el.id });
             vis.setData(this.dataSpec(chartData));
@@ -49,31 +55,30 @@ require([
         },
     });
     
-    function div(id) {
-        return $("<div>")
-            .attr("id", id)
-            .addClass("viewport")
-            .css("height", "400px")
-            .css("width", "400px")
-    }
-
     var charts = {
         barchart: {
-            dataPoint: function (chromosomes, chr) { return { x: chr, y: chromosomes[chr] } },
+            title: "Bar Chart",
+            dataPoint: function (contigs, id) {
+                return { x: id, y: contigs[id] }
+            },
             chartType: BarChart
         },
         piechart: {
-            dataPoint: function (chromosomes, chr) { return [chr, chromosomes[chr]] },
+            title: "Pie Chart",
+            dataPoint: function (contigs, id) {
+                return [id, contigs[id]]
+            },
             chartType: PieChart
         },
         tablesum: {
-            dataPoint: function (chromosomes, chr) { return [ chr, chromosomes[chr] ] },
+            title: "Table",
+            dataPoint: function (contigs, id) { return [ id, contigs[id] ] },
             chartType: Table,
             dataSpec: function (data) {
                 return {
                     data: data,
-                    columns: ['Chromosome', 'Length'],
-                    filter: ['Chromosome']
+                    columns: ['Contig', 'Length'],
+                    filter: ['Contig']
                 }
             }
         }
@@ -84,21 +89,35 @@ require([
             "*actions": "show"
         },
         show: function (genomeId) {
-            $("#container").empty();
+            $("#datavis").empty();
             var genome = new Genome;
-            genomeId = (genomeId || 'kb|g.22476');
-            genome.set({id: genomeId});
-            dropdown.select(genomeId);
+            genomeId = genomeId || 'kb|g.3899';
+            genome.set({ id: genomeId });
+            // dropdown.select(genomeId);
             for (var elementId in charts) {
-                var $div = div(elementId);
-                $("#container").append($div);
                 var View = ChartView.extend(charts[elementId]);
-                var view = new View({ model: genome, el: $div });
+                var view = new View({
+                    model: genome,
+                    el: new Viewport({
+                        parent: $("#datavis"),
+                        width: 350,
+                        height: 400,
+                        title: charts[elementId].title
+                    })
+                });
             }
-            genome.fetch();
+            genome.fetch({ success: function (model, json) {
+                $("#genome-name").text(json.info["scientific_name"]);
+                $("#genome-info").empty();
+                $("#genome-info")
+                    .append($("<small>").html(json.info["dna_size"] + " bp"))
+                    .append($("<small>").html(json.info["pegs"] + " genes"))
+            }});
         },
     });
     
+    $("#datavis").before("<h2 id=\"genome-name\"></h2>")
+    $("#datavis").before("<div id=\"genome-info\"></div>");
     var router = new Router;
     Backbone.history.start();
 });
