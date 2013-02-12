@@ -20,7 +20,7 @@ exports.examples = function (req, res) {
 };
 
 exports.charts = function (req, res) {
-    res.render('charts', { title: 'Charts Demo', js: 'main' });
+    res.render('datavis', { title: 'Charts Demo', js: 'charts/main' });
 };
 
 exports.heatmap = function (req, res) {

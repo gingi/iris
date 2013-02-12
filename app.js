@@ -153,6 +153,13 @@ app.get('/data/genome/:id/chromosomes', function (request, response, next) {
     });
 });
 
+app.get('/data/genome/:id', function (request, response, next) {
+    kbase.getGenomeInfo({
+        response: response,
+        genomeId: request.params.id
+    });
+})
+
 app.get('/data/genome', function (request, response, next) {
     if (argv.fake) {
         response.send(require('./data/fake/genomes.json'));
