@@ -385,7 +385,6 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
             dropdowns.select(type, id);
         },
         show: function (traitId) {
-            console.log("Showing", traitId);
             $("#datavis").empty();
             var trait = new Trait;
             trait.set({id: decodeURIComponent(traitId)});
