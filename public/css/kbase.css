@@ -131,7 +131,14 @@ body,html { height:100%;}
 }
 
 .navbar .nav > li > a { padding-top: 15px; }
-.navbar a.brand { line-height: 30px;}
+.navbar a.brand { line-height: 30px; }
+.navbar small { line-height: auto; }
+
+#genome-info small {
+    color: #aaa;
+    margin-right: 12px;
+}
+#genome-info { margin-top: -10px; margin-bottom: 10px; }
 
 select.mini { width: auto; }
 
@@ -200,7 +207,8 @@ div.dataTables_length select {
 }
 
 div.dataTables_filter label {
-	float: right;
+    margin-left: 10px;
+    vertical-align: middle;
 }
 
 div.dataTables_info {

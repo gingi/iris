@@ -30,11 +30,11 @@
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
 </head>
-    <div class="navbar navbar-fixed-top">
+    <div id="nav" class="navbar navbar-fixed-top">
+        <a href="#">
+            <img class="logo" src="/img/kbase-logo-small.png"/>
+        </a>
         <div class="navbar-inner">
-            <a href="#">
-                <img class="logo" src="/img/kbase-logo-small.png"/>
-            </a>
             <a class="brand" href="#"><%= title %></a>
             <ul class="nav">
                 <li><a href="/">Home</a></li>
@@ -43,8 +43,8 @@
         </div>
     </div>
     <div id="container" class="container">
-    <div id="datavis"></div>
-</div>
+        <div id="datavis"></div>
+    </div>
 <div class="hud" id="infobox" style="display:none"></div>
 <div class="hud" id="dockhud" style="display:none"></div>
 </body>

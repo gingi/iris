@@ -1,19 +1,22 @@
 define(['jquery', 'backbone', 'underscore',
     'util/progress', 'backbone.localstorage'],
 function($, Backbone, _, Progress) {
-    function updateCopy(el) {
-        el.find("#copy").text(el.find("li.active").text());
-    }
+    var defaults = {
+        container:    "body",
+        listTemplate: "#ddListTemplate",
+        itemTemplate: "#ddItemTemplate",
+        copyTemplate: "#ddCopyTemplate",
+        copyTarget:   null
+    };
     
     function DropDownMenu(options) {
         var self = this;
-        options = (options || {});
-        options.container = options.container ?
-            $(options.container) : $("body");
-        options.listTemplate = options.listTemplate ?
-            $(options.listTemplate) : $("#ddListTemplate");
-        options.itemTemplate = options.itemTemplate ?
-            $(options.itemTemplate) : $("#ddItemTemplate")
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        options.container    = $(options.container);
+        options.listTemplate = $(options.listTemplate);
+        options.itemTemplate = $(options.itemTemplate);
+        options.copyTemplate = $(options.copyTemplate);
         options.parseItem = (options.parseItem || function (data, item) {
             item.id    = data[0];
             item.title = data[1];
@@ -34,10 +37,13 @@ function($, Backbone, _, Progress) {
                 '<li class="dropdown">' +
                 '<a class="dropdown-toggle" id="<%= label %>" ' +
                 'data-toggle="dropdown"data-target="#" href="#">' +
-                '<%= title %> <b class="caret"></b><br/>' +
-                '<small id="copy" class="muted"></small></a>' +
+                '<%= title %> <b class="caret"></b></a>' +
                 '<ul id="<%= listId %>" class="dropdown-menu" ' + 
                 'role="menu" aria-labelledby="<%= label %>"></ul></li>');
+        }
+        if (!options.copyTemplate.html()) {
+            options.copyTemplate = $("<script>").attr("type", "text/template")
+                .html('<br/><small id="copy" class="muted"></small>');
         }
         var DDItem = Backbone.Model.extend({
             defaults: {
@@ -60,7 +66,7 @@ function($, Backbone, _, Progress) {
             selectItem: function () {
                 this.$el.parent().children().removeClass('active');
                 this.$el.addClass('active');
-                updateCopy(this.$el.parent().parent());
+                $(this.options.copyTarget).text(this.$el.text());
             },
             render: function() {
                 this.$el.append(this.template(this.model));
@@ -80,8 +86,14 @@ function($, Backbone, _, Progress) {
                     label:  this.options.label,
                     listId: this.options.listId,
                     title:  this.options.title
-                })); 
+                }));
                 this.$el.append(this.container);
+                if (this.options.copyTarget == null) {
+                    $("#" + this.options.label)
+                        .append(_.template(options.copyTemplate.html())());
+                    this.options.copyTarget =
+                        $("#" + this.options.label).find("#copy");
+                }
             },
             renderItems: function () {
                 var $topics = this.$el.find("#" + this.options.listId);
@@ -91,7 +103,9 @@ function($, Backbone, _, Progress) {
                         ? _.sortBy(this.collection.models, options.sortBy)
                         : this.collection.models;
                     _.each(items, function (item) {
-                        var itemView = new DDItemView({ model: item });
+                        var itemView = new DDItemView({
+                            model: item, copyTarget: this.options.copyTarget
+                        });
                         $topics.append(itemView.render().el);
                     }, this);
                 } else {
@@ -125,7 +139,8 @@ function($, Backbone, _, Progress) {
                 label:      args.label,
                 title:      args.title,
                 name:       args.name,
-                listId:     args.name + '-select'
+                listId:     args.name + '-select',
+                copyTarget: options.copyTarget
             });
             ddListView.fetch = function (options) {
                 options = options ? _.clone(options) : {};
