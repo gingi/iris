@@ -220,6 +220,43 @@ exports.getContigLengths = function (params) {
     }, rpcErrorHandler(params.response));
 }
 
+exports.getGenomeInfo = function (params) {
+    params = validateParams(params, ['genomeId']);
+    async.parallel({
+        contigs: function (callback) {
+            async.waterfall([
+                curryAsyncCallback(exports.getContigLengths, params),
+                function (contigs, wfCallback) {
+                    var ids = [];
+                    for (var id in contigs) ids.push(id);
+                    api('cdmiEntity').get_entity_Contig(ids, ['source_id'],
+                    function (names) {
+                        var json = {};
+                        for (var id in names) {
+                            json[id] = {
+                                name: names[id].source_id,
+                                length: contigs[id]
+                            }
+                        }
+                        wfCallback(null, json)
+                    }, rpcErrorHandler(params.response))
+                }
+            ], function (err, results) {
+                callback(null, results);
+            });
+        },
+        info: function (callback) {
+            api('cdmiEntity').get_entity_Genome([params.genomeId],
+                "scientific_name contigs pegs rnas dna_size".split(" "),
+                function (data) { callback(null, data[params.genomeId]); },
+                rpcErrorHandler(params.response)
+            )
+        }
+    }, function (err, results) {
+        params.callback(results);
+    });
+}
+
 exports.getGenomes = function (params) {
     params = validateParams(params);
     api('cdmiEntity').query_entity_Genome(
