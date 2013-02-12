@@ -54,6 +54,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         }
 
         function startDrag(ev) {
+            offset = element.offset();
             if (tool.clicked) {
                 tool.clicked = false;
                 return;
