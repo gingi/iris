@@ -9,8 +9,7 @@ var express  = require('express'),
     path     = require('path'),
     fs       = require('fs'),
     util     = require('util'),
-    gzippo   = require('gzippo'),
-    argv     = require('optimist').argv;
+    gzippo   = require('gzippo');
     
 var kbase = require('./src/api/kbase');
 
@@ -19,6 +18,36 @@ var ONE_DAY  = 86400;
 
 var RANDOM_NEIGHBORHOOD_NODES = 20;
 var MAX_ITEMS = 300;
+
+var defaultEnv = process.env.NODE_ENV || "development";
+var optimist = require('optimist')
+    .usage("Run the datavis app\nUsage: $0 [options]")
+    .boolean(["fake", "debug", "cache"])
+    .default("port",  3000)
+    .default("env",   defaultEnv)
+    .describe("fake",  "Serve only fake data, not from the API")
+    .describe("cache", "Use a cache for API endpoints")
+    .describe("debug", "Show debug statements")
+    .describe("env",   "The run environment {development,production}")
+    .describe("port",  "The network port")
+    .check(function (opts) {
+        if (opts.env && !validEnvironment(opts.env))
+            throw new Error("Invalid environment (--env): " + opts.env);
+        return true;
+    });
+var argv = optimist.argv;
+
+function validEnvironment(val) {
+    var Environments = "production development".split(" ");
+    for (var i in Environments)
+        if (Environments[i] == val) return true;
+    return false;
+}
+
+if (argv.help) {
+    console.log(optimist.help());
+    process.exit(0);
+}
 
 var app = express();
 
@@ -32,7 +61,7 @@ if (argv.debug) {
 var cacheMode = argv.cache == true;
 
 var PUBLIC_DIR = path.join(__dirname, 
-    app.settings.env == 'production' ? 'build' : 'public'
+    argv.env == 'production' ? 'build' : 'public'
 );
 fs.exists("logs", function (exists) {
     if (!exists) fs.mkdirSync("logs");
@@ -46,11 +75,11 @@ fs.exists(PUBLIC_DIR, function (exists) {
     }
 });
 app.configure(function() {
-    app.set('port', process.env.PORT || 3000);
+    app.set('port', argv.port);
     app.set('views', __dirname + '/views');
     app.set('view engine', 'ejs');
     app.use(express.static(PUBLIC_DIR));
-    if ('production' == app.settings.env) {
+    if ('production' == argv.env) {
         var stream = fs.createWriteStream('logs/access.log', {flags: 'a'});
         app.use(express.logger({ stream: stream }));
     } else {
