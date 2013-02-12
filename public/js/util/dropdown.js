@@ -79,6 +79,12 @@ function($, Backbone, _, Progress) {
             template: _.template(options.listTemplate.html()),
             initialize: function() {
                 this.collection.bind("sync", this.renderItems, this);
+                if (this.options.copyTarget == null) {
+                    $("#" + this.options.label)
+                        .append(_.template(options.copyTemplate.html())());
+                    this.options.copyTarget =
+                        $("#" + this.options.label).find("#copy");
+                }
                 this.render();
             },
             render: function() {
@@ -88,12 +94,9 @@ function($, Backbone, _, Progress) {
                     title:  this.options.title
                 }));
                 this.$el.append(this.container);
-                if (this.options.copyTarget == null) {
-                    $("#" + this.options.label)
-                        .append(_.template(options.copyTemplate.html())());
-                    this.options.copyTarget =
-                        $("#" + this.options.label).find("#copy");
-                }
+            },
+            updateCopy: function (text) {
+                $(this.options.copyTarget).text(text);
             },
             renderItems: function () {
                 var $topics = this.$el.find("#" + this.options.listId);
@@ -133,6 +136,7 @@ function($, Backbone, _, Progress) {
                 return args.array ? data[args.array] : data;
             }
             var ddList = new (Backbone.Collection.extend(listParams));
+            var copyTarget = args.copyTarget || options.copyTarget;
             ddList.url = args.url;
             var ddListView = new DDListView({
                 collection: ddList,
@@ -140,7 +144,7 @@ function($, Backbone, _, Progress) {
                 title:      args.title,
                 name:       args.name,
                 listId:     args.name + '-select',
-                copyTarget: options.copyTarget
+                copyTarget: copyTarget
             });
             ddListView.fetch = function (options) {
                 options = options ? _.clone(options) : {};
@@ -166,8 +170,8 @@ function($, Backbone, _, Progress) {
             ddListView.select = function (selected) {
                 function doSelect() {
                     var item = ddList.get(selected);
-                    if (item)
-                        ddListView.container.find("#copy").text(item.title);
+                    if (item) 
+                        ddListView.updateCopy(item.title);
                 }
                 doSelect();
                 ddList.once("all", doSelect);

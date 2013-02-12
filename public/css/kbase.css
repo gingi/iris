@@ -18,6 +18,8 @@ body,html { height:100%;}
        -moz-box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
             box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
 }
+a:visited.close { color: inherit; }
+.hero-unit h2 { color: black; font-size: 200%; }
 .hud .close {
     color: #ddd;
     margin-right: 10px;
