@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
-     'util/progress', 'g2p/dropdowns'],
-    function ($, Backbone, _, ManhattanPlot, Progress, DropDowns) {
+     'util/progress', 'g2p/dropdowns', 'g2p/blurb'],
+    function ($, Backbone, _, ManhattanPlot, Progress, DropDowns, Blurb) {
   
     function dataAPI(path) { return "/data" + path; }
 
@@ -151,7 +151,7 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     });
     
     var ManhattanView = Backbone.View.extend({
-        el: $("#container"),
+        el: $("#datavis"),
         makeRowDiv: function (id) {
             var $div = this.$el.find("#" + id);
             if (!$div.length) {
@@ -377,13 +377,16 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
     var Router = Backbone.Router.extend({
         routes: {
             "trait/:traitId": "show",
-            ":type/:id": "dropdownSelect",
+            ":type/:id":      "dropdownSelect",
+            "*action":        "default"
         },
         dropdownSelect: function (type, id) {
             dropdowns.listen(type, id);
             dropdowns.select(type, id);
         },
         show: function (traitId) {
+            console.log("Showing", traitId);
+            $("#datavis").empty();
             var trait = new Trait;
             trait.set({id: decodeURIComponent(traitId)});
             var mview = new ManhattanView({ model: trait });
@@ -394,7 +397,16 @@ require(['jquery', 'backbone', 'underscore', 'renderers/manhattan',
                     dropdowns.select('trait', traitId);
                 }
             });
+        },
+        default: function () {
+            $("#datavis").empty().append(new Blurb(router));
         }
+    });
+   
+    ["infobox", "dockhud"].forEach(function (id) {
+        $("body").append($("<div>", {
+            id: id
+        }).addClass("hud").css("display", "none"));
     });
     var router = new Router;
     Backbone.history.start();

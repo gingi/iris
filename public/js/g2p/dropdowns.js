@@ -2,6 +2,7 @@ define(["util/dropdown"], function (DropDown) {
     function DropDowns(dataAPI) {
         var self = this;
         var dropdowns, dropDownFactory;
+        var breadcrumbs;
         
         dropdowns = {
             genome: {
@@ -34,15 +35,25 @@ define(["util/dropdown"], function (DropDown) {
         };
 
         dropDownFactory = new DropDown({
-            container: "#g2pnav",
-            template:  "#dropdownTemplate",
+            container: "#nav .nav",
             sortBy: function (item) { return item.title.toLowerCase(); },
             itemLink: function (item) {
                 return "#" + item.type + "/" + item.id;
             }
         });
+
+        function breadcrumb(type) {
+            return $("<li>")
+                .append($("<a>", { id: "breadcrumb-" + type }))
+                .append($("<span>").addClass("divider").text("/"));
+        }
         
         function init() {
+            breadcrumbs = $("<ul>", {
+                id: "dropdown-breadcrumbs"
+            }).addClass("breadcrumb").css("display", "none");
+            $("#datavis").before(breadcrumbs);
+            
             for (var type in dropdowns) {
                 var dd = dropdowns[type];
                 var select;
@@ -51,8 +62,10 @@ define(["util/dropdown"], function (DropDown) {
                     url:        dd.url,
                     itemType:   type,
                     array:      dd.array,
-                    listParse:  dd.listParse
+                    listParse:  dd.listParse,
+                    copyTarget: "#breadcrumb-" + type
                 });
+                breadcrumbs.append(breadcrumb(type));
             }
             dropdowns.genome.view.fetch();
         }
@@ -95,6 +108,7 @@ define(["util/dropdown"], function (DropDown) {
         };
     
         self.select = function (type, id) {
+            breadcrumbs.show();
             dropdowns[type].view.select(id);
         };
         
