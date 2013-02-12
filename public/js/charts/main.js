@@ -14,7 +14,7 @@ require([
         parse: function (data) {
             var contigs = {};
             for (var id in data.contigs) {
-                var len = parseInt(data.contigs[id].length);
+                    var len = parseInt(data.contigs[id].length);
                 if (len > 1e6) {
                     contigs[data.contigs[id].name] = len;
                 }
