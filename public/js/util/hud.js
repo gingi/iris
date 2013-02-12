@@ -30,9 +30,9 @@ define(["jquery", "underscore"], function($, _) {
 		    $hud.fadeIn();
 		}
         self.dismiss = function () {
-            $hud.fadeOut();
+            $hud.fadeOut()  ;
             self.trigger("dismiss", []);
-        }
+        };
 		return self;
 	}
 	return HUD;
