@@ -112,18 +112,14 @@ http.createServer(app)
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
 
 app.get('/network', function (req, res, next) {
     res.sendfile(PUBLIC_DIR + '/network.html');
 });
 
-app.get('/g2p', function (req, res, next) {
-    res.sendfile(PUBLIC_DIR + '/g2p.html');
-});
-
-app.get('/charts', routes.charts);
-app.get('/heatmap', routes.heatmap);
+app.get('/g2p',              routes.g2p);
+app.get('/charts',           routes.charts);
+app.get('/heatmap',          routes.heatmap);
 app.get('/heatmap-chunking', routes.heatmapChunked);
 
 app.get('/data/trait/:id', function (request, response, next) {

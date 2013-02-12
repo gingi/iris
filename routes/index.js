@@ -4,17 +4,21 @@
  */
 
 exports.index = function (req, res) {
-    res.render('index', { title: 'KBase Data Visualization Library' });
+    res.render("index", { title: "KBase Data Visualization Library" });
 };
 
 exports.charts = function (req, res) {
-    res.render('datavis', { title: 'Charts Demo', js: 'charts/main' });
+    res.render("datavis", { title: "Charts Demo", js: "charts/main" });
 };
 
 exports.heatmap = function (req, res) {
-    res.render('datavis', { title: 'Heatmap', js: 'heatmap/main' });
+    res.render("datavis", { title: "Heatmap", js: "heatmap/main" });
 };
 
 exports.heatmapChunked = function (req, res) {
-    res.render('heatmap', { title: 'Heatmap', js: 'chunked' });
+    res.render("heatmap", { title: "Heatmap", js: "chunked" });
+};
+
+exports.g2p = function (req, res) {
+    res.render("datavis", { title: "Genotype Phenotype Workbench", js: "g2p/main" });
 };
