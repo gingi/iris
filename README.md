@@ -34,6 +34,19 @@ This starts the web server at [http://0:3000](http://0:3000), which shows variou
 
 * `--cache`: Use a [Redis](http://redis.io/ "Redis") cache for API endpoints (Redis must be running)
 * `--debug`: Prints debug information, including RPC calls to the API
+* `--env  `: Run in either `production` or `development` mode (see below). If not set, will fall back on the `NODE_ENV` environment variable.
+* `--port `: The network port to use
+
+Run `node app --help` for information on other options.
+
+###Use in Production
+The app can be run in production mode, which has a different configuration and serves optimized client code. The optimized code is generated as a copy of the `/public` directory saved in `/build`. To generate the optimized code, run:
+
+    make build
+    
+To run the app in production mode, run
+
+    node app --env production
 
 ##Usage and Documentation
 The client-side library can be used on the browser as in the following example:
