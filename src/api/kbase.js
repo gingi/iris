@@ -227,6 +227,11 @@ exports.getGenomeInfo = function (params) {
             async.waterfall([
                 curryAsyncCallback(exports.getContigLengths, params),
                 function (contigs, wfCallback) {
+                    if (Object.size(contigs) == 0) {
+                        return wfCallback(
+                            { code: 404, error: "No contigs" }, null
+                        );
+                    }
                     var ids = [];
                     for (var id in contigs) ids.push(id);
                     api('cdmiEntity').get_entity_Contig(ids, ['source_id'],
@@ -242,7 +247,7 @@ exports.getGenomeInfo = function (params) {
                     }, rpcErrorHandler(params.response))
                 }
             ], function (err, results) {
-                callback(null, results);
+                callback(err, results);
             });
         },
         info: function (callback) {
@@ -253,6 +258,14 @@ exports.getGenomeInfo = function (params) {
             )
         }
     }, function (err, results) {
+        if (err) {
+            if (err.code == 404) {
+                return params.response.send(404, {
+                    error: "Genome " + params.genomeId + " not found"
+                });
+            }
+            errorHandler(params.response)(err);
+        }
         params.callback(results);
     });
 }
@@ -382,7 +395,7 @@ exports.getNodeInfo = function (params) {
     api('idserver').external_ids_to_kbase_ids("EnsemblPlant", [params.nodeId],
         function (data) {
             if (!data || !data.hasOwnProperty(params.nodeId)) {
-                return params.response(404, {
+                return params.response.send(404, {
                     error: "Node ID not found"
                 });
             }
@@ -738,6 +751,14 @@ exports.getFunctionalAnnotations = function (params) {
 exports.debug = false;
 
 /* Utility functions */
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 Object.clone = function (obj) {
     return Object.create(
         Object.getPrototypeOf(obj), 
