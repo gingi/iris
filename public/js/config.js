@@ -15,6 +15,11 @@ requirejs.config({
             exports: "Backbone",
             deps: [ "backbone" ]
         },
-        "util/spin":  { exports: "Spinner" }
+        'backbone.localstorage': {
+            exports: 'Backbone',
+            deps: [ 'backbone' ]
+        },
+        columnfilter: { exports: "jquery.dataTables" },
+        'util/spin':  { exports: "Spinner" }
     },
 })
