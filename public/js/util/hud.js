@@ -1,13 +1,17 @@
 define(["jquery", "underscore"], function($, _) {
     var defaults = {
         position: { top: 20, left: 20 },
-        element: "body"
+        element: "body",
+        width: 300
     }
 	function HUD(options) {
 		var self = this;
         options = options ? _.clone(options) : {}; 
         _.defaults(options, defaults);
-        var $hud = $("<div>").addClass("hud").css("display", "none");
+        var $hud = $("<div>").addClass("hud")
+            .css("width", options.width)
+            .css("min-height", 100)
+            .css("display", "none");
         var $content = $("<div>").addClass("hud-content");
         function closeButton() {
             var button = $("<button>").addClass("close").html("&times;");

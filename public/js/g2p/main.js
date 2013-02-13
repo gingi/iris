@@ -20,7 +20,7 @@ require([
     var BP2PX = 25e4;
     
     var genesXHR;
-    var $hud;
+    var hud;
     var dropdowns = new DropDowns(dataAPI);
 
     // Vent: Event Aggregator
@@ -184,13 +184,13 @@ require([
             this.$el.css("position", "relative")
 
             // Prepare transitions
-            $hud = new HUD({
+            hud = new HUD({
                 position: { top: 100, right: 20 },
                 element: "#datavis",
-                title: "Selection"
+                title: "Selection",
+                width: 200
             });
-            $hud.attr("id", "infobox").css("min-height", "30px");
-            $hud.progress = new Progress({ element: $hud, fade: false });
+            hud.progress = new Progress({ element: hud, fade: false });
             this.manhattanContainer =
                 this.makeRowDiv("manhattan-row-container");
             this.subviewBar = this.makeRowDiv("subviews");
@@ -234,13 +234,13 @@ require([
                 if (genesXHR) {
                     // If a prior query is in progress
                     genesXHR.abort();
-                    $hud.empty();
+                    hud.empty();
                 }
                 var tbody = $("<tbody>");
-                $hud.empty();
-                $hud.show();
+                hud.empty();
+                hud.show();
                 setInterval(function () {
-                    if ($hud.is(":empty")) { $hud.progress.show(); }
+                    if (hud.is(":empty")) { hud.progress.show(); }
                 }, 500);
                 var pmin = Math.pow(10, -scoreA);
                 var pmax = Math.pow(10, -scoreB);
@@ -260,7 +260,7 @@ require([
                     self.handleGeneSelection.apply(self, arguments)
                 });
             });
-            vis.on("pinpoint", function () { $hud.fadeOut(); });
+            vis.on("pinpoint", function () { });
             return this;
         },
         errorHandler: function (model, error) {
@@ -300,13 +300,13 @@ require([
             //     i += MAX_GENES_PER_REQUEST) {
             //     geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
             // }
-            $hud.progress.dismiss();
-            $hud.append($p);
+            hud.progress.dismiss();
+            hud.append($p);
             if (jqXhr.status == 206) {
-                $hud.append($("<div>").addClass("alert mini").html(
-                    "<h4>Warning!</h4> Not all genes are shown. " +
+                hud.append($("<div>").addClass("alert mini").html(
+                    "<h3>Warning!</h3><p>Not all genes are shown. " +
                     "The app can't handle more genes at this time. " +
-                    "Please select a smaller window."
+                    "Please select a smaller window.</p>"
                 ));
             }
             

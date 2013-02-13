@@ -21,7 +21,7 @@ function apiRequire(path) {
 }
 
 var P_DECIMALS = 5;
-var FLANKING_DISTANCE = 1e5;
+var FLANKING_DISTANCE = 1e4;
 
 var APIConfig;
 
@@ -93,6 +93,7 @@ function trapAJAXErrors() {
                     console.error('Requested page not found. [404]');
                 } else if (jqXHR.status == 500) {
                     console.error('Internal Server Error [500].');
+                    console.error(jqXHR.responseText);
                 } else if (exception === 'parsererror') {
                     console.error('Requested JSON parse failed.');
                 } else if (exception === 'timeout') {
