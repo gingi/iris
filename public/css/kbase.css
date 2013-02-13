@@ -54,6 +54,12 @@ a:visited.close { color: inherit; }
 .hud-content {
     padding: 0 8px 8px;
 }
+.hud-content .alert {
+    background-color: transparent;
+    border: none;
+    color: #fbeed5;
+    text-shadow: none;
+}
 .hud ul {
     margin-left: 0;
 }
