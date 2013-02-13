@@ -3,8 +3,10 @@ var $     = require('jquery');
 var fs    = require('fs');
 var path  = require('path');
 var async = require('async');
+var util  = require('util');
 
 var KBaseAPI    = apiRequire(path.join(__dirname, 'api.js'));
+var CONFIG_DIR  = path.join("..", "..", "conf");
 
 var PLANT_GENOMES = {
     "Ptrichocarpa.JGI2.0": /^POPTR_/,
@@ -21,40 +23,7 @@ function apiRequire(path) {
 var P_DECIMALS = 5;
 var FLANKING_DISTANCE = 1e5;
 
-var apis = {
-    network: {
-        url: 'http://140.221.92.76:7064/KBaseNetworksRPC/networks',
-        fn:  "KBaseNetworks"
-    },
-    g2p: {
-        url: 'http://140.221.84.160:7067',
-        fn:  "Genotype_PhenotypeAPI"
-    },
-    cdmi: {
-        url: 'http://kbase.us/services/cdmi_api/',
-        fn:  "CDMI_API"
-    },
-    cdmiEntity: {
-        url: 'http://kbase.us/services/cdmi_api/',
-        fn:  "CDMI_EntityAPI"        
-    },
-    ontology:   {
-        url: 'http://140.221.84.160:7062',
-        fn:  "Ontology"
-    },
-    expression: {
-        url: 'http://140.221.84.160:7063',
-        fn:  "PlantExpression"
-    },
-    idserver: {
-        url: 'http://kbase.us/services/idserver',
-        fn:  "IDServerAPI"
-    },
-    cdmiEntityProd: {
-        url: 'http://kbase.us/services/cdmi_api',
-        fn:  "CDMI_EntityAPI"
-    }
-}
+var APIConfig;
 
 function errorHandler(response, type, errorMessage) {
     type = (type || "Service Error");
@@ -139,21 +108,37 @@ function trapAJAXErrors() {
     });
 }
 
+var jqueryDebugAJAXRequestsOverridden = false;
+function debugAJAXRequests() {
+    if (jqueryDebugAJAXRequestsOverridden) return;
+    jqueryDebugAJAXRequestsOverridden = true;
+    var jQueryAjax = $.ajax;
+    $.extend({
+        ajax: function () {
+            var params = arguments[0];
+            console.log(
+                "[DEBUG] curl -d '%s' '%s'", params.data, params.url);
+            return jQueryAjax.apply(null, arguments);
+        }
+    });
+}
+
+function loadAPIConfig() {
+    var serviceFile = path.join(CONFIG_DIR,
+        util.format("services.%s.json", exports.env)
+    );
+    APIConfig = require(serviceFile);
+}
+
 function api(key) {
     if (exports.debug) {
-        var jQueryAjax = $.ajax;
-        $.extend({
-            ajax: function () {
-                var params = arguments[0];
-                console.log(
-                    "[DEBUG] curl -d '%s' '%s'", params.data, params.url);
-                return jQueryAjax.apply(null, arguments);
-            }
-        });
-        exports.debug = false; // Just avoid this being overloaded again.
+        debugAJAXRequests();
     }
     trapAJAXErrors();
-    var params = apis[key];
+    if (!APIConfig) {
+        loadAPIConfig();
+    }
+    var params = APIConfig[key];
     if (!params.object) {
         var proto = KBaseAPI[params.fn];
         params.object = new proto(params.url);
@@ -431,7 +416,7 @@ exports.getNodeInfo = function (params) {
                 });
             }
             var kbid = data[params.nodeId];
-            api('cdmiEntityProd').get_entity_Feature([kbid],
+            api('cdmiEntity').get_entity_Feature([kbid],
                 ["feature_type", "source_id", "sequence_length", "function"],
                 params.callback, rpcErrorHandler(params.response)
             )
@@ -780,6 +765,7 @@ exports.getFunctionalAnnotations = function (params) {
 }
 
 exports.debug = false;
+exports.env   = 'development';
 
 /* Utility functions */
 Object.size = function(obj) {
