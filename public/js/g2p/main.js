@@ -414,15 +414,11 @@ require([
             });
         },
         default: function () {
-            $("#datavis").empty().append(new Blurb(router));
+            $("#datavis").empty();
+            new Blurb($("#datavis"), router);
         }
     });
    
-    ["dockhud"].forEach(function (id) {
-        $("body").append($("<div>", {
-            id: id
-        }).addClass("hud").css("display", "none"));
-    });
     var router = new Router;
     Backbone.history.start();
 });
