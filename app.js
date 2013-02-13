@@ -63,6 +63,7 @@ var cacheMode = argv.cache == true;
 var PUBLIC_DIR = path.join(__dirname, 
     argv.env == 'production' ? 'build' : 'public'
 );
+kbase.env = argv.env;
 fs.exists("logs", function (exists) {
     if (!exists) fs.mkdirSync("logs");
 });

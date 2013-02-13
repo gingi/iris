@@ -1,0 +1,30 @@
+{
+    "network": {
+        "url": "http://140.221.92.76:7064/KBaseNetworksRPC/networks",
+        "fn":  "KBaseNetworks"
+    },
+    "g2p": {
+        "url": "http://140.221.84.160:7067",
+        "fn":  "Genotype_PhenotypeAPI"
+    },
+    "cdmi": {
+        "url": "http://kbase.us/services/cdmi_api/",
+        "fn":  "CDMI_API"
+    },
+    "cdmiEntity": {
+        "url": "http://kbase.us/services/cdmi_api/",
+        "fn":  "CDMI_EntityAPI"        
+    },
+    "ontology":   {
+        "url": "http://140.221.84.160:7062",
+        "fn":  "Ontology"
+    },
+    "expression": {
+        "url": "http://140.221.84.160:7063",
+        "fn":  "PlantExpression"
+    },
+    "idserver": {
+        "url": "http://kbase.us/services/idserver",
+        "fn":  "IDServerAPI"
+    }
+}
