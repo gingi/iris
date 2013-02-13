@@ -1,6 +1,6 @@
 require(['jquery', 'backbone', 'underscore',
-    'renderers/network', 'util/progress', 'util/hud'],
-    function ($, Backbone, _, NetworkVis, Progress, HUD) {
+    'renderers/network', 'util/progress', 'util/hud', 'network/nav'],
+    function ($, Backbone, _, NetworkVis, Progress, HUD, Nav) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -418,6 +418,8 @@ require(['jquery', 'backbone', 'underscore',
             router.navigate("#node/" + query, true);
         }
     });
+    
+    var navbar = new Nav({ el: "#nav-content" });
 
     function showApp(params) {
         if (params.id == 'fake') {
