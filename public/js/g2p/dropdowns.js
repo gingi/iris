@@ -35,7 +35,7 @@ define(["util/dropdown"], function (DropDown) {
         };
 
         dropDownFactory = new DropDown({
-            container: "#nav .nav",
+            container: "#nav-content",
             sortBy: function (item) { return item.title.toLowerCase(); },
             itemLink: function (item) {
                 return "#" + item.type + "/" + item.id;
