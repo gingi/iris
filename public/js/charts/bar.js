@@ -53,7 +53,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             var yAxis =
                  d3.svg.axis().scale(y).orient("left").tickFormat(format);
 
-            var svg = d3.select(options.element)
+            var svg = d3.select($el[0])
                 .append("svg")
                 .attr("width", $el.width() - options.padding)
                 .attr("height", $el.height() - options.padding)

@@ -48,7 +48,7 @@ require([
             for (var chr in contigs) {
                 chartData.push(this.dataPoint(contigs, chr));
             }
-            var vis = new this.chartType({ element: "#" + this.el.id });
+            var vis = new this.chartType({ element: this.$el });
             vis.setData(this.dataSpec(chartData));
             vis.render();
             return this;
@@ -90,20 +90,25 @@ require([
         },
         show: function (genomeId) {
             $("#datavis").empty();
+            var row = $("<div>").addClass("row");
+            $("#datavis").append(row);
             var genome = new Genome;
             genomeId = genomeId || 'kb|g.3899';
             genome.set({ id: genomeId });
-            // dropdown.select(genomeId);
+            dropdown.select(genomeId);
             for (var elementId in charts) {
+                var wrapper = $("<div>").addClass("span4");
+                row.append(wrapper);
+                var viewport = new Viewport({
+                    parent: wrapper,
+                    height: 400,
+                    title: charts[elementId].title,
+                    sortContainer: row
+                });
                 var View = ChartView.extend(charts[elementId]);
                 var view = new View({
                     model: genome,
-                    el: new Viewport({
-                        parent: $("#datavis"),
-                        width: 350,
-                        height: 400,
-                        title: charts[elementId].title
-                    })
+                    el: viewport
                 });
             }
             genome.fetch({
