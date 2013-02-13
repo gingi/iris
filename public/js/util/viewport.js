@@ -29,10 +29,12 @@ define(["jquery", "underscore", "util/progress", "sortable"],
     } 
     function Viewport(options) {
         options = options ? _.clone(options) : {};
-        if (!options.width)  { options.width  = options.parent.width();  }
-        if (!options.height) { options.height = options.parent.height(); }
-        _.defaults(options, defaults);
         options.parent = $(options.parent);
+        if (!options.width && options.parent.width() > 0)
+            options.width = options.parent.width();
+        if (!options.height && options.parent.height() > 0)
+            options.height = options.parent.height();
+        _.defaults(options, defaults);
         options.id = options.id || ["viewport", viewportCounter].join("-");
         viewportCounter++;
         
