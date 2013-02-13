@@ -27,7 +27,7 @@ require([
     });
 
     var dropdownFactory = new DropDown({
-        container: "#nav .nav",
+        container: "#nav-content",
         copyTarget: "#genome-name"
     });
     var dropdown = dropdownFactory.create({
