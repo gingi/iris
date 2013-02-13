@@ -112,13 +112,6 @@ a {
 	color: #0088cc; 
 	text-decoration: none;
 	}
-a:visited {
-	color: #018841;
-	}
-a:hover    {
-	text-decoration: underline;
-	color: #018841;
-	}
 pre, code {
 	font-family: 'OxygenMonoRegular', "Lucida Console", "Lucida Sans Typewriter", monospace;
 	font-style: normal;

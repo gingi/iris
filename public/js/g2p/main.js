@@ -138,7 +138,8 @@ require([
                 parent: wrapper,
                 height: 400,
                 title: this.options.title,
-                id: this.options.elementId
+                id: this.options.elementId,
+                sortContainer: $("#subviews")
             });
             this.progress = new Progress({ element: this.viewport });
             this.progress.show();
@@ -211,17 +212,16 @@ require([
             self.manhattanContainer.empty();
             self.subviewBar.empty();
             var $spanContainer = $("<div>").addClass("span12")
-                .css("position", "relative")
-                .outerHeight(MANHATTAN_HEIGHT);
-            var $viewport = $("<div>")
-                .addClass("viewport manhattan")
-                .attr("data-title", "Manhattan Plot")
-                .attr("id", "manhattan-vis");
+                .css("position", "relative");
+            self.manhattanContainer.append($spanContainer);
+            var viewport = new Viewport({
+                parent: $spanContainer,
+                height: MANHATTAN_HEIGHT,
+                id: "manhattan-vis",
+                title: "Manhattan Plot"
+            }).addClass("manhattan");
             
-            self.manhattanContainer.append($spanContainer.append($viewport));
-            $viewport.outerHeight($spanContainer.height());
-            
-            var vis = new ManhattanPlot({ element: $viewport });
+            var vis = new ManhattanPlot({ element: viewport });
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
