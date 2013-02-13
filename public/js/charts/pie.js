@@ -27,7 +27,7 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
                 });
             }
             piedata.sort(function (a, b) { return a.value - b.value; });
-            var vis = d3.select(options.element)
+            var vis = d3.select($el[0])
                 .append("svg:svg").data([piedata])
                     .attr("width", w).attr("height", h)
                 .append("svg:g")

@@ -114,10 +114,7 @@ http.createServer(app)
 
 app.get('/', routes.index);
 
-app.get('/network', function (req, res, next) {
-    res.sendfile(PUBLIC_DIR + '/network.html');
-});
-
+app.get('/network',          routes.network);
 app.get('/g2p',              routes.g2p);
 app.get('/charts',           routes.charts);
 app.get('/heatmap',          routes.heatmap);
