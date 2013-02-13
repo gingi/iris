@@ -67,6 +67,7 @@ define(["util/dropdown"], function (DropDown) {
                 });
                 breadcrumbs.append(breadcrumb(type));
             }
+            $("li:last-child", breadcrumbs).children(".divider").remove();
             dropdowns.genome.view.fetch();
         }
         
