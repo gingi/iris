@@ -132,9 +132,7 @@ a:visited.close { color: inherit; }
     border-radius: 4px 0 4px 0;
 }
 
-/*.navbar .nav > li > a { padding-top: 15px; }
-.navbar a.brand { line-height: 30px; }
-*/.navbar small { line-height: auto; }
+.navbar small { line-height: auto; }
 
 #genome-info small {
     color: #aaa;
