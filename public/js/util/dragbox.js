@@ -40,7 +40,6 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             context.fillStyle = FGCOLOR;
             context.fillText(text, x, y);
             context.restore();
-            
         }
         
         function drawDragBox(x, y, w, h) {
