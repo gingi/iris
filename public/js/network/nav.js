@@ -31,8 +31,8 @@ define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
                     "data-toggle=\"dropdown\"" +
                     "data-target=\"#\" href=\"#\"><%= title %>" +
                 "<b class=\"caret\"></b></a>" +
-                "<ul id=\"example-links\" class=\"dropdown-menu\" role=\"menu\"" +
-                     "aria-labelledby=\"dLabel\"></ul></li>"),
+                "<ul id=\"example-links\" class=\"dropdown-menu\" " +
+                    "role=\"menu\" aria-labelledby=\"dLabel\"></ul></li>"),
         initialize: function () {
             this.render();
         },

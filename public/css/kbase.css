@@ -52,6 +52,7 @@ a:visited.close { color: inherit; }
     font-weight: normal;
 }
 #wrap { min-height: 82%; }
+#progress-indicator { margin-top: 5px; }
 #progress-indicator .progress {
     margin-top: 10px;
     margin-bottom: 0px;
