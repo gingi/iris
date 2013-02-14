@@ -1,5 +1,5 @@
 var reader   = require('./line-reader');
-var graph    = require('../graph');
+var Graph    = require('../graph');
 
 function lineParser(network) {
     var parseMode = null;
@@ -18,7 +18,7 @@ function lineParser(network) {
         }
         var tokens = line.split(/\s+/);
         if (parseMode == 'vertices') {
-            network.createNode(tokens[0]).attribute('name', tokens[1]);
+            network.addNode(tokens[0]).attribute('name', tokens[1]);
         } else if (parseMode == 'edges') {
             network.link(tokens[0], tokens[1], { weight: tokens[2] });
         }
@@ -27,7 +27,7 @@ function lineParser(network) {
 
 
 exports.parse = function (filename, callback) {
-    var network = graph.createGraph();
+    var network = new Graph();
     var stream = reader(filename);
     stream.on('line', lineParser(network));
     stream.on('end', function () {
