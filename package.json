@@ -12,7 +12,8 @@
         "async"           : ">=0.1.22",
         "hiredis"         : ">=0.1.14",
         "web-cache"       : ">=0.0.2",
-        "requirejs"       : ">=2.1.2"
+        "requirejs"       : ">=2.1.2",
+        "amdefine"        : ">=0.0.4"
      }, 
     "name": "datavis", 
     "private": true, 
