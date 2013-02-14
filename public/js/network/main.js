@@ -107,7 +107,6 @@ require(['jquery', 'backbone', 'underscore',
                             if (!data) { promise.resolve(); return; }
                             data.nodes.forEach(function(node, ni) {
                                 if (node.type == 'CLUSTER') {
-                                    
                                     // Associate primary dataset with cluster
                                     var datasetIds = [];
                                     data.edges.forEach(function (edge) {
@@ -141,7 +140,7 @@ require(['jquery', 'backbone', 'underscore',
         dock.hud.append(button);
     });
     var clusterNeighbors = {};
-    Datavis.addDockAction(function (nodes) {
+    Datavis.addDockAction(function () {
         var dock = this;
         var button = $("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
@@ -149,33 +148,32 @@ require(['jquery', 'backbone', 'underscore',
             .attr("disabled", !clusters || clusters.length == 0)
             .text("Find Co-Neighbors");
         dock.hud.append(button);
-        button.on("click", function () { coNeighborAction(nodes) });
+        button.on("click", function () { coNeighborAction(clusters) });
     });
-    function coNeighborAction(nodes) {
+    function coNeighborAction(clusters) {
         AppProgress.progress(0);
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
             chained = deferred;
-        var nodesDone = 0;
-        nodes.forEach(function (node) {
+        var clustersDone = 0;
+        clusters.forEach(function (cluster) {
             chained = chained.then(function () {
-                // if (clusterNeighbors[node.entityId]) {
-                //     return true;
-                // }
+                if (clusterNeighbors[cluster.entityId]) {
+                    return true;
+                }
                 var codeferred = $.Deferred();
                 var neighbors = new NetworkModel;
-                neighbors.url = neighborTemplate({ id: node.entityId });
+                neighbors.url = neighborTemplate({ id: cluster.entityId });
                 neighbors.fetch({
                     data: { datasets: DataSets.asString() },
                     success: function (model, data) {
-                        clusterNeighbors[node.entityId] = true;
-                        fetchCoNeighbors(model, data, node)
-                        .then(function () {
-                            nodesDone++;
-                            AppProgress.progress(
-                                nodesDone / nodes.length * 100 + "%");
-                            codeferred.resolve()
-                        });
+                        clusterNeighbors[cluster.entityId] = true;
+                        fetchCoNeighbors(model, data, cluster)
+                            .then(function () {
+                                clustersDone++;
+                                AppProgress.progress(clustersDone / clusters.length * 100 + "%");
+                                codeferred.resolve()
+                            });
                     }
                 });
                 return codeferred;
