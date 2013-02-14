@@ -107,8 +107,6 @@ require(['jquery', 'backbone', 'underscore',
                             if (!data) { promise.resolve(); return; }
                             data.nodes.forEach(function(node, ni) {
                                 if (node.type == 'CLUSTER') {
-                                    // Ensure distinct colors.
-                                    node.group = node.entityId;
                                     
                                     // Associate primary dataset with cluster
                                     var datasetIds = [];
@@ -116,6 +114,7 @@ require(['jquery', 'backbone', 'underscore',
                                         if (ni == edge.source ||
                                             ni == edge.target) {
                                             datasetIds.push(edge.datasetId);
+                                            node.group = edge.datasetId;
                                         }
                                     });
                                     if (datasetIds.length == 1) {
@@ -220,7 +219,7 @@ require(['jquery', 'backbone', 'underscore',
     }
     function showTable() {
         require(['renderers/table'], function (Table) {
-            var div = $("<div>").attr("id", "cluster-list")
+                var div = $("<div>").attr("id", "cluster-list")
                 .addClass("span8 offset2");
             $("#container").find("#cluster-list-row").remove();
             $("#container")

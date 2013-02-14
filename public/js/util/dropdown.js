@@ -76,6 +76,7 @@ function($, Backbone, _, Progress) {
 
         var DDListView = Backbone.View.extend({
             el: options.container,
+            itemView: DDItemView,
             template: _.template(options.listTemplate.html()),
             initialize: function() {
                 this.collection.bind("sync", this.renderItems, this);
@@ -106,7 +107,7 @@ function($, Backbone, _, Progress) {
                         ? _.sortBy(this.collection.models, options.sortBy)
                         : this.collection.models;
                     _.each(items, function (item) {
-                        var itemView = new DDItemView({
+                        var itemView = new this.itemView({
                             model: item, copyTarget: this.options.copyTarget
                         });
                         $topics.append(itemView.render().el);
@@ -121,19 +122,20 @@ function($, Backbone, _, Progress) {
         });
 
         self.create = function (args) {
-            args = (args || {});
+            args = args ? _.clone(args) : {};
             args.label = (args.label || args.name + "-label");
             args.title = (args.title || args.name);
             
             var itemParams = { type: args.itemType };
-            if (args.parseItem) itemParams[parseItem] = args.parseItem;
+            if (args.parseItem) { itemParams.parseItem = args.parseItem; }
             var TypedDDItem = DDItem.extend(itemParams);
             TypedDDItem.type = args.itemType;
             
             var listParams = { model: TypedDDItem };
-            listParams.parse = function (data) {
-                if (args.listParse) { args.listParse(data) }
-                return args.array ? data[args.array] : data;
+            listParams.parse = function (response) {
+                if (args.listParse) { response = args.listParse(response) }
+                return args.array && response != null
+                    ? response[args.array] : response;
             }
             var ddList = new (Backbone.Collection.extend(listParams));
             var copyTarget = args.copyTarget || options.copyTarget;
@@ -145,6 +147,7 @@ function($, Backbone, _, Progress) {
                 name:       args.name,
                 listId:     args.name + '-select',
                 copyTarget: copyTarget
+                
             });
             ddListView.fetch = function (options) {
                 options = options ? _.clone(options) : {};
@@ -158,13 +161,20 @@ function($, Backbone, _, Progress) {
                 for (var opt in options.data) {
                     ddList[opt] = options.data[opt];
                 }
-                ddList.fetch({ success: function (collection, response, opts) {
-                    progress.dismiss();
-                    fetched = true;
-                    if (options.success) {
-                        options.success(collection, response, opts) };
-                    return collection;
-                }, error: function ()  { console.error(arguments); }});
+                ddList.fetch({
+                    success: function (collection, response, opts) {
+                        progress.dismiss();
+                        fetched = true;
+                        if (options.success) {
+                            options.success(collection, response, opts)
+                        };
+                        return collection;
+                    },
+                    error: function () {
+                        console.error(arguments);
+                    },
+                    data: args.fetchData
+                });
                 return this;
             };
             ddListView.select = function (selected) {

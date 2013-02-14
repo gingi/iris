@@ -32,7 +32,10 @@ require([
     });
     var dropdown = dropdownFactory.create({
         name: "Genome",
-        url: "/data/genome"
+        url: "/data/genome",
+        listParse: function (response) {
+            return response.result;
+        }
     }).fetch();
     
     var ChartView = Backbone.View.extend({
