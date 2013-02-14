@@ -39,6 +39,7 @@ define(['jquery', 'underscore'],
                 		sPaginationType: "bootstrap",
                         sScrollY: options.scrollY,
                         bPaginate: false,
+                        aaSorting: [],
                 		oLanguage: {
                 			sLengthMenu: "_MENU_ per page",
                             sInfoThousands: ","
