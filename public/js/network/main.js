@@ -141,7 +141,7 @@ require(['jquery', 'backbone', 'underscore',
         dock.hud.append(button);
     });
     var clusterNeighbors = {};
-    Datavis.addDockAction(function () {
+    Datavis.addDockAction(function (nodes) {
         var dock = this;
         var button = $("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
@@ -149,32 +149,33 @@ require(['jquery', 'backbone', 'underscore',
             .attr("disabled", !clusters || clusters.length == 0)
             .text("Find Co-Neighbors");
         dock.hud.append(button);
-        button.on("click", function () { coNeighborAction(clusters) });
+        button.on("click", function () { coNeighborAction(nodes) });
     });
-    function coNeighborAction(clusters) {
+    function coNeighborAction(nodes) {
         AppProgress.progress(0);
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
             chained = deferred;
-        var clustersDone = 0;
-        clusters.forEach(function (cluster) {
+        var nodesDone = 0;
+        nodes.forEach(function (node) {
             chained = chained.then(function () {
-                if (clusterNeighbors[cluster.entityId]) {
-                    return true;
-                }
+                // if (clusterNeighbors[node.entityId]) {
+                //     return true;
+                // }
                 var codeferred = $.Deferred();
                 var neighbors = new NetworkModel;
-                neighbors.url = neighborTemplate({ id: cluster.entityId });
+                neighbors.url = neighborTemplate({ id: node.entityId });
                 neighbors.fetch({
                     data: { datasets: DataSets.asString() },
                     success: function (model, data) {
-                        clusterNeighbors[cluster.entityId] = true;
-                        fetchCoNeighbors(model, data, cluster)
-                            .then(function () {
-                                clustersDone++;
-                                AppProgress.progress(clustersDone / clusters.length * 100 + "%");
-                                codeferred.resolve()
-                            });
+                        clusterNeighbors[node.entityId] = true;
+                        fetchCoNeighbors(model, data, node)
+                        .then(function () {
+                            nodesDone++;
+                            AppProgress.progress(
+                                nodesDone / nodes.length * 100 + "%");
+                            codeferred.resolve()
+                        });
                     }
                 });
                 return codeferred;
@@ -264,7 +265,8 @@ require(['jquery', 'backbone', 'underscore',
                     networkType,
                     source
                 ]);
-            })
+            });
+            data = _.sortBy(data, function (d) { return -d[3] });
             table.setData({
                 columns: [
                     "<i class=\"icon-eye-open\"></i>", "KBase ID", "Name", "Interactions", "Type", "Source"

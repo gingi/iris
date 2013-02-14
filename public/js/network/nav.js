@@ -10,11 +10,11 @@ define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
     
     var examples = new Backbone.Collection();
     examples
-    .add({
-        nodes: "kb|g.21765.CDS.3832,kb|g.21765.CDS.1709,kb|g.21765.CDS.71",
-        datasets: "kb|netdataset.regprecise.301,kb|netdataset.modelseed.5",
-        title: "Glyoxylate bypass subsystem (<em>E. coli</em>)"
-    })
+    // .add({
+    //     nodes: "kb|g.21765.CDS.3832,kb|g.21765.CDS.1709,kb|g.21765.CDS.71",
+    //     datasets: "kb|netdataset.regprecise.301,kb|netdataset.modelseed.5",
+    //     title: "Glyoxylate bypass subsystem (<em>E. coli</em>)"
+    // })
     .add({
         nodes: "kb|g.20848.CDS.837,kb|g.20848.CDS.3186,kb|g.20848.CDS.537",
         datasets: "kb|netdataset.regprecise.1,kb|dataset.mak1",

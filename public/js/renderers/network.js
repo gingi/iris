@@ -125,7 +125,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             while (i < links.length) {
                 if (links[i].source == n || links[i].target == n) {
                     var linkKey =
-                        _hashKey([links[i].source.id, linkes[i].target.id]);
+                        _hashKey([links[i].source.id, links[i].target.id]);
                     _linkCache[linkKey] = undefined;
                     splicedEdges.push.apply(splicedEdges, links.splice(i,1));
                 }
@@ -324,7 +324,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
-                .style("stroke-width", function(d) { return d.weight; });
+                .style("stroke", function (d) { return color(d.datasetId); })
+                .style("stroke-width", function(d) { return d.weight * 2; });
             svgLinks.exit().remove();
 
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
@@ -409,7 +410,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             selected = element;
             originalFill = selected.style["fill"];
             var fill = d3.hsl(originalFill);
-            selected.style["fill"] = fill.brighter(1).toString();
+            selected.style["fill"] = "#444";
         
             hud.empty().append(nodeInfo(d));
             hud.show();
@@ -547,8 +548,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 if (args.hidden) addedNodes.push(node);
             }
             data.edges.forEach(function (e) {
+                var sourceIndex = e.source;
+                var targetIndex = e.target;
+                delete e.source;
+                delete e.target;
                 self.addLink(
-                    nodeMap[e.source], nodeMap[e.target], { weight: e.weight }
+                    nodeMap[sourceIndex], nodeMap[targetIndex], e
                 );
             });
             if (args.hidden) {
