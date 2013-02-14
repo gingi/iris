@@ -50,17 +50,21 @@ require(['jquery', 'backbone', 'underscore',
             if (node.type == 'CLUSTER') {
                 coNeighborAction([ node ]);
             } else {
-                $.ajax({
-                    url: neighborTemplate({ id: node.entityId }),
-                    dataType: 'json',
-                    data: { datasets: DataSets.asString() }
-                }).done(function (n) { Datavis.merge(n, { hidden: false }); });
+                if (DataSets.asString() == 'fake') {
+                    $.ajax({
+                        url: neighborTemplate({ id: node.entityId }),
+                        dataType: 'json',
+                        data: { datasets: DataSets.asString() }
+                    }).done(function (n) {
+                        Datavis.merge(n);
+                    });
             
-                // FIXME: This stopped working for some reason
-                //        Getting objects within edge.source/link
-                // router.navigate("#node/" + node.name + "/datasets/" +
-                //      DataSets.asString() +
-                //      "/neighbors", true);
+                    // FIXME: This stopped working for some reason
+                    //        Getting objects within edge.source/link
+                    // router.navigate("#node/" + node.name + "/datasets/" +
+                    //      DataSets.asString() +
+                    //      "/neighbors", true);
+                }
             }
         }
         node.isExpanded = true;
@@ -357,7 +361,7 @@ require(['jquery', 'backbone', 'underscore',
     });
     
     var DataSetModel = Backbone.Model.extend({
-        url:   function () {return datasetsTemplate(this); },
+        url:   function ()     { return datasetsTemplate(this); },
         parse: function (data) { this.set("datasets", data); }
     });
     var DataSets = new DataSetModel;
