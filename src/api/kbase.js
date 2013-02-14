@@ -8,6 +8,8 @@ var util  = require('util');
 var KBaseAPI    = apiRequire(path.join(__dirname, 'api.js'));
 var CONFIG_DIR  = path.join("..", "..", "conf");
 
+var DEBUG_LEVEL = 1;
+
 var PLANT_GENOMES = {
     "Ptrichocarpa.JGI2.0": /^POPTR_/,
     "Athaliana.TAIR10": /^AT\dG\d+/,
@@ -104,12 +106,16 @@ function trapAJAXErrors() {
                     console.error('Uncaught Error.\n' + jqXHR.responseText);
                 }
             }
-            return jQueryAjax.apply(null, arguments);
+            return jQueryAjax.apply(null, arguments).error(function (err) {
+                console.log("Bad error thing", err);
+                throw new Error(err);
+            });
         }
     });
 }
 
 var jqueryDebugAJAXRequestsOverridden = false;
+var processing = 0;
 function debugAJAXRequests() {
     if (jqueryDebugAJAXRequestsOverridden) return;
     jqueryDebugAJAXRequestsOverridden = true;
@@ -119,7 +125,23 @@ function debugAJAXRequests() {
             var params = arguments[0];
             console.log(
                 "[DEBUG] curl -d '%s' '%s'", params.data, params.url);
-            return jQueryAjax.apply(null, arguments);
+            var xhr = jQueryAjax.apply(null, arguments);
+            if (DEBUG_LEVEL > 1) {
+                processing++;
+                var timeout = setInterval(function () {
+                    if (xhr.state() == "pending") {
+                        console.log("[DEBUG] Still waiting (10s): [%s %s]",
+                            params.data, params.url);
+                    } else {
+                        processing--;
+                        console.log(
+                            "[DEBUG] Clearing timeout [%s %s] State:%s Left:%d",
+                            params.data, params.url, xhr.state(), processing);
+                        clearTimeout(timeout);
+                    }
+                }, 10000);
+            }
+            return xhr;
         }
     });
 }
@@ -135,7 +157,7 @@ function api(key) {
     if (exports.debug) {
         debugAJAXRequests();
     }
-    trapAJAXErrors();
+    // trapAJAXErrors();
     if (!APIConfig) {
         loadAPIConfig();
     }
@@ -537,7 +559,7 @@ exports.getOntologyTermSamples = function (params) {
             for (var term in data) {
                 var samples = result[term] = {};
                 for (var i = 0; i < data[term].length; i++) {
-                    var tokens = data[term][i].split(/\t/);
+                    var tokens = data[term][i];
                     var species = tokens[0], sample = tokens[1];
                     if (!samples.hasOwnProperty(species))
                         samples[species] = [];
@@ -640,20 +662,23 @@ exports.getExpressionData = function (params) {
             async.parallel({
                 genomes: function (parCallback) {
                     genomeNamesForGenes(params.response, params.genes, function (data) {
-                        parCallback(null, data);
+                        return parCallback(null, data);
                     });
                 },
-                samples:
-                    curryAsyncCallback(exports.getOntologyTermSamples, params),
-                geneNames:
-                    curryAsyncCallback(exports.getGeneNames, params),
-                termMeta:
-                    curryAsyncCallback(exports.getOntologyTermInfo, params)
+                samples: curryAsyncCallback(exports.getOntologyTermSamples, params),
+                geneNames: curryAsyncCallback(exports.getGeneNames, params),
+                termMeta: curryAsyncCallback(exports.getOntologyTermInfo, params)
             }, function (err, results) {
+                if (err) {
+                    console.error("Error:", err);
+                    console(err, results);
+                }
                 callback(null, results);
-            })
+            });
         },
         function (results, callback) {
+            results.samples = results.samples || {};
+            results.genomes = results.genomes || [];
             var samples = results.samples[params.term];
             var genSamples = [];
             results.genomes.forEach(function (g) {
@@ -775,9 +800,9 @@ function curryAsyncCallback(fetchCb, params) {
     return function (asyncCallback) {
         var nParams = Object.clone(params);
         nParams.callback = function (result) {
-            asyncCallback(null, result);
+            return asyncCallback(null, result);
         };
-        fetchCb.call(null, nParams);
+        return fetchCb.call(null, nParams);
     };
 }
 
