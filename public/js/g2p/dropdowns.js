@@ -9,6 +9,15 @@ define(["util/dropdown"], function (DropDown) {
                 name:       "Genomes",
                 url:        dataAPI("/genome"),
                 listeners:  ['experiment'],
+                listParse:  function (response) {
+                    return response.result;
+                },
+                parseItem: function (data, item) {
+                    item.id    = data[0];
+                    item.title = data[1];
+                    item.trait = data[2] == 1;
+                },
+                fetchData: { haveTrait: 1 },
             },     
             experiment: {
                 name: "Experiments",
@@ -21,6 +30,7 @@ define(["util/dropdown"], function (DropDown) {
                 array: 'experiments',
                 listParse: function (data) {
                     this.parentId = data.genome;
+                    return data;
                 }
             },
             trait: {
@@ -41,6 +51,20 @@ define(["util/dropdown"], function (DropDown) {
                 return "#" + item.type + "/" + item.id;
             }
         });
+        
+        dropdowns.genome.factory = new DropDown({
+            container: "#nav-content",
+            sortBy: function (item) {
+                return item.trait ? "0" : "1" + item.title.toLowerCase();
+            },
+            itemLink: function (item) {
+                return "#" + item.type + "/" + item.id;
+            },
+            itemTemplate: $("<script>").attr("type", "text/template").html(
+                '<a <% if (trait) { %>href="<%= link %>"<% } else { %>' + 
+                'class="disabled"<% } %>><%= title %></a>'
+            )
+        });
 
         function breadcrumb(type) {
             return $("<li>")
@@ -57,14 +81,11 @@ define(["util/dropdown"], function (DropDown) {
             for (var type in dropdowns) {
                 var dd = dropdowns[type];
                 var select;
-                dd.view = dropDownFactory.create({
-                    name:       dd.name,
-                    url:        dd.url,
+                var factory = dd.factory || dropDownFactory;
+                dd.view = factory.create(_.extend({
                     itemType:   type,
-                    array:      dd.array,
-                    listParse:  dd.listParse,
                     copyTarget: "#breadcrumb-" + type
-                });
+                }, dd));
                 breadcrumbs.append(breadcrumb(type));
             }
             $("li:last-child", breadcrumbs).children(".divider").remove();

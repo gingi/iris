@@ -4326,6 +4326,15 @@ function Genotype_PhenotypeAPI(url) {
     }
 
 
+    this.genomes_with_trait = function(_callback, _error_callback) {
+        return json_call_ajax_async("Genotype_PhenotypeAPI.genomes_with_trait", [], 1, _callback, _error_callback);
+    };
+
+    this.genomes_with_trait_async = function(_callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("Genotype_PhenotypeAPI.genomes_with_trait", [], 1, _callback, _error_callback);
+    };
+
     this.get_experiments = function(kb_genome, _callback, _error_callback) {
         return json_call_ajax_async("Genotype_PhenotypeAPI.get_experiments", [kb_genome], 1, _callback, _error_callback);
     };
@@ -4961,6 +4970,154 @@ function PlantExpression(url) {
     this.get_eo_descriptions_async = function(ids, _callback, _error_callback) {
         deprecationWarning();
         return json_call_ajax_async("PlantExpression.get_eo_descriptions", [ids], 1, _callback, _error_callback);
+    };
+
+    function json_call_ajax_async(method, params, num_rets, callback, error_callback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof error_callback === 'function') {
+           deferred.fail(error_callback);
+        }
+
+        var rpc = {
+            params:  params,
+            method:  method,
+            version: "1.1"
+        };
+        
+        var body = JSON.stringify(rpc);
+        jQuery.ajax({
+            dataType:    "text",
+            url:         _url,
+            data:        body,
+            processData: false,
+            type:        "POST",
+            success: function (data, status, xhr) {
+                try {
+                    var resp = JSON.parse(data);
+                    var result = resp.result;
+                    if (num_rets === 1) {
+                        deferred.resolve(result[0]);
+                    } else {
+                        deferred.resolve(result);
+                    }
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        body: body
+                    });
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                if (xhr.responseText) {
+                    var resp = JSON.parse(xhr.responseText);
+                    deferred.reject(resp.error);
+                } else {
+                    deferred.reject({
+                        message: "Unknown Error"
+                    });
+                }
+            }
+        });
+
+        return deferred.promise();
+    }
+}
+
+
+
+function ServiceRegistry(url) {
+
+    var _url = url;
+    var deprecationWarningSent = false;
+    
+    function deprecationWarning() {
+        if (!deprecationWarningSent) {
+            console.log(
+                "WARNING: '*_async' method names will be deprecated",
+                "on 2/4/2013. Please use the methods without the",
+                "'_async' suffix.");
+            deprecationWarningSent = true;
+        }
+    }
+
+
+    this.register_service = function(info, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.register_service", [info], 1, _callback, _error_callback);
+    };
+
+    this.register_service_async = function(info, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.register_service", [info], 1, _callback, _error_callback);
+    };
+
+    this.deregister_service = function(info, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.deregister_service", [info], 1, _callback, _error_callback);
+    };
+
+    this.deregister_service_async = function(info, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.deregister_service", [info], 1, _callback, _error_callback);
+    };
+
+    this.update_nginx = function(info, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.update_nginx", [info], 1, _callback, _error_callback);
+    };
+
+    this.update_nginx_async = function(info, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.update_nginx", [info], 1, _callback, _error_callback);
+    };
+
+    this.enumerate_services = function(_callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.enumerate_services", [], 1, _callback, _error_callback);
+    };
+
+    this.enumerate_services_async = function(_callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.enumerate_services", [], 1, _callback, _error_callback);
+    };
+
+    this.enumerate_service_urls = function(_callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.enumerate_service_urls", [], 1, _callback, _error_callback);
+    };
+
+    this.enumerate_service_urls_async = function(_callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.enumerate_service_urls", [], 1, _callback, _error_callback);
+    };
+
+    this.get_service_specification = function(service_name, namespace, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.get_service_specification", [service_name, namespace], 1, _callback, _error_callback);
+    };
+
+    this.get_service_specification_async = function(service_name, namespace, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.get_service_specification", [service_name, namespace], 1, _callback, _error_callback);
+    };
+
+    this.is_alive = function(service_name, namespace, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.is_alive", [service_name, namespace], 1, _callback, _error_callback);
+    };
+
+    this.is_alive_async = function(service_name, namespace, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.is_alive", [service_name, namespace], 1, _callback, _error_callback);
+    };
+
+    this.get_expiration_interval = function(service_name, namespace, _callback, _error_callback) {
+        return json_call_ajax_async("ServiceRegistry.get_expiration_interval", [service_name, namespace], 1, _callback, _error_callback);
+    };
+
+    this.get_expiration_interval_async = function(service_name, namespace, _callback, _error_callback) {
+        deprecationWarning();
+        return json_call_ajax_async("ServiceRegistry.get_expiration_interval", [service_name, namespace], 1, _callback, _error_callback);
     };
 
     function json_call_ajax_async(method, params, num_rets, callback, error_callback) {

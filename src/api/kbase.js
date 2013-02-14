@@ -289,15 +289,47 @@ exports.getGenomeInfo = function (params) {
 
 exports.getGenomes = function (params) {
     params = validateParams(params);
-    api('cdmiEntity').query_entity_Genome(
-        [['domain', '=', 'Eukaryota']], ['id', 'scientific_name'], function (json) {
-        var genomes = [];
-        for (var id in json) {
-            var genome = json[id];
-            genomes.push([ genome.id, genome.scientific_name ]);
+    async.parallel({
+        genomes: function (callback) {
+            api('cdmiEntity').query_entity_Genome(
+                [['domain', '=', 'Eukaryota']],
+                ['id', 'scientific_name'], function (json) {
+                    var genomes = [];
+                    for (var id in json) {
+                        var genome = json[id];
+                        genomes.push([ genome.id, genome.scientific_name ]);
+                    }
+                    callback(null, genomes);
+                }, rpcErrorHandler(params.response)
+            )
+        },
+        traits: function (callback) {
+            if (!params.haveTrait)
+                return callback(null, null);
+            api('g2p').genomes_with_trait(function (result) {
+                callback(null, result);
+            }, rpcErrorHandler(params.response));
         }
-        params.callback(genomes);
-    }, rpcErrorHandler(params.response));
+    }, function (err, results) {
+        if (err) {
+            return errorHandler(params.response)(err);
+        }
+        var varGenomes = {};
+        if (results.traits) {
+            results.traits.forEach(function (id) {
+                varGenomes[id] = true;
+            });
+        }
+        var genomes = [];
+        if (results.genomes) {
+            results.genomes.forEach(function (genome) {
+                genomes.push(
+                    [ genome[0], genome[1], varGenomes[genome[0]] ? 1 : 0 ] 
+                );
+            });
+        }
+        params.callback({ result: genomes });
+    });
 }
 
 exports.getExperiments = function (params) {

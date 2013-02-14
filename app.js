@@ -188,7 +188,10 @@ app.get('/data/genome', function (request, response, next) {
         response.send(require('./data/fake/genomes.json'));
         return;
     }
-    kbase.getGenomes({ response: response });
+    kbase.getGenomes({
+        response: response,
+        haveTrait: request.query.haveTrait
+    });
 })
 
 app.get('/data/genome/:id/experiments', function (request, response, next) {
@@ -636,7 +639,7 @@ app.get('/streaming', function (request, response, next) {
     kbase.getGenomes({
         response: response,
         callback: function (genomes) {
-            genomes.forEach(function (genome) {
+            genomes.result.forEach(function (genome) {
                 kbase.getExperiments({
                     response: response,
                     genomeId: genome[0],
