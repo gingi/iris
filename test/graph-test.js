@@ -110,3 +110,16 @@ exports.findEdge = function (test) {
     test.ok(null === g.findEdge({ color: "blue"}, { shape: "circle" }));
     test.done();
 }
+
+exports.transferNode = function (test) {
+    var g1 = new Graph;
+    var n1 = g1.addNode(1);
+    var n2 = g1.addNode(2);
+    
+    var g2 = new Graph;
+    var n3 = g2.addNode(n1);
+    var n4 = g2.addNode(n2);
+    test.deepEqual(n1.meta(), n3.meta());
+    test.deepEqual(n2.meta(), n4.meta());
+    test.done();
+}
