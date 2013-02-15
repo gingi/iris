@@ -10,14 +10,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     
     var Physics = {
         GENE:    { charge: -100 },
-        CLUSTER: { charge: -120 },
+        CLUSTER: { charge: -150 },
         "GENE:GENE": {
             linkDistance:  80,
             linkStrength:  0.1
         },
         "CLUSTER:GENE": {
-            linkDistance:  120,
-            linkStrength:  0.7,
+            linkDistance:  150,
+            linkStrength:  0.1,
         },
         "CLUSTER:CLUSTER": {
             linkDistance:   100,
@@ -171,7 +171,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         
         self.addLink = function (sourceId, targetId, params) {
             var key = _hashKey([sourceId, targetId]);
-            if (_linkCache[key]) {
+            if (_linkCache[key] != null) {
                 return;
             }
             var edge = {
@@ -179,7 +179,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 target: this.findNode(targetId),
             };
             if (edge.source == null || edge.target == null) {
-                console.log("Cannot find edge for ", source, target);
+                console.log("Cannot find edge for [%d %d]",
+                    sourceId, targetId, edge.source, edge.target);
             }
             for (var p in params) {
                 edge[p] = params[p];
