@@ -33,6 +33,20 @@ define(function (require) {
     function isNode(obj) {
         return obj instanceof Node;
     }
+    
+    function Edge(params) {
+        params = params || {};
+        this.source = params.source;
+        this.target = params.target;
+        this.meta   = params.meta;
+        this.json   = function () {
+            return {
+                source: this.source,
+                target: this.target,
+                meta:   this.meta
+            }
+        }
+    }
 
     function isInt(val) {
         return !isNaN(parseInt(val)) && (parseFloat(val) == parseInt(val)); 
@@ -44,8 +58,6 @@ define(function (require) {
         var idSequence = 0;
         var nodes = {};
         var edges = {};
-        var nodelist = [];
-        var nodeCount = 0;
         var lookup = {}; // Used for client node lookup by external ID
         
         self.link = function (n1, n2, meta) {
@@ -57,8 +69,11 @@ define(function (require) {
             n1 = findId(n1);
             n2 = findId(n2);
             var key = [n1, n2].sort().join(" ");
-            return edges[key] =
-                { source: nodes[n1], target: nodes[n2], meta: meta }
+            return edges[key] = new Edge({
+                source: nodes[n1],
+                target: nodes[n2],
+                meta: meta
+            });
         }
         self.addNode = function (obj) {
             var node;
@@ -73,7 +88,7 @@ define(function (require) {
                     node.meta(obj);
                 } else if (obj != null) { // obj is an id (some scalar)
                     lookup[obj] = node;
-                    node.attribute("id", obj);
+                    node.set("id", obj);
                 }
             }
             node._id = idSequence;
@@ -81,9 +96,18 @@ define(function (require) {
             return node;
         }
         self.addEdge = function (edge) {
+            if (edge instanceof Edge) { // Reassign source/target
+                var source = this.findNode(edge.source.meta());
+                var target = this.findNode(edge.target.meta());
+                if (source != null && target != null) {
+                    return self.link(source, target, edge.meta);
+                }
+                return null;
+            }
+            var meta = edge;
             return type == _INDEXED
-                ? self.link(nodes[edge.source], nodes[edge.target], edge)
-                : self.link(edge.source, edge.target, edge);
+                ? self.link(nodes[edge.source], nodes[edge.target], meta)
+                : self.link(edge.source, edge.target, meta);
         }
         self.neighbors = function (node) {
             var arr = [];
@@ -111,25 +135,23 @@ define(function (require) {
             var jsonNodes = [];
             var jsonEdges = [];
             var nodeIndex = {};
-            
             for (var k in nodes) {
                 var node = nodes[k];
                 var meta = node.meta();
                 var nodeId = node._id;
-                meta.id = meta.id || nodeId;
                 nodeIndex[nodeId] = jsonNodes.length;
                 jsonNodes.push(meta);
             }
             for (var key in edges) {
                 var edge = edges[key];
                 var attributes = {};
-                attributes.source = nodeIndex[edge.source._id];
-                attributes.target = nodeIndex[edge.target._id];
                 for (var a in edge.meta) {
                     if (edge.meta.hasOwnProperty(a)) {
                         attributes[a] = edge.meta[a];
                     }
                 }
+                attributes.source = nodeIndex[edge.source._id],
+                attributes.target = nodeIndex[edge.target._id]
                 jsonEdges.push(attributes);
             }
             return { nodes: jsonNodes, edges: jsonEdges };
@@ -147,17 +169,20 @@ define(function (require) {
                     if (node.get(prop) != meta[prop])
                         found = false;
                 }
-                if (found) return node;
+                if (found) {
+                    return node;
+                }
             }
+            return null;
         }
         self.findEdge = function (meta1, meta2) {
-            var n1 = self.findNode(meta1);
-            var n2 = self.findNode(meta2);
+            var n1 = isNode(meta1) ? meta1 : self.findNode(meta1);
+            var n2 = isNode(meta2) ? meta2 : self.findNode(meta2);
             if (n1 != null && n2 != null) {
                 for (var key in edges) {
                     var edge = edges[key];
                     if ((edge.source == n1 && edge.target == n2) ||
-                        (edge.target == n1 && edge.source == n2))
+                        (edge.target == n1 && edge.source == n2)) 
                         return edge;
                 }
             }

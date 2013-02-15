@@ -123,3 +123,22 @@ exports.transferNode = function (test) {
     test.deepEqual(n2.meta(), n4.meta());
     test.done();
 }
+
+exports.transferEdge = function (test) {
+    var g1 = new Graph;
+    var n0 = g1.addNode({ desc: "Just throwing off the indexes" });
+    var n1 = g1.addNode(1);
+    var n2 = g1.addNode(2);
+    n1.link(n2);
+    var edge = g1.findEdge(n1, n2);
+    
+    var g2 = new Graph;
+    var n3 = g2.addNode(n1);
+    var n4 = g2.addNode(n2);
+    var newEdge = g2.addEdge(edge);
+    test.deepEqual(n1, edge.source);
+    test.deepEqual(n2, edge.target);
+    test.deepEqual(n3, newEdge.source);
+    test.deepEqual(n4, newEdge.target);
+    test.done();
+}
