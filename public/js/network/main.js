@@ -155,7 +155,7 @@ require(['jquery', 'backbone', 'underscore',
         button.on("click", function () { coNeighborAction(clusters, nodes) });
     });
     function coNeighborAction(clusters, dockedNodes) {
-        AppProgress.progress(0);
+        AppProgress.progress(20); // Some width to indicate doing something
         AppProgress.show("Getting co-neighbors");
         var deferred = $.Deferred(),
             chained = deferred;
@@ -181,7 +181,7 @@ require(['jquery', 'backbone', 'underscore',
                                 clusterNeighbors, dockNeighbors, dockedNodes
                             );
                             intersections.push(ix);
-                            // Datavis.merge(ix);
+                            Datavis.merge(ix);
                             clustersDone++;
                             AppProgress.progress(clustersDone /
                                 clusters.length * 100 + "%");
@@ -198,31 +198,31 @@ require(['jquery', 'backbone', 'underscore',
                 DockIndex[node.entityId] = i;
             });
             intersections.forEach(function (intersection) {
-                var filtered = { nodes: [], edges: [] };
-                // First add nodes linked with > 1 dataset
-                intersection.nodeDatasets.forEach(function (ds, i) {
-                    if (_.size(ds) > 1) {
-                        NodeIndex[i] = filtered.edges.length;
-                        filtered.nodes.push(intersection.nodes[i]);
-                    }
-                })
-                intersection.edges.forEach(function (edge) {
-                    if (NodeIndex[edge.source] != null ||
-                        NodeIndex[edge.target] != null) {
-                        ["source", "target"].forEach(function (side) {
-                            if (NodeIndex[edge[side]] == null) {
-                                var node = intersection.nodes[edge[side]];
-                                edge[side] = filtered.nodes.length;
-                                filtered.nodes.push(node);
-                            } else {
-                                edge[side] = NodeIndex[edge[side]];
-                            }
-                        });
-                        filtered.edges.push(edge);
-                    }
-                });
-                console.log("Filtered", filtered);
-                Datavis.merge(filtered);
+                // var filtered = { nodes: [], edges: [] };
+                // // First add nodes linked with > 1 dataset
+                // intersection.nodeDatasets.forEach(function (ds, i) {
+                //     if (_.size(ds) > 1) {
+                //         NodeIndex[i] = filtered.edges.length;
+                //         filtered.nodes.push(intersection.nodes[i]);
+                //     }
+                // })
+                // intersection.edges.forEach(function (edge) {
+                //     if (NodeIndex[edge.source] != null ||
+                //         NodeIndex[edge.target] != null) {
+                //         ["source", "target"].forEach(function (side) {
+                //             if (NodeIndex[edge[side]] == null) {
+                //                 var node = intersection.nodes[edge[side]];
+                //                 edge[side] = filtered.nodes.length;
+                //                 filtered.nodes.push(node);
+                //             } else {
+                //                 edge[side] = NodeIndex[edge[side]];
+                //             }
+                //         });
+                //         filtered.edges.push(edge);
+                //     }
+                // });
+                // console.log("Filtered", filtered);
+                // Datavis.merge(intersection);
             });
             AppProgress.dismiss();
             enableBuildNetwork();
@@ -321,55 +321,35 @@ require(['jquery', 'backbone', 'underscore',
         });
     }
     function intersectNeighbors(neighbors1, neighbors2, anchors) {
+        var addedAnchor = {};
         if (neighbors1.nodes == null || neighbors1.nodes.length == 0 ||
             neighbors2.nodes == null || neighbors2.nodes.length == 0)
             return {};
-        var n1 = new Graph(neighbors1);
-        var n2 = new Graph(neighbors2);
-        console.log(n1.json(), n2.json());
-        return {};
-        var candidates = {
-            nodes: [],
-            edges: [],
-            nodeDatasets: []
-        };
-        var nodeDatasets = candidates.nodeDatasets;
-        var FilterIndex = {}, NodeIndex = {}, EntityIndex = {};
-        neighbors1.nodes.forEach(function (node, i) {
-            FilterIndex[node.entityId] = i;
-        });
-        neighbors2.nodes.forEach(function (node, i) {
-            EntityIndex[node.entityId] = i;
-            if (FilterIndex[node.entityId] != null) {
-                NodeIndex[i] = candidates.nodes.length;
-                candidates.nodes.push(node);
-            }
-        });
-        // Add anchors, since they will likely NOT be candidates, but
-        // their edges must be preserved.
-        anchors.forEach(function (node) {
-            var i = EntityIndex[node.entityId];
-            if (NodeIndex[i] == null) {
-                NodeIndex[i] = candidates.nodes.length;
-                candidates.nodes.push(node);
-                console.log("Anchor", node);
-            }
-        });
-        neighbors2.edges.forEach(function (edge, i) {
-            if (NodeIndex[edge.source] != null &&
-                NodeIndex[edge.target] != null) {
-                edge.source = NodeIndex[edge.source];
-                edge.target = NodeIndex[edge.target];
-                candidates.edges.push(edge);
-                [edge.source, edge.target].forEach(function (i) {
-                    if (!nodeDatasets[i]) {
-                        nodeDatasets[i] = {}
+        var n1 = new Graph(neighbors1, Graph.INDEXED);
+        var n2 = new Graph(neighbors2, Graph.INDEXED);
+        var ix = new Graph();
+        anchors.forEach(function (anchor) {
+            var anchorNode = n2.findNode({ entityId: anchor.entityId });
+            if (anchorNode == null) { return; }
+            n1.eachNode(function (node) {
+                var edge = n2.findEdge(
+                    anchorNode, { entityId: node.get('entityId') }
+                );
+                if (edge) {
+                    var ixanchor = addedAnchor[anchor.entityId];
+                    if (ixanchor == null) {
+                        var ixanchor = ix.addNode(anchorNode);
+                        addedAnchor[anchor.entityId] = ixanchor;
                     }
-                    nodeDatasets[i][edge.datasetId] = true
-                });
-            }
+                    var ixnode = ix.findNode({ entityId: node.get('entityId') });
+                    if (ixnode == null) {
+                        ixnode = ix.addNode(node);
+                    }
+                    var nedge = ix.link(ixanchor, ixnode, edge.meta);
+                }
+            });
         });
-        return {};
+        return ix.json();
     }
     
     var AppView = Backbone.View.extend({
