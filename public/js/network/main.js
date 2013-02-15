@@ -181,7 +181,7 @@ require(['jquery', 'backbone', 'underscore',
                                 clusterNeighbors, dockNeighbors, dockedNodes
                             );
                             intersections.push(ix);
-                            Datavis.merge(ix);
+                            // Datavis.merge(ix);
                             clustersDone++;
                             AppProgress.progress(clustersDone /
                                 clusters.length * 100 + "%");
@@ -197,33 +197,49 @@ require(['jquery', 'backbone', 'underscore',
             dockedNodes.forEach(function (node, i) {
                 DockIndex[node.entityId] = i;
             });
+            var merged = {}, edges = {}, added = {};
             intersections.forEach(function (intersection) {
-                // var filtered = { nodes: [], edges: [] };
-                // // First add nodes linked with > 1 dataset
-                // intersection.nodeDatasets.forEach(function (ds, i) {
-                //     if (_.size(ds) > 1) {
-                //         NodeIndex[i] = filtered.edges.length;
-                //         filtered.nodes.push(intersection.nodes[i]);
-                //     }
-                // })
-                // intersection.edges.forEach(function (edge) {
-                //     if (NodeIndex[edge.source] != null ||
-                //         NodeIndex[edge.target] != null) {
-                //         ["source", "target"].forEach(function (side) {
-                //             if (NodeIndex[edge[side]] == null) {
-                //                 var node = intersection.nodes[edge[side]];
-                //                 edge[side] = filtered.nodes.length;
-                //                 filtered.nodes.push(node);
-                //             } else {
-                //                 edge[side] = NodeIndex[edge[side]];
-                //             }
-                //         });
-                //         filtered.edges.push(edge);
-                //     }
-                // });
-                // console.log("Filtered", filtered);
-                // Datavis.merge(intersection);
+                intersection.nodes.forEach(function (node) {
+                    var id = node.entityId;
+                    merged[id] = {
+                        datasets: {},
+                        edges: [],
+                    };
+                });
+                intersection.edges.forEach(function (edge) {
+                    edges[edge.id] = {};
+                    ["source", "target"].forEach(function (side) {
+                        var node = intersection.nodes[edge[side]];
+                        edges[edge.id][side] = node;
+                        // Don't tally datasets for docked nodes (not fair)
+                        if (DockIndex[node.entityId] == null) {
+                            merged[node.entityId].edges.push(edge);
+                            merged[node.entityId].datasets[edge.datasetId] = true;
+                        }
+                    });
+                });
             });
+            var added = {};
+            var filtered = new Graph();
+            function findAdd(node) {
+                var gnode = added[node.entityId];
+                if (gnode == null) {
+                    gnode = filtered.addNode(node);
+                    added[node.entityId] = gnode;
+                }
+                return gnode;
+            }
+            for (var nid in merged) {
+                var ninfo = merged[nid];
+                if (_.size(ninfo.datasets) > 1) {
+                    ninfo.edges.forEach(function (edge) {
+                        var source = findAdd(edges[edge.id].source);
+                        var target = findAdd(edges[edge.id].target);
+                        filtered.link(source, target, edge);
+                    })
+                }
+            }
+            Datavis.merge(filtered.json());
             AppProgress.dismiss();
             enableBuildNetwork();
             Datavis.render();
