@@ -571,7 +571,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             links.length = 0;
             _nodeCache = {};
             if (options.dock) { dock.reset(); }
-            color = d3.scale.category20();
             update();
             return self;
         }
