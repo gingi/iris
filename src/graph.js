@@ -57,16 +57,24 @@ define(function (require) {
             n1 = findId(n1);
             n2 = findId(n2);
             var key = [n1, n2].sort().join(" ");
-            edges[key] = { source: nodes[n1], target: nodes[n2], meta: meta }
-            return this;
+            return edges[key] =
+                { source: nodes[n1], target: nodes[n2], meta: meta }
         }
         self.addNode = function (obj) {
-            var node = new Node(this);
-            if (typeof obj === "object") { // We're passed an assoc. list
-                node.meta(obj);
-            } else if (obj != null) { // obj is an id (some scalar)
-                lookup[obj] = node;
-                node.attribute("id", obj);
+            var node;
+            if (isNode(obj)) {
+                node = new Node(this, obj.meta());
+                if (obj.get('id')) {
+                    lookup[obj.get('id')] = node;
+                }
+            } else {
+                node = new Node(this);
+                if (typeof obj === "object") { // We're passed an assoc. list
+                    node.meta(obj);
+                } else if (obj != null) { // obj is an id (some scalar)
+                    lookup[obj] = node;
+                    node.attribute("id", obj);
+                }
             }
             node._id = idSequence;
             nodes[idSequence++] = node;
@@ -143,13 +151,15 @@ define(function (require) {
             }
         }
         self.findEdge = function (meta1, meta2) {
-            var n1 = self.findNode(meta1)
+            var n1 = self.findNode(meta1);
             var n2 = self.findNode(meta2);
-            for (var key in edges) {
-                var edge = edges[key];
-                if ((edge.source == n1 && edge.target == n2) ||
-                    (edge.target == n1 && edge.source == n2))
-                    return edge;
+            if (n1 != null && n2 != null) {
+                for (var key in edges) {
+                    var edge = edges[key];
+                    if ((edge.source == n1 && edge.target == n2) ||
+                        (edge.target == n1 && edge.source == n2))
+                        return edge;
+                }
             }
             return null;
         }
