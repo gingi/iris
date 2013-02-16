@@ -22,6 +22,7 @@ require([
     var genesXHR;
     var hud;
     var dropdowns = new DropDowns(dataAPI);
+    var router;
 
     // Vent: Event Aggregator
     var Vent = _.extend({}, Backbone.Events);
@@ -419,6 +420,6 @@ require([
         }
     });
    
-    var router = new Router;
+    router = new Router;
     Backbone.history.start();
 });

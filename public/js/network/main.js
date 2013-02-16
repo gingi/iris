@@ -1,7 +1,8 @@
 require(['jquery', 'backbone', 'underscore',
     'renderers/network', 'util/progress', 'util/hud', 'util/viewport',
-    'util/graph', 'network/nav'],
-    function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav) {
+    'util/graph', 'network/nav', 'network/blurb'],
+    function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav,
+        Blurb) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -14,7 +15,7 @@ require(['jquery', 'backbone', 'underscore',
     var App, Search, router, AppProgress;
     var resetNetwork = true;
     var clusters = [];
-    var Modal;
+    var Modal, blurb;
         
     function addModal() {
         Modal = $("<div>").addClass("modal fade hide")
@@ -204,7 +205,6 @@ require(['jquery', 'backbone', 'underscore',
                                 clusterNeighbors, dockNeighbors, dockedNodes
                             );
                             intersections.push(ix);
-                            // Datavis.merge(ix);
                             clustersDone++;
                             AppProgress.progress(clustersDone /
                                 clusters.length * 100 + "%");
@@ -484,6 +484,7 @@ require(['jquery', 'backbone', 'underscore',
     })
     
     function resetData() {
+        $("#cluster-list").remove();
         Datavis.reset();
         NetworkData.clear({ silent: true });
     }
@@ -514,6 +515,7 @@ require(['jquery', 'backbone', 'underscore',
         });
     }
     
+    search = new SearchBox;
     var Router = Backbone.Router.extend({
         routes: {
             "node/:id":                          "addNode",
@@ -532,9 +534,10 @@ require(['jquery', 'backbone', 'underscore',
             DataSets.set('datasets', datasets.split(","));
         },
         addNodes: function (nodeInput, datasetInput) {
+            if (blurb) blurb.fadeOut(function () { $(this).remove() });
             resetData();
-            var nodes = nodeInput.split(",");
-            var datasets = datasetInput.split(",");
+            var nodes = decodeURIComponent(nodeInput).split(",");
+            var datasets = decodeURIComponent(datasetInput).split(",");
             for (var i = 0; i < nodes.length; i++) {
                 var type, group;
                 type = 'GENE';
@@ -544,6 +547,7 @@ require(['jquery', 'backbone', 'underscore',
                 });
             }
             DataSets.set('datasets', datasets);
+            Datavis.render();
             Datavis.dockNodes(nodes);
             Datavis.dock.showHUD();
         },
@@ -578,11 +582,12 @@ require(['jquery', 'backbone', 'underscore',
             });
         },
         default: function () {
-            // Default route
+            $("#datavis").empty();
+            $("#cluster-list").remove();
+            blurb = new Blurb({ parent: "#datavis", router: router });
         }
     });
     router = new Router;
-    search = new SearchBox;
     Backbone.history.start();
     
     addModal();

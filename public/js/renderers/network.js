@@ -41,7 +41,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         _.defaults(options, defaults);
         var $el = $(options.element);
         var _idSequence = 1;
-        var _autoUpdate = true;
+        var _autoUpdate = false;
+        var _initialized = false;
 
         var _linkCache = {};
         var _paused = false;
@@ -53,6 +54,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var groupColor = {};
         var hiddenNodes = {};
         var color;
+        
 
         var Foci = {
             CLUSTER: {
@@ -201,7 +203,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         
         function _hashKey(arr) { return arr.join("-"); }
         
-        self.render = function () { update(); return this; }
+        self.render = function () {
+            _autoUpdate = true;
+            initialize();
+            update();
+            return this;
+        }
 
         var _nodeCache = {};
         self.findNode = function(key, type) {
@@ -264,28 +271,55 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var w = $el.width(),
             h = $el.height();
 
+        if (options.dock) { dock = new Dock() };
+        force = d3.layout.force()
+            .linkDistance(linkDistance)
+            .linkStrength(linkStrength)
+            .charge(nodeCharge)
+            .size([w, h]);
+            
+        nodes = force.nodes();
+        links = force.links();
+        color = d3.scale.category20();
+        
         function initialize() {
+            if (_initialized) return;
+            _initialized = true;
             $el.empty();
             vis = this.vis = d3.select($el[0]).append("svg:svg")
                 .attr("width", w)
                 .attr("height", h);
-            if (options.dock) { dock = new Dock(vis) };
+            if (dock) { dock.setParent(vis); }
 
             // This order matters (nodes painted on top of links)
             linkG = vis.append("g").attr("id", "networkLinks");
             nodeG = vis.append("g").attr("id", "networkNodes");
             labelG = vis.append("g").attr("id", "networkLabels");
-            force = d3.layout.force()
-                .linkDistance(linkDistance)
-                .linkStrength(linkStrength)
-                .charge(nodeCharge)
-                .size([w, h]);
-            
-            nodes = force.nodes();
-            links = force.links();
-            color = d3.scale.category20();
+            if (options.dock) {
+                dock.on("dragstart.dock", function () { force.stop(); })
+                    .on("dragmove.dock",  function () { tick() })
+                    .on("dragend.dock",   function (evt, d) {
+                        if (!isDocked(d)) toggleFixed(d);
+                        tick(); force.resume();
+                    })
+                    .on("dock", function (evt, d, element) {
+                        element
+                            .style("stroke", "yellow")
+                            .style("stroke-width", 3)
+                            .style("stroke-location", "outside")   
+                    })
+                    .on("undock", function (evt, d, element) {
+                        element
+                            .style("stroke", null)
+                            .style("stroke-width", null)
+                            .style("stroke-location", null);
+                    });
+            } else {
+                force.drag().on("dragend", function (d) {
+                    toggleFixed(d);
+                })
+            }
         }
-        initialize();
             
         function tick (e) {
             if (e) {
@@ -395,31 +429,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             d.fixed = !d.fixed;
         }
         
-        if (options.dock) {
-            dock.on("dragstart.dock", function () { force.stop(); })
-                .on("dragmove.dock",  function () { tick() })
-                .on("dragend.dock",   function (evt, d) {
-                    if (!isDocked(d)) toggleFixed(d);
-                    tick(); force.resume();
-                })
-                .on("dock", function (evt, d, element) {
-                    element
-                        .style("stroke", "yellow")
-                        .style("stroke-width", 3)
-                        .style("stroke-location", "outside")   
-                })
-                .on("undock", function (evt, d, element) {
-                    element
-                        .style("stroke", null)
-                        .style("stroke-width", null)
-                        .style("stroke-location", null);
-                });
-        } else {
-            force.drag().on("dragend", function (d) {
-                toggleFixed(d);
-            })
-        }
-                
         function nodeSize(d) {
             var size = NODE_SIZE[d.type] || 8;
             return size;
@@ -603,11 +612,16 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             links.length = 0;
             _nodeCache = {};
             if (options.dock) { dock.reset(); }
-            update();
+            if (_autoUpdate) {
+                _initialized = false;
+                initialize();
+                update();
+            }
             return self;
         }
         self.dockNodes = function (names) {
-            update();
+            if (_autoUpdate) update();
+            initialize();
             var nodes = [];
             for (var i in names) {
                 var node = self.findNode(names[i], 'name');
