@@ -15,23 +15,28 @@ define(["jquery"], function ($) {
     }
     
     loadCss("/css/bootstrap-arrows.css");
-    function Blurb(parent, router) {
-        parent = $(parent);
+    function Blurb(options) {
+        options = options || {};
+        var parent = $(options.parent);
+        var router = $(options.router);
+        var blurb = $("<div>", { id: "blurb"});
+        parent.append(blurb);
         var div = $("<div>").addClass("hero-unit").css("min-height", 300)
             .append($("<img>", {
-                src: "/img/g2p-icon.png",
+                src: "/img/network-icon.png",
                 class: "logo"
             }))
-            .append($("<h2>").text("The Genotype Phenotype Workbench"))
+            .append($("<h2>").text("The Network Workbench"))
             .append($("<p>").text(
-                "Find the needle in the haystack! Explore various data " +
-                "sets stored in KBase using genome-wide association studies " +
-                "as a starting point."))
-            .append($("<div>").addClass("span4 offset2").css("margin-top", 40)
+                "Explore KBase networks using dynamic visualizations. " +
+                "Navigate among sets of genes and clusters over a variety " +
+                "of network data sets available for microbes, plants, and " + 
+                "metagenomic communities."))
+            .append($("<div>").addClass("span4 offset3").css("margin-top", 40)
                 .append($("<button>").addClass("btn btn-large btn-primary")
                     .text("Get started").click(function () {
                         var button = $(this);
-                        var target = $("#Genomes-label");
+                        var target = $("#dLabel");
                         require(['bootstrap-arrows'], function () {
                             var arrow = $("<span>")
                                 .css("position", "absolute")
@@ -50,14 +55,9 @@ define(["jquery"], function ($) {
                             }, 2000);
                         })
                     }))
-                .append($("<span>").css("margin", "0 15px").text("or"))
-                .append($("<button>").addClass("btn btn-large")
-                    .text("See an example").click(function () {
-                        router.navigate("#trait/kb|g.3907.trait.0", true)
-                    }))
                 )
-        parent.append(div);
-        parent.append($("<div>").addClass("row")
+        blurb.append(div);
+        blurb.append($("<div>").addClass("row")
             .append(section(6, "Developers")
                 .append(developerTable())
                 .append($("<small>").text("This project relies on user input and " +
@@ -88,8 +88,7 @@ define(["jquery"], function ($) {
         function developerTable() {
             var developers = [
                 [ "Shiran Pasternak", "Developer", "shiran at cshl.edu" ],
-                [ "Ranjan Priya", "Scientist", "pranjan at utk.edu" ],
-                [ "Sunita Kumari", "Scientist", "kumari at cshl.edu" ]
+                [ "Pavel Novichkov", "Scientist", "psnovichkov at lbl.gov" ]
             ];
             for (var i in developers) {
                 developers[i][0] =
@@ -111,8 +110,8 @@ define(["jquery"], function ($) {
                 tbody.append(tr);
             });
             return table;
-        }        
-        return this;
+        }
+        return blurb;
     }
     return Blurb;
 });

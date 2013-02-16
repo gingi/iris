@@ -58,11 +58,10 @@ define(["util/dropdown"], function (DropDown) {
                 return item.trait ? "0" : "1" + item.title.toLowerCase();
             },
             itemLink: function (item) {
-                return "#" + item.type + "/" + item.id;
+                return item.trait ? "#" + item.type + "/" + item.id : null;
             },
             itemTemplate: $("<script>").attr("type", "text/template").html(
-                '<a <% if (trait) { %>href="<%= link %>"<% } else { %>' + 
-                'class="disabled"<% } %>><%= title %></a>'
+                '<a href="<%= link %>"><%= title %></a>'
             )
         });
 
