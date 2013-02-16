@@ -2,11 +2,15 @@ define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
 function ($, d3, EventEmitter, HUD) {
     
     var DOCK_HEIGHT = 30;
-    var Dock = function (parent) {  
+    var Dock = function (parentElement) {  
         var self = this;
 
+        var parent;
+        var dock;
+        var dockDims;
         var docked = {};
         var updateActions = [];
+        if (parent) { setParent(parent) }
         
         var dockHudContentCallback = function (nodes) {
             var dock = this;
@@ -45,33 +49,36 @@ function ($, d3, EventEmitter, HUD) {
             dockDims.y2 = dockDims.y1 + dockDims.h;
         }
 
-        var w = parent.attr("width");
-        var h = parent.attr("height");
-        var dockDims = { x1: w / 4, y1: h / 2, w: w / 2, h: DOCK_HEIGHT };
-        dockDims.x2 = dockDims.x1 + dockDims.w; // For convenience
-        dockDims.y2 = dockDims.y1 + dockDims.h; // For convenience
-        var dock = parent.append("rect")
-            .attr("id", "networkDock")
-            .attr("width",  dockDims.w)
-            .attr("height", dockDims.h)
-            .attr("rx", 5)
-            .attr("ry", 5)
-            .attr("x", dockDims.x1)
-            .attr("y", dockDims.y1)
-            .style("fill", "black")
-            .style("opacity", "0.1")
-            .call(d3.behavior.drag()
-                .on("dragstart", dockDragStart)
-                .on("drag", dockDrag)
-                .on("dragend", dockDragEnd)
-            );
+        self.setParent = function (parentElement) {
+            parent = parentElement;
+            var w = parent.attr("width");
+            var h = parent.attr("height");
+            dockDims = { x1: w / 4, y1: h / 2, w: w / 2, h: DOCK_HEIGHT };
+            dockDims.x2 = dockDims.x1 + dockDims.w; // For convenience
+            dockDims.y2 = dockDims.y1 + dockDims.h; // For convenience
+            dock = parent.append("rect")
+                .attr("id", "networkDock")
+                .attr("width",  dockDims.w)
+                .attr("height", dockDims.h)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("x", dockDims.x1)
+                .attr("y", dockDims.y1)
+                .style("fill", "black")
+                .style("opacity", "0.1")
+                .call(d3.behavior.drag()
+                    .on("dragstart", dockDragStart)
+                    .on("drag", dockDrag)
+                    .on("dragend", dockDragEnd)
+                );
             
-        dock
-            .on("mouseover", function () { dock.style("opacity", 0.2); })
-            .on("mouseout",  function () { dock.style("opacity", 0.1); })
-            .on("click", dockhud);
+            dock
+                .on("mouseover", function () { dock.style("opacity", 0.2); })
+                .on("mouseout",  function () { dock.style("opacity", 0.1); })
+                .on("click", dockhud);
 
-        self.changedState = false;
+            self.changedState = false;
+        }
         
         var hud = self.hud = new HUD({
             width: 300,
