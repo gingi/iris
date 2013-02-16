@@ -70,6 +70,9 @@ function($, Backbone, _, Progress) {
             },
             render: function() {
                 this.$el.append(this.template(this.model));
+                if (this.model.link == null) {
+                    this.$el.addClass("disabled");
+                }
                 return this;
             }
         });
