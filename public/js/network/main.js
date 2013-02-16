@@ -1,7 +1,7 @@
 require(['jquery', 'backbone', 'underscore',
-    'renderers/network', 'util/progress', 'util/hud',
+    'renderers/network', 'util/progress', 'util/hud', 'util/viewport',
     'util/graph', 'network/nav'],
-    function ($, Backbone, _, NetworkVis, Progress, HUD, Graph, Nav) {
+    function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -14,7 +14,20 @@ require(['jquery', 'backbone', 'underscore',
     var App, Search, router, AppProgress;
     var resetNetwork = true;
     var clusters = [];
+    var Modal;
         
+    function addModal() {
+        Modal = $("<div>").addClass("modal fade hide")
+        .append($("<div>", { id: "modal-body" }).addClass("modal-body")
+            .css("min-height", "300px").css("min-width", "400px"))
+        .append($("<div>").addClass("modal-footer")
+            .append($("<button>", {
+                 type: "button", "data-dismiss": "modal", "aria-hidden": true
+             }).addClass("btn").text("Close"))
+        );
+        $("body").append(Modal);
+    }
+    
     AppProgress = new Progress({
         element: "#progress-indicator",
         fade: false,
@@ -48,7 +61,8 @@ require(['jquery', 'backbone', 'underscore',
             router.navigate("#node/" + node.entityId + "/datasets", true);
         } else {
             if (node.type == 'CLUSTER') {
-                coNeighborAction([ node ]);
+                var docked = Datavis.dock.get();
+                coNeighborAction([ node ], docked);
             } else {
                 if (DataSets.asString() == 'fake') {
                     $.ajax({
@@ -79,7 +93,7 @@ require(['jquery', 'backbone', 'underscore',
         var button = $("<button>")
             .addClass("btn btn-small btn-primary")
             .attr("id", "btn-get-clusters")
-            .text("Get clusters");
+            .html("<i class=\"icon-plus-sign\"></i> Clusters");
         button.on("click", function () {
             AppProgress.progress(0);
             AppProgress.show("Getting clusters");
@@ -150,10 +164,19 @@ require(['jquery', 'backbone', 'underscore',
             .attr("id", "btn-co-neighbors")
             .css("margin-left", 5)
             .attr("disabled", !clusters || clusters.length == 0)
-            .text("Find Co-Neighbors");
+            .html("<i class=\"icon-plus-sign\"></i> Co-Neighbors");
         dock.hud.append(button);
         button.on("click", function () { coNeighborAction(clusters, nodes) });
     });
+    Datavis.addDockAction(function (nodes) {
+        var dock = this;
+        var button = $("<button>").addClass("btn btn-small")
+            .attr("id", "btn-co-neighbors")
+            .css("margin-left", 5)
+            .html("<i class=\"icon-external-link\"></i> Internal");
+        dock.hud.append(button);
+        button.on("click", function () { dockInternalNetwork(nodes) });
+    })
     function coNeighborAction(clusters, dockedNodes) {
         AppProgress.progress(20); // Some width to indicate doing something
         AppProgress.show("Getting co-neighbors");
@@ -252,6 +275,36 @@ require(['jquery', 'backbone', 'underscore',
             $("#btn-co-neighbors").attr("disabled", false);
             showTable();
         }
+    }
+    
+    function dockInternalNetwork(nodes) {
+        Modal.modal({
+            backdrop: true,
+        });
+        $("#modal-body").empty();
+        var viewport = new Viewport({
+            parent: "#modal-body",
+            id: "dock-internal",
+            height: 300,
+            width: 500,
+            toolbar: false,
+            title: "Internal Network"
+        });
+        var progress = new Progress({ element: viewport });
+        progress.show();
+        $.ajax({
+            url: internalTemplate(),
+            data: {
+                nodes: _.pluck(nodes, "entityId").join(","),
+                datasets: DataSets.asString()
+            },
+            dataType: "json",
+        }).done(function (data) {
+            var Internal = new NetworkVis({
+                element: viewport, dock: false, nodeLabel: { type: "GENE" } });
+            Internal.setData(data);
+            Internal.render();
+        })
     }
     function showTable() {
         require(['renderers/table'], function (Table) {
@@ -531,4 +584,6 @@ require(['jquery', 'backbone', 'underscore',
     router = new Router;
     search = new SearchBox;
     Backbone.history.start();
+    
+    addModal();
 });
