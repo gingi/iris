@@ -5,15 +5,15 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     var defaults = {
         dock: true,
         joinAttribute: "name",
-        nodeLabel: {}
+        nodeLabel: {},
     };
     
     var Physics = {
-        GENE:    { charge: -100 },
+        GENE:    { charge: -150 },
         CLUSTER: { charge: -150 },
         "GENE:GENE": {
-            linkDistance:  80,
-            linkStrength:  0.1
+            linkDistance:  120,
+            linkStrength:  0.6
         },
         "CLUSTER:GENE": {
             linkDistance:  150,
@@ -108,7 +108,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var label = true;
             for (var prop in options.nodeLabel) {
                 if (!node.hasOwnProperty(prop) ||
-                     node[prop] != options.nodeLabel[prop]) {
+                    node[prop] != options.nodeLabel[prop]) {
                     label = false;
                 }
             }
@@ -330,6 +330,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             svgLinks.exit().remove();
 
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
+            var clickbuffer = false, fixNodeTimer = null;
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
                 .attr("id",     function (d) {
@@ -341,12 +342,39 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     return d3.rgb(groupColor[d.id]).darker(1); 
                 })
                 .on("click",    function (d) {
+                    var el = this;
                     d3.event.stopPropagation();
-                    self.emit("click-node", [d, this]);
+                    clickbuffer = true;
+                    setTimeout(function () {
+                        if (clickbuffer) {
+                            clickbuffer = false;
+                            self.emit("click-node", [d, el]);
+                        }
+                    }, 100);
                 })
                 .on("dblclick", function (d) {
+                    clickbuffer = false;
                     d3.event.stopPropagation();
                     self.emit("dblclick-node", [d, this]);
+                })
+                .on("mousedown", function (d) {
+                    fixNodeTimer = {
+                        time: new Date().getTime(),
+                        node: d
+                    };
+                })
+                .on("mouseup", function (d) {
+                    if (fixNodeTimer) {
+                        if (fixNodeTimer.node == d) {
+                            var timenow = new Date().getTime();
+                            if (timenow - fixNodeTimer.time > 500) {
+                                if (!dock || !isDocked(d)) toggleFixed(d);
+                            }
+                        }
+                    }
+                    fixNodeTimer = null;
+                }).on("drag", function (d) {
+                    console.log("Dragging", d);
                 })
             svgLabels = labelG.selectAll("text")
                 .data(_.filter(nodes, hasLabel));
@@ -371,7 +399,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             dock.on("dragstart.dock", function () { force.stop(); })
                 .on("dragmove.dock",  function () { tick() })
                 .on("dragend.dock",   function (evt, d) {
-                    if (!isDocked(d)) d.fixed = !d.fixed;
+                    if (!isDocked(d)) toggleFixed(d);
                     tick(); force.resume();
                 })
                 .on("dock", function (evt, d, element) {
@@ -386,6 +414,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                         .style("stroke-width", null)
                         .style("stroke-location", null);
                 });
+        } else {
+            force.drag().on("dragend", function (d) {
+                toggleFixed(d);
+            })
         }
                 
         function nodeSize(d) {
