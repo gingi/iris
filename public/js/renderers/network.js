@@ -60,25 +60,11 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             CLUSTER: {
                 x: Math.round($el.width() / 2),
                 y: Math.round($el.height() * 5 / 6),
-                spreadx: Math.floor($el.width() * 0.8),
-                spready: 50,
-                binx: 10,
-                biny: 3
             },
             GENE:    {
                 x: Math.round($el.width() / 2),
                 y: Math.round($el.height() * 1 / 6),
-                spreadx: Math.floor($el.width() * 0.5),
-                spready: Math.floor($el.height() * 0.1),
-                binx: 10,
-                biny: 1
             }
-        }
-        for (var f in Foci) {
-            Foci[f].intx   = Math.floor(Foci[f].spreadx / Foci[f].binx);
-            Foci[f].inty   = Math.floor(Foci[f].spready / Foci[f].biny);
-            Foci[f].startx = Math.floor(Foci[f].x - Foci[f].spreadx / 2);
-            Foci[f].starty = Math.floor(Foci[f].y - Foci[f].spready / 2);
         }
         
         function setColor(node) {
@@ -322,7 +308,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
             
         function tick (e) {
-            if (e) {
+            if (e && options.dock) {
                 var k = 1 * e.alpha;
                 nodes.forEach(function (o, i) {
                     if (o.fixed) return;
