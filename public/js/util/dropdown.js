@@ -173,8 +173,9 @@ function($, Backbone, _, Progress) {
                         };
                         return collection;
                     },
-                    error: function () {
-                        console.error(arguments);
+                    error: function (collection, xhr) {
+                        progress.dismiss();
+                        throw new Error(xhr.responseText);
                     },
                     data: args.fetchData
                 });
