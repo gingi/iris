@@ -133,7 +133,13 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 this.setEdges(data.edges);
             }
             return this;
-        }
+        };
+        self.getData = function () {
+            return {
+                nodes: nodes,
+                edges: edges
+            };
+        };
         
         this.setNodes = function (nodesArg) {
             force.nodes(nodesArg);

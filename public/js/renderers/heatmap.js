@@ -58,6 +58,13 @@ function ($, d3, _, DragBox) {
             M.y = Math.max(M.y, 6 * maxStrLen(columns));
             maxScore = data.maxScore || 1;
         };
+        self.getData = function () {
+            return {
+                rows: rows,
+                columns: columns,
+                matrix: matrix
+            };
+        }
         
         function adjustedDim(arr) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
