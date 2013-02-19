@@ -21,6 +21,9 @@ define(['jquery', 'underscore'],
                 }
             }
         };
+        self.getData = function () {
+            return self.data;
+        };
         self.render = function (args) {
             args = args ? _.clone(args) : {};
             var $table = $("<table>").attr("cellpadding", 0)

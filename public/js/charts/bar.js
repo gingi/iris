@@ -31,6 +31,9 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             }
             return self;
         };
+        self.getData = function () {
+            return data;
+        };
         self.render = function () {
             $el.empty();
             var margin = {

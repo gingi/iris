@@ -51,6 +51,13 @@ function ($, EventEmitter, DragBox, Scale) {
             variations  = data.variations;
             maxscore    = data.maxscore;
         };
+        self.getData = function () {
+            return {
+                contigs: contigs,
+                variations: variations,
+                maxscore: maxscore
+            }
+        }
         
         self.render = function (args) {
             args = (args || {});

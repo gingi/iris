@@ -38,18 +38,21 @@ function ($, Backbone, _, Heatmap, Viewport) {
             heatmap.setData(this.model.toJSON());
             this.$el.progress.dismiss();
             heatmap.render();
+            this.viewport.renderer(heatmap);
         }
     });
     
+    var randomViewport = new Viewport({
+        parent: $("#datavis"),
+        width: 150,
+        height: 150,
+        title: "Random Heatmap"
+    });
     var randomView = new View({
-        el: new Viewport({
-            parent: $("#datavis"),
-            width: 150,
-            height: 150,
-            title: "Random Heatmap"
-        }),
+        el: randomViewport,
         model: new RandomHeatmapModel,
     });
+    randomView.viewport = randomViewport;
     randomView.render();
     
     var ExpressionModel = Backbone.Model.extend({
@@ -81,13 +84,15 @@ function ($, Backbone, _, Heatmap, Viewport) {
         }
     });
     var expression = new ExpressionModel;
-    new View({
-        el: new Viewport({
-            parent: $("#datavis"),
-            title: "Expression Profile"
-        }),
+    var viewport = new Viewport({
+        parent: $("#datavis"),
+        title: "Expression Profile"
+    })
+    var view = new View({
+        el: viewport,
         model: expression,
     });
+    view.viewport = viewport;
     expression.fetch({ data: {
         genes: expression.get('genes'),
         terms: expression.get('terms'),
