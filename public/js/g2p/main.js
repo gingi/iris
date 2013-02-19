@@ -154,6 +154,9 @@ require([
                 }, self.options.renderParams));
                 chart.setData(self.model.toJSON());
                 chart.render();
+                if (typeof self.options.afterRender === 'function') {
+                    self.options.afterRender.call(self, chart);
+                }
             })
         },
         fetchModel: function (genes) {
@@ -170,8 +173,8 @@ require([
                 error: function (model, response) {
                     var message = $("<span>")
                         .text("Uhoh! Got bad vibes from the server")
-                        .append($("<pre>")
-                            .append("The dirty details: ")
+                        .append($("<h5>").text("The dirty details"))
+                        .append($("<pre>").addClass("mini")
                             .append(response.responseText)).html();
                     self.viewport.showError({ message: message });
                 }
@@ -345,7 +348,7 @@ require([
                 model: network,
                 require: 'renderers/network',
                 elementId: 'network',
-                title: 'Gene Clusters',
+                title: 'Internal Network',
                 renderParams: {
                     hud: $("#subinfobox"),
                     dock: false
@@ -354,7 +357,34 @@ require([
                     data.nodes = data.genes;
                     delete data.genes;
                 },
+                afterRender: function (vis) {
+                    vis.on('click-node', function (evt, node) {
+                        var tbody = $("<tbody>");
+                        function row(key, val) {
+                            tbody.append($("<tr>")
+                                .append($("<th>").text(key))
+                                .append($("<td>").text(val))
+                            );
+                        }
+                        row("Name", node.name);
+                        row("Type", node.type);
+                        row("KBase ID", node.entityId);
+                        row("Neighbors", vis.neighbors(node).length);
+                        
+                        networkView.hud.empty().append($("<table>")
+                            .addClass("table table-condensed")
+                            .append(tbody));
+                        networkView.hud.show();
+                    });
+                }
             });
+            networkView.hud = new HUD({
+                title: "Network Node",
+                position: { bottom: 50, left: 50 },
+                element: "#datavis",
+                width: 300
+            });
+            
             
             var expressionModel = new ExpressionProfile;
             var expView = new SubView({
