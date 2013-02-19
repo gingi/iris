@@ -304,6 +304,7 @@ require(['jquery', 'backbone', 'underscore',
                 element: viewport, dock: false, nodeLabel: { type: "GENE" } });
             Internal.setData(data);
             Internal.render();
+            viewport.renderer(Internal);
         })
     }
     function showTable() {

@@ -154,6 +154,7 @@ require([
                 }, self.options.renderParams));
                 chart.setData(self.model.toJSON());
                 chart.render();
+                self.viewport.renderer(chart);
                 if (typeof self.options.afterRender === 'function') {
                     self.options.afterRender.call(self, chart);
                 }
@@ -246,6 +247,7 @@ require([
                 maxscore:   model.get('maxscore')
             });
             vis.render();
+            viewport.renderer(vis);
             $spanContainer.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 Vent.trigger("selection", [scoreA, scoreB, ranges]);

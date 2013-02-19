@@ -11,7 +11,9 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
         self.setData = function (inData) {
             data = inData;
         };
-            
+        self.getData = function () {
+            return data;
+        };
         self.render = function () {
             var w = $el.width();
             var h = $el.height();
