@@ -44,7 +44,7 @@ require([
         parse: function (data) { this.set(data); }
     });
     var Network = SubViewModel.extend({
-        url: dataAPI('/network/fake')
+        url: dataAPI('/network/internal')
     });
     
     var ExpressionProfile = SubViewModel.extend({
@@ -157,11 +157,25 @@ require([
             })
         },
         fetchModel: function (genes) {
+            var self = this;
             var data = { genes: genes };
             for (var prop in this.options.fetchParams) {
                 data[prop] = this.options.fetchParams[prop];
             }
-            this.model.fetch({ data: data });
+            if (typeof this.options.beforeFetch === 'function') {
+                this.options.beforeFetch.call(self.model, data);
+            }
+            this.model.fetch({
+                data: data,
+                error: function (model, response) {
+                    var message = $("<span>")
+                        .text("Uhoh! Got bad vibes from the server")
+                        .append($("<pre>")
+                            .append("The dirty details: ")
+                            .append(response.responseText)).html();
+                    self.viewport.showError({ message: message });
+                }
+            });
         }
     });
     
@@ -326,8 +340,9 @@ require([
         createSubViews: function () {
             this.subviewBar.empty();
             var genome = this.model.genome;
+            var network = new Network;
             var networkView = new SubView({
-                model: new Network,
+                model: network,
                 require: 'renderers/network',
                 elementId: 'network',
                 title: 'Gene Clusters',
@@ -335,7 +350,10 @@ require([
                     hud: $("#subinfobox"),
                     dock: false
                 },
-                fetchParams: { clusters: 2, nodes: 5 },
+                beforeFetch: function (data) {
+                    data.nodes = data.genes;
+                    delete data.genes;
+                },
             });
             
             var expressionModel = new ExpressionProfile;
