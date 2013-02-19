@@ -229,7 +229,7 @@ app.get('/data/ontology/:type/:term/expression', function (req, res, next) {
         response: res,
         type: req.params.type,
         term: req.params.term,
-        genes: req.query.genes ? req.query.genes.split(",") : []
+        genes: splitQueryParam(req, "genes")
     })
 })
 
@@ -270,8 +270,7 @@ app.get('/data/query/ontology', function (request, response, next) {
     }
     kbase.getGOTerms({
         response: response,
-        genes: request.query.genes
-            ? request.query.genes.split(",") : []
+        genes: splitQueryParam(request, "genes")
     });
 });
 
@@ -290,10 +289,8 @@ app.get('/data/query/expression', function (request, response, next) {
     }
     kbase.getExpressionProfiles({
         response: response,
-        genes: request.query.genes
-            ? request.query.genes.split(",") : [],
-        terms: request.query.terms
-            ? request.query.terms.split(",") : [],
+        genes: splitQueryParam(request, "genes"),
+        terms: splitQueryParam(request, "terms"),
         type: request.query.type || 'plant'
     });
 })
@@ -307,8 +304,7 @@ app.get('/data/query/go-enrichment', function (request, response, next) {
     }
     kbase.getGOEnrichment({
         response: response,
-        genes: request.query.genes
-            ? request.query.genes.split(",") : []
+        genes: splitQueryParam(request, "genes")
     });
 });
 
@@ -321,8 +317,7 @@ app.get('/data/genes/functions', function (request, response, next) {
     }
     kbase.getGeneFunctions({
         response: response,
-        genes: request.query.genes
-            ? request.query.genes.split(",") : []
+        genes: splitQueryParam(request, "genes")
     });
 });
 
@@ -335,16 +330,15 @@ app.get('/data/query/gene-function', function (request, response, next) {
     }
     kbase.getFunctionalAnnotations({
         response: response,
-        genes: request.query.genes
-            ? request.query.genes.split(",") : []
+        genes: splitQueryParam(request, "genes")
     })
 });
 
 app.get('/data/network/internal', function (request, response, next) {
     kbase.getInternalNetwork({
         response: response,
-        datasets: request.query.datasets.split(","),
-        nodes:    request.query.nodes.split(","),
+        datasets: splitQueryParam(request, "datasets"),
+        nodes:    splitQueryParam(request, "nodes"),
         rels:     request.query.rel ? [request.query.rel] : null
     });
 });
@@ -419,12 +413,11 @@ app.get('/data/query/network/neighbors', function (request, response, next) {
 
 app.get('/data/coexpression', function (request, response, next) {
     response.contentType = 'json';
-    var genes = request.query.genes;
-    if (!genes || genes.length == 0) {
+    var genes = splitQueryParam(request, "genes");
+    if (genes.length == 0) {
         response.send([]);
         return;
     }
-    genes = genes.split(",")
     var MAX_GENES = 80;
     var numGenes = Math.min(MAX_GENES, genes.length);
     var rGenes = [];
