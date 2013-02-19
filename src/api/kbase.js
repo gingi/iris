@@ -44,11 +44,13 @@ function errorHandler(response, type, errorMessage) {
     }
 }
 
-function rpcErrorHandler(response) {
-    return errorHandler(response,
-        "RPC Service Error",
-        "Unexpected RPC service error"
-    );
+function rpcErrorHandler(response, message) {
+    if (message) {
+        message = "Unexpected RPC service error: " + message; 
+    } else {
+        message = "Unexpected RPC service error";
+    }
+    return errorHandler(response, "RPC Service Error", message);
 }
 
 function validateParams(target, reqs) {
@@ -78,40 +80,6 @@ function validateParams(target, reqs) {
         target.response.send(json);
     });
     return target;
-}
-
-var jqueryAJAXErrorOverridden = false;
-function trapAJAXErrors() {
-    if (jqueryAJAXErrorOverridden) return;
-    jqueryAJAXErrorOverridden = true;
-    var jQueryAjax = $.ajax;
-    $.extend({
-        ajax: function () {
-            var params = arguments[0];
-            params.error = function (jqXHR, exception) {
-                if (jqXHR.status === 0) {
-                    console.error('Not connect.\n Verify Network.');
-                } else if (jqXHR.status == 404) {
-                    console.error('Requested page not found. [404]');
-                } else if (jqXHR.status == 500) {
-                    console.error('Internal Server Error [500].');
-                    console.error(jqXHR.responseText);
-                } else if (exception === 'parsererror') {
-                    console.error('Requested JSON parse failed.');
-                } else if (exception === 'timeout') {
-                    console.error('Time out error.');
-                } else if (exception === 'abort') {
-                    console.error('Ajax request aborted.');
-                } else {
-                    console.error('Uncaught Error.\n' + jqXHR.responseText);
-                }
-            }
-            return jQueryAjax.apply(null, arguments).error(function (err) {
-                console.log("Bad error thing", err);
-                throw new Error(err);
-            });
-        }
-    });
 }
 
 var jqueryDebugAJAXRequestsOverridden = false;
@@ -157,7 +125,6 @@ function api(key) {
     if (exports.debug) {
         debugAJAXRequests();
     }
-    // trapAJAXErrors();
     if (!APIConfig) {
         loadAPIConfig();
     }
@@ -313,7 +280,7 @@ exports.getGenomes = function (params) {
     params = validateParams(params);
     async.parallel({
         genomes: function (callback) {
-            api('cdmiEntity').query_entity_Genome(
+            var ret = api('cdmiEntity').query_entity_Genome(
                 [['domain', '=', 'Eukaryota']],
                 ['id', 'scientific_name'], function (json) {
                     var genomes = [];
@@ -322,8 +289,8 @@ exports.getGenomes = function (params) {
                         genomes.push([ genome.id, genome.scientific_name ]);
                     }
                     callback(null, genomes);
-                }, rpcErrorHandler(params.response)
-            )
+                }, rpcErrorHandler(params.response, "CDMI service")
+            );
         },
         traits: function (callback) {
             if (!params.haveTrait)
