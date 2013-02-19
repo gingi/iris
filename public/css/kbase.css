@@ -168,6 +168,22 @@ li > a.disabled {
     -moz-border-radius: 4px 0 4px 0;
     border-radius: 4px 0 4px 0;
 }
+.viewport-toolbox .dropdown-menu {
+    left: auto;
+    right: 0;
+    min-width: 120px;
+}
+.viewport-toolbox .dropdown-menu li {
+    font-size: 85%;
+}
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+pre .string { color: green; }
+pre .number { color: darkorange; }
+pre .boolean { color: blue; }
+pre .null { color: magenta; }
+pre .key { color: red; }
+
 
 .navbar small { line-height: auto; }
 

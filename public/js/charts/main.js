@@ -54,6 +54,7 @@ require([
             var vis = new this.chartType({ element: this.$el });
             vis.setData(this.dataSpec(chartData));
             vis.render();
+            this.viewport.renderer(vis);
             return this;
         },
     });
@@ -113,6 +114,7 @@ require([
                     model: genome,
                     el: viewport
                 });
+                view.viewport = viewport;
             }
             genome.fetch({
                 success: function (model, json) {
