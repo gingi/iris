@@ -270,15 +270,25 @@ require([
                 text = error.responseText ? 
                     JSON.parse(error.responseText).error : "Not found"
             } else {
-                var details = JSON.parse(error.responseText).error;
+                var details;
+                try {
+                    details = JSON.parse(error.responseText).error;
+                } catch (err) {
+                    details = error.responseText;
+                }
                 text = $("<span>")
-                    .append($("<h3>").text(error.statusText))
+                    .append($("<h3>").text("Unexpected Error"))
+                    .append($("<p>").html("Our apologies. Please " +
+                        "<a href=\"mailto:shiran@cshl.edu\">contact us</a> " +
+                        "with the following details if this problem persists."
+                    ))
                     .append($("<pre>").css("font-size", "8pt").text([
-                    "TECHNICAL DETAILS",
-                    "=================",
-                    "Status:  " + error.status,
-                    "Message: " + details.message,
-                    "Stack:   " + details.stack].join("\n")));
+                        "TECHNICAL DETAILS",
+                        "=================",
+                        "Status:  " +
+                            error.statusText + " (" + error.status + ")",
+                        "Error:   " + details
+                    ].join("\n")));
             }
             this.progress.dismiss();
             this.manhattanContainer.empty();
