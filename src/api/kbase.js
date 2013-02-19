@@ -447,18 +447,58 @@ exports.getNodeInfo = function (params) {
 }
 
 exports.getInternalNetwork = function (params) {
-    params = validateParams(params, ["nodes", "datasets"]);
+    params = validateParams(params, ["nodes"]);
     params.rels =
         params.rels || ["GENE_CLUSTER", "GENE_GENE", "CLUSTER_CLUSTER"];
-    api('network').buildInternalNetwork(
-        params.datasets,
-        params.nodes,
-        params.rels,
-        function (data) {
-            params.callback(transformNetwork(data));
+    async.waterfall([
+        function (callback) {
+            if (params.datasets.length > 0) {
+                return callback(null, params.datasets);
+            }
+            var parallel = [];
+            params.nodes.forEach(function (node) {
+                parallel.push(function (pCallback) {
+                    api('network').entity2Datasets(node,
+                        function (datasets) { pCallback(null, datasets); },
+                        function (err) { pCallback(err, null) }
+                    );
+                });
+            })
+            async.parallel(parallel, function (err, results) {
+                if (err) return callback(err, null);
+                var seen = {};
+                var datasets = [];
+                results.forEach(function (list) {
+                    list.forEach(function (dataset) {
+                        var id = dataset.id
+                        if (!seen[id]) {
+                            datasets.push(id);
+                            seen[id] = true;
+                        }
+                    })
+                });
+                callback(null, datasets);
+            });
         },
-        rpcErrorHandler(params.response)
-    );
+        function (datasets, callback) {
+            api('network').buildInternalNetwork(
+                datasets,
+                params.nodes,
+                params.rels,
+                function (data) {
+                    callback(null, transformNetwork(data));
+                },
+                function (err) {
+                    callback(err, null);
+                }
+            );
+        }
+    ], function (err, results) {
+        if (err) {
+          return rpcErrorHandler(params.response)(err);
+        }
+        return params.callback(results);
+    });
 }
 
 exports.getNetworkDatasets = function (params) {

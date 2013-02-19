@@ -64,6 +64,14 @@ define(["jquery", "underscore", "util/progress", "sortable"],
                 target.disableSelection()
             }
         }
+        content.showError = function (params) {
+            params = params ? _.clone(params) : {};
+            params.message = params.message || "Viewport error";
+            content.empty();
+            content.append($("<div>").addClass("alert alert-error")
+                .append($("<h3>").text("Error"))
+                .append($("<span>").html(params.message)));
+        }
         return content;
     }
     return Viewport;
