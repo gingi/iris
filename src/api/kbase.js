@@ -4,6 +4,7 @@ var fs    = require('fs');
 var path  = require('path');
 var async = require('async');
 var util  = require('util');
+var _     = require('underscore');
 
 var KBaseAPI    = apiRequire(path.join(__dirname, 'api.js'));
 var CONFIG_DIR  = path.join("..", "..", "conf");
@@ -203,15 +204,46 @@ exports.getTraitGenes = function (params) {
         return errorHandler(params.response)
             ("'loci' argument must be an array");
     }
-    api('g2p').selected_locations_to_genes(
-        params.traitId,
-        params.pmin,
-        params.pmax,
-        params.loci,
-        FLANKING_DISTANCE,
-        params.callback,
-        rpcErrorHandler(params.response)
-    );
+    async.waterfall([
+        function (callback) {
+            api('g2p').selected_locations_to_genes(
+                params.traitId,
+                params.pmin,
+                params.pmax,
+                params.loci,
+                FLANKING_DISTANCE,
+                function (loci) {
+                    return callback(null, loci);
+                },
+                function (err) {
+                    return callback(err, null);
+                }
+            );
+        },
+        function (genes, callback) {
+            api('cdmi').fids_to_locations(_.pluck(genes, 0),
+                function (loci) {
+                    var result = [];
+                    genes.forEach(function (genePair) {
+                        var locus = _.flatten(loci[genePair[0]]);
+                        if (locus.length >= 4) {
+                            // Convert to integers
+                            [1, 3].forEach(function (idx) {
+                                locus[idx] = parseInt(locus[idx]);
+                            });
+                        }
+                        result.push(_.union(genePair, locus));
+                    });
+                    callback(null, result);
+                }
+            )
+        }
+    ], function (err, results) {
+        if (err) {
+            return rpcErrorHandler(params.response)(err);
+        }
+        return params.callback(results);
+    });
 }
 
 exports.getContigLengths = function (params) {

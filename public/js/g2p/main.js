@@ -207,11 +207,14 @@ require([
 
             // Prepare transitions
             hud = new HUD({
-                position: { top: 100, right: 20 },
+                position: { top: 40, right: 10 },
                 element: "#datavis",
-                title: "Selection",
-                width: 200
+                width: 150,
+                height: 50,
+                close: false,
+                z: 500
             });
+            
             hud.progress = new Progress({ element: hud, fade: false });
             this.manhattanContainer =
                 this.makeRowDiv("manhattan-row-container");
@@ -242,7 +245,7 @@ require([
                 title: "Manhattan Plot"
             }).addClass("manhattan");
             
-            var vis = new ManhattanPlot({ element: viewport });
+            var vis = self.vis = new ManhattanPlot({ element: viewport });
             vis.setData({
                 variations: model.get('variations'),
                 contigs:    model.get('contigs'),
@@ -250,6 +253,25 @@ require([
             });
             vis.render();
             viewport.renderer(vis);
+            viewport.addTool($("<a>", { href: "#", id: "mnh-show-genes" })
+                .html("<i class=\"icon-eye-open\"></i> Show genes").click(
+                    function () {
+                        var link = $(this);
+                        self.showGenes =
+                            self.showGenes === null ? true : !self.showGenes;
+                        if (self.showGenes) {
+                            self.highlightGenes();
+                            link.html(
+                                "<i class=\"icon-eye-close\"></i> Hide genes");
+                        } else {
+                            vis.unhighlight();
+                            link.html(
+                                "<i class=\"icon-eye-open\"></i> Show genes");
+                        }
+                        return false;
+                    }
+                )
+            );
             $spanContainer.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 Vent.trigger("selection", [scoreA, scoreB, ranges]);
@@ -284,6 +306,19 @@ require([
             });
             vis.on("pinpoint", function () { });
             return this;
+        },
+        highlightGenes: function () {
+            var self = this;
+            if (self.selectedGenes) {
+                self.vis.highlight(
+                    _.map(self.selectedGenes, function (g) {
+                    return {
+                        contig: g[2],
+                        pos: g[3],
+                        title: g[1]
+                    }
+                }));
+            }
         },
         errorHandler: function (model, error) {
             var text = '';
@@ -321,17 +356,14 @@ require([
             var self = this;
             var $p = $("<p>")
                 .css("text-align",  "center")
-                .css("vertical-align", "middle")
                 .css("font-weight", "bold")
-                .css("min-height",  "30px");
             $p.text(genes.length > 0
-                ? genes.length + " genes" : "No genes found");
+                ? genes.length + " genes selected" : "No genes found");
             var geneIDs = _.map(genes, function (g) { return g[0] });
-            // var geneRequests = [];
-            // for (var i = 0; i < geneIDs.length;
-            //     i += MAX_GENES_PER_REQUEST) {
-            //     geneRequests.push(geneIDs.slice(i, i + MAX_GENES_PER_REQUEST));
-            // }
+            self.selectedGenes = genes;
+            if (self.showGenes) {
+                self.highlightGenes();
+            }
             hud.progress.dismiss();
             hud.append($p);
             if (jqXhr.status == 206) {
