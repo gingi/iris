@@ -78,6 +78,9 @@ li > a.disabled {
 .hud-content {
     padding: 0 8px 8px;
 }
+.hud-content p {
+    margin-bottom: 0;
+}
 .hud-content .alert {
     background-color: transparent;
     border: none;
