@@ -137,7 +137,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         self.getData = function () {
             return {
                 nodes: nodes,
-                edges: edges
+                edges: links
             };
         };
         
