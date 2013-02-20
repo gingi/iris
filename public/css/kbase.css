@@ -176,6 +176,10 @@ li > a.disabled {
 .viewport-toolbox .dropdown-menu li {
     font-size: 85%;
 }
+.popover p, .popover li {
+    line-height: 20px;
+}
+.nav .popover { width: 300px; }
 
 pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 pre .string { color: green; }
