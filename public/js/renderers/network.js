@@ -336,6 +336,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         
         function hasLabel(d) { return d.hasLabel; }
         function isDocked(d) {
+            if (!dock) return false;
             var docked = dock.get();
             for (var id in docked) {
                 var n = docked[id];
@@ -347,6 +348,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         function update() {
+            if (svgLinks) svgLinks.remove();
             svgLinks = linkG.selectAll("line.link").data(links);
             var linkEnter = svgLinks.enter()
                 .append("line")
@@ -355,6 +357,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 .style("stroke-width", function(d) { return d.weight * 2; });
             svgLinks.exit().remove();
 
+            if (svgNodes) svgNodes.remove();
             svgNodes = nodeG.selectAll("circle.node").data(nodes);
             var clickbuffer = false, fixNodeTimer = null;
             var nodeEnter = svgNodes.enter().append("circle")
@@ -365,8 +368,12 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 .attr("r",       function (d) { return nodeSize(d); })
                 .style("fill",   function (d) { return groupColor[d.id]; })
                 .style("stroke", function (d) {
-                    return d3.rgb(groupColor[d.id]).darker(1); 
+                    return isDocked(d) ? "yellow" : "#666"
                 })
+                .style("stroke-width", function (d) {
+                    return isDocked(d) ? 3 : null
+                })
+                
                 .on("click",    function (d) {
                     var el = this;
                     d3.event.stopPropagation();
@@ -399,12 +406,11 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                         }
                     }
                     fixNodeTimer = null;
-                }).on("drag", function (d) {
-                    console.log("Dragging", d);
                 })
+            if (svgLabels) svgLabels.remove();
             svgLabels = labelG.selectAll("text")
                 .data(_.filter(nodes, hasLabel));
-            svgLabels.enter().append("svg:text")
+            var labelEnter = svgLabels.enter().append("svg:text")
                 .attr("y", ".35em")
                 .attr("text-anchor", "middle")
                 .style("fill", "white")

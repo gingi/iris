@@ -1,8 +1,8 @@
 require(['jquery', 'backbone', 'underscore',
     'renderers/network', 'util/progress', 'util/hud', 'util/viewport',
-    'util/graph', 'network/nav', 'network/blurb'],
+    'util/graph', 'network/nav', 'network/blurb', 'util/help'],
     function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav,
-        Blurb) {
+        Blurb, Help) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -222,6 +222,7 @@ require(['jquery', 'backbone', 'underscore',
             });
             var merged = {}, edges = {}, added = {};
             intersections.forEach(function (intersection) {
+                if (!intersection.nodes) return;
                 intersection.nodes.forEach(function (node) {
                     var id = node.entityId;
                     merged[id] = {
@@ -244,9 +245,10 @@ require(['jquery', 'backbone', 'underscore',
             });
             var added = {};
             var filtered = new Graph();
-            function findAdd(node) {
+            function findAdd(node, edge) {
                 var gnode = added[node.entityId];
                 if (gnode == null) {
+                    node.group = edge.datasetId;
                     gnode = filtered.addNode(node);
                     added[node.entityId] = gnode;
                 }
@@ -256,8 +258,8 @@ require(['jquery', 'backbone', 'underscore',
                 var ninfo = merged[nid];
                 if (_.size(ninfo.datasets) > 1) {
                     ninfo.edges.forEach(function (edge) {
-                        var source = findAdd(edges[edge.id].source);
-                        var target = findAdd(edges[edge.id].target);
+                        var source = findAdd(edges[edge.id].source, edge);
+                        var target = findAdd(edges[edge.id].target, edge);
                         filtered.link(source, target, edge);
                     })
                 }
@@ -590,6 +592,10 @@ require(['jquery', 'backbone', 'underscore',
     });
     router = new Router;
     Backbone.history.start();
+    var help = new Help({
+        template: "/templates/network-help.html",
+        title: "Using the Network Workbench"
+    });
     
     addModal();
 });

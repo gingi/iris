@@ -8,7 +8,7 @@ require([
     'util/hud',
     'util/help',
     'g2p/dropdowns',
-    'g2p/blurb'],
+    'g2p/blurb',],
     function (
         $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, Help,
         DropDowns, Blurb
@@ -518,6 +518,7 @@ require([
         template: "/templates/g2p-help.html",
         title: "Using the Genotype Phenotype Workbench"
     });
+    
     
     router = new Router;
     Backbone.history.start();

@@ -7,7 +7,7 @@ define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
         "<li><a href=\"#nodes/<%= nodes %>/datasets/<%= datasets %>\">" +
         "<%= title %></a></li>"
     );
-    
+
     var examples = new Backbone.Collection();
     examples
     // .add({
@@ -17,14 +17,16 @@ define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
     // })
     .add({
         nodes: "kb|g.20848.CDS.837,kb|g.20848.CDS.3186,kb|g.20848.CDS.537",
-        datasets: "kb|netdataset.regprecise.1,kb|dataset.mak1",
-        title: "Arginine metabolism (<em>Shenwalla</em>)"
+        datasets: "kb|netdataset.regprecise.1,kb|dataset.mak2,kb|dataset.mak4",
+        title: "Arginine metabolism (<em>S. oneidensis</em>)"
     })
     .add({
         nodes: "kb|g.1870.peg.3322,kb|g.1870.peg.1532,kb|g.1870.peg.2087",
-        datasets: "kb|netdataset.regprecise.301,kb|netdataset.modelseed.1697,kb|netdataset.ppi.7",
+        datasets: "kb|netdataset.regprecise.301,kb|netdataset.modelseed.1697,kb|netdataset.ppi.7,kb|dataset.cmonkey.14",
         title: "Fatty acid degradation (<em>E. coli</em>)"
-    });
+    })
+    ;
+    
     var Navbar = Backbone.View.extend({
         template: _.template("<li class=\"dropdown\">" +
                 "<a class=\"dropdown-toggle\" id=\"dLabel\"" +
