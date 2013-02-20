@@ -14,6 +14,9 @@ define(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
             },
             render: function () {
                 require(["text!" + options.template], function (html) {
+                    $("#help-link").click(function () {
+                        return false;
+                    })
                     $("#help-link").popover({
                         title: options.title,
                         content: html,
