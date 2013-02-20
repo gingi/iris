@@ -153,6 +153,10 @@ li > a.disabled {
     width: 100%;
     background-color: white;
 }
+.dropdown-menu {
+    max-height: 600px;
+    overflow-y: scroll;
+}
 .viewport::after{
     content: attr(data-title);
     position: absolute;
