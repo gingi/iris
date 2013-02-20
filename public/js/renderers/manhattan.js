@@ -6,10 +6,12 @@ function ($, EventEmitter, DragBox, Scale) {
             .attr("width", container.width())
             .attr("height", container.height())
             .css("position", "absolute")
-            .css("z-index", options.z || 10);
+            .css("z-index", options.z || 1);
         container.append(canvas);
         return canvas[0].getContext('2d');
     }
+    var PI2 = Math.PI * 2;
+    var AXIS_COLOR  = '#CCC';
     
     function ManhattanPlot(options) {
         var self = this;
@@ -72,15 +74,15 @@ function ($, EventEmitter, DragBox, Scale) {
             canvasHeight = containerHeight - XAXIS_HEIGHT;
             canvasWidth  = containerWidth  - YAXIS_WIDTH;
             $element.css("position", "relative");
-            var plotArea =
+            self.plotArea =
                 $('<div>').css("position", "absolute").css("left", YAXIS_WIDTH);
-            plotArea.width(canvasWidth).height(canvasHeight);
-            ctx = createCanvas(plotArea);
-            $element.append(plotArea);
+            self.plotArea.width(canvasWidth).height(canvasHeight);
+            ctx = createCanvas(self.plotArea, { z: 5 });
+            $element.append(self.plotArea);
             setRanges();
             drawAxes();
 
-            var dragbox = new DragBox(plotArea, { z: 10 });
+            var dragbox = new DragBox(self.plotArea, { z: 10 });
             dragbox.textHandler(function (x, y, w, h) {
                 var pvals = [
                     yAxis.toDomain(y).toFixed(2),
@@ -102,6 +104,34 @@ function ($, EventEmitter, DragBox, Scale) {
             });
             drawManhattan();
         };
+        self.highlight = function (loci) {
+            var ctx = self.hlCtx;
+            if (ctx) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            } else {
+                ctx = self.hlCtx = createCanvas(self.plotArea, { z: 1 });
+            }
+            ctx.strokeStyle = "rgba(31,120,180,0.7)";
+            ctx.fillStyle = "rgba(166,206,227,0.7)";
+            ctx.lineWidth = 0.5;
+            loci.forEach(function (locus) {
+                var ctg = contigs[locus.contig];
+                var x = ctg.scale.toRange(locus.pos);
+                ctx.beginPath();
+                ctx.arc(Math.floor(x), 10, RADIUS * 2, 0, PI2, true);
+                // ctx.moveTo(x, 0);
+                // ctx.lineTo(x, canvasHeight);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+			});
+        };
+        self.unhighlight = function () {
+            var ctx = self.hlCtx;
+            if (ctx) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+        }
         
         function setRanges() {
             var yAxisMax = Math.ceil(maxscore) + 1;
@@ -118,7 +148,6 @@ function ($, EventEmitter, DragBox, Scale) {
         
         function drawAxes() {
             var offset = 0;
-            var AXIS_COLOR  = '#CCC';
             var axisContext = createCanvas($element, { z: 1 });
             
             function contigsAreWide() {
@@ -232,7 +261,6 @@ function ($, EventEmitter, DragBox, Scale) {
         }
         
         function scatterplot() {
-            var PI2 = Math.PI * 2;
             function intensity(v) { return Math.pow(v + 1, PINTENSITY) }
             var normalized = intensity(maxscore);
 

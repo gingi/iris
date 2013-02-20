@@ -66,7 +66,8 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         content.progress = new Progress({ element: content });
         options.parent.append(div);
         if (options.toolbox) {
-            div.append(toolbox(options));
+            self.toolbox = toolbox(options);
+            div.append(self.toolbox);
             if (options.sortContainer) {
                 var target = $(options.sortContainer);
                 target.sortable({
@@ -85,6 +86,11 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
             content.append($("<div>").addClass("alert alert-error")
                 .append($("<h3>").text("Error"))
                 .append($("<span>").html(params.message)));
+        }
+        content.addTool = function (tool) {
+            return self.toolbox.find("#viewport-toolbox").append(
+                $("<li>").append(tool)
+            );
         }
         content.renderer = function (r) {
             self.renderer = r;
@@ -107,7 +113,8 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
                     .addClass("btn btn-mini drag-button")
                     .html("<i class=\"icon-move\"></i>"));
             }
-            div.append($("<ul>").addClass("dropdown-menu")
+            div.append($("<ul>", { id: "viewport-toolbox"})
+                .addClass("dropdown-menu")
                 .append($("<li>").html($("<a>", { href: window.location.hash })
                     .html("<i class=\"icon-download-alt\"></i> Export data"))
                     .click(function () {
