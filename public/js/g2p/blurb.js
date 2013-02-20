@@ -71,17 +71,22 @@ define(["jquery"], function ($) {
                 .append(link("http://www.kbase.us/developer-zone", "KBase Developer Zone"))
             )
             .append(section(3, "Documentation")
-                .append($("<a href=\"#\">").text("Using the workbench")
+                .append(link("#", "Using the workbench", "question-sign")
                     .click(function () {
                         $("#help-link").popover('show');
                         return false;
                     }))
+                .append(link("http://www.youtube.com/embed/Qa0T3wn3ADg?rel=0",
+                    "Watch a 3-minute screencast", "facetime-video"))
             )
         )
         
-        function link(url, title) {
+        function link(url, title, icon) {
+            icon = icon || "external-link";
             return $("<a>").attr("href", url).html(title).append("<br/>")
-                .before("<i class=\"icon-external-link\"></i>  ");
+                .before($("<span>").css("width", "25px")
+                    .css("display", "inline-block")
+                    .html("<i class=\"icon-" + icon + "\"></i>  "));
         }
         
         function section(size, heading) {
