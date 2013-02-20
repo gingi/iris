@@ -76,7 +76,7 @@ define(["jquery"], function ($) {
                         $("#help-link").popover('show');
                         return false;
                     }))
-                .append(link("http://www.youtube.com/embed/Qa0T3wn3ADg?rel=0",
+                .append(link("http://www.youtube.com/watch?v=Qa0T3wn3ADg",
                     "Watch a 3-minute screencast", "facetime-video"))
             )
         )
