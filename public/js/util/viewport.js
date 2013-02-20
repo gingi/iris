@@ -11,6 +11,7 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
     var ExportModal;
     (function addExportModal() {
         ExportModal = $("<div>").addClass("modal fade hide")
+        .css("z-index", 3000)
         .append($("<div>").addClass("modal-header")
             .append($("<h3>").text("Data Export")))
         .append($("<div>", { id: "export-content" }).addClass("modal-body")
