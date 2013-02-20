@@ -31,3 +31,6 @@
 [submodule "external/bootstrap-arrows"]
 	path = external/bootstrap-arrows
 	url = https://github.com/iarfhlaith/Bootstrap-Arrows
+[submodule "external/requirejs-text"]
+	path = external/requirejs-text
+	url = https://github.com/requirejs/text.git

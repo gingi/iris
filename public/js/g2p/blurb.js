@@ -71,7 +71,11 @@ define(["jquery"], function ($) {
                 .append(link("http://www.kbase.us/developer-zone", "KBase Developer Zone"))
             )
             .append(section(3, "Documentation")
-                .append($("<p>").text("Coming soon!"))
+                .append($("<a href=\"#\">").text("Using the workbench")
+                    .click(function () {
+                        $("#help-link").popover('show');
+                        return false;
+                    }))
             )
         )
         

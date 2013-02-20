@@ -16,6 +16,17 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         .append($("<div>", { id: "export-content" }).addClass("modal-body")
             .css("min-height", "300px").css("min-width", "400px"))
         .append($("<div>").addClass("modal-footer")
+            .append($("<a>", { href: "#", download: "export.json" })
+                .addClass("btn btn-primary")
+                .append($("<i>").addClass("icon-download-alt"))
+                .append(" Download").click(function (e) {
+                    e.preventDefault();
+                    var uriContent =
+                        "data:application/json," +
+                        encodeURIComponent($("#export-content").text());
+                    window.open(uriContent, "export.json");
+                    return false;
+                }))
             .append($("<button>", {
                  type: "button", "data-dismiss": "modal", "aria-hidden": true
              }).addClass("btn").text("Close")).click(function () {
@@ -105,7 +116,7 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
                         }
                         var exportData = Syntax(self.renderer.getData());
                         $("#export-content").empty().append($("<pre>")
-                        .html(exportData)
+                            .html(exportData)
                         );
                         ExportModal.modal({ backdrop: true });
                         return false;

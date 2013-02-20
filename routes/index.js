@@ -41,7 +41,11 @@ exports.viewport = function (req, res) {
 };
 
 exports.g2p = function (req, res) {
-    res.render("datavis", { title: "Genotype Phenotype Workbench", js: "g2p/main" });
+    res.render("datavis", {
+        help: "help/g2p",
+        title: "Genotype Phenotype Workbench",
+        js: "g2p/main"
+    });
 };
 
 exports.network = function (req, res) {

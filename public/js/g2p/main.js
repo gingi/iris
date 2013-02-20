@@ -6,10 +6,12 @@ require([
     'util/progress',
     'util/viewport',
     'util/hud',
+    'util/help',
     'g2p/dropdowns',
     'g2p/blurb'],
     function (
-        $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, DropDowns, Blurb
+        $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, Help,
+        DropDowns, Blurb
     ) {
   
     function dataAPI(path) { return "/data" + path; }
@@ -479,7 +481,12 @@ require([
             new Blurb($("#datavis"), router);
         }
     });
-   
+
+    var help = new Help({
+        template: "/templates/g2p-help.html",
+        title: "Using the Genotype Phenotype Workbench"
+    });
+    
     router = new Router;
     Backbone.history.start();
 });
