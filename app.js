@@ -274,6 +274,13 @@ app.get('/data/query/ontology', function (request, response, next) {
     });
 });
 
+app.get('/data/feature/:id', function (request, response, next) {
+    kbase.getFeature({
+        name: request.params.id,
+        response: response
+    });
+});
+
 app.get('/data/query/expression', function (request, response, next) {
     if (typeof request.query.genes !== 'string') {
         response.send(400, {

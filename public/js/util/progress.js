@@ -18,12 +18,15 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         trail: 42
     };
     var progressCounter = 0;
-    function create(options) {
+    function create(options, id) {
         if (options.type == Progress.SPIN) {
             var spinner = new Spinner(options.spinner);
             return {
                 show: function (container) { spinner.spin(container[0]) },
-                hide: function ()          { spinner.stop() }
+                hide: function () {
+                    spinner.stop();
+                    if (options.fade) $("#" + id).remove();
+                }
             };
         } else {
             var div = $("<div>")
@@ -43,7 +46,11 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                     }
                     div.fadeIn();
                 },
-                hide: function () { div.fadeOut(); },
+                hide: function () {
+                    div.fadeOut(function () {
+                        if (options.fade) $("#" + id).remove();
+                    });
+                },
                 width: function (percent) {
                     div.find(".bar").css("width", percent);
                 }
@@ -76,7 +83,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                 container = $el;
             }
             if (!indicator) {
-                indicator = create(options);
+                indicator = create(options, _id);
             }
             indicator.show(container, message);
         };
@@ -90,9 +97,6 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         };
         this.dismiss = function () {
             if (indicator) indicator.hide();
-            if (options.fade) {
-                $("#" + _id).remove();
-            }
         };
         return this;
     }
