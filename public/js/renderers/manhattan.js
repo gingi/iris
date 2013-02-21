@@ -115,6 +115,7 @@ function ($, EventEmitter, DragBox, Scale) {
             ctx.fillStyle = "rgba(166,206,227,0.7)";
             ctx.lineWidth = 0.5;
             loci.forEach(function (locus) {
+                if (locus == null) return;
                 var ctg = contigs[locus.contig];
                 var x = ctg.scale.toRange(locus.pos);
                 ctx.beginPath();
@@ -124,7 +125,7 @@ function ($, EventEmitter, DragBox, Scale) {
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
-			});
+            });
         };
         self.unhighlight = function () {
             var ctx = self.hlCtx;
@@ -265,55 +266,55 @@ function ($, EventEmitter, DragBox, Scale) {
             var normalized = intensity(maxscore);
 
             // create a 2D histogram
-			var histogram = new Object();
-			var x2color = new Object();
-			var maxTally=1;
-			for (var i = 0; i < variations.length; i++) {
-				var ctgN   = variations[i][0];
-				var xcoord = variations[i][1];
-				var ycoord = variations[i][2];
+            var histogram = new Object();
+            var x2color = new Object();
+            var maxTally=1;
+            for (var i = 0; i < variations.length; i++) {
+                var ctgN   = variations[i][0];
+                var xcoord = variations[i][1];
+                var ycoord = variations[i][2];
                 if (ctgIndex[ctgN] == null) continue;
-				var ctg    = contigs[ctgIndex[ctgN]];
-				var x      = ctg.scale.toRange(xcoord);
-				var y      = yAxis.toRange(ycoord);
-				var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
-				var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
-				x2color[xbin] = ctg.color;
-				if (histogram.hasOwnProperty(xbin)) {
-					if (histogram[xbin].hasOwnProperty(ybin)) {
-						histogram[xbin][ybin]++
-					} else {
-						histogram[xbin][ybin]=1
-					}
-				} else {
-					histogram[xbin] = new Object();
-					histogram[xbin][ybin] = 1;
-				}
-				if (histogram[xbin][ybin] > maxTally) {
-					maxTally = histogram[xbin][ybin];
-				}
-			}
+                var ctg    = contigs[ctgIndex[ctgN]];
+                var x      = ctg.scale.toRange(xcoord);
+                var y      = yAxis.toRange(ycoord);
+                var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
+                var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
+                x2color[xbin] = ctg.color;
+                if (histogram.hasOwnProperty(xbin)) {
+                    if (histogram[xbin].hasOwnProperty(ybin)) {
+                        histogram[xbin][ybin]++
+                    } else {
+                        histogram[xbin][ybin]=1
+                    }
+                } else {
+                    histogram[xbin] = new Object();
+                    histogram[xbin][ybin] = 1;
+                }
+                if (histogram[xbin][ybin] > maxTally) {
+                    maxTally = histogram[xbin][ybin];
+                }
+            }
 
-			for (var x in histogram) {
-				var ctgcolor = x2color[x];
-				for (var y in histogram[x]) {
-					var ratio = histogram[x][y]/maxTally;
-					var r = color(ratio, ctgcolor, 0);
-					var g = color(ratio, ctgcolor, 1);
-					var b = color(ratio, ctgcolor, 2);
-					
-					ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-					
-					if (DRAW_DISCS) {
-						ctx.beginPath();
-						ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
-						ctx.closePath();
-						ctx.fill();
-					} else {
-						ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
-					}
-				}
-			}
+            for (var x in histogram) {
+                var ctgcolor = x2color[x];
+                for (var y in histogram[x]) {
+                    var ratio = histogram[x][y]/maxTally;
+                    var r = color(ratio, ctgcolor, 0);
+                    var g = color(ratio, ctgcolor, 1);
+                    var b = color(ratio, ctgcolor, 2);
+                    
+                    ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+                    
+                    if (DRAW_DISCS) {
+                        ctx.beginPath();
+                        ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
+                        ctx.closePath();
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
+                    }
+                }
+            }
         }
 
         function canvasToCtg(a, b) {
@@ -325,7 +326,7 @@ function ($, EventEmitter, DragBox, Scale) {
             var nt2px = (canvasWidth - gutters) / genomeLength;
             var aPos, bPos;
             for (i = 0; i < ctgOrder.length; i++) {
-    			var ctg = ctgOrder[i];
+                var ctg = ctgOrder[i];
                 var len = contigs[ctg].len;
                 var ctgXsize = nt2px * len;
                 if (a >= offset - XGUTTER && a <= offset + ctgXsize) {
