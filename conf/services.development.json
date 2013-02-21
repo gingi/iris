@@ -8,11 +8,11 @@
         "fn":  "Genotype_PhenotypeAPI"
     },
     "cdmi": {
-        "url": "http://bio-data-1.mcs.anl.gov/services/cdmi_api",
+        "url": "http://kbase.us/services/cdmi_api",
         "fn":  "CDMI_API"
     },
     "cdmiEntity": {
-        "url": "http://bio-data-1.mcs.anl.gov/services/cdmi_api",
+        "url": "http://kbase.us/services/cdmi_api",
         "fn":  "CDMI_EntityAPI"        
     },
     "ontology":   {
