@@ -8,10 +8,11 @@ require([
     'util/hud',
     'util/help',
     'g2p/dropdowns',
-    'g2p/blurb',],
+    'g2p/blurb',
+    'g2p/genepad'],
     function (
         $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, Help,
-        DropDowns, Blurb
+        DropDowns, Blurb, GenePad
     ) {
   
     function dataAPI(path) { return "/data" + path; }
@@ -200,8 +201,11 @@ require([
             //Listeners
             _.bindAll(this, 'render');
             Vent.bind("selection", this.createSubViews, this);
-            this.model.on('change', this.render);
-            this.model.on('error', this.errorHandler, this);
+            if (this.model) {
+                this.model.on('change', this.render);
+                this.model.on('error', this.errorHandler, this);
+            }
+            this.$el.empty();
 
             this.$el.css("position", "relative")
 
@@ -221,7 +225,9 @@ require([
             this.subviewBar = this.makeRowDiv("subviews");
             this.$el.find(".alert").remove();
             this.progress = new Progress({ element: this.manhattanContainer });
-            this.progress.show();
+            if (this.model) {
+                this.progress.show();
+            }
         },
         render: function () {
             var self = this;
@@ -234,7 +240,6 @@ require([
             }
             self.progress.dismiss();
             self.manhattanContainer.empty();
-            self.subviewBar.empty();
             var $spanContainer = $("<div>").addClass("span12")
                 .css("position", "relative");
             self.manhattanContainer.append($spanContainer);
@@ -359,7 +364,7 @@ require([
                 .css("font-weight", "bold")
             $p.text(genes.length > 0
                 ? genes.length + " genes selected" : "No genes found");
-            var geneIDs = _.map(genes, function (g) { return g[0] });
+            var geneIDs = _.pluck(genes, 0);
             self.selectedGenes = genes;
             if (self.showGenes) {
                 self.highlightGenes();
@@ -378,7 +383,6 @@ require([
         },
         createSubViews: function () {
             this.subviewBar.empty();
-            var genome = this.model.genome;
             var network = new Network;
             var networkView = new SubView({
                 model: network,
@@ -496,10 +500,9 @@ require([
             dropdowns.select(type, id);
         },
         show: function (traitId) {
-            $("#datavis").empty();
             var trait = new Trait;
             trait.set({id: decodeURIComponent(traitId)});
-            var mview = new ManhattanView({ model: trait });
+            new ManhattanView({ model: trait });
             trait.fetch({
                 data: { p: 30 },
                 success: function (t) {
@@ -519,6 +522,16 @@ require([
         title: "Using the Genotype Phenotype Workbench"
     });
     
+    var genepad = new GenePad();
+    genepad.collection.on("fetch", function () {
+        var manhattanView = new ManhattanView();
+        Vent.trigger("selection");
+        manhattanView.handleGeneSelection(
+            _.map(this.toJSON(), function (gene) {
+                return [gene.id, gene.name];
+            }), null, { status: 200 }
+        );
+    })
     
     router = new Router;
     Backbone.history.start();
