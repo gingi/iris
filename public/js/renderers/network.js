@@ -1,7 +1,6 @@
 define(['jquery', 'd3', 'underscore',
     'util/dock', 'util/eventemitter', 'util/hud'],
 function ($, d3, _, Dock, EventEmitter, HUD) {
-    
     var defaults = {
         dock: true,
         joinAttribute: "name",
@@ -30,10 +29,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
     }
     
-    var NODE_SIZE  = {
-        GENE: 8,
-        CLUSTER: 20
-    };
+    var NODE_SIZE  = { GENE: 8, CLUSTER: 20 };
+    var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
     
     var Network = function (options) {
         var self = this;
@@ -186,10 +183,20 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         self.highlight = function (name) {
-            d3.select("#" + name)
-                .style("stroke", "yellow")
-                .style("stroke-width", 3)
-                .style("stroke-location", "outside")
+            var node = self.findNode(name, "name");
+            if (node) {
+                d3.select("#" + node.elementId)
+                    .style("stroke", HIGHLIGHT_COLOR)
+                    .style("stroke-width", 3)
+                    .style("stroke-location", "outside")
+            }
+            return this;
+        }
+        self.unhighlightAll = function () {
+            nodeG.selectAll(".node")
+                .style("stroke", null)
+                .style("stroke-width", null)
+                .style("stroke-location", null)
             return this;
         }
         
@@ -296,7 +303,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     })
                     .on("dock", function (evt, d, element) {
                         element
-                            .style("stroke", "yellow")
+                            .style("stroke", HIGHLIGHT_COLOR)
                             .style("stroke-width", 3)
                             .style("stroke-location", "outside")   
                     })
@@ -368,7 +375,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 .attr("r",       function (d) { return nodeSize(d); })
                 .style("fill",   function (d) { return groupColor[d.id]; })
                 .style("stroke", function (d) {
-                    return isDocked(d) ? "yellow" : "#666"
+                    return isDocked(d) ? HIGHLIGHT_COLOR : "#666"
                 })
                 .style("stroke-width", function (d) {
                     return isDocked(d) ? 3 : null
