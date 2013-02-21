@@ -25,7 +25,7 @@ require([
     var genesXHR;
     var hud;
     var dropdowns = new DropDowns(dataAPI);
-    var router;
+    var router, genepad;
 
     // Vent: Event Aggregator
     var Vent = _.extend({}, Backbone.Events);
@@ -152,14 +152,14 @@ require([
             var self = this;
             require([self.options.require], function(Chart) {
                 self.progress.dismiss();
-                var chart = new Chart(_.extend({
+                this.chart = new Chart(_.extend({
                     element: self.viewport
                 }, self.options.renderParams));
-                chart.setData(self.model.toJSON());
-                chart.render();
-                self.viewport.renderer(chart);
+                this.chart.setData(self.model.toJSON());
+                this.chart.render();
+                self.viewport.renderer(this.chart);
                 if (typeof self.options.afterRender === 'function') {
-                    self.options.afterRender.call(self, chart);
+                    self.options.afterRender.call(self, this.chart);
                 }
             })
         },
@@ -177,7 +177,7 @@ require([
                 error: function (model, response) {
                     var message = $("<span>")
                         .text("Uhoh! Got bad vibes from the server")
-                        .append($("<h5>").text("The dirty details"))
+                        .append($("<h5>").text("The dirty details:"))
                         .append($("<pre>").addClass("mini")
                             .append(response.responseText)).html();
                     self.viewport.showError({ message: message });
@@ -384,6 +384,8 @@ require([
         createSubViews: function () {
             this.subviewBar.empty();
             var network = new Network;
+            var networkFetched = $.Deferred();
+            var networkVis = null;
             var networkView = new SubView({
                 model: network,
                 require: 'renderers/network',
@@ -398,6 +400,8 @@ require([
                     delete data.genes;
                 },
                 afterRender: function (vis) {
+                    networkFetched.resolve();
+                    networkVis = vis;
                     vis.on('click-node', function (evt, node) {
                         var tbody = $("<tbody>");
                         function row(key, val) {
@@ -440,9 +444,29 @@ require([
                 require: 'renderers/table',
                 elementId: "gene-table",
                 title: "Trait Genes",
-                renderParams: { scrollY: 250 }
+                renderParams: { scrollY: 250 },
+                afterRender: function () {
+                    $("#gene-table").on("filter", function (evt, tbl) {
+                        // FIXME: Move functionality to renderer/table
+                        if (networkVis) networkVis.unhighlightAll();
+                        if (tbl.asDataSearch.length == 0 ||
+                            tbl.asDataSearch.length == tbl.aoData.length) {
+                            return;
+                        }
+                        var filtered = _.uniq(_.map(tbl.asDataSearch, function (t) {
+                            return t.split(/\s+/)[0];
+                        }));
+                        if (filtered.length > 0) {
+                            networkFetched.then(function () {
+                                filtered.forEach(function (geneName) {
+                                    networkVis.highlight(geneName);
+                                });
+                            });
+                        }
+                    })
+                }
             });
-
+            
             var barchart = new SubView({
                 model: new GOEnrichment,
                 require: 'charts/bar',
@@ -492,6 +516,7 @@ require([
     var Router = Backbone.Router.extend({
         routes: {
             "trait/:traitId": "show",
+            "genepad/:genes": "genepad",
             ":type/:id":      "dropdownSelect",
             "*action":        "default"
         },
@@ -511,10 +536,13 @@ require([
                 }
             });
         },
+        genepad: function (genes) {
+            genepad.setGenes(genes);
+        },
         default: function () {
             $("#datavis").empty();
             new Blurb($("#datavis"), router);
-        }
+        },
     });
 
     var help = new Help({
@@ -522,7 +550,7 @@ require([
         title: "Using the Genotype Phenotype Workbench"
     });
     
-    var genepad = new GenePad();
+    genepad = new GenePad();
     genepad.collection.on("fetch", function () {
         var manhattanView = new ManhattanView();
         Vent.trigger("selection");
@@ -535,4 +563,6 @@ require([
     
     router = new Router;
     Backbone.history.start();
+    
+    genepad.setRouter(router);
 });
