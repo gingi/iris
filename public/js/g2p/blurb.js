@@ -78,6 +78,16 @@ define(["jquery"], function ($) {
                     }))
                 .append(link("http://www.youtube.com/watch?v=Qa0T3wn3ADg",
                     "Watch a 3-minute screencast", "facetime-video"))
+                .append($("<br/>"))
+                .append($("<h3>").text("Change Log"))
+                .append($("<ul>").addClass("mini")
+                    .append($("<li>").text(
+                        "Gene Pad for selecting your own set of genes"))
+                    .append($("<li>").text(
+                        "Filtered genes are highlighted in the network"))
+                    .append($("<li>").text(
+                        "Highlight gene locations in the Manhattan Plot"))
+                )
             )
         )
         

@@ -443,7 +443,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             hud = new HUD({
                 position: { bottom: 20, left: 20 },
                 width: 300,
-                title: "Node Properties"
+                title: "Node Properties",
+                z: 2000
             });
         self.clickNode = function (d, element) {
             if (selected) {
