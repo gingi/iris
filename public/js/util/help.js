@@ -22,7 +22,7 @@ define(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
                         content: html,
                         placement: "bottom",
                         html: true,
-                        container: "#datavis",
+                        container: "body",
                         width: options.width
                     })
                 })
