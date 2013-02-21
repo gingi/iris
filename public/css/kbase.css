@@ -112,10 +112,16 @@ li > a.disabled {
 #nodeInfo {
     font-size: 10pt;
 }
-#progress-indicator {
+.progress-indicator {
+    min-width: 50px;
+    min-height: 18px;
+    display: inline-block;
+    margin: 3px 15px;
+}
+.progress-indicator, #progress-indicator {
     position: relative;
 }
-#progress-indicator .progress {
+.progress-indicator .progress, #progress-indicator .progress {
     background-image: -moz-linear-gradient(top, #e5e5e5, #e9e9e9);
     background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e5e5e5), to(#e9e9e9));
     background-image: -webkit-linear-gradient(top, #e5e5e5, #e9e9e9);
@@ -124,12 +130,12 @@ li > a.disabled {
     margin-top: 10px;
     margin-bottom: 0px;
 }
-#progress-indicator .bar {
+.progress-indicator .bar, #progress-indicator .bar {
     -webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
        -moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
             box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
-#progress-indicator #progress-message {
+.progress-indicator #progress-message, #progress-indicator #progress-message {
     position: absolute;
     top: 12px;
     left: 0;

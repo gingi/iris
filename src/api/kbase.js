@@ -308,6 +308,32 @@ exports.getGenomeInfo = function (params) {
     });
 }
 
+var featureAttrMap = {
+    id: "id",
+    source_id: "name",
+    sequence_length: "length",
+    feature_type: "type",
+    function: "function",
+};
+
+exports.getFeature = function (params) {
+    params = validateParams(params, ["name"]);
+    api('cdmiEntity').query_entity_Feature(
+        [['source_id', '=', params.name]],
+        'feature_type source_id sequence_length function alias'.split(" "),
+        function (feature) {
+            feature = _.values(feature)[0];
+            var result = {};
+            if (feature) {
+                for (var prop in featureAttrMap) {
+                    result[featureAttrMap[prop]] = feature[prop];
+                }
+            }
+            params.callback(result);
+        }, rpcErrorHandler(params.response)
+    );
+}
+
 exports.getGenomes = function (params) {
     params = validateParams(params);
     async.parallel({
