@@ -9,6 +9,2065 @@
 
 
 
+function IDServerAPI(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.kbase_ids_to_external_ids = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("IDServerAPI.kbase_ids_to_external_ids",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    this.external_ids_to_kbase_ids = function (external_db, ext_ids, _callback, _errorCallback) {
+        return json_call_ajax("IDServerAPI.external_ids_to_kbase_ids",
+            [external_db, ext_ids], 1, _callback, _errorCallback);
+    };
+
+    this.register_ids = function (prefix, db_name, ids, _callback, _errorCallback) {
+        return json_call_ajax("IDServerAPI.register_ids",
+            [prefix, db_name, ids], 1, _callback, _errorCallback);
+    };
+
+    this.allocate_id_range = function (kbase_id_prefix, count, _callback, _errorCallback) {
+        return json_call_ajax("IDServerAPI.allocate_id_range",
+            [kbase_id_prefix, count], 1, _callback, _errorCallback);
+    };
+
+    this.register_allocated_ids = function (prefix, db_name, assignments, _callback, _errorCallback) {
+        return json_call_ajax("IDServerAPI.register_allocated_ids",
+            [prefix, db_name, assignments], 0, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function Sim(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.sims = function (ids, options, _callback, _errorCallback) {
+        return json_call_ajax("Sim.sims",
+            [ids, options], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function PlantExpression(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.get_repid_by_sampleid = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_repid_by_sampleid",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_experiments_by_seriesid = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_experiments_by_seriesid",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_experiments_by_sampleid = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_experiments_by_sampleid",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_experiments_by_sampleid_geneid = function (ids, gl, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_experiments_by_sampleid_geneid",
+            [ids, gl], 1, _callback, _errorCallback);
+    };
+
+    this.get_eo_sampleidlist = function (lst, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_eo_sampleidlist",
+            [lst], 1, _callback, _errorCallback);
+    };
+
+    this.get_po_sampleidlist = function (lst, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_po_sampleidlist",
+            [lst], 1, _callback, _errorCallback);
+    };
+
+    this.get_all_po = function (_callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_all_po",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.get_all_eo = function (_callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_all_eo",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.get_po_descriptions = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_po_descriptions",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_eo_descriptions = function (ids, _callback, _errorCallback) {
+        return json_call_ajax("PlantExpression.get_eo_descriptions",
+            [ids], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function MOTranslation(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.fids_to_moLocusIds = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.fids_to_moLocusIds",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.proteins_to_moLocusIds = function (proteins, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.proteins_to_moLocusIds",
+            [proteins], 1, _callback, _errorCallback);
+    };
+
+    this.moLocusIds_to_fids = function (moLocusIds, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.moLocusIds_to_fids",
+            [moLocusIds], 1, _callback, _errorCallback);
+    };
+
+    this.moLocusIds_to_proteins = function (moLocusIds, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.moLocusIds_to_proteins",
+            [moLocusIds], 1, _callback, _errorCallback);
+    };
+
+    this.map_to_fid = function (query_sequences, genomeId, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.map_to_fid",
+            [query_sequences, genomeId], 2, _callback, _errorCallback);
+    };
+
+    this.map_to_fid_fast = function (query_md5s, genomeId, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.map_to_fid_fast",
+            [query_md5s, genomeId], 2, _callback, _errorCallback);
+    };
+
+    this.moLocusIds_to_fid_in_genome = function (moLocusIds, genomeId, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.moLocusIds_to_fid_in_genome",
+            [moLocusIds, genomeId], 2, _callback, _errorCallback);
+    };
+
+    this.moLocusIds_to_fid_in_genome_fast = function (moLocusIds, genomeId, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.moLocusIds_to_fid_in_genome_fast",
+            [moLocusIds, genomeId], 2, _callback, _errorCallback);
+    };
+
+    this.moTaxonomyId_to_genomes = function (moTaxonomyId, _callback, _errorCallback) {
+        return json_call_ajax("MOTranslation.moTaxonomyId_to_genomes",
+            [moTaxonomyId], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function fbaModelServices(url) {
+
+    var _url = url;
+
+
+    this.get_models = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_models", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_models", [input]);
+        return resp[0];
+    }
+
+    this.get_models_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_models", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_fbas = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_fbas", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_fbas", [input]);
+        return resp[0];
+    }
+
+    this.get_fbas_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_fbas", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_gapfills = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_gapfills", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_gapfills", [input]);
+        return resp[0];
+    }
+
+    this.get_gapfills_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_gapfills", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_gapgens = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_gapgens", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_gapgens", [input]);
+        return resp[0];
+    }
+
+    this.get_gapgens_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_gapgens", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_reactions = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_reactions", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_reactions", [input]);
+        return resp[0];
+    }
+
+    this.get_reactions_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_reactions", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_compounds = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_compounds", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_compounds", [input]);
+        return resp[0];
+    }
+
+    this.get_compounds_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_compounds", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_media = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_media", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_media", [input]);
+        return resp[0];
+    }
+
+    this.get_media_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_media", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_biochemistry = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_biochemistry", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_biochemistry", [input]);
+        return resp[0];
+    }
+
+    this.get_biochemistry_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_biochemistry", [input], 1, _callback, _error_callback)
+    }
+
+    this.get_ETCDiagram = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.get_ETCDiagram", [input]);
+//	var resp = json_call_sync("fbaModelServices.get_ETCDiagram", [input]);
+        return resp[0];
+    }
+
+    this.get_ETCDiagram_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.get_ETCDiagram", [input], 1, _callback, _error_callback)
+    }
+
+    this.import_probanno = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.import_probanno", [input]);
+//	var resp = json_call_sync("fbaModelServices.import_probanno", [input]);
+        return resp[0];
+    }
+
+    this.import_probanno_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.import_probanno", [input], 1, _callback, _error_callback)
+    }
+
+    this.genome_object_to_workspace = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.genome_object_to_workspace", [input]);
+//	var resp = json_call_sync("fbaModelServices.genome_object_to_workspace", [input]);
+        return resp[0];
+    }
+
+    this.genome_object_to_workspace_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.genome_object_to_workspace", [input], 1, _callback, _error_callback)
+    }
+
+    this.genome_to_workspace = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.genome_to_workspace", [input]);
+//	var resp = json_call_sync("fbaModelServices.genome_to_workspace", [input]);
+        return resp[0];
+    }
+
+    this.genome_to_workspace_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.genome_to_workspace", [input], 1, _callback, _error_callback)
+    }
+
+    this.add_feature_translation = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.add_feature_translation", [input]);
+//	var resp = json_call_sync("fbaModelServices.add_feature_translation", [input]);
+        return resp[0];
+    }
+
+    this.add_feature_translation_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.add_feature_translation", [input], 1, _callback, _error_callback)
+    }
+
+    this.genome_to_fbamodel = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.genome_to_fbamodel", [input]);
+//	var resp = json_call_sync("fbaModelServices.genome_to_fbamodel", [input]);
+        return resp[0];
+    }
+
+    this.genome_to_fbamodel_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.genome_to_fbamodel", [input], 1, _callback, _error_callback)
+    }
+
+    this.import_fbamodel = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.import_fbamodel", [input]);
+//	var resp = json_call_sync("fbaModelServices.import_fbamodel", [input]);
+        return resp[0];
+    }
+
+    this.import_fbamodel_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.import_fbamodel", [input], 1, _callback, _error_callback)
+    }
+
+    this.genome_to_probfbamodel = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.genome_to_probfbamodel", [input]);
+//	var resp = json_call_sync("fbaModelServices.genome_to_probfbamodel", [input]);
+        return resp[0];
+    }
+
+    this.genome_to_probfbamodel_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.genome_to_probfbamodel", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_fbamodel = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_fbamodel", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_fbamodel", [input]);
+        return resp[0];
+    }
+
+    this.export_fbamodel_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_fbamodel", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_object = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_object", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_object", [input]);
+        return resp[0];
+    }
+
+    this.export_object_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_object", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_genome = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_genome", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_genome", [input]);
+        return resp[0];
+    }
+
+    this.export_genome_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_genome", [input], 1, _callback, _error_callback)
+    }
+
+    this.adjust_model_reaction = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.adjust_model_reaction", [input]);
+//	var resp = json_call_sync("fbaModelServices.adjust_model_reaction", [input]);
+        return resp[0];
+    }
+
+    this.adjust_model_reaction_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.adjust_model_reaction", [input], 1, _callback, _error_callback)
+    }
+
+    this.adjust_biomass_reaction = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.adjust_biomass_reaction", [input]);
+//	var resp = json_call_sync("fbaModelServices.adjust_biomass_reaction", [input]);
+        return resp[0];
+    }
+
+    this.adjust_biomass_reaction_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.adjust_biomass_reaction", [input], 1, _callback, _error_callback)
+    }
+
+    this.addmedia = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.addmedia", [input]);
+//	var resp = json_call_sync("fbaModelServices.addmedia", [input]);
+        return resp[0];
+    }
+
+    this.addmedia_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.addmedia", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_media = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_media", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_media", [input]);
+        return resp[0];
+    }
+
+    this.export_media_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_media", [input], 1, _callback, _error_callback)
+    }
+
+    this.runfba = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.runfba", [input]);
+//	var resp = json_call_sync("fbaModelServices.runfba", [input]);
+        return resp[0];
+    }
+
+    this.runfba_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.runfba", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_fba = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_fba", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_fba", [input]);
+        return resp[0];
+    }
+
+    this.export_fba_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_fba", [input], 1, _callback, _error_callback)
+    }
+
+    this.import_phenotypes = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.import_phenotypes", [input]);
+//	var resp = json_call_sync("fbaModelServices.import_phenotypes", [input]);
+        return resp[0];
+    }
+
+    this.import_phenotypes_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.import_phenotypes", [input], 1, _callback, _error_callback)
+    }
+
+    this.simulate_phenotypes = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.simulate_phenotypes", [input]);
+//	var resp = json_call_sync("fbaModelServices.simulate_phenotypes", [input]);
+        return resp[0];
+    }
+
+    this.simulate_phenotypes_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.simulate_phenotypes", [input], 1, _callback, _error_callback)
+    }
+
+    this.export_phenotypeSimulationSet = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.export_phenotypeSimulationSet", [input]);
+//	var resp = json_call_sync("fbaModelServices.export_phenotypeSimulationSet", [input]);
+        return resp[0];
+    }
+
+    this.export_phenotypeSimulationSet_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.export_phenotypeSimulationSet", [input], 1, _callback, _error_callback)
+    }
+
+    this.integrate_reconciliation_solutions = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.integrate_reconciliation_solutions", [input]);
+//	var resp = json_call_sync("fbaModelServices.integrate_reconciliation_solutions", [input]);
+        return resp[0];
+    }
+
+    this.integrate_reconciliation_solutions_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.integrate_reconciliation_solutions", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_runfba = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_runfba", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_runfba", [input]);
+        return resp[0];
+    }
+
+    this.queue_runfba_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_runfba", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_gapfill_model = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_gapfill_model", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_gapfill_model", [input]);
+        return resp[0];
+    }
+
+    this.queue_gapfill_model_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_gapfill_model", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_gapgen_model = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_gapgen_model", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_gapgen_model", [input]);
+        return resp[0];
+    }
+
+    this.queue_gapgen_model_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_gapgen_model", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_wildtype_phenotype_reconciliation = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_wildtype_phenotype_reconciliation", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_wildtype_phenotype_reconciliation", [input]);
+        return resp[0];
+    }
+
+    this.queue_wildtype_phenotype_reconciliation_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_wildtype_phenotype_reconciliation", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_reconciliation_sensitivity_analysis = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_reconciliation_sensitivity_analysis", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_reconciliation_sensitivity_analysis", [input]);
+        return resp[0];
+    }
+
+    this.queue_reconciliation_sensitivity_analysis_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_reconciliation_sensitivity_analysis", [input], 1, _callback, _error_callback)
+    }
+
+    this.queue_combine_wildtype_phenotype_reconciliation = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.queue_combine_wildtype_phenotype_reconciliation", [input]);
+//	var resp = json_call_sync("fbaModelServices.queue_combine_wildtype_phenotype_reconciliation", [input]);
+        return resp[0];
+    }
+
+    this.queue_combine_wildtype_phenotype_reconciliation_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.queue_combine_wildtype_phenotype_reconciliation", [input], 1, _callback, _error_callback)
+    }
+
+    this.jobs_done = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.jobs_done", [input]);
+//	var resp = json_call_sync("fbaModelServices.jobs_done", [input]);
+        return resp[0];
+    }
+
+    this.jobs_done_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.jobs_done", [input], 1, _callback, _error_callback)
+    }
+
+    this.check_job = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.check_job", [input]);
+//	var resp = json_call_sync("fbaModelServices.check_job", [input]);
+        return resp[0];
+    }
+
+    this.check_job_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.check_job", [input], 1, _callback, _error_callback)
+    }
+
+    this.run_job = function(input)
+    {
+	var resp = json_call_ajax_sync("fbaModelServices.run_job", [input]);
+//	var resp = json_call_sync("fbaModelServices.run_job", [input]);
+        return resp[0];
+    }
+
+    this.run_job_async = function(input, _callback, _error_callback)
+    {
+	json_call_ajax_async("fbaModelServices.run_job", [input], 1, _callback, _error_callback)
+    }
+
+    function _json_call_prepare(url, method, params, async_flag)
+    {
+	var rpc = { 'params' : params,
+		    'method' : method,
+		    'version': "1.1",
+	};
+	
+	var body = JSON.stringify(rpc);
+	
+	var http = new XMLHttpRequest();
+	
+	http.open("POST", url, async_flag);
+	
+	//Send the proper header information along with the request
+	http.setRequestHeader("Content-type", "application/json");
+	//http.setRequestHeader("Content-length", body.length);
+	//http.setRequestHeader("Connection", "close");
+	return [http, body];
+    }
+
+    /*
+     * JSON call using jQuery method.
+     */
+
+    function json_call_ajax_sync(method, params)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
+        };
+        
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": false,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr) { resp_txt = data; code = xhr.status },
+				    error: function(xhr, textStatus, errorThrown) { resp_txt = xhr.responseText, code = xhr.status },
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
+
+        var result;
+
+        if (resp_txt)
+        {
+	    var resp = JSON.parse(resp_txt);
+	    
+	    if (code >= 500)
+	    {
+		throw resp.error;
+	    }
+	    else
+	    {
+		return resp.result;
+	    }
+        }
+	else
+	{
+	    return null;
+	}
+    }
+
+    function json_call_ajax_async(method, params, num_rets, callback, error_callback)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
+        };
+        
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": true,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr)
+				{
+				    resp = JSON.parse(data);
+				    var result = resp["result"];
+				    if (num_rets == 1)
+				    {
+					callback(result[0]);
+				    }
+				    else
+				    {
+					callback(result);
+				    }
+				    
+				},
+				    error: function(xhr, textStatus, errorThrown)
+				{
+				    if (xhr.responseText)
+				    {
+					resp = JSON.parse(xhr.responseText);
+					if (error_callback)
+					{
+					    error_callback(resp.error);
+					}
+					else
+					{
+					    throw resp.error;
+					}
+				    }
+				},
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
+
+    }
+
+    function json_call_async(method, params, num_rets, callback)
+    {
+	var tup = _json_call_prepare(_url, method, params, true);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.onreadystatechange = function() {
+	    if (http.readyState == 4 && http.status == 200) {
+		var resp_txt = http.responseText;
+		var resp = JSON.parse(resp_txt);
+		var result = resp["result"];
+		if (num_rets == 1)
+		{
+		    callback(result[0]);
+		}
+		else
+		{
+		    callback(result);
+		}
+	    }
+	}
+	
+	http.send(body);
+	
+    }
+    
+    function json_call_sync(method, params)
+    {
+	var tup = _json_call_prepare(url, method, params, false);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.send(body);
+	
+	var resp_txt = http.responseText;
+	
+	var resp = JSON.parse(resp_txt);
+	var result = resp["result"];
+	    
+	return result;
+    }
+}
+
+
+
+function PROM(url, auth, auth_cb) {
+
+    var _url = url;
+
+    if (typeof(_url) != "string" || _url.length == 0) {
+        _url = "http://kbase.us/services/prom";
+    }
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.get_expression_data_by_genome = function (genome_id, workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.get_expression_data_by_genome",
+            [genome_id, workspace_name, token], 2, _callback, _errorCallback);
+    };
+
+    this.create_expression_data_collection = function (workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.create_expression_data_collection",
+            [workspace_name, token], 2, _callback, _errorCallback);
+    };
+
+    this.add_expression_data_to_collection = function (expression_data, expression_data_collecion_id, workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.add_expression_data_to_collection",
+            [expression_data, expression_data_collecion_id, workspace_name, token], 1, _callback, _errorCallback);
+    };
+
+    this.change_expression_data_namespace = function (expression_data_collection_id, new_feature_names, workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.change_expression_data_namespace",
+            [expression_data_collection_id, new_feature_names, workspace_name, token], 1, _callback, _errorCallback);
+    };
+
+    this.get_regulatory_network_by_genome = function (genome_id, workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.get_regulatory_network_by_genome",
+            [genome_id, workspace_name, token], 2, _callback, _errorCallback);
+    };
+
+    this.change_regulatory_network_namespace = function (regulatory_network_id, new_feature_names, workspace_name, token, _callback, _errorCallback) {
+        return json_call_ajax("PROM.change_regulatory_network_namespace",
+            [regulatory_network_id, new_feature_names, workspace_name, token], 2, _callback, _errorCallback);
+    };
+
+    this.create_prom_constraints = function (params, _callback, _errorCallback) {
+        return json_call_ajax("PROM.create_prom_constraints",
+            [params], 2, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function KBaseNetworks(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.allDatasets = function (_callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.allDatasets",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.allDatasetSources = function (_callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.allDatasetSources",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.allNetworkTypes = function (_callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.allNetworkTypes",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.datasetSource2Datasets = function (datasetSourceRef, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.datasetSource2Datasets",
+            [datasetSourceRef], 1, _callback, _errorCallback);
+    };
+
+    this.taxon2Datasets = function (taxon, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.taxon2Datasets",
+            [taxon], 1, _callback, _errorCallback);
+    };
+
+    this.networkType2Datasets = function (networkType, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.networkType2Datasets",
+            [networkType], 1, _callback, _errorCallback);
+    };
+
+    this.entity2Datasets = function (entityId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.entity2Datasets",
+            [entityId], 1, _callback, _errorCallback);
+    };
+
+    this.buildFirstNeighborNetwork = function (datasetIds, entityIds, edgeTypes, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.buildFirstNeighborNetwork",
+            [datasetIds, entityIds, edgeTypes], 1, _callback, _errorCallback);
+    };
+
+    this.buildFirstNeighborNetworkLimtedByStrength = function (datasetIds, entityIds, edgeTypes, cutOff, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.buildFirstNeighborNetworkLimtedByStrength",
+            [datasetIds, entityIds, edgeTypes, cutOff], 1, _callback, _errorCallback);
+    };
+
+    this.buildInternalNetwork = function (datasetIds, geneIds, edgeTypes, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.buildInternalNetwork",
+            [datasetIds, geneIds, edgeTypes], 1, _callback, _errorCallback);
+    };
+
+    this.buildInternalNetworkLimitedByStrength = function (datasetIds, geneIds, edgeTypes, cutOff, _callback, _errorCallback) {
+        return json_call_ajax("KBaseNetworks.buildInternalNetworkLimitedByStrength",
+            [datasetIds, geneIds, edgeTypes, cutOff], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function Phispy(url, auth, auth_cb) {
+
+    var _url = url;
+
+    if (typeof(_url) != "string" || _url.length == 0) {
+        _url = "http://kbase.us/services/phispy";
+    }
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.get_all_training_sets = function (_callback, _errorCallback) {
+        return json_call_ajax("Phispy.get_all_training_sets",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.find_prophages = function (training_set_id, genomeTO, _callback, _errorCallback) {
+        return json_call_ajax("Phispy.find_prophages",
+            [training_set_id, genomeTO], 2, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function workspaceService(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.save_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.save_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.delete_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.delete_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.delete_object_permanently = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.delete_object_permanently",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_object_by_ref = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_object_by_ref",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.save_object_by_ref = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.save_object_by_ref",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_objectmeta = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_objectmeta",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_objectmeta_by_ref = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_objectmeta_by_ref",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.revert_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.revert_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.copy_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.copy_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.move_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.move_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.has_object = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.has_object",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.object_history = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.object_history",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.create_workspace = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.create_workspace",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_workspacemeta = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_workspacemeta",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_workspacepermissions = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_workspacepermissions",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.delete_workspace = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.delete_workspace",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.clone_workspace = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.clone_workspace",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.list_workspaces = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.list_workspaces",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.list_workspace_objects = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.list_workspace_objects",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.set_global_workspace_permissions = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.set_global_workspace_permissions",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.set_workspace_permissions = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.set_workspace_permissions",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_user_settings = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_user_settings",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.set_user_settings = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.set_user_settings",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.queue_job = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.queue_job",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.set_job_status = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.set_job_status",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_jobs = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_jobs",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.get_types = function (_callback, _errorCallback) {
+        return json_call_ajax("workspaceService.get_types",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.add_type = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.add_type",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    this.remove_type = function (params, _callback, _errorCallback) {
+        return json_call_ajax("workspaceService.remove_type",
+            [params], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function ProteinInfo(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.fids_to_operons = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_operons",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.fids_to_domains = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_domains",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.domains_to_fids = function (domain_ids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.domains_to_fids",
+            [domain_ids], 1, _callback, _errorCallback);
+    };
+
+    this.fids_to_ipr = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_ipr",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.fids_to_orthologs = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_orthologs",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.fids_to_ec = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_ec",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.fids_to_go = function (fids, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fids_to_go",
+            [fids], 1, _callback, _errorCallback);
+    };
+
+    this.fid_to_neighbors = function (id, thresh, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fid_to_neighbors",
+            [id, thresh], 1, _callback, _errorCallback);
+    };
+
+    this.fidlist_to_neighbors = function (fids, thresh, _callback, _errorCallback) {
+        return json_call_ajax("ProteinInfo.fidlist_to_neighbors",
+            [fids, thresh], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function Ontology(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.get_goidlist = function (geneIDList, domainList, ecList, _callback, _errorCallback) {
+        return json_call_ajax("Ontology.get_goidlist",
+            [geneIDList, domainList, ecList], 1, _callback, _errorCallback);
+    };
+
+    this.get_go_description = function (goIDList, _callback, _errorCallback) {
+        return json_call_ajax("Ontology.get_go_description",
+            [goIDList], 1, _callback, _errorCallback);
+    };
+
+    this.get_go_enrichment = function (geneIDList, domainList, ecList, type, ontologytype, _callback, _errorCallback) {
+        return json_call_ajax("Ontology.get_go_enrichment",
+            [geneIDList, domainList, ecList, type, ontologytype], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
+function KBaseRegPrecise(url, auth, auth_cb) {
+
+    var _url = url;
+
+    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
+    var _auth_cb = auth_cb;
+
+
+    this.getRegulomeModelCollections = function (_callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModelCollections",
+            [], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulomeModelCollection = function (collectionId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModelCollection",
+            [collectionId], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulomeModelsByCollectionId = function (collectionId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModelsByCollectionId",
+            [collectionId], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulomeModelsByGenomeId = function (genomeId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModelsByGenomeId",
+            [genomeId], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulomeModelsBySourceType = function (regulomeSource, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModelsBySourceType",
+            [regulomeSource], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulomeModel = function (regulomeModelId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulomeModel",
+            [regulomeModelId], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulonModelStats = function (regulomeModelId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulonModelStats",
+            [regulomeModelId], 1, _callback, _errorCallback);
+    };
+
+    this.getRegulonModel = function (regulonModelId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getRegulonModel",
+            [regulonModelId], 1, _callback, _errorCallback);
+    };
+
+    this.buildRegulomeModel = function (param, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.buildRegulomeModel",
+            [param], 1, _callback, _errorCallback);
+    };
+
+    this.getProcessState = function (processId, _callback, _errorCallback) {
+        return json_call_ajax("KBaseRegPrecise.getProcessState",
+            [processId], 1, _callback, _errorCallback);
+    };
+
+    /*
+     * JSON call using jQuery method.
+     */
+    function json_call_ajax(method, params, numRets, callback, errorCallback) {
+        var deferred = $.Deferred();
+
+        if (typeof callback === 'function') {
+           deferred.done(callback);
+        }
+
+        if (typeof errorCallback === 'function') {
+           deferred.fail(errorCallback);
+        }
+
+        var rpc = {
+            params : params,
+            method : method,
+            version: "1.1",
+            id: String(Math.random()).slice(2),
+        };
+        
+        var beforeSend = null;
+        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
+            : (_auth.token ? _auth.token : null);
+        if (token != null) {
+            beforeSend = function (xhr) {
+                xhr.setRequestHeader("Authorization", _auth.token);
+            }
+        }
+
+        jQuery.ajax({
+            url: _url,
+            dataType: "text",
+            type: 'POST',
+            processData: false,
+            data: JSON.stringify(rpc),
+            beforeSend: beforeSend,
+            success: function (data, status, xhr) {
+                var result;
+                try {
+                    var resp = JSON.parse(data);
+                    result = (numRets === 1 ? resp.result[0] : resp.result);
+                } catch (err) {
+                    deferred.reject({
+                        status: 503,
+                        error: err,
+                        url: _url,
+                        resp: data
+                    });
+                    return;
+                }
+                deferred.resolve(result);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                var error;
+                if (xhr.responseText) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        error = resp.error;
+                    } catch (err) { // Not JSON
+                        error = "Unknown error - " + xhr.responseText;
+                    }
+                } else {
+                    error = "Unknown Error";
+                }
+                deferred.reject({
+                    status: 500,
+                    error: error
+                });
+            }
+        });
+        return deferred.promise();
+    }
+}
+
+
+
+
 function CDMI_API(url, auth, auth_cb) {
 
     var _url = url;
@@ -2806,67 +4865,110 @@ function Genotype_PhenotypeAPI(url, auth, auth_cb) {
 
 
 
-function KBaseNetworks(url, auth, auth_cb) {
+function Tree(url, auth, auth_cb) {
 
     var _url = url;
 
+    if (typeof(_url) != "string" || _url.length == 0) {
+        _url = "http://kbase.us/services/tree";
+    }
     var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
     var _auth_cb = auth_cb;
 
 
-    this.allDatasets = function (_callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.allDatasets",
-            [], 1, _callback, _errorCallback);
+    this.replace_node_names = function (tree, replacements, _callback, _errorCallback) {
+        return json_call_ajax("Tree.replace_node_names",
+            [tree, replacements], 1, _callback, _errorCallback);
     };
 
-    this.allDatasetSources = function (_callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.allDatasetSources",
-            [], 1, _callback, _errorCallback);
+    this.remove_node_names_and_simplify = function (tree, removal_list, _callback, _errorCallback) {
+        return json_call_ajax("Tree.remove_node_names_and_simplify",
+            [tree, removal_list], 1, _callback, _errorCallback);
     };
 
-    this.allNetworkTypes = function (_callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.allNetworkTypes",
-            [], 1, _callback, _errorCallback);
+    this.extract_leaf_node_names = function (tree, _callback, _errorCallback) {
+        return json_call_ajax("Tree.extract_leaf_node_names",
+            [tree], 1, _callback, _errorCallback);
     };
 
-    this.datasetSource2Datasets = function (datasetSourceRef, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.datasetSource2Datasets",
-            [datasetSourceRef], 1, _callback, _errorCallback);
+    this.extract_node_names = function (tree, _callback, _errorCallback) {
+        return json_call_ajax("Tree.extract_node_names",
+            [tree], 1, _callback, _errorCallback);
     };
 
-    this.taxon2Datasets = function (taxon, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.taxon2Datasets",
-            [taxon], 1, _callback, _errorCallback);
+    this.get_node_count = function (tree, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_node_count",
+            [tree], 1, _callback, _errorCallback);
     };
 
-    this.networkType2Datasets = function (networkType, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.networkType2Datasets",
-            [networkType], 1, _callback, _errorCallback);
+    this.get_leaf_count = function (tree, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_leaf_count",
+            [tree], 1, _callback, _errorCallback);
     };
 
-    this.entity2Datasets = function (entityId, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.entity2Datasets",
-            [entityId], 1, _callback, _errorCallback);
+    this.get_tree = function (tree_id, options, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_tree",
+            [tree_id, options], 1, _callback, _errorCallback);
     };
 
-    this.buildFirstNeighborNetwork = function (datasetIds, entityIds, edgeTypes, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.buildFirstNeighborNetwork",
-            [datasetIds, entityIds, edgeTypes], 1, _callback, _errorCallback);
+    this.get_alignment = function (alignment_id, options, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_alignment",
+            [alignment_id, options], 1, _callback, _errorCallback);
     };
 
-    this.buildFirstNeighborNetworkLimtedByStrength = function (datasetIds, entityIds, edgeTypes, cutOff, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.buildFirstNeighborNetworkLimtedByStrength",
-            [datasetIds, entityIds, edgeTypes, cutOff], 1, _callback, _errorCallback);
+    this.get_tree_data = function (tree_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_tree_data",
+            [tree_ids], 1, _callback, _errorCallback);
     };
 
-    this.buildInternalNetwork = function (datasetIds, geneIds, edgeTypes, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.buildInternalNetwork",
-            [datasetIds, geneIds, edgeTypes], 1, _callback, _errorCallback);
+    this.get_alignment_data = function (alignment_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_alignment_data",
+            [alignment_ids], 1, _callback, _errorCallback);
     };
 
-    this.buildInternalNetworkLimitedByStrength = function (datasetIds, geneIds, edgeTypes, cutOff, _callback, _errorCallback) {
-        return json_call_ajax("KBaseNetworks.buildInternalNetworkLimitedByStrength",
-            [datasetIds, geneIds, edgeTypes, cutOff], 1, _callback, _errorCallback);
+    this.get_tree_ids_by_feature = function (feature_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_tree_ids_by_feature",
+            [feature_ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_tree_ids_by_protein_sequence = function (protein_sequence_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_tree_ids_by_protein_sequence",
+            [protein_sequence_ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_alignment_ids_by_feature = function (feature_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_alignment_ids_by_feature",
+            [feature_ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_alignment_ids_by_protein_sequence = function (protein_sequence_ids, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_alignment_ids_by_protein_sequence",
+            [protein_sequence_ids], 1, _callback, _errorCallback);
+    };
+
+    this.get_tree_ids_by_source_id_pattern = function (pattern, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_tree_ids_by_source_id_pattern",
+            [pattern], 1, _callback, _errorCallback);
+    };
+
+    this.get_leaf_to_protein_map = function (tree_id, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_leaf_to_protein_map",
+            [tree_id], 1, _callback, _errorCallback);
+    };
+
+    this.get_leaf_to_feature_map = function (tree_id, _callback, _errorCallback) {
+        return json_call_ajax("Tree.get_leaf_to_feature_map",
+            [tree_id], 1, _callback, _errorCallback);
+    };
+
+    this.compute_abundance_profile = function (abundance_params, _callback, _errorCallback) {
+        return json_call_ajax("Tree.compute_abundance_profile",
+            [abundance_params], 1, _callback, _errorCallback);
+    };
+
+    this.draw_html_tree = function (tree, display_options, _callback, _errorCallback) {
+        return json_call_ajax("Tree.draw_html_tree",
+            [tree, display_options], 1, _callback, _errorCallback);
     };
 
     /*
@@ -2947,7 +5049,293 @@ function KBaseNetworks(url, auth, auth_cb) {
 
 
 
-function Ontology(url, auth, auth_cb) {
+function GenomeAnnotation(url) {
+
+    var _url = url;
+
+
+    this.genomeTO_to_reconstructionTO = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.genomeTO_to_reconstructionTO", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.genomeTO_to_reconstructionTO", [genomeTO]);
+        return resp[0];
+    }
+
+    this.genomeTO_to_reconstructionTO_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.genomeTO_to_reconstructionTO", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.genomeTO_to_feature_data = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.genomeTO_to_feature_data", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.genomeTO_to_feature_data", [genomeTO]);
+        return resp[0];
+    }
+
+    this.genomeTO_to_feature_data_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.genomeTO_to_feature_data", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.reconstructionTO_to_roles = function(reconstructionTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.reconstructionTO_to_roles", [reconstructionTO]);
+//	var resp = json_call_sync("GenomeAnnotation.reconstructionTO_to_roles", [reconstructionTO]);
+        return resp[0];
+    }
+
+    this.reconstructionTO_to_roles_async = function(reconstructionTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.reconstructionTO_to_roles", [reconstructionTO], 1, _callback, _error_callback)
+    }
+
+    this.reconstructionTO_to_subsystems = function(reconstructionTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.reconstructionTO_to_subsystems", [reconstructionTO]);
+//	var resp = json_call_sync("GenomeAnnotation.reconstructionTO_to_subsystems", [reconstructionTO]);
+        return resp[0];
+    }
+
+    this.reconstructionTO_to_subsystems_async = function(reconstructionTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.reconstructionTO_to_subsystems", [reconstructionTO], 1, _callback, _error_callback)
+    }
+
+    this.annotate_genome = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.annotate_genome", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.annotate_genome", [genomeTO]);
+        return resp[0];
+    }
+
+    this.annotate_genome_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.annotate_genome", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.call_RNAs = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.call_RNAs", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.call_RNAs", [genomeTO]);
+        return resp[0];
+    }
+
+    this.call_RNAs_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.call_RNAs", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.call_CDSs = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.call_CDSs", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.call_CDSs", [genomeTO]);
+        return resp[0];
+    }
+
+    this.call_CDSs_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.call_CDSs", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.find_close_neighbors = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.find_close_neighbors", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.find_close_neighbors", [genomeTO]);
+        return resp[0];
+    }
+
+    this.find_close_neighbors_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.find_close_neighbors", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.assign_functions_to_CDSs = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.assign_functions_to_CDSs", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.assign_functions_to_CDSs", [genomeTO]);
+        return resp[0];
+    }
+
+    this.assign_functions_to_CDSs_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.assign_functions_to_CDSs", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    this.annotate_proteins = function(genomeTO)
+    {
+	var resp = json_call_ajax_sync("GenomeAnnotation.annotate_proteins", [genomeTO]);
+//	var resp = json_call_sync("GenomeAnnotation.annotate_proteins", [genomeTO]);
+        return resp[0];
+    }
+
+    this.annotate_proteins_async = function(genomeTO, _callback, _error_callback)
+    {
+	json_call_ajax_async("GenomeAnnotation.annotate_proteins", [genomeTO], 1, _callback, _error_callback)
+    }
+
+    function _json_call_prepare(url, method, params, async_flag)
+    {
+	var rpc = { 'params' : params,
+		    'method' : method,
+		    'version': "1.1",
+	};
+	
+	var body = JSON.stringify(rpc);
+	
+	var http = new XMLHttpRequest();
+	
+	http.open("POST", url, async_flag);
+	
+	//Send the proper header information along with the request
+	http.setRequestHeader("Content-type", "application/json");
+	//http.setRequestHeader("Content-length", body.length);
+	//http.setRequestHeader("Connection", "close");
+	return [http, body];
+    }
+
+    /*
+     * JSON call using jQuery method.
+     */
+
+    function json_call_ajax_sync(method, params)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
+        };
+        
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": false,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr) { resp_txt = data; code = xhr.status },
+				    error: function(xhr, textStatus, errorThrown) { resp_txt = xhr.responseText, code = xhr.status },
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
+
+        var result;
+
+        if (resp_txt)
+        {
+	    var resp = JSON.parse(resp_txt);
+	    
+	    if (code >= 500)
+	    {
+		throw resp.error;
+	    }
+	    else
+	    {
+		return resp.result;
+	    }
+        }
+	else
+	{
+	    return null;
+	}
+    }
+
+    function json_call_ajax_async(method, params, num_rets, callback, error_callback)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
+        };
+        
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": true,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr)
+				{
+				    resp = JSON.parse(data);
+				    var result = resp["result"];
+				    if (num_rets == 1)
+				    {
+					callback(result[0]);
+				    }
+				    else
+				    {
+					callback(result);
+				    }
+				    
+				},
+				    error: function(xhr, textStatus, errorThrown)
+				{
+				    if (xhr.responseText)
+				    {
+					resp = JSON.parse(xhr.responseText);
+					if (error_callback)
+					{
+					    error_callback(resp.error);
+					}
+					else
+					{
+					    throw resp.error;
+					}
+				    }
+				},
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
+
+    }
+
+    function json_call_async(method, params, num_rets, callback)
+    {
+	var tup = _json_call_prepare(_url, method, params, true);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.onreadystatechange = function() {
+	    if (http.readyState == 4 && http.status == 200) {
+		var resp_txt = http.responseText;
+		var resp = JSON.parse(resp_txt);
+		var result = resp["result"];
+		if (num_rets == 1)
+		{
+		    callback(result[0]);
+		}
+		else
+		{
+		    callback(result);
+		}
+	    }
+	}
+	
+	http.send(body);
+	
+    }
+    
+    function json_call_sync(method, params)
+    {
+	var tup = _json_call_prepare(url, method, params, false);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.send(body);
+	
+	var resp_txt = http.responseText;
+	
+	var resp = JSON.parse(resp_txt);
+	var result = resp["result"];
+	    
+	return result;
+    }
+}
+
+
+
+function CommunitiesAPI(url, auth, auth_cb) {
 
     var _url = url;
 
@@ -2955,19 +5343,99 @@ function Ontology(url, auth, auth_cb) {
     var _auth_cb = auth_cb;
 
 
-    this.get_goidlist = function (geneIDList, domainList, ecList, _callback, _errorCallback) {
-        return json_call_ajax("Ontology.get_goidlist",
-            [geneIDList, domainList, ecList], 1, _callback, _errorCallback);
+    this.get_abundanceprofile_instance = function (get_abundanceprofile_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_abundanceprofile_instance",
+            [get_abundanceprofile_instance_params], 1, _callback, _errorCallback);
     };
 
-    this.get_go_description = function (goIDList, _callback, _errorCallback) {
-        return json_call_ajax("Ontology.get_go_description",
-            [goIDList], 1, _callback, _errorCallback);
+    this.get_analysisset_instance = function (get_analysisset_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_analysisset_instance",
+            [get_analysisset_instance_params], 1, _callback, _errorCallback);
     };
 
-    this.get_go_enrichment = function (geneIDList, domainList, ecList, type, ontologytype, _callback, _errorCallback) {
-        return json_call_ajax("Ontology.get_go_enrichment",
-            [geneIDList, domainList, ecList, type, ontologytype], 1, _callback, _errorCallback);
+    this.get_analysisset_setlist = function (get_analysisset_setlist_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_analysisset_setlist",
+            [get_analysisset_setlist_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_library_query = function (get_library_query_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_library_query",
+            [get_library_query_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_library_instance = function (get_library_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_library_instance",
+            [get_library_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_matrix_organism = function (get_matrix_organism_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_matrix_organism",
+            [get_matrix_organism_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_matrix_function = function (get_matrix_function_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_matrix_function",
+            [get_matrix_function_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_matrix_feature = function (get_matrix_feature_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_matrix_feature",
+            [get_matrix_feature_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_metagenome_query = function (get_metagenome_query_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_metagenome_query",
+            [get_metagenome_query_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_metagenome_instance = function (get_metagenome_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_metagenome_instance",
+            [get_metagenome_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_metagenome_statistics_instance = function (get_metagenome_statistics_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_metagenome_statistics_instance",
+            [get_metagenome_statistics_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_project_query = function (get_project_query_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_project_query",
+            [get_project_query_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_project_instance = function (get_project_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_project_instance",
+            [get_project_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sample_query = function (get_sample_query_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sample_query",
+            [get_sample_query_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sample_instance = function (get_sample_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sample_instance",
+            [get_sample_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sequences_md5 = function (get_sequences_md5_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sequences_md5",
+            [get_sequences_md5_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sequences_annotation = function (get_sequences_annotation_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sequences_annotation",
+            [get_sequences_annotation_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sequenceset_instance = function (get_sequenceset_instance_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sequenceset_instance",
+            [get_sequenceset_instance_params], 1, _callback, _errorCallback);
+    };
+
+    this.get_sequenceset_setlist = function (get_sequenceset_setlist_params, _callback, _errorCallback) {
+        return json_call_ajax("CommunitiesAPI.get_sequenceset_setlist",
+            [get_sequenceset_setlist_params], 1, _callback, _errorCallback);
     };
 
     /*
@@ -3048,137 +5516,239 @@ function Ontology(url, auth, auth_cb) {
 
 
 
-function PlantExpression(url, auth, auth_cb) {
+function Microbial_Communities_QC(url) {
 
     var _url = url;
 
-    var _auth = auth ? auth : { 'token' : '', 'user_id' : ''};
-    var _auth_cb = auth_cb;
 
+    this.get_drisee_compute = function(get_drisee_compute_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_drisee_compute", [get_drisee_compute_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_drisee_compute", [get_drisee_compute_params]);
+        return resp[0];
+    }
 
-    this.get_repid_by_sampleid = function (ids, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_repid_by_sampleid",
-            [ids], 1, _callback, _errorCallback);
-    };
+    this.get_drisee_compute_async = function(get_drisee_compute_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_drisee_compute", [get_drisee_compute_params], 1, _callback, _error_callback)
+    }
 
-    this.get_experiments_by_seriesid = function (ids, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_experiments_by_seriesid",
-            [ids], 1, _callback, _errorCallback);
-    };
+    this.get_drisee_instance = function(get_drisee_instance_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_drisee_instance", [get_drisee_instance_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_drisee_instance", [get_drisee_instance_params]);
+        return resp[0];
+    }
 
-    this.get_experiments_by_sampleid = function (ids, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_experiments_by_sampleid",
-            [ids], 1, _callback, _errorCallback);
-    };
+    this.get_drisee_instance_async = function(get_drisee_instance_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_drisee_instance", [get_drisee_instance_params], 1, _callback, _error_callback)
+    }
 
-    this.get_experiments_by_sampleid_geneid = function (ids, gl, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_experiments_by_sampleid_geneid",
-            [ids, gl], 1, _callback, _errorCallback);
-    };
+    this.get_histogram_compute = function(get_histogram_compute_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_histogram_compute", [get_histogram_compute_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_histogram_compute", [get_histogram_compute_params]);
+        return resp[0];
+    }
 
-    this.get_eo_sampleidlist = function (lst, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_eo_sampleidlist",
-            [lst], 1, _callback, _errorCallback);
-    };
+    this.get_histogram_compute_async = function(get_histogram_compute_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_histogram_compute", [get_histogram_compute_params], 1, _callback, _error_callback)
+    }
 
-    this.get_po_sampleidlist = function (lst, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_po_sampleidlist",
-            [lst], 1, _callback, _errorCallback);
-    };
+    this.get_histogram_instance = function(get_histogram_instance_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_histogram_instance", [get_histogram_instance_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_histogram_instance", [get_histogram_instance_params]);
+        return resp[0];
+    }
 
-    this.get_all_po = function (_callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_all_po",
-            [], 1, _callback, _errorCallback);
-    };
+    this.get_histogram_instance_async = function(get_histogram_instance_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_histogram_instance", [get_histogram_instance_params], 1, _callback, _error_callback)
+    }
 
-    this.get_all_eo = function (_callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_all_eo",
-            [], 1, _callback, _errorCallback);
-    };
+    this.get_kmer_compute = function(get_kmer_compute_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_kmer_compute", [get_kmer_compute_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_kmer_compute", [get_kmer_compute_params]);
+        return resp[0];
+    }
 
-    this.get_po_descriptions = function (ids, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_po_descriptions",
-            [ids], 1, _callback, _errorCallback);
-    };
+    this.get_kmer_compute_async = function(get_kmer_compute_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_kmer_compute", [get_kmer_compute_params], 1, _callback, _error_callback)
+    }
 
-    this.get_eo_descriptions = function (ids, _callback, _errorCallback) {
-        return json_call_ajax("PlantExpression.get_eo_descriptions",
-            [ids], 1, _callback, _errorCallback);
-    };
+    this.get_kmer_instance = function(get_kmer_instance_params)
+    {
+	var resp = json_call_ajax_sync("Microbial_Communities_QC.get_kmer_instance", [get_kmer_instance_params]);
+//	var resp = json_call_sync("Microbial_Communities_QC.get_kmer_instance", [get_kmer_instance_params]);
+        return resp[0];
+    }
+
+    this.get_kmer_instance_async = function(get_kmer_instance_params, _callback, _error_callback)
+    {
+	json_call_ajax_async("Microbial_Communities_QC.get_kmer_instance", [get_kmer_instance_params], 1, _callback, _error_callback)
+    }
+
+    function _json_call_prepare(url, method, params, async_flag)
+    {
+	var rpc = { 'params' : params,
+		    'method' : method,
+		    'version': "1.1",
+	};
+	
+	var body = JSON.stringify(rpc);
+	
+	var http = new XMLHttpRequest();
+	
+	http.open("POST", url, async_flag);
+	
+	//Send the proper header information along with the request
+	http.setRequestHeader("Content-type", "application/json");
+	//http.setRequestHeader("Content-length", body.length);
+	//http.setRequestHeader("Connection", "close");
+	return [http, body];
+    }
 
     /*
      * JSON call using jQuery method.
      */
-    function json_call_ajax(method, params, numRets, callback, errorCallback) {
-        var deferred = $.Deferred();
 
-        if (typeof callback === 'function') {
-           deferred.done(callback);
-        }
-
-        if (typeof errorCallback === 'function') {
-           deferred.fail(errorCallback);
-        }
-
-        var rpc = {
-            params : params,
-            method : method,
-            version: "1.1",
-            id: String(Math.random()).slice(2),
+    function json_call_ajax_sync(method, params)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
         };
         
-        var beforeSend = null;
-        var token = (_auth_cb && typeof _auth_cb === 'function') ? _auth_cb()
-            : (_auth.token ? _auth.token : null);
-        if (token != null) {
-            beforeSend = function (xhr) {
-                xhr.setRequestHeader("Authorization", _auth.token);
-            }
-        }
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": false,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr) { resp_txt = data; code = xhr.status },
+				    error: function(xhr, textStatus, errorThrown) { resp_txt = xhr.responseText, code = xhr.status },
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
 
-        jQuery.ajax({
-            url: _url,
-            dataType: "text",
-            type: 'POST',
-            processData: false,
-            data: JSON.stringify(rpc),
-            beforeSend: beforeSend,
-            success: function (data, status, xhr) {
-                var result;
-                try {
-                    var resp = JSON.parse(data);
-                    result = (numRets === 1 ? resp.result[0] : resp.result);
-                } catch (err) {
-                    deferred.reject({
-                        status: 503,
-                        error: err,
-                        url: _url,
-                        resp: data
-                    });
-                    return;
-                }
-                deferred.resolve(result);
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                var error;
-                if (xhr.responseText) {
-                    try {
-                        var resp = JSON.parse(xhr.responseText);
-                        error = resp.error;
-                    } catch (err) { // Not JSON
-                        error = "Unknown error - " + xhr.responseText;
-                    }
-                } else {
-                    error = "Unknown Error";
-                }
-                deferred.reject({
-                    status: 500,
-                    error: error
-                });
-            }
-        });
-        return deferred.promise();
+        var result;
+
+        if (resp_txt)
+        {
+	    var resp = JSON.parse(resp_txt);
+	    
+	    if (code >= 500)
+	    {
+		throw resp.error;
+	    }
+	    else
+	    {
+		return resp.result;
+	    }
+        }
+	else
+	{
+	    return null;
+	}
+    }
+
+    function json_call_ajax_async(method, params, num_rets, callback, error_callback)
+    {
+        var rpc = { 'params' : params,
+                    'method' : method,
+                    'version': "1.1",
+        };
+        
+        var body = JSON.stringify(rpc);
+        var resp_txt;
+	var code;
+        
+        var x = jQuery.ajax({       "async": true,
+                                    dataType: "text",
+                                    url: _url,
+                                    success: function (data, status, xhr)
+				{
+				    resp = JSON.parse(data);
+				    var result = resp["result"];
+				    if (num_rets == 1)
+				    {
+					callback(result[0]);
+				    }
+				    else
+				    {
+					callback(result);
+				    }
+				    
+				},
+				    error: function(xhr, textStatus, errorThrown)
+				{
+				    if (xhr.responseText)
+				    {
+					resp = JSON.parse(xhr.responseText);
+					if (error_callback)
+					{
+					    error_callback(resp.error);
+					}
+					else
+					{
+					    throw resp.error;
+					}
+				    }
+				},
+                                    data: body,
+                                    processData: false,
+                                    type: 'POST',
+				    });
+
+    }
+
+    function json_call_async(method, params, num_rets, callback)
+    {
+	var tup = _json_call_prepare(_url, method, params, true);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.onreadystatechange = function() {
+	    if (http.readyState == 4 && http.status == 200) {
+		var resp_txt = http.responseText;
+		var resp = JSON.parse(resp_txt);
+		var result = resp["result"];
+		if (num_rets == 1)
+		{
+		    callback(result[0]);
+		}
+		else
+		{
+		    callback(result);
+		}
+	    }
+	}
+	
+	http.send(body);
+	
+    }
+    
+    function json_call_sync(method, params)
+    {
+	var tup = _json_call_prepare(url, method, params, false);
+	var http = tup[0];
+	var body = tup[1];
+	
+	http.send(body);
+	
+	var resp_txt = http.responseText;
+	
+	var resp = JSON.parse(resp_txt);
+	var result = resp["result"];
+	    
+	return result;
     }
 }
-
 
