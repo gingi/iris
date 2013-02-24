@@ -1,26 +1,26 @@
 {
     "network": {
-        "url": "http://kbase.us/services/networks/KBaseNetworksRPC/networks",
+        "url": "http://kbase.us/services/networks",
         "fn":  "KBaseNetworks"
     },
     "g2p": {
-        "url": "http://140.221.84.160:7067",
+        "url": "http://kbase.us/services/genotype_phenotype_api",
         "fn":  "Genotype_PhenotypeAPI"
     },
     "cdmi": {
-        "url": "http://kbase.us/services/cdmi_api/",
+        "url": "http://kbase.us/services/cdmi_api",
         "fn":  "CDMI_API"
     },
     "cdmiEntity": {
-        "url": "http://kbase.us/services/cdmi_api/",
+        "url": "http://kbase.us/services/cdmi_api",
         "fn":  "CDMI_EntityAPI"        
     },
     "ontology":   {
-        "url": "http://kbase.us/services/OntologyService/",
+        "url": "http://kbase.us/services/ontology",
         "fn":  "Ontology"
     },
     "expression": {
-        "url": "http://kbase.us/services/PlantExpressionService/",
+        "url": "http://kbase.us/services/plant_expression",
         "fn":  "PlantExpression"
     },
     "idserver": {
