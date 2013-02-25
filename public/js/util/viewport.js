@@ -2,7 +2,6 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
     function ($, _, Progress, Syntax) {
     var viewportCounter = 1;
     var defaults = {
-        width:  400,
         height: 400,
         parent: "body",
         title: "Viewport",
@@ -45,8 +44,6 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         var self = this;
         options = options ? _.clone(options) : {};
         options.parent = $(options.parent);
-        if (!options.width && options.parent.width() > 0)
-            options.width = options.parent.width();
         if (!options.height && options.parent.height() > 0)
             options.height = options.parent.height();
         _.defaults(options, defaults);
@@ -57,15 +54,16 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
             .addClass("viewport")
             .attr("data-title", options.title)
             .attr("id", options.id + "-wrapper")
-            .css("height", options.height)
-            .css("width", options.width);
+            .height(options.height)
+        if (options.classes) { div.addClass(options.classes); }
         var content = $("<div>")
-            .attr("id", options.id)
-            .css("height", options.height)
-            .css("width", options.width);
-        div.append(content);
+            .addClass("viewport-content")
+            .attr("id", options.id);
         content.progress = new Progress({ element: content });
         options.parent.append(div);
+        div.append(content);
+        content.height(div.height()).width(div.width());
+
         if (options.toolbox) {
             self.toolbox = toolbox(options);
             div.append(self.toolbox);
@@ -109,14 +107,14 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         return content;
         function toolbox(options) {
             var div = $("<div>")
-                .addClass("viewport-toolbox btn-group")
+                .addClass("viewport-toolbox")
                 .css("display", "none")
             div.append($("<button>", { "data-toggle": "dropdown" })
                 .addClass("btn btn-mini")
                 .html("<i class=\"icon-cog\"></i>")
             )
             if (options.sortContainer != null) {
-                div.append($("<div>")
+                div.addClass("btn-group").append($("<div>")
                     .addClass("btn btn-mini drag-button")
                     .html("<i class=\"icon-move\"></i>"));
             }

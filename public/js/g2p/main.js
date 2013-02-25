@@ -188,14 +188,14 @@ require([
     
     var ManhattanView = Backbone.View.extend({
         el: $("#datavis"),
-        makeRowDiv: function (id) {
-            var $div = this.$el.find("#" + id);
-            if (!$div.length) {
-                $div = $("<div>").attr("id", id);
-                this.$el.append($div);
+        makeRow: function (id) {
+            var row = this.$el.find("#" + id);
+            if (!row.length) {
+                row = $("<div>").attr("id", id);
+                this.$el.append(row);
             }
-            if (!$div.hasClass('row')) $div.addClass("row");
-            return $div;
+            if (!row.hasClass('row')) row.addClass("row");
+            return row;
         },
         initialize: function () {
             //Listeners
@@ -220,9 +220,8 @@ require([
             });
             
             hud.progress = new Progress({ element: hud, fade: false });
-            this.manhattanContainer =
-                this.makeRowDiv("manhattan-row-container");
-            this.subviewBar = this.makeRowDiv("subviews");
+            this.manhattanContainer = this.makeRow("manhattan-row-container");
+            this.subviewBar =         this.makeRow("subviews");
             this.$el.find(".alert").remove();
             this.progress = new Progress({ element: this.manhattanContainer });
             if (this.model) {
@@ -239,16 +238,14 @@ require([
                 return;
             }
             self.progress.dismiss();
-            self.manhattanContainer.empty();
-            var $spanContainer = $("<div>").addClass("span12")
-                .css("position", "relative");
-            self.manhattanContainer.append($spanContainer);
+            var spanContainer = $("<div>").addClass("span12");
+            self.manhattanContainer.empty().append(spanContainer);
             var viewport = new Viewport({
-                parent: $spanContainer,
+                parent: spanContainer,
                 height: MANHATTAN_HEIGHT,
                 id: "manhattan-vis",
-                title: "Manhattan Plot"
-            }).addClass("manhattan");
+                title: "Manhattan Plot",
+            });
             
             var vis = self.vis = new ManhattanPlot({ element: viewport });
             vis.setData({
@@ -277,7 +274,6 @@ require([
                     }
                 )
             );
-            $spanContainer.fadeIn();
             vis.on("selection", function (evt, scoreA, scoreB, ranges) {
                 Vent.trigger("selection", [scoreA, scoreB, ranges]);
                 if (genesXHR) {
