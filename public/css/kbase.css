@@ -224,9 +224,16 @@ text {
 
 .axis path,
 .axis line {
-  fill: none;
-  stroke: #CCC;
-  shape-rendering: crispEdges;
+    fill: none;
+    stroke: #CCC;
+    shape-rendering: crispEdges;
+}
+
+canvas.dragbox {
+    cursor:pointer;
+}
+canvas.dragbox:active {
+    cursor: crosshair;
 }
 
 .bar {
