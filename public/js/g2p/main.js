@@ -165,6 +165,13 @@ require([
         },
         fetchModel: function (genes) {
             var self = this;
+            if (genes === null || genes === "") {
+                self.viewport.append(
+                    $("<div>").addClass("alert alert-block alert-info")
+                        .text("Nothing to show!"));
+                this.progress.dismiss();
+                return;
+            }
             var data = { genes: genes };
             for (var prop in this.options.fetchParams) {
                 data[prop] = this.options.fetchParams[prop];
