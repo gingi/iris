@@ -20,7 +20,8 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             .css("position", "absolute")
             .css("left", 0)
             .css("top", 0)
-            .css("z-index", options.z || 10);
+            .css("z-index", options.z || 10)
+            .addClass("dragbox");
         element.append(canvas);
         
         canvas.on('mousedown', startDrag);
@@ -53,6 +54,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         }
 
         function startDrag(ev) {
+            ev.preventDefault();
             offset = element.offset();
             if (tool.clicked) {
                 tool.clicked = false;
@@ -68,6 +70,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
         
 
         function moveDragEvent(ev) {
+            ev.preventDefault();
             if (!tool.clicked) return;
             tool.started = true;
             ev._x = ev.pageX - offset.left;
