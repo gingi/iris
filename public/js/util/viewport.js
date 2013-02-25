@@ -69,13 +69,23 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         if (options.toolbox) {
             self.toolbox = toolbox(options);
             div.append(self.toolbox);
+            div.on("mouseenter", function () {
+                if (self.toolbox._isShown) return;
+                self.toolbox._isShown = true;
+                self.toolbox.show('fast');
+            })
+            .on("mouseleave",  function () {
+                self.toolbox._isShown = false;
+                self.toolbox.hide('fast')
+            });
             if (options.sortContainer) {
                 var target = $(options.sortContainer);
                 target.sortable({
                     containment: target,
                     handle: ".drag-button",
                     cancel: "",
-                    tolerance: "pointer"
+                    tolerance: "pointer",
+                    helper: "clone"
                 });
                 target.disableSelection()
             }
@@ -98,13 +108,9 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         }
         return content;
         function toolbox(options) {
-            var div = $("<div>", {
-                style: [
-                    "position:absolute", "top:2px", "right:2px",
-                    "min-height:20px", "float:right", "z-index:100"
-                ].join(";"),
-                class: "viewport-toolbox btn-group"
-            });
+            var div = $("<div>")
+                .addClass("viewport-toolbox btn-group")
+                .css("display", "none")
             div.append($("<button>", { "data-toggle": "dropdown" })
                 .addClass("btn btn-mini")
                 .html("<i class=\"icon-cog\"></i>")

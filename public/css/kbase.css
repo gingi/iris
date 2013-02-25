@@ -235,6 +235,14 @@ canvas.dragbox {
 canvas.dragbox:active {
     cursor: crosshair;
 }
+.viewport-toolbox {
+    position:absolute;
+    top:2px;
+    right:2px;
+    min-height:20px;
+    float:right;
+    z-index:100
+}
 
 .bar {
   fill: steelblue;
