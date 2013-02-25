@@ -62,7 +62,7 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
         content.progress = new Progress({ element: content });
         options.parent.append(div);
         div.append(content);
-        content.height(div.height()).width(div.width());
+        content.height(div.height());
 
         if (options.toolbox) {
             self.toolbox = toolbox(options);
