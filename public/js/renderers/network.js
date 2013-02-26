@@ -212,10 +212,21 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var _nodeCache = {};
         self.findNode = function(key, type) {
             type = (type || 'id');
+            var equalToKey;
+            if (typeof key === 'string') {
+                key = key.toUpperCase();
+                equalToKey = function (val) {
+                    return val !== null && key === val.toUpperCase();
+                }
+            } else {
+                equalToKey = function (val) {
+                    return val === key;
+                }
+            }
             var hash = _hashKey([key, type]);
             if (_nodeCache[hash] != null) return _nodeCache[hash];
             for (var i in nodes) {
-                if (nodes[i][type] === key) {
+                if (equalToKey(nodes[i][type])) {
                     _nodeCache[hash] = nodes[i];
                     return nodes[i];
                 }
