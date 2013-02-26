@@ -219,7 +219,7 @@ require([
             // Prepare transitions
             hud = new HUD({
                 position: { top: 40, right: 10 },
-                element: "#datavis",
+                element: "body",
                 width: 150,
                 height: 50,
                 close: false,
