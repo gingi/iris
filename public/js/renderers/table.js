@@ -74,7 +74,8 @@ define(['jquery', 'underscore'],
                 p.children().each(function () {
                     totalHeight += $(this).outerHeight(true)
                 });
-                w.height(p.height() + w.outerHeight(true) - totalHeight);
+                w.css("min-height",
+                    p.height() + w.outerHeight(true) - totalHeight);
             });
         }
     }

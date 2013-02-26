@@ -7,8 +7,15 @@ function ($, _, Progress, Syntax, Modal) {
         parent: "body",
         title: "Viewport",
         toolbox: true,
-        maximize: true
+        maximize: true,
+        resizable: false
     };
+    var MaximizeModal = new Modal({
+        backdrop: true,
+        height: $("body").height() - 100,
+        width: $("body").width() - 100
+    });
+    MaximizeModal.init();
     var ExportModal = new Modal({
         title: "Data Export",
         contentId: "export-content"
@@ -47,7 +54,8 @@ function ($, _, Progress, Syntax, Modal) {
             .addClass("viewport")
             .attr("data-title", options.title)
             .attr("id", options.id + "-wrapper")
-            .height(options.height)
+            .css("min-height", options.height)
+            .css("height", "100%")
         if (options.classes) { div.addClass(options.classes); }
         var content = $("<div>")
             .addClass("viewport-content")
@@ -55,7 +63,7 @@ function ($, _, Progress, Syntax, Modal) {
         content.progress = new Progress({ element: content });
         options.parent.append(div);
         div.append(content);
-        content.height(div.height());
+        content.css("min-height", div.height());
 
         if (options.toolbox) {
             self.toolbox = toolbox(options);
@@ -110,13 +118,13 @@ function ($, _, Progress, Syntax, Modal) {
             if (options.maximize) {
                 div.append($("<div>")
                     .addClass("btn btn-mini")
-                    .html("<i class=\"icon-fullscreen\"></i>"))
+                    .html("<i class=\"icon-resize-full\"></i>")
+                    .click(maximize));
             }
             if (options.sortContainer != null) {
                 div.append($("<div>")
                     .addClass("btn btn-mini drag-button")
-                    .html("<i class=\"icon-move\"></i>")
-                    .click(self.maximize));
+                    .html("<i class=\"icon-move\"></i>"))
             }
             div.append($("<ul>", { id: "viewport-toolbox"})
                 .addClass("dropdown-menu")
@@ -130,12 +138,23 @@ function ($, _, Progress, Syntax, Modal) {
                         $("#export-content").empty().append($("<pre>")
                             .html(exportData)
                         );
-                        ExportModal.modal({ backdrop: true });
+                        ExportModal.show();
                         return false;
                     }))
             );
             return div;
-        } 
+        }
+        function maximize() {
+            MaximizeModal.body(div);
+            MaximizeModal.show();
+            MaximizeModal.on("hidden", function () {
+                options.parent.append(div);
+                MaximizeModal.emptyBody();
+            });
+            if (self.renderer) {
+                self.renderer.render();
+            }
+        }
     }
     return Viewport;
 })
