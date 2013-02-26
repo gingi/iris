@@ -44,17 +44,22 @@ function ($, _, html) {
             if (options.width)  {
                 modal.width(options.width)
                     .css("margin-left", -options.width/2);
+                modalBody.outerWidth(modal.width());
             }
             if (options.height) {
-                var bodyHeight =
-                    options.height - modalFooter.height() - modalHeader.height();
-                console.log("BodyHeight %d Options %d", bodyHeight, options.height, modalHeader.height())
-                modal.css("top", ($("body").height() - options.height) / 2)
-                modalBody.height(bodyHeight).css("max-height", bodyHeight)
+                var top = ($("body").height() - options.height) / 2;
+                modal.css("top", top)
+                modal.height(options.height).css("max-height", options.height);
+                var bodyHeight = modal.height() -
+                    modalFooter.outerHeight() - modalHeader.outerHeight() - top;
+                modalBody.height(bodyHeight).css("max-height", bodyHeight);
             }
         }
         modal.show = function () {
             modal.modal({ backdrop: options.backdrop });
+        }
+        modal.toggle = function () {
+            modal.modal("toggle");
         }
         return modal;
     }
