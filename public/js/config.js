@@ -3,7 +3,6 @@ requirejs.config({
     paths: {
         columnfilter: "DataTables/extras/ColumnFilterWidgets",
         datatables:   "jquery.dataTables",
-        sortable:     "jquery-ui-sortable"
     },
     shim: {
         jquery:      { exports: ["$", "jQuery"] },

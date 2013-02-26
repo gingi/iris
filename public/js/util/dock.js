@@ -82,8 +82,9 @@ function ($, d3, EventEmitter, HUD) {
         
         var hud = self.hud = new HUD({
             width: 300,
-            position: { top: 50, right: 20 },
-            title: "Dock"
+            position: { top: 120, right: 20 },
+            title: "Dock",
+            draggable: true
         });
         
         self.updateHud = function () {
