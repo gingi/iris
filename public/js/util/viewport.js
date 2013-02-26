@@ -1,40 +1,33 @@
-define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
-    function ($, _, Progress, Syntax) {
+define(["jquery", "underscore", "util/progress", "util/syntax", "util/modal",
+    "jquery-ui"],
+function ($, _, Progress, Syntax, Modal) {
     var viewportCounter = 1;
     var defaults = {
         height: 400,
         parent: "body",
         title: "Viewport",
-        toolbox: true
+        toolbox: true,
+        maximize: true
     };
-    var ExportModal;
-    (function addExportModal() {
-        ExportModal = $("<div>").addClass("modal fade hide")
-        .css("z-index", 3000)
-        .append($("<div>").addClass("modal-header")
-            .append($("<h3>").text("Data Export")))
-        .append($("<div>", { id: "export-content" }).addClass("modal-body")
-            .css("min-height", "300px").css("min-width", "400px"))
-        .append($("<div>").addClass("modal-footer")
-            .append($("<a>", { href: "#", download: "export.json" })
-                .addClass("btn btn-primary")
-                .append($("<i>").addClass("icon-download-alt"))
-                .append(" Download").click(function (e) {
-                    e.preventDefault();
-                    var uriContent =
-                        "data:application/json," +
-                        encodeURIComponent($("#export-content").text());
-                    window.open(uriContent, "export.json");
-                    return false;
-                }))
-            .append($("<button>", {
-                 type: "button", "data-dismiss": "modal", "aria-hidden": true
-             }).addClass("btn").text("Close")).click(function () {
-                 $("#export-content").empty();
-             })
-        );
-        $("body").append(ExportModal);
-    })();
+    var ExportModal = new Modal({
+        title: "Data Export",
+        contentId: "export-content"
+    });
+    ExportModal.footer(
+        $("<a>", { href: "#", download: "export.json" })
+            .addClass("btn btn-primary")
+            .append($("<i>").addClass("icon-download-alt"))
+            .append(" Download").click(function (e) {
+                e.preventDefault();
+                var uriContent =
+                    "data:application/json," +
+                    encodeURIComponent($("#export-content").text());
+                window.open(uriContent, "export.json");
+                return false;
+            }
+        )
+    );
+    ExportModal.init();
     $(".viewport")
         .attr('unselectable', 'on')
         .css('user-select', 'none')
@@ -105,18 +98,25 @@ define(["jquery", "underscore", "util/progress", "util/syntax", "sortable"],
             self.renderer = r;
         }
         return content;
+        
         function toolbox(options) {
             var div = $("<div>")
-                .addClass("viewport-toolbox")
+                .addClass("viewport-toolbox btn-group")
                 .css("display", "none")
             div.append($("<button>", { "data-toggle": "dropdown" })
                 .addClass("btn btn-mini")
                 .html("<i class=\"icon-cog\"></i>")
             )
+            if (options.maximize) {
+                div.append($("<div>")
+                    .addClass("btn btn-mini")
+                    .html("<i class=\"icon-fullscreen\"></i>"))
+            }
             if (options.sortContainer != null) {
-                div.addClass("btn-group").append($("<div>")
+                div.append($("<div>")
                     .addClass("btn btn-mini drag-button")
-                    .html("<i class=\"icon-move\"></i>"));
+                    .html("<i class=\"icon-move\"></i>")
+                    .click(self.maximize));
             }
             div.append($("<ul>", { id: "viewport-toolbox"})
                 .addClass("dropdown-menu")

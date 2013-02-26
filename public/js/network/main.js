@@ -1,8 +1,8 @@
 require(['jquery', 'backbone', 'underscore',
     'renderers/network', 'util/progress', 'util/hud', 'util/viewport',
-    'util/graph', 'network/nav', 'network/blurb', 'util/help'],
+    'util/graph', 'network/nav', 'network/blurb', 'util/help', 'util/modal'],
     function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav,
-        Blurb, Help) {
+        Blurb, Help, Modal) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
     var networkTemplate  = _.template("/data/network/<%= id %>");
@@ -15,20 +15,8 @@ require(['jquery', 'backbone', 'underscore',
     var App, Search, router, AppProgress;
     var resetNetwork = true;
     var clusters = [];
-    var Modal, blurb;
+    var blurb, modal = new Modal();
         
-    function addModal() {
-        Modal = $("<div>").addClass("modal fade hide")
-        .append($("<div>", { id: "modal-body" }).addClass("modal-body")
-            .css("min-height", "300px").css("min-width", "400px"))
-        .append($("<div>").addClass("modal-footer")
-            .append($("<button>", {
-                 type: "button", "data-dismiss": "modal", "aria-hidden": true
-             }).addClass("btn").text("Close"))
-        );
-        $("body").append(Modal);
-    }
-    
     AppProgress = new Progress({
         element: "#progress-indicator",
         fade: false,
@@ -38,12 +26,18 @@ require(['jquery', 'backbone', 'underscore',
         parse: function (data) { this.set(data); },
     });
     var NetworkData = new NetworkModel;
+    var viewport = new Viewport({
+        parent: "#datavis",
+        title: "Network",
+        maximize: false
+    });
     var Datavis = new NetworkVis({
-        element: "#datavis",
+        element: viewport,
         dock: true,
         joinAttribute: "entityId",
         nodeLabel: { type: "CLUSTER" }
     });
+    viewport.renderer(Datavis);
     Datavis.on("dblclick-node", function (evt, node, element) {
         evt.stopPropagation();
         if (node.isExpanded) {
@@ -238,7 +232,8 @@ require(['jquery', 'backbone', 'underscore',
                         // Don't tally datasets for docked nodes (not fair)
                         if (DockIndex[node.entityId] == null) {
                             merged[node.entityId].edges.push(edge);
-                            merged[node.entityId].datasets[edge.datasetId] = true;
+                            merged[node.entityId].datasets[edge.datasetId] =
+                                true;
                         }
                     });
                 });
@@ -280,12 +275,10 @@ require(['jquery', 'backbone', 'underscore',
     }
     
     function dockInternalNetwork(nodes) {
-        Modal.modal({
-            backdrop: true,
-        });
-        $("#modal-body").empty();
+        modal.emptyBody();
+        modal.show();
         var viewport = new Viewport({
-            parent: "#modal-body",
+            parent: modal.body(),
             id: "dock-internal",
             height: 300,
             width: 500,
@@ -596,6 +589,5 @@ require(['jquery', 'backbone', 'underscore',
         template: "/templates/network-help.html",
         title: "Using the Network Workbench"
     });
-    
-    addModal();
+    modal.init();
 });

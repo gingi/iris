@@ -1,0 +1,15 @@
+<div class="modal fade hide" style="z-index: <%= z %>" id="<%= id %>">
+    <% if (title) { %>
+        <div class="modal-header">
+            <h3><%= title %></h3>
+        </div>
+    <% } %>
+    <div class="modal-body" id="<%= contentId %>">
+        <%= content %>
+    </div>
+    <div class="modal-footer">
+        <%= footer %>
+        <button class="btn" type="button" data-dismiss="modal" aria-hidden>Close</button>
+    </div>
+</div>
+        
