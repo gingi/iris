@@ -1,19 +1,21 @@
-define(["jquery", "underscore"], function($, _) {
+define(["jquery", "underscore", "jquery-ui"], function($, _) {
     var defaults = {
         position: { top: 20, left: 20 },
         element: "body",
         width: 300,
         height: 50,
-        close: true
+        close: true,
+        draggable: false
     }
-	function HUD(options) {
-		var self = this;
+    function HUD(options) {
+        var self = this;
         options = options ? _.clone(options) : {}; 
         _.defaults(options, defaults);
         var $hud = $("<div>").addClass("hud")
             .css("width", options.width)
             .css("min-height", options.height)
-            .css("display", "none");
+            .css("display", "none")
+            .css("position", "absolute");
         if (options.z != undefined) { $hud.css("z-index", options.z) };
         var $content = $("<div>").addClass("hud-content");
         if (options.close) {
@@ -29,6 +31,9 @@ define(["jquery", "underscore"], function($, _) {
         } else {
             $content.css("margin", "15px 0 0").css("padding", 0);
         }
+        if (options.draggable) {
+            $hud.draggable();
+        }
         $hud.append($content);
         for (var prop in options.position) {
             $hud.css(prop, options.position[prop]);
@@ -37,14 +42,14 @@ define(["jquery", "underscore"], function($, _) {
         if (options.width) { $hud.width(options.width) }
         $.extend(this, $content);
         
-		self.show = function () {
-		    $hud.fadeIn();
-		}
+        self.show = function () {
+            $hud.fadeIn();
+        }
         self.dismiss = function () {
             $hud.fadeOut()  ;
             self.trigger("dismiss", []);
         };
-		return self;
-	}
-	return HUD;
+        return self;
+    }
+    return HUD;
 });
