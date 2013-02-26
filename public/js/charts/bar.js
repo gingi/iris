@@ -59,7 +59,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             var svg = d3.select($el[0])
                 .append("svg")
                 .attr("width", $el.width() - options.padding)
-                .attr("height", $el.height() - options.padding)
+                // .attr("height", $el.height() - options.padding)
                 .style("margin", options.padding / 2)
                 .append("g")
                 .attr("transform",
