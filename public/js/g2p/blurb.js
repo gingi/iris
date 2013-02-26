@@ -18,16 +18,17 @@ define(["jquery"], function ($) {
     function Blurb(parent, router) {
         parent = $(parent);
         var div = $("<div>").addClass("hero-unit").css("min-height", 300)
-            .append($("<img>", {
+            .append($("<div>").append($("<img>", {
                 src: "/img/g2p-icon.png",
                 class: "logo"
-            }))
+            })))
+            .append($("<div>")
             .append($("<h2>").text("The Genotype Phenotype Workbench"))
             .append($("<p>").text(
                 "Find the needle in the haystack! Explore various data " +
                 "sets stored in KBase using genome-wide association studies " +
                 "as a starting point."))
-            .append($("<div>").addClass("span4 offset2").css("margin-top", 40)
+            .append($("<div>").css("margin", "40px auto 0").css("text-align", "center")
                 .append($("<button>").addClass("btn btn-large btn-primary")
                     .text("Get started").click(function () {
                         var button = $(this);
@@ -54,8 +55,9 @@ define(["jquery"], function ($) {
                 .append($("<button>").addClass("btn btn-large")
                     .text("See an example").click(function () {
                         router.navigate("#trait/kb|g.3907.trait.0", true)
-                    }))
-                )
+                    })
+                ))
+            )
         parent.append(div);
         parent.append($("<div>").addClass("row")
             .append(section(6, "Developers")
