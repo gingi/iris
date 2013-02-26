@@ -28,7 +28,8 @@ define(["jquery"], function ($) {
                 "Find the needle in the haystack! Explore various data " +
                 "sets stored in KBase using genome-wide association studies " +
                 "as a starting point."))
-            .append($("<div>").css("margin", "40px auto 0").css("text-align", "center")
+            .append($("<div>").css("margin", "40px auto 0")
+                .css("text-align", "center")
                 .append($("<button>").addClass("btn btn-large btn-primary")
                     .text("Get started").click(function () {
                         var button = $(this);

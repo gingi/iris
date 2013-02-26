@@ -63,7 +63,7 @@ function ($, _, Progress, Syntax, Modal) {
         content.progress = new Progress({ element: content });
         options.parent.append(div);
         div.append(content);
-        content.css("min-height", div.height());
+        content.css("min-height", div.height()).css("height", "100%");
 
         if (options.toolbox) {
             self.toolbox = toolbox(options);
@@ -116,10 +116,10 @@ function ($, _, Progress, Syntax, Modal) {
                 .html("<i class=\"icon-cog\"></i>")
             )
             if (options.maximize) {
-                div.append($("<div>")
+                div.append($("<div>", { id: "btn-maximize" })
                     .addClass("btn btn-mini")
                     .html("<i class=\"icon-resize-full\"></i>")
-                    .click(maximize));
+                    .click(toggleMaximize));
             }
             if (options.sortContainer != null) {
                 div.append($("<div>")
@@ -144,14 +144,24 @@ function ($, _, Progress, Syntax, Modal) {
             );
             return div;
         }
-        function maximize() {
-            MaximizeModal.body(div);
-            MaximizeModal.show();
-            MaximizeModal.on("hidden", function () {
+        function toggleMaximize() {
+            MaximizeModal.toggle();
+            if (MaximizeModal.shown) {
+                div.outerHeight(options.parent.height());
                 options.parent.append(div);
                 MaximizeModal.emptyBody();
-            });
+                MaximizeModal.shown = false;
+                self.toolbox.find("#btn-maximize")
+                    .html("<i class='icon-resize-full'></i>");
+            } else {
+                div.outerHeight(MaximizeModal.body().height());
+                MaximizeModal.body(div);
+                MaximizeModal.shown = true;
+                self.toolbox.find("#btn-maximize")
+                    .html("<i class='icon-resize-small'></i>");
+            }
             if (self.renderer) {
+                content.outerHeight(div.height())
                 self.renderer.render();
             }
         }
