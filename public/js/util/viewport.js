@@ -55,6 +55,7 @@ function ($, _, Progress, Syntax, Modal) {
             .attr("data-title", options.title)
             .attr("id", options.id + "-wrapper")
             .css("min-height", options.height)
+            .css("min-width", options.width)
             .css("height", "100%")
         if (options.classes) { div.addClass(options.classes); }
         var content = $("<div>")
@@ -63,7 +64,9 @@ function ($, _, Progress, Syntax, Modal) {
         content.progress = new Progress({ element: content });
         options.parent.append(div);
         div.append(content);
-        content.css("min-height", div.height()).css("height", "100%");
+        content
+            .css("min-height", div.height())
+            .css("min-width", div.width())
 
         if (options.toolbox) {
             self.toolbox = toolbox(options);
@@ -146,23 +149,31 @@ function ($, _, Progress, Syntax, Modal) {
         }
         function toggleMaximize() {
             MaximizeModal.toggle();
-            if (MaximizeModal.shown) {
-                div.outerHeight(options.parent.height());
+            function minimize () {
+                div.outerHeight(options.parent.height() - 10);
+                div.outerWidth(options.parent.width()   - 10);
                 options.parent.append(div);
                 MaximizeModal.emptyBody();
                 MaximizeModal.shown = false;
-                self.toolbox.find("#btn-maximize")
-                    .html("<i class='icon-resize-full'></i>");
+                self.toolbox.find("#btn-maximize").find("i")
+                    .removeClass().addClass("icon-resize-full")
+            }
+            if (MaximizeModal.shown) {
+                minimize();
             } else {
                 div.outerHeight(MaximizeModal.body().height());
                 MaximizeModal.body(div);
                 MaximizeModal.shown = true;
-                self.toolbox.find("#btn-maximize")
-                    .html("<i class='icon-resize-small'></i>");
+                MaximizeModal.on("hidden", minimize);
+                self.toolbox.find("#btn-maximize").find("i")
+                    .removeClass().addClass("icon-resize-small");
             }
             if (self.renderer) {
-                content.outerHeight(div.height())
-                self.renderer.render();
+                setTimeout(function () {
+                    content.outerHeight(div.height());
+                    content.outerWidth(div.width());
+                    self.renderer.render();
+                }, 500);
             }
         }
     }

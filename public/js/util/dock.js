@@ -78,6 +78,7 @@ function ($, d3, EventEmitter, HUD) {
                 .on("click", dockhud);
 
             self.changedState = false;
+            return self;
         }
         
         var hud = self.hud = new HUD({
