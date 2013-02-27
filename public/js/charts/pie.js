@@ -15,8 +15,8 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
             return data;
         };
         self.render = function () {
-            var w = $el.width();
-            var h = $el.height();
+            var w = $el.width() - options.padding / 2;
+            var h = $el.height() - options.padding / 2;
             $el.empty();
             var r = Math.min(w, h) / 2 - options.padding;
             var color = d3.scale.ordinal().range(
@@ -32,7 +32,8 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
             piedata.sort(function (a, b) { return a.value - b.value; });
             var vis = d3.select($el[0])
                 .append("svg:svg").data([piedata])
-                    .attr("width", w).attr("height", h)
+                    .attr("width", w)
+                    .attr("height", h)
                 .append("svg:g")
                     .attr("transform", "translate(" + w/2 + "," + h/2 + ")");
 
