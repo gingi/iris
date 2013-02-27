@@ -35,7 +35,6 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             return data;
         };
         self.render = function () {
-            $el.empty();
             var margin = {
                 top: 20,
                 right: 20,
@@ -46,6 +45,8 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                 $el.width()  - margin.left - margin.right - options.padding,
             height =
                 $el.height() - margin.top  - margin.bottom - options.padding;
+            $el.empty();
+            console.log("Height", height);
 
             var format = d3.format(".0");
 
@@ -59,7 +60,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             var svg = d3.select($el[0])
                 .append("svg")
                 .attr("width", $el.width() - options.padding)
-                // .attr("height", $el.height() - options.padding)
+                .attr("height", height)
                 .style("margin", options.padding / 2)
                 .append("g")
                 .attr("transform",
