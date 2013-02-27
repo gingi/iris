@@ -6,6 +6,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         joinAttribute: "name",
         nodeLabel: {},
     };
+    var visCounter = 1;
     
     var Physics = {
         GENE:    { charge: -150 },
@@ -36,7 +37,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        var $el = $(options.element);
+        var $element = $(options.element);
         var _idSequence = 1;
         var _autoUpdate = false;
         var _initialized = false;
@@ -51,16 +52,17 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var groupColor = {};
         var hiddenNodes = {};
         var color;
+        var visId = "network-vis-" + visCounter++;
+        var width, height;
         
-
         var Foci = {
             CLUSTER: {
-                x: Math.round($el.width() / 2),
-                y: Math.round($el.height() * 5 / 6),
+                x: Math.round($element.width() / 2),
+                y: Math.round($element.height() * 5 / 6),
             },
             GENE:    {
-                x: Math.round($el.width() / 2),
-                y: Math.round($el.height() * 1 / 6),
+                x: Math.round($element.width() / 2),
+                y: Math.round($element.height() * 1 / 6),
             }
         }
         
@@ -139,6 +141,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         };
         
         this.setNodes = function (nodesArg) {
+            initialize();
             force.nodes(nodesArg);
             nodes = force.nodes();
             nodes.forEach(function (node) { setColor(node) });
@@ -147,6 +150,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         this.setEdges = function (edgesArg) {
+            initialize();
             force.links(edgesArg);
             links = force.links();
             return this;
@@ -205,6 +209,21 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         self.render = function () {
             _autoUpdate = true;
             initialize();
+            width =  $element.width();
+            height = $element.height();
+            $element.empty();
+            if (width == 0 && height == 0) {
+                return this;
+            }
+            force.size([width, height]);
+            vis = this.vis = d3.select($element[0]).append("svg:svg")
+                .attr("width", width).attr("height", height);
+            if (options.dock) dock.setParent(vis);
+
+            // This order matters (nodes painted on top of links)
+            linkG =  vis.append("g").attr("id", "networkLinks");
+            nodeG =  vis.append("g").attr("id", "networkNodes");
+            labelG = vis.append("g").attr("id", "networkLabels");
             update();
             return this;
         }
@@ -278,33 +297,21 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         function linkDistance(d) { return linkPhysics(d, "linkDistance") }
         function linkStrength(d) { return linkPhysics(d, "linkStrength") }
 
-        var w = $el.width(),
-            h = $el.height();
-
         if (options.dock) { dock = new Dock() };
-        force = d3.layout.force()
-            .linkDistance(linkDistance)
-            .linkStrength(linkStrength)
-            .charge(nodeCharge)
-            .size([w, h]);
             
-        nodes = force.nodes();
-        links = force.links();
         color = d3.scale.category20();
         
         function initialize() {
             if (_initialized) return;
             _initialized = true;
-            $el.empty();
-            vis = this.vis = d3.select($el[0]).append("svg:svg")
-                .attr("width", w)
-                .attr("height", h);
-            if (dock) { dock.setParent(vis); }
+            force = d3.layout.force()
+                .linkDistance(linkDistance)
+                .linkStrength(linkStrength)
+                .charge(nodeCharge)
+                .size([width, height]);
+            nodes = force.nodes();
+            links = force.links();
 
-            // This order matters (nodes painted on top of links)
-            linkG = vis.append("g").attr("id", "networkLinks");
-            nodeG = vis.append("g").attr("id", "networkNodes");
-            labelG = vis.append("g").attr("id", "networkLabels");
             if (options.dock) {
                 dock.on("dragstart.dock", function () { force.stop(); })
                     .on("dragmove.dock",  function () { tick() })
@@ -366,6 +373,13 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         function update() {
+            // Reset dims
+            // console.log("element", options.element);
+            // width =  $element.width() || $element.css("width");
+            // height = $element.height() || $element.css("height");
+            // force.size([width, height]);
+            // vis.attr("width", width).attr("height", height);
+            // console.log("Rendering [%d %d]", width, height, $element, nodes, links);
             if (svgLinks) svgLinks.remove();
             svgLinks = linkG.selectAll("line.link").data(links);
             var linkEnter = svgLinks.enter()
@@ -620,24 +634,23 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     self.hideNode(node);
                 });
             }
-            self.render();
+            update();
             _autoUpdate = origAutoUpdate;
             return this;
         }
         self.reset = function () {
-            nodes.length = 0;
-            links.length = 0;
+            if (nodes) nodes.length = 0;
+            if (links) links.length = 0;
             _nodeCache = {};
             if (options.dock) { dock.reset(); }
+            _initialized = false;
+            initialize();
             if (_autoUpdate) {
-                _initialized = false;
-                initialize();
                 update();
             }
             return self;
         }
         self.dockNodes = function (names) {
-            if (_autoUpdate) update();
             initialize();
             var nodes = [];
             for (var i in names) {
@@ -654,14 +667,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         self.dockHudContent = function (callback) {
             dock.hudContent(callback);
-        }
-        self.pause = function () {
-            force.stop();
-            _paused = true;
-        }
-        self.resume = function () {
-            force.resume();
-            _paused = false;
         }
         self.nodeProperty = function (node, prop) {
             var element = d3.select("#" + node.elementId);

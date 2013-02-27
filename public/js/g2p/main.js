@@ -447,7 +447,6 @@ require([
                 require: 'renderers/table',
                 elementId: "gene-table",
                 title: "Trait Genes",
-                renderParams: { scrollY: 250 },
                 afterRender: function () {
                     $("#gene-table").on("filter", function (evt, tbl) {
                         // FIXME: Move functionality to renderer/table
