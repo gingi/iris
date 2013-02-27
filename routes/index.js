@@ -4,7 +4,10 @@
  */
 
 exports.index = function (req, res) {
-    res.render("index", { title: "KBase Data Visualization Library" });
+    res.render('index', {
+        title: 'KBase Data Visualization Library',
+        version: "v0.1.0"
+    });
 };
 
 exports.charts = function (req, res) {

@@ -1,4 +1,6 @@
 # KBase Data Visualization Library
+**Version 0.1.0**
+
 The library provides web-based client-side JavaScript visualizations for [the KBase project](http://kbase.us). It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
 
 The library makes heavy use of the excellent [D3.js](http://d3js.org/ "D3.js") library, although some novel visualizations are written using native HTML5 technologies such as Canvas and SVG. And just like almost every JavaScript library, it relies on [jQuery](http://jquery.com/ "jQuery").
@@ -70,6 +72,44 @@ The client-side library can be used on the browser as in the following example:
     </body>
 
 Please refer to the [API documentation](https://bitbucket.org/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
+
+##Changelog
+####v0.1.0
+
+* Server-side and client-side error handling.
+* Inline help documentation for the workbench apps.
+* Added KBase look-and-feel. Integrated FontAwesome for icons.
+* Build an optimized distribution package of the library for external use.
+* Production environment: Using separate configuration, optimized client-side assets (CSS, JS, HTML).
+* Shared templates across apps.
+* *Network renderer*: Hiding nodes, highlighting nodes, colored edges, node labels, performance improvements.
+* *Manhattan renderer*: highlighting loci.
+* *Heatmap renderer*: Axes.
+* Various UI enhancements, including dragging of elements like the dock, HUDs, and viewports.
+* **Genotype Phenotype Workbench**: Connected widgets for expression, networks, and function; Gene Pad for inputting custom list of genes, breadcrumbs for entity selection.
+* **Network Workbench**: Defined user story — fetch clusters associated with docked genes, then add cluster members shared with the docked genes having multiple interactions ("co-neighbors"); added cluster table for hiding/unhiding clusters; internal network for docked genes.
+* Added viewports with a customizable, auto-hidden toolbox for data export and window controls (rearrange, maximize)
+* Improved progress indicators.
+* Updated KBase APIs; endpoints managed in environment-specific configuration.
+
+####v0.0.3
+
+* Wrapping widgets in Viewports.
+* *Heatmap renderer*: Auto-resizing based on parent dimensions.
+* *Manhattan renderer*: Axes, labels
+* GO Enrichment widget.
+* Dropdowns for selection of genomes, experiments, traits.
+* Pie and bar chart renderers.
+* Handling of asynchronous requests.
+* API functionality now maintained in kbase façade object.
+* Web caching for API paths.
+* Handling of chunked HTTP (Experimental).
+
+####v0.0.2
+
+* *Network renderer*: introduced dock for anchoring genes, double-clicking to add new nodes, info box on node click.
+* Reusable renderer modules.
+* Added Bootstrap.
 
 ## License
 
