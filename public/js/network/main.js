@@ -295,11 +295,17 @@ require(['jquery', 'backbone', 'underscore',
             },
             dataType: "json",
         }).done(function (data) {
-            var Internal = new NetworkVis({
-                element: viewport, dock: false, nodeLabel: { type: "GENE" } });
-            Internal.setData(data);
-            Internal.render();
-            viewport.renderer(Internal);
+            setTimeout(function () {
+                var Internal = new NetworkVis({
+                    element: viewport,
+                    dock: false,
+                    nodeLabel: { type: "GENE" }
+                });
+                Internal.setData(data);
+                Internal.render();
+                viewport.renderer(Internal);
+                progress.dismiss();
+            }, 500);
         })
     }
     function showTable() {

@@ -17,6 +17,7 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
         self.render = function () {
             var w = $el.width();
             var h = $el.height();
+            $el.empty();
             var r = Math.min(w, h) / 2 - options.padding;
             var color = d3.scale.ordinal().range(
                 colorbrewer[options.colorscheme][options.categories]);
