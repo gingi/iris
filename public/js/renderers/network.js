@@ -87,7 +87,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 labelStatus(node);
                 setColor(node);
             }
-            if (_autoUpdate) update();
             return ret;
         }
         
@@ -373,13 +372,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         function update() {
-            // Reset dims
-            // console.log("element", options.element);
-            // width =  $element.width() || $element.css("width");
-            // height = $element.height() || $element.css("height");
-            // force.size([width, height]);
-            // vis.attr("width", width).attr("height", height);
-            // console.log("Rendering [%d %d]", width, height, $element, nodes, links);
             if (svgLinks) svgLinks.remove();
             svgLinks = linkG.selectAll("line.link").data(links);
             var linkEnter = svgLinks.enter()
@@ -634,7 +626,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     self.hideNode(node);
                 });
             }
-            update();
+            self.render();
             _autoUpdate = origAutoUpdate;
             return this;
         }
@@ -645,13 +637,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             if (options.dock) { dock.reset(); }
             _initialized = false;
             initialize();
-            if (_autoUpdate) {
-                update();
-            }
+            self.render();
             return self;
         }
         self.dockNodes = function (names) {
-            initialize();
             var nodes = [];
             for (var i in names) {
                 var node = self.findNode(names[i], 'name');
@@ -698,6 +687,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         self.toggleHidden = function (node) {
             return self.findNode(node.id) != null ?
                 self.hideNode(node) : self.unhideNode(node);
+        }
+        self.setElement = function (element) {
+            options.element = element;
+            $element = $(options.element);
         }
         self.dock = dock;
         
