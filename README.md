@@ -1,5 +1,6 @@
-Iris
-====
+# Iris
+**Version 0.1.0**
+
 A web application for exploration of biological data
 
 EXTERNAL DEPENDENCIES
@@ -114,6 +115,40 @@ The client-side library can be used on the browser as in the following example:
     <body>
     </body>
 
+
+##Changelog
+####v0.1.0
+
+* Server-side and client-side error handling.
+* Inline help documentation for the workbench apps.
+* Added KBase look-and-feel. Integrated FontAwesome for icons.
+* Build an optimized distribution package of the library for external use.
+* Production environment: Using separate configuration, optimized client-side assets (CSS, JS, HTML).
+* Shared templates across apps.
+* *Network renderer*: Hiding nodes, highlighting nodes, colored edges, node labels, performance improvements.
+* *Manhattan renderer*: highlighting loci.
+* *Heatmap renderer*: Axes.
+* Various UI enhancements, including dragging of elements like the dock, HUDs, and viewports.
+* Added viewports with a customizable, auto-hidden toolbox for data export and window controls (rearrange, maximize)
+* Improved progress indicators.
+
+####v0.0.3
+
+* Wrapping widgets in Viewports.
+* *Heatmap renderer*: Auto-resizing based on parent dimensions.
+* *Manhattan renderer*: Axes, labels
+* GO Enrichment widget.
+* Dropdowns for selection of genomes, experiments, traits.
+* Pie and bar chart renderers.
+* Handling of asynchronous requests.
+* Web caching for API paths.
+* Handling of chunked HTTP (Experimental).
+
+####v0.0.2
+
+* *Network renderer*: introduced dock for anchoring genes, double-clicking to add new nodes, info box on node click.
+* Reusable renderer modules.
+* Added Bootstrap.
 
 ## License
 
