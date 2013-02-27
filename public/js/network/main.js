@@ -26,18 +26,22 @@ require(['jquery', 'backbone', 'underscore',
         parse: function (data) { this.set(data); },
     });
     var NetworkData = new NetworkModel;
-    var viewport = new Viewport({
-        parent: "#datavis",
-        title: "Network",
-        maximize: false
-    });
     var Datavis = new NetworkVis({
-        element: viewport,
+        element: $("#datavis"),
         dock: true,
         joinAttribute: "entityId",
         nodeLabel: { type: "CLUSTER" }
     });
-    viewport.renderer(Datavis);
+    function setLayout() {
+        $("#datavis").empty();
+        var viewport = new Viewport({
+            parent: "#datavis",
+            title: "Network",
+            maximize: false
+        });
+        Datavis.setElement(viewport);
+        viewport.renderer(Datavis);
+    }
     Datavis.on("dblclick-node", function (evt, node, element) {
         evt.stopPropagation();
         if (node.isExpanded) {
@@ -280,13 +284,17 @@ require(['jquery', 'backbone', 'underscore',
         var viewport = new Viewport({
             parent: modal.body(),
             id: "dock-internal",
-            height: 300,
-            width: 500,
             toolbar: false,
-            title: "Internal Network"
+            title: "Internal Network",
+            maximize: false,
         });
+        viewport.css("min-height", 400)
         var progress = new Progress({ element: viewport });
-        progress.show();
+        var progressDeferred = $.Deferred();
+        setTimeout(function () {
+            progress.show();
+            progressDeferred.resolve();
+        }, 1000);
         $.ajax({
             url: internalTemplate(),
             data: {
@@ -304,7 +312,9 @@ require(['jquery', 'backbone', 'underscore',
                 Internal.setData(data);
                 Internal.render();
                 viewport.renderer(Internal);
-                progress.dismiss();
+                progressDeferred.then(function () {
+                    progress.dismiss();
+                });
             }, 500);
         })
     }
@@ -359,7 +369,8 @@ require(['jquery', 'backbone', 'underscore',
             data = _.sortBy(data, function (d) { return -d[3] });
             table.setData({
                 columns: [
-                    "<i class=\"icon-eye-open\"></i>", "KBase ID", "Name", "Interactions", "Type", "Source"
+                    "<i class=\"icon-eye-open\"></i>", "KBase ID",
+                    "Name", "Interactions", "Type", "Source"
                 ],
                 data: data
             });
@@ -412,7 +423,8 @@ require(['jquery', 'backbone', 'underscore',
                         var ixanchor = ix.addNode(anchorNode);
                         addedAnchor[anchor.entityId] = ixanchor;
                     }
-                    var ixnode = ix.findNode({ entityId: node.get('entityId') });
+                    var ixnode =
+                        ix.findNode({ entityId: node.get('entityId') });
                     if (ixnode == null) {
                         ixnode = ix.addNode(node);
                     }
@@ -536,7 +548,11 @@ require(['jquery', 'backbone', 'underscore',
             DataSets.set('datasets', datasets.split(","));
         },
         addNodes: function (nodeInput, datasetInput) {
-            if (blurb) blurb.fadeOut(function () { $(this).remove() });
+            if (blurb) {
+                blurb.fadeOut(function () { $(this).remove(); });
+                setLayout();
+            }
+            setLayout();
             resetData();
             var nodes = decodeURIComponent(nodeInput).split(",");
             var datasets = decodeURIComponent(datasetInput).split(",");

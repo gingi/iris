@@ -32,7 +32,8 @@ define(["jquery"], function ($) {
                 "Navigate among sets of genes and clusters over a variety " +
                 "of network data sets available for microbes, plants, and " + 
                 "metagenomic communities."))
-            .append($("<div>").addClass("span4 offset3").css("margin-top", 40)
+            .append($("<div>").css("margin-top", 40)
+                .css("text-align", "center")
                 .append($("<button>").addClass("btn btn-large btn-primary")
                     .text("Get started").click(function () {
                         var button = $(this);
@@ -47,6 +48,9 @@ define(["jquery"], function ($) {
                                 .css("z-index", 2000)
                                 .addClass("arrow-warning-large");
                             $("body").append(arrow);
+                            target.click(function () {
+                                arrow.remove();
+                            })
                             bounce(arrow, 5, 300);
                             setTimeout(function () {
                                 arrow.fadeOut(function () {

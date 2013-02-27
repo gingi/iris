@@ -56,7 +56,8 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
                     d.innerRadius = r - 90;
                     d.outerRadius = r;
                     d.angle = (d.endAngle + d.startAngle) / 2;
-                    return "translate(" + arc.centroid(d) + ")rotate("+(d.angle * 180 / Math.PI - 90)+")";
+                    return "translate(" + arc.centroid(d) + ")rotate("+
+                        (d.angle * 180 / Math.PI - 90)+")";
                 })
                 .attr("text-anchor", "middle")
                 .attr("font-size", "10px")

@@ -4,7 +4,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         axisLabelFontSize: 10,
         padding: 10
     };
-    
+
     function labelFontHeight(svg) {
         var text = svg.append("g").attr("class", "x axis")
             .append("svg:text").text("M");
@@ -12,7 +12,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         text.remove();
         return height;
     }
-    
+
     function BarChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
@@ -46,7 +46,6 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
             height =
                 $el.height() - margin.top  - margin.bottom - options.padding;
             $el.empty();
-            console.log("Height", height);
 
             var format = d3.format(".0");
 
@@ -65,7 +64,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                 .append("g")
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
-            
+
 
             x.domain(_.map(data, function (d) {return d.x; }));
             y.domain([0, d3.max(data, function (d) { return d.y; }) ]);
@@ -85,7 +84,6 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
                 return elem;
             }
 
-           
             drawXAxis(svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height +")"))
