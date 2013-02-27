@@ -10,7 +10,7 @@ function ($, d3, _, DragBox) {
         colorscheme: 'RdYlBu',
         element: 'body'
     };
-	function Heatmap(options) {
+    function Heatmap(options) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
@@ -21,9 +21,7 @@ function ($, d3, _, DragBox) {
 
         var cellSize = options.cellSize || 5;
 
-	    var width = element.width();
-	    var height = element.height();
-        var minDim = Math.min(width, height);
+        var width, height, minDim;
         
         function maxStrLen(strarr) {
             return _.reduce(strarr, function (m, str) {
@@ -70,6 +68,10 @@ function ($, d3, _, DragBox) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
         }
         self.render = function () {
+            width = element.width();
+            height = element.height();
+            minDim = Math.min(width, height);
+            element.empty();
             element.css("position", "relative");
             cellSize = Math.min(MAX_CELL_SIZE,
                 Math.max(MIN_CELL_SIZE,
@@ -84,10 +86,10 @@ function ($, d3, _, DragBox) {
                 .width(width)
                 .height(height);
             element.append(container);
-            
-    	    var svg  = d3.select("#" + containerId).append("svg")
-    	        .attr("width", width)
-    	        .attr("height", height);
+
+            var svg  = d3.select("#" + containerId).append("svg")
+                .attr("width", width)
+                .attr("height", height);
 
             var xLabels = d3.scale.ordinal()
                 .domain(columns).rangeBands([0, adjWidth]);
@@ -99,7 +101,7 @@ function ($, d3, _, DragBox) {
                 .ticks(rows.length).orient("left");
             
             var plot = svg.append("g")
-    	        .attr("class", options.colorscheme)
+                .attr("class", options.colorscheme)
                 .attr("id", element.attr('id') + "-plotarea")
                 .attr("width", adjWidth)
                 .attr("height", adjHeight)
@@ -122,7 +124,7 @@ function ($, d3, _, DragBox) {
                     });
             
 
-    	    var quantize = d3.scale
+            var quantize = d3.scale
                 .quantile().domain([0, maxScore]).range(d3.range(9));
             var dragbox =
                 new DragBox($("#" + element.attr('id') + "-plotarea"));
@@ -152,6 +154,6 @@ function ($, d3, _, DragBox) {
             schemes.unshift(options.colorscheme);
         }
         return self;
-	}
-	return Heatmap;
+    }
+    return Heatmap;
 });
