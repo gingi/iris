@@ -11,6 +11,7 @@ function ($, d3, EventEmitter, HUD) {
         var docked = {};
         var updateActions = [];
         if (parent) { setParent(parent) }
+        var dockRenderPromise = $.Deferred();
         
         var dockHudContentCallback = function (nodes) {
             var dock = this;
@@ -78,6 +79,7 @@ function ($, d3, EventEmitter, HUD) {
                 .on("click", dockhud);
 
             self.changedState = false;
+            dockRenderPromise.resolve();
             return self;
         }
         
@@ -172,13 +174,15 @@ function ($, d3, EventEmitter, HUD) {
         
         self.set = function (nodes) {
             self.reset();
-            var interval = dock.attr('width') / (nodes.length + 1);
-            for (var i = 0; i < nodes.length; i++) {
-                var element = parent.select("#" + nodes[i].elementId);
-                self.dockElement(nodes[i], element);
-                nodes[i].px = dockDims.x1 + (i+1) * interval
-                nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
-            }
+            dockRenderPromise.then(function () {
+                var interval = dock.attr('width') / (nodes.length + 1);
+                for (var i = 0; i < nodes.length; i++) {
+                    var element = parent.select("#" + nodes[i].elementId);
+                    self.dockElement(nodes[i], element);
+                    nodes[i].px = dockDims.x1 + (i+1) * interval
+                    nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
+                }
+            })
         }
         self.get = function () {
             var nodes = [];

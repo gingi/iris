@@ -56,7 +56,6 @@ function ($, _, Progress, Syntax, Modal) {
             .attr("id", options.id + "-wrapper")
             .css("min-height", options.height)
             .css("min-width", options.width)
-            .css("height", "100%")
         if (options.classes) { div.addClass(options.classes); }
         var content = $("<div>")
             .addClass("viewport-content")
@@ -67,6 +66,8 @@ function ($, _, Progress, Syntax, Modal) {
         content
             .css("min-height", div.height())
             .css("min-width", div.width())
+        div.css("width", "99%");
+        div.css("height", "99%");
 
         if (options.toolbox) {
             self.toolbox = toolbox(options);
@@ -161,7 +162,7 @@ function ($, _, Progress, Syntax, Modal) {
             if (MaximizeModal.shown) {
                 minimize();
             } else {
-                div.outerHeight(MaximizeModal.body().height());
+                div.height(MaximizeModal.body().height() - 42);
                 MaximizeModal.body(div);
                 MaximizeModal.shown = true;
                 MaximizeModal.on("hidden", minimize);
@@ -173,7 +174,7 @@ function ($, _, Progress, Syntax, Modal) {
                     content.outerHeight(div.height());
                     content.outerWidth(div.width());
                     self.renderer.render();
-                }, 500);
+                }, 1000);
             }
         }
     }
