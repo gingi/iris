@@ -1,6 +1,6 @@
-Iris
-====
+# Iris
 **Version 0.1.0**
+
 A web library for data visualization and exploration.
 
 ##External Dependencies
