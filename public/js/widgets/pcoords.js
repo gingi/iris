@@ -1,4 +1,5 @@
-define(["iris", "app/widget"], function (Iris, widget) {
+define(["iris"], function (Iris) {
+    var widget = new Object();
     widget.about = {
         title: "Parallel Coordinate Plot",
         name: "pcoords",

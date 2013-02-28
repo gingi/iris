@@ -21,7 +21,6 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
             .append(pair("Description", about.description));
     }
 
-    console.log(pair("Hi", "Bye"));
     function show(component, fn) {
         $("#content").empty().append(header(component.about));
         require(["util/viewport"], function (Viewport) {
@@ -40,6 +39,7 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         },
         widget: function (name) {
             require(["widgets/" + name], function (Widget) {
+                console.log("Showing %s:", name, Widget.about);
                 show(Widget, function (element) {
                     Widget.display(element);
                 });
