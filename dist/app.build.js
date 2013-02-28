@@ -1,8 +1,8 @@
 ({
     baseUrl:        "../public/js",
     mainConfigFile: "../public/js/config.js",
-    namespace:      "datavis",
-    name:           "datavis",
+    namespace:      "iris",
+    name:           "iris",
     create:         true,
     paths: {
         requireLib: "require"

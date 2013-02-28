@@ -47,7 +47,7 @@ app.get('/widget', function (request, response) {
 });
 
 app.get('/widget/:widget', function (req, res, next) {
-    var layout = req.query.nolayout == null;
+    var layout = req.query.nolayout ? true : false;
     var widgetName = req.params.widget;
     if (widgetName.match(/[^\s\w\d\.:\/]/)) {
         res.writeHead(400);

@@ -21,6 +21,9 @@ requirejs.config({
         columnfilter: {
             deps: [ "datatables" ]
         },
-        'util/spin':  { exports: "Spinner" }
+        bootstrap: {
+            deps: [ "jquery" ]
+        },
+        "util/spin":  { exports: "Spinner" }
     },
 })

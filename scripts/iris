@@ -11,6 +11,7 @@ LOGDIR=$IRIS_HOME/logs
 PIDFILE=$LOGDIR/iris.pid
 SVCPIDFILE=$LOGDIR/service.%%.pid
 INSTALL_LOG=$LOGDIR/install.log
+GYP=$IRIS_HOME/node_modules/.bin/node-gyp
 DEFAULT_HOSTNAME=0.0.0.0
 WHOAMI=`whoami`
 HEADING_COLOR=2
@@ -364,7 +365,7 @@ LOG_HEADER
         make check 2>&1 >> $INSTALL_LOG
         make install 2>&1 >> $INSTALL_LOG
         cd node/fastbit_addon
-        node-gyp rebuild 2>&1 >> $INSTALL_LOG
+        $GYP rebuild 2>&1 >> $INSTALL_LOG
     fi
 }
 
@@ -629,13 +630,7 @@ function iris_cmd_check {
     
     if [ "$component" == "all" -o "$component" == "files" ]; then
 
-        # Ensure required files exist
-        for f in $SVC_CONF bin/fbsql bin/scatter bin/ranges lib/libfastbit.a; do
-            if [ ! -e "$f" ]; then
-                add_error "Required file '$f' is missing."
-            fi
-        done
-    
+
         # Ensure services.json is valid JSON
         if [ -e "$SVC_CONF" -a \
             -n "$( (/usr/bin/python -mjson.tool <$SVC_CONF>/dev/null) 2>&1)" ]
@@ -643,20 +638,20 @@ function iris_cmd_check {
             add_error "Service configuration '${SVC_CONF##$IRIS_HOME/}' is
                        not valid JSON."
         fi
-    
+
         # Ensure 'logs' is writable
         if [ -e "$LOGDIR" -a ! -w "$LOGDIR" ]; then
             add_error "Log directory '${LOGDIR##$IRIS_HOME/}' 
                        exists but is not writable."
         fi
-    
+
         # Check for required executables
         for executable in node npm mongo; do
             if [ -z "$(which $executable 2> /dev/null)" ]; then
                 add_error "Command '$executable' was not found in your path."
             fi
         done
-    
+
         if [ "$errnum" -gt 0 ]; then
             tput bold; echo "Errors:"; tput sgr0
             for ((i = 0; i < ${#errors[@]}; i++)); do
@@ -671,11 +666,7 @@ function iris_cmd_check {
     if [ "$component" == "all" -o \
          "$component" == "unit" -o \
          "$component" == "integration" ]; then
-    
-        # NODEUNIT
-        export NODE_PATH=$NODEDIR/node_modules
-        cd $IRIS_HOME/test/
-        ./testjs $@
+        make test
     fi
 }
 

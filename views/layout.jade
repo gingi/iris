@@ -3,6 +3,7 @@ html(lang="en")
 head
     title Iris
     link(rel="stylesheet", href="/css/bootstrap.css")
+    link(rel="stylesheet", href="/css/iris.css")
     style
         html, body { background-color: #eee; }
         body { padding-top: 40px; }
@@ -30,21 +31,10 @@ head
             margin-left: 0;
             padding-left: 19px;
         }
-    script(type="text/javascript",src="/js/require.js",data-main="/js/app")
-    script(type="text/javascript",src="/js/lib/jquery.js")
+    script(type="text/javascript", src="/js/require.js")
     script(type="text/javascript")
-        $(document).ready(function() {
-            $("a[data-content]").on("click", function () {
-                $.ajax({
-                    url: $(this).data('content'),
-                    success: function (content) {
-                        $("#content").html(content);
-                    },
-                    error: function () {
-                        console.log("Ajax error:", arguments);
-                    }
-                })
-            });
+        require(['/js/config.js'], function () {
+            require(['/js/frontpage.js']);
         });
     block scripts
 body
@@ -52,20 +42,11 @@ body
         .navbar-inner
             .container
                 a(class="brand", href="/") Iris
-                ul(class="nav")
-                    li
-                        a(href="#", data-content="/widget/manhattan?nolayout") Manhattan
-                    li
-                        a(href="#", data-content="/widget/pcoords?nolayout") Pcoords
-                    li
-                        a(href="#", data-content="/widget/RegulatoryNetwork?nolayout") Regulatory Network
-                    li
-                        a(href="#", data-content="/renderer/forceDirectedGraph?nolayout") Force-directed Graph
-    
-    .container
+                ul(class="nav", id="nav")
+
+    #container.container
         .content
-            .row
-                .span12
-                    #content
-                        block content
-        footer()
+            #error.alert.alert-error(style="display:none")
+            #content
+                block content
+    footer()
