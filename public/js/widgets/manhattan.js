@@ -1,6 +1,6 @@
 define(["iris", "app/widget"], function (Iris, widget) {
     widget.about = {
-		title: "Manhattan Plot",
+        title: "Manhattan Plot",
         name: "manhattan",
         author: "Andrew Olson"
     };
@@ -25,31 +25,31 @@ define(["iris", "app/widget"], function (Iris, widget) {
     var mincolor = new Array();
     var maxcolor = new Array();
 
-	var goDiv1;
-	var goDiv2;
-	var study;
-	var tooSmall = 0.03;
-	var GOWidth;
+    var goDiv1;
+    var goDiv2;
+    var study;
+    var tooSmall = 0.03;
+    var GOWidth;
 
     widget.display = function (element, args) {
         args = (args || {});
-		var myDiv = $(element);
-		myDiv.append('<div id="' + element.id + '_man">');
-		var div = $(document.getElementById(element.id + "_man"));
+        var myDiv = $(element);
+        myDiv.append('<div id="' + element.id + '_man">');
+        var div = $(document.getElementById(element.id + "_man"));
         var canvasHeight = Math.max(div.height(), 250);
         var canvasWidth = Math.max(div.parent().width(), 100);
-		GOWidth = Math.min(Math.floor(canvasWidth/2), 300);
+        GOWidth = Math.min(Math.floor(canvasWidth/2), 300);
         div.append('<canvas id="' + element.id + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
         div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
         div.height(canvasHeight);
 
-		// myDiv.append('<div id="' + element.id + '_goTable" style="position:absolute;left:0px;top:' + canvasHeight + 'px;z-index:0;">');
-		// myDiv.append('<div id="' + element.id + '_goPie" style="position:absolute;left:' + GOWidth + 'px;top:' + canvasHeight + 'px;z-index:0;">');
-		myDiv.append('<div id="' + element.id + '_goTable">');
-		myDiv.append('<div id="' + element.id + '_goPie">');
-		goDiv1 = document.getElementById(element.id + "_goPie");
-		goDiv2 = document.getElementById(element.id + "_goTable");
-		
+        // myDiv.append('<div id="' + element.id + '_goTable" style="position:absolute;left:0px;top:' + canvasHeight + 'px;z-index:0;">');
+        // myDiv.append('<div id="' + element.id + '_goPie" style="position:absolute;left:' + GOWidth + 'px;top:' + canvasHeight + 'px;z-index:0;">');
+        myDiv.append('<div id="' + element.id + '_goTable">');
+        myDiv.append('<div id="' + element.id + '_goPie">');
+        goDiv1 = document.getElementById(element.id + "_goPie");
+        goDiv2 = document.getElementById(element.id + "_goTable");
+        
         // div.parent.height = canvasHeight;
         // div.parent.width = canvasWidth;
 
@@ -61,10 +61,9 @@ define(["iris", "app/widget"], function (Iris, widget) {
         study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
         var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
 
-        // renderGO();
 
         // fetch the list of chromosomes and their lengths
-		totalLen = 0;
+        totalLen = 0;
         Iris.getJSON("/species/" + species + "/chromosomes", function (json) {
             for (var chr in json) {
                 chrLengths[chr] = json[chr];
@@ -79,34 +78,34 @@ define(["iris", "app/widget"], function (Iris, widget) {
     };
 
     /*
-	function renderGO(limits) {
-		var url = "/gwas/" + study + "/GO";
-		if (limits) {
-			url += "?w=" + limits;
-		}
-		Iris.getJSON(url, function (json) {
-			Iris.Renderer.table.render( { target: goDiv2, width: GOWidth, height: GOWidth, data: {data: json, header: ["GOSlim term", "Genes"]}});
-			// combine tiny slices of the pie into an "Other" category
-			var sum=0;
-			for( var i=0; i<json.length; i++) {
-				sum += json[i][1];
-			}
-			var cutoff = sum*tooSmall;
-			var pieData = new Array();
-			var other=0;
-			for (var i=0; i<json.length; i++) {
-				if (json[i][1] < cutoff) {
-					other += json[i][1];
-				} else {
-					pieData.push(json[i]);
-				}
-			}
-			if (other > 0) {
-				pieData.push(["Others", other]);
-			}
-			Iris.Renderer.piechart.render( {target: goDiv1, data: pieData, width: GOWidth, height: GOWidth, radius: Math.floor(GOWidth/2)})
-		});
-	}
+    function renderGO(limits) {
+        var url = "/gwas/" + study + "/GO";
+        if (limits) {
+            url += "?w=" + limits;
+        }
+        Iris.getJSON(url, function (json) {
+            Iris.Renderer.table.render( { target: goDiv2, width: GOWidth, height: GOWidth, data: {data: json, header: ["GOSlim term", "Genes"]}});
+            // combine tiny slices of the pie into an "Other" category
+            var sum=0;
+            for( var i=0; i<json.length; i++) {
+                sum += json[i][1];
+            }
+            var cutoff = sum*tooSmall;
+            var pieData = new Array();
+            var other=0;
+            for (var i=0; i<json.length; i++) {
+                if (json[i][1] < cutoff) {
+                    other += json[i][1];
+                } else {
+                    pieData.push(json[i]);
+                }
+            }
+            if (other > 0) {
+                pieData.push(["Others", other]);
+            }
+            Iris.Renderer.piechart.render( {target: goDiv1, data: pieData, width: GOWidth, height: GOWidth, radius: Math.floor(GOWidth/2)})
+        });
+    }
     */
     
     function drawManhattan(study, cvs) {
@@ -138,12 +137,12 @@ define(["iris", "app/widget"], function (Iris, widget) {
         var gutters = (chrLengths.length + 1) * XGUTTER;
         var nt2px = (ctxi.canvas.width - gutters) / totalLen;
         var aPos, bPos;
-		var chrNames = new Array();
-		for (var chr in chrLengths) {
-			chrNames.push(chr);
-		}
+        var chrNames = new Array();
+        for (var chr in chrLengths) {
+            chrNames.push(chr);
+        }
         for (i = 0; i < chrNames.length; i++) {
-			var chr = chrNames[i];
+            var chr = chrNames[i];
             var chrXsize = nt2px * chrLengths[chr];
             if (a >= offset - XGUTTER && a <= offset + chrXsize) {
                 aChr = i;
@@ -179,9 +178,9 @@ define(["iris", "app/widget"], function (Iris, widget) {
     function doScatter(ctx, study, chr, offset, xsize, ysize, chrLen) {
         var path = "/gwas/" + study + "/scatter" + "?chr=" + chr + "&b1=" + Math.floor(xsize / sc) + "&b2=" + Math.floor(ysize / sc) + "&x1=" + chrLen + "&x2=" + globalMax;
         Iris.getJSON(path, function (json) {
-			if (! json) {
-				return;
-			}
+            if (! json) {
+                return;
+            }
             var xrange = chrLen;
             var yrange = globalMax;
             var xfactor = xsize / xrange;
@@ -304,22 +303,21 @@ define(["iris", "app/widget"], function (Iris, widget) {
                 tool.started = false;
 //                ctxi.clearRect(0, 0, ctxi.canvas.width, ctxi.canvas.height);
                 console.log([scoreB, scoreA, chrRangeString]);
-				renderGO(build_where([scoreB, scoreA, chrRange]));
             }
         };
     }
-	
-	function build_where(json) {
-		var where = json[0] + ' <= score <= ' + json[1] + ' and (';
-		for (var i=0; i < json[2].length; i++) {
-			if (i>0) {
-				where += ' or ';
-			}
-			where += '( chr == \'' + json[2][i][0] + '\' and ' + json[2][i][1] + ' <= pos <= ' + json[2][i][2] + ')';
-		}
-		where += ')';
-		return encodeURIComponent(where);
-	}
+    
+    function build_where(json) {
+        var where = json[0] + ' <= score <= ' + json[1] + ' and (';
+        for (var i=0; i < json[2].length; i++) {
+            if (i>0) {
+                where += ' or ';
+            }
+            where += '( chr == \'' + json[2][i][0] + '\' and ' + json[2][i][1] + ' <= pos <= ' + json[2][i][2] + ')';
+        }
+        where += ')';
+        return encodeURIComponent(where);
+    }
 
     return widget;
 });

@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "text!templates/modal.html"],
+define(["jquery", "underscore", "text!templates/modal.html", "bootstrap"],
 function ($, _, html) {
     var defaults = {
         element: "body",
@@ -59,6 +59,7 @@ function ($, _, html) {
             modal.modal({ backdrop: options.backdrop });
         }
         modal.toggle = function () {
+            console.trace();
             modal.modal("toggle");
         }
         return modal;
