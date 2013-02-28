@@ -307,7 +307,6 @@ Options:
 The following components are available:
 
     node        Various modules required by Node.js
-    jquery      Compiles the jQuery library
     snapdragon  Compiles the Snapdragon library"
 function iris_cmd_install {
     local verbose=1
@@ -325,7 +324,6 @@ function iris_cmd_install {
     local component=$1
     if [ -n "$component" ]; then
         if [ "$component" != 'snapdragon' -a \
-             "$component" != 'jquery' -a \
              "$component" != 'node' ]; then
             echo "Install component '$component' is not recognized!"
             iris_cmd_help install
@@ -350,14 +348,6 @@ LOG_HEADER
         # Install Node.js dependencies
         cd $NODEDIR
         npm install 2>&1 >> $INSTALL_LOG
-    fi
-    
-    if [ "$component" == "all" -o "$component" == "jquery" ]; then
-        [ "$verbose" -eq 1 ] && echo "Compiling jQuery library..."
-        # Compile jQuery library
-        cd $IRIS_HOME/external/jquery
-        git submodule update --init 2>&1 >> $INSTALL_LOG
-        make 2>&1 >> $INSTALL_LOG
     fi
     
     if [ "$component" == "all" -o "$component" == "snapdragon" ]; then
