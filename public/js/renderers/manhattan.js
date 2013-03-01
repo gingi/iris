@@ -1,5 +1,5 @@
-define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/scale'],
-function ($, EventEmitter, DragBox, Scale) {
+define(['jquery', 'iris', 'util/eventemitter', 'util/dragbox', 'util/scale'],
+function ($, Iris, EventEmitter, DragBox, Scale) {
     function createCanvas(container, options) {
         options = (options || {});
         var canvas = $("<canvas>")
@@ -363,6 +363,12 @@ function ($, EventEmitter, DragBox, Scale) {
             return yAxis.toDomain(py);
         }
     };
+    
+    ManhattanPlot.about = {
+        title: "Manhattan Plot",
+        name: "manhattan",
+        author: "Andrew Olson"
+    }
 
     $.extend(ManhattanPlot.prototype, EventEmitter);    
     return ManhattanPlot;

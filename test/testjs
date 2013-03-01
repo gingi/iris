@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-var nodeunit = require('nodeunit');
-var reporter = nodeunit.reporters.default;
-reporter.run([
-    'server/service-base-test.js',
-    // 'server/proxy-test.js', // FIXME: Tries to start a service?
-    'client/widget-test.js',
-    'client/iris-test.js',
-    'client/widget-template-test.js'
-]);
+var fs = require('fs');
+var requirejs = require('requirejs');
+var jasmine = require('jasmine-node');
+
+requirejs.config({
+    nodeRequire: require,
+    baseUrl: __dirname + '/../public/js',
+});

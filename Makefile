@@ -1,9 +1,12 @@
-PACKAGE  = datavis
-NODEUNIT = ./node_modules/nodeunit/bin/nodeunit
-RJS      = ./node_modules/requirejs/bin/r.js
+PACKAGE  = iris
+NODEBIN  = ./node_modules/.bin
+NODEUNIT = $(NODEBIN)/nodeunit
+MOCHA    = $(NODEBIN)/mocha
+RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
+MOCHAOPTS =
 TESTDIR ?= test
 BUILD   ?= ./dist/app.build.js
 DISTLIB ?= ./dist/datavis.js
@@ -29,7 +32,7 @@ build: init
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
 test: init
-	@ $(NODEUNIT) $(TESTDIR)
+	@ $(MOCHA) $(MOCHAOPTS)
 
 clean:
 	rm -rf $(DISTLIB) $(BUILDDIR)
