@@ -3,7 +3,7 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
     function a(link, text) { return $("<a>", { href: link }).html(text); }
     
     $("#nav")
-        .append(li(a("#widget/manhattan", "Manhattan")))
+        .append(li(a("#renderer/manhattan", "Manhattan")))
         .append(li(a("#widget/pcoords", "Pcoords")))
         .append(li(a("#widget/RegulatoryNetwork", "Regulatory Network")))
         .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
@@ -16,7 +16,7 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
     }
     function header(about) {
         return $("<div>").addClass("well")
-            .append(pair("Name", about.name))
+            .append(pair("Widget", about.title))
             .append(pair("Author", about.author))
             .append(pair("Description", about.description));
     }
