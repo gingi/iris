@@ -6,7 +6,7 @@ RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
-MOCHAOPTS =
+MOCHAOPTS = -r should -t 8000 --ignore-leaks
 TESTDIR ?= test
 BUILD   ?= ./dist/app.build.js
 DISTLIB ?= ./dist/datavis.js
@@ -20,9 +20,13 @@ endif
 
 all: test
 
-init:
+init-npm:
 	@ $(NPM) install
+
+init-submodules:
 	@ $(GIT) submodule update --init
+
+init: init-npm init-submodule
 
 dist: init
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
@@ -31,7 +35,7 @@ build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
-test: init
+test: init-npm
 	@ $(MOCHA) $(MOCHAOPTS)
 
 clean:
