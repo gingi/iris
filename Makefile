@@ -6,7 +6,7 @@ RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
-MOCHAOPTS = -r should -t 8000 --ignore-leaks
+MOCHAOPTS =
 TESTDIR ?= test
 BUILD   ?= ./dist/app.build.js
 DISTLIB ?= ./dist/datavis.js
@@ -36,7 +36,7 @@ build: init
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
 test: init-npm
-	@ $(MOCHA) $(MOCHAOPTS)
+	@ $(MOCHA) $(MOCHAOPTS) test/client/iris/*.js
 
 clean:
 	rm -rf $(DISTLIB) $(BUILDDIR)

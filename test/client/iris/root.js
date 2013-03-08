@@ -1,4 +1,4 @@
-var requirejs = require('./client-require')();
+var requirejs = require('../../client-require')();
 
 describe('Iris.Root', function () {
     it("should be a proper function", function (done) {
