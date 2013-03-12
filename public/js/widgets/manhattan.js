@@ -1,4 +1,4 @@
-define(["iris", "app/widget"], function (Iris, Widget) {
+define(["iris"], function (Iris) {
     var widget = new Object();
     widget.about = {
         title: "Manhattan Plot",

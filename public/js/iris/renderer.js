@@ -1,4 +1,4 @@
-define(["app/core", "app/util"], function (Iris, Util) {
+define(["iris/root", "iris/util"], function (Root, Util) {
     function Renderer() {};
     Renderer.prototype = {
         constructor: Renderer,

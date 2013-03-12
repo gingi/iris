@@ -11,9 +11,6 @@ var JS_DIR =          path.join(DOCSROOT,       'js');
 var RENDERER_JS_DIR = path.join(JS_DIR,         'renderers');
 var WIDGET_JS_DIR   = path.join(JS_DIR,         'widgets');
 
-var RENDERER_HTTPPATH = '/js/renderers';
-var WIDGET_HTTPPATH = '/js/widgets';
-
 function directoryContents(response, dir) {
     fs.readdir(dir, function (err, files) {
         response.writeHead(200, { 'Content-Type': 'application/json' });
