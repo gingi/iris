@@ -1,4 +1,3 @@
-// var requirejs = require('../client-require');
 var assert = require('assert');
 var Graph = require(__dirname + '/../../src/graph.js');
 
