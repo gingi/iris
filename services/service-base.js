@@ -1,8 +1,8 @@
 var path = require('path');
 
-var IRIS_HOME = path.join(__dirname, '/..');
+var IRIS_HOME            = path.join(__dirname, '/..');
 var DEFAULT_SERVICE_CONF = path.join(IRIS_HOME, 'conf', 'services.json');
-var DOCSROOT = path.join(IRIS_HOME, 'public');
+var DOCSROOT             = path.join(IRIS_HOME, 'public');
 
 var confFile;
 var service = null;

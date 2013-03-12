@@ -20,7 +20,7 @@ var store = new Db(
         iris.config.MONGO_HOST || 'localhost',
         iris.config.MONGO_PORT || Connection.DEFAULT_PORT, {}
     ),
-    { native_parser: false }
+    { native_parser: false, safe: false }
 );
 
 // Mongo fetches

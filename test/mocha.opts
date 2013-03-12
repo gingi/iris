@@ -1,3 +1,2 @@
 --require should
---timeout 8000
 --ignore-leaks

@@ -15,6 +15,14 @@ describe('Iris.Root', function () {
             done();
         })
     })
+    it("should have an 'about' object", function (done) {
+        requirejs(['iris/root'], function (Root) {
+            var object = new Root();
+            object.should.have.property('about');
+            object.about.should.eql({});
+            done();
+        })
+    })
     it("should allow extending", function (done) {
         requirejs(['iris/root'], function (Root) {
             var Subclass = Root.extend({
