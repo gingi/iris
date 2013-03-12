@@ -1,36 +1,36 @@
 [submodule "external/bootstrap"]
 	path = external/bootstrap
-	url = https://github.com/twitter/bootstrap.git
+	url = git://github.com/twitter/bootstrap.git
 [submodule "external/jquery"]
 	path = external/jquery
-	url = https://github.com/jquery/jquery.git
+	url = git://github.com/jquery/jquery.git
 [submodule "external/d3"]
 	path = external/d3
-	url = https://github.com/mbostock/d3.git
+	url = git://github.com/mbostock/d3.git
 [submodule "examples"]
 	path = examples
-	url = https://github.com/gingi/iris-examples
+	url = git://github.com/gingi/iris-examples
 [submodule "external/snapdragon"]
 	path = external/snapdragon
-	url = https://bitbucket.org/garden/snapdragon
+	url = git://bitbucket.org/garden/snapdragon
 [submodule "external/CodeMirror"]
 	path = external/CodeMirror
-	url = https://github.com/marijnh/CodeMirror.git
+	url = git://github.com/marijnh/CodeMirror.git
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
-	url = https://github.com/jeromegn/Backbone.localStorage.git
+	url = git://github.com/jeromegn/Backbone.localStorage.git
 [submodule "external/datatables"]
 	path = external/datatables
-	url = git@github.com:DataTables/DataTables.git
+	url = git://github.com/DataTables/DataTables.git
 [submodule "external/dt-columnfilter"]
 	path = external/dt-columnfilter
-	url = git@github.com:cyberhobo/ColumnFilterWidgets.git
+	url = git://github.com/cyberhobo/ColumnFilterWidgets.git
 [submodule "external/font-awesome"]
 	path = external/font-awesome
-	url = https://github.com/FortAwesome/Font-Awesome
+	url = git://github.com/FortAwesome/Font-Awesome
 [submodule "external/bootstrap-arrows"]
 	path = external/bootstrap-arrows
-	url = https://github.com/iarfhlaith/Bootstrap-Arrows
+	url = git://github.com/iarfhlaith/Bootstrap-Arrows
 [submodule "external/requirejs-text"]
 	path = external/requirejs-text
-	url = https://github.com/requirejs/text.git
+	url = git://github.com/requirejs/text.git
