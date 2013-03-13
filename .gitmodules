@@ -12,7 +12,7 @@
 	url = git://github.com/gingi/iris-examples
 [submodule "external/snapdragon"]
 	path = external/snapdragon
-	url = git://bitbucket.org/garden/snapdragon
+	url = git://github.com/silvn/snapdragon
 [submodule "external/CodeMirror"]
 	path = external/CodeMirror
 	url = git://github.com/marijnh/CodeMirror.git
