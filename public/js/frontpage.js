@@ -4,9 +4,9 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
     
     $("#nav")
         .append(li(a("#renderer/manhattan", "Manhattan")))
-        .append(li(a("#widget/pcoords", "Pcoords")))
+        .append(li(a("#renderer/pcoords", "Pcoords")))
         .append(li(a("#widget/RegulatoryNetwork", "Regulatory Network")))
-        .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
+        .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")));
     
     function pair(k, v) {
         var str =
@@ -40,26 +40,23 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         widget: function (name) {
             require(["widgets/" + name], function (Widget) {
                 var widget = new Widget();
-                console.log("Showing %s:", name, widget.about);
                 show(widget, function (element) {
                     widget.display(element);
                 });
-            })
+            });
         },
         renderer: function (name) {
             require(["renderers/" + name], function (Renderer) {
                 var renderer = new Renderer();
-                console.log("Renderer", renderer);
-                renderer.setData(renderer.exampleData());
                 show(renderer, function (element) {
                     renderer.render({ element: element });
-                })
+                });
             });
         },
         default: function () {
         }
     });
     
-    var router = new Router;
+    var router = new Router();
     Backbone.history.start();
 });
