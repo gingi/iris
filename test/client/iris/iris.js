@@ -15,3 +15,23 @@ describe('Iris', function () {
         })
     })
 });
+
+describe('Iris.Widget', function () {
+    it("should allow extending", function (done) {
+        requirejs(['iris'], function (Iris) {
+            Iris.Widget.should.have.property("extend");
+            Iris.Widget.extend.should.be.a("function");
+            done();
+        })
+    })
+});
+
+describe('Iris.Renderer', function () {
+    it("should allow extending", function (done) {
+        requirejs(['iris'], function (Iris) {
+            Iris.Renderer.should.have.property("extend");
+            Iris.Renderer.extend.should.be.a("function");
+            done();
+        })
+    })
+});
