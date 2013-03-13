@@ -1,20 +1,13 @@
-define(["iris/root", "iris/util"], function (Root, Util) {
-    function Renderer() {};
-    Renderer.prototype = {
-        constructor: Renderer,
-        about: {
-            name: "base",
-            author: "shanje",
-            description: "Renderer base class"
-        },
-        schema: { // uses revalidator.js to check settings
+define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
+    var Renderer = Root.extend({
+        schema: { // uses revalidator.js to check args
             properties: {
-                data: { required: true, type: 'any' },
+                data:    { required: true, type: 'any' },
                 element: { required: true, type: 'any' }
             }
         },
         defaults: {
-            // defaults extend settings passed to other functions
+            // defaults extend args passed to other functions
         },
         setDefaults: function () {
              // defaults defined at run time
@@ -22,30 +15,30 @@ define(["iris/root", "iris/util"], function (Root, Util) {
         exampleData: function () {
             console.log(this.about.name + ": exampleData() function not implemented");
         },
-        setup: function (settings) {
+        setup: function (args) {
             // renderer specific initialization code such as loading css
         },
-        render: function (settings) {
+        render: function (args) {
             console.log(this.about.name + ": render() function not implemented");
         },
-        update: function (settings) {
+        update: function (args) {
             console.log(this.about.name + ": update() function not implemented");
         },
         // always call renderer.prepare() before calling renderer.render()
-        // min usage: renderer.render(renderer.prepare(settings));
-        prepare: function (settings) {
+        // min usage: renderer.render(renderer.prepare(args));
+        prepare: function (args) {
             var renderer = this;
-            settings = (settings || {});
-            // extend settings with default values
-            Util.extend(settings, renderer.defaults);
-            Util.extend(settings, renderer.setDefaults());
+            args = (args || {});
+            // extend args with default values
+            _.extend(args, renderer.defaults);
+            _.extend(args, renderer.setDefaults());
             // use example data if not defined
-            if (settings.data == null) {
-                settings.data = renderer.exampleData();
+            if (args.data == null) {
+                args.data = renderer.exampleData();
             }
-            // validate settings
+            // validate args
             if (renderer.schema) {
-                var check = Util.validate(settings, renderer.schema);
+                var check = Util.validate(args, renderer.schema);
                 if (check['valid']) {
                 } else {
                     console.log("validation failed",check['errors']);
@@ -53,9 +46,9 @@ define(["iris/root", "iris/util"], function (Root, Util) {
                 }
             }
             // renderer specific initialization
-            renderer.setup(settings);
-            return settings;
+            renderer.setup(args);
+            return args;
         }
-    };
+    });
     return Renderer;
 });

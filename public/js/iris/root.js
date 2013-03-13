@@ -9,7 +9,7 @@ define(["backbone", "underscore"], function (Backbone, _) {
         this.initialize.apply(this, arguments);
     };
     _.extend(Root.prototype, Backbone.Events, {
-        initialize: function () {},
+        initialize: function () {}
     });
     Root.extend = Backbone.View.extend;
     return Root;

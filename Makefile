@@ -36,7 +36,7 @@ build: init
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
 test: init-npm
-	@ $(MOCHA) $(MOCHAOPTS) test/client/iris/*.js test/universal/*.js
+	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
 clean:
 	rm -rf $(DISTLIB) $(BUILDDIR)

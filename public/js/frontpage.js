@@ -39,21 +39,24 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         },
         widget: function (name) {
             require(["widgets/" + name], function (Widget) {
-                console.log("Showing %s:", name, Widget.about);
-                show(Widget, function (element) {
-                    Widget.display(element);
+                var widget = new Widget();
+                console.log("Showing %s:", name, widget.about);
+                show(widget, function (element) {
+                    widget.display(element);
                 });
             })
         },
         renderer: function (name) {
             require(["renderers/" + name], function (Renderer) {
-                show(Renderer, function (element) {
-                    Renderer.render({ element: element });
+                var renderer = new Renderer();
+                console.log("Renderer", renderer);
+                renderer.setData(renderer.exampleData());
+                show(renderer, function (element) {
+                    renderer.render({ element: element });
                 })
             });
         },
         default: function () {
-            console.log("Default route")
         }
     });
     
