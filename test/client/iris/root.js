@@ -1,7 +1,7 @@
 var requirejs = require('../../client-require')();
 
 describe('Iris.Root', function () {
-    it("should be a proper function", function (done) {
+    it("should be a function", function (done) {
         requirejs(['iris/root'], function (Root) {
             Root.should.be.a("function");
             done();
@@ -26,11 +26,15 @@ describe('Iris.Root', function () {
     it("should allow extending", function (done) {
         requirejs(['iris/root'], function (Root) {
             var Subclass = Root.extend({
-                foo: "bar"
+                foo: "bar",
+                fn: function () { return 51; }
             });
             var object = new Subclass();
             object.should.be.instanceof(Root);
             object.should.have.property("foo", "bar");
+            object.should.have.property("fn");
+            object.fn.should.be.a("function");
+            object.fn().should.equal(51);
             done();
         })
     })

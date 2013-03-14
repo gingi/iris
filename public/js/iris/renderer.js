@@ -1,5 +1,9 @@
+/**
+ * @module iris/renderer
+ * Iris.Renderer. A base class that handles the display of specific data.
+ */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
-    var Renderer = Root.extend({
+    return Root.extend({
         schema: { // uses revalidator.js to check args
             properties: {
                 data:    { required: true, type: 'any' },
@@ -24,14 +28,20 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         update: function (args) {
             console.log(this.about.name + ": update() function not implemented");
         },
+        setData: function (data) {
+            this.data = data;
+        },
+        getData: function () {
+            return this.data;
+        },
         // always call renderer.prepare() before calling renderer.render()
         // min usage: renderer.render(renderer.prepare(args));
         prepare: function (args) {
             var renderer = this;
             args = (args || {});
             // extend args with default values
-            _.extend(args, renderer.defaults);
-            _.extend(args, renderer.setDefaults());
+            _.defaults(args, renderer.defaults);
+            _.defaults(args, renderer.setDefaults());
             // use example data if not defined
             if (args.data == null) {
                 args.data = renderer.exampleData();
@@ -50,5 +60,4 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
             return args;
         }
     });
-    return Renderer;
 });
