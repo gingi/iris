@@ -1,4 +1,4 @@
-<div style="float:left;margin-right:10px" markdown="1">
+<div style="float:right">
     <img src="public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
