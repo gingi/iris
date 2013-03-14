@@ -6,6 +6,8 @@
 
 A web library for data visualization and exploration.
 
+[![Build Status](https://travis-ci.org/gingi/iris.png)](https://travis-ci.org/gingi/iris)
+
 ##External Dependencies
 The following tools need to be installed separately (e.g., with [Homebrew](http://mxcl.github.com/homebrew/)) before Iris and its dependencies can be installed:
 
