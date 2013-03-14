@@ -26,7 +26,7 @@ function ($, Iris, DragBox, Scale) {
     var YAXIS_WIDTH  = 30;
     var XAXIS_HEIGHT = 80;
     
-    var ManhattanPlot = Iris.Renderer.extend({
+    return Iris.Renderer.extend({
         initialize: function (options) {
             options = options || {};
             options.filterContig =
@@ -374,6 +374,4 @@ function ($, Iris, DragBox, Scale) {
             return this.yAxis.toDomain(py);
         }
     });
-    
-    return ManhattanPlot;
 });

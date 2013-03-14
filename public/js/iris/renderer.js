@@ -35,6 +35,12 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         getData: function () {
             return this.data;
         },
+        /**
+         *
+         */
+        set: function (args) {
+            
+        },
         // always call renderer.prepare() before calling renderer.render()
         // min usage: renderer.render(renderer.prepare(args));
         prepare: function (args) {
