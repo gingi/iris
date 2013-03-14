@@ -1,6 +1,10 @@
+/**
+ * Iris.Widget. A controller class for managing data and renderers for
+ * visualization
+ *
+ * @module iris/widget
+ */
 define(["iris/root"], function (Root) {
-    var Widget = Root.extend({
-        
+    return Root.extend({
     });
-    return Widget;
 });

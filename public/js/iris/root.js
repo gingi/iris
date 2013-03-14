@@ -1,6 +1,7 @@
 /**
- * @module root
- * Root class for all Iris classes
+ * Root class for all Iris classes.
+ *
+ * @module iris/root
  */
 define(["backbone", "underscore"], function (Backbone, _) {
     var Root = function (attributes, options) {

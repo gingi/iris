@@ -8,7 +8,6 @@ define(["iris"], function (Iris) {
         setup: function () {
         	var r1 = Iris.renderer("barchart");
         	var r2 = Iris.renderer("renderer2");
-        	r1.addListener(
         },
         display: function (target, args) {
             var renderer = Iris.Renderer.barchart;
