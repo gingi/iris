@@ -1,6 +1,6 @@
 /**
-  * @module renderers/pcoords
   * Parallel Coordinates Plot
+  * @module renderers/pcoords
   */
 define(["iris", "jquery", "underscore"], function (Iris, $, _) {
     var PADDING_TOP = 40;

@@ -1,6 +1,6 @@
 /**
- * @module renderer/manhattan
  * Manhattan Plot
+ * @module renderers/manhattan
  */
 define(['jquery', 'iris', 'util/dragbox', 'util/scale'],
 function ($, Iris, DragBox, Scale) {
@@ -259,13 +259,13 @@ function ($, Iris, DragBox, Scale) {
                     };
                 }
             }
-            for (ctg in contigs) {
-                var c = contigs[ctg].color;
+            contigs.forEach(function (ctg) {
+                var c = ctg.color;
                 c.range = [];
                 for (var i = 0; i < c.max.length; i++) {
                     c.range.push(c.max[i] - c.min[i]);
                 }
-            }
+            });
             this.scatterplot();
         },
         
