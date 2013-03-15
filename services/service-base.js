@@ -225,14 +225,6 @@ function setErrorRoutes() {
         res.type('txt').send('Not found');
     });
 
-    // app.use(function(err, req, res, next) {
-    //     // we may use properties of the error object
-    //     // here and next(err) appropriately, or if
-    //     // we possibly recovered from the error, simply next().
-    //     res.status(err.status || 500);
-    //     res.render('500', { error: err });
-    // });
-
     // Routes
     app.get('/404', function (req, res, next) {
         // trigger a 404 since no other middleware
@@ -298,7 +290,7 @@ exports.startService = function () {
 };
 
 exports.httpGET = function (response, serviceName, path) {
-    exports.log(serviceName, endpoints[serviceName].port, path);
+    exports.log("[%s] GET http://0:%d%s", serviceName, endpoints[serviceName].port, path);
     http.get({
         port: endpoints[serviceName].port,
         path: path
@@ -312,7 +304,8 @@ exports.serviceName = function () {
 };
 
 exports.log = function (format) {
-    logFile.write(util.format(format, Array.prototype.slice.call(arguments, 1)));
+    logFile.write(util.format.apply(null, arguments));
+    logFile.write("\n");
 };
     
 exports.uri = uri;

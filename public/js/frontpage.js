@@ -48,8 +48,11 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         renderer: function (name) {
             require(["renderers/" + name], function (Renderer) {
                 var renderer = new Renderer();
-                show(renderer, function (element) {
-                    renderer.render({ element: element });
+                renderer.exampleData().then(function (data) {
+                    renderer.setData(data);
+                    show(renderer, function (element) {
+                        renderer.render({ element: element });
+                    });
                 });
             });
         },

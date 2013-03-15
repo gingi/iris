@@ -25,8 +25,8 @@ function ($, Iris, DragBox, Scale) {
     var PINTENSITY   = 0.4;
     var YAXIS_WIDTH  = 30;
     var XAXIS_HEIGHT = 80;
-    
-    return Iris.Renderer.extend({
+
+    var Manhattan = Iris.Renderer.extend({
         initialize: function (options) {
             options = options || {};
             options.filterContig =
@@ -170,7 +170,7 @@ function ($, Iris, DragBox, Scale) {
             axisContext.moveTo(YAXIS_WIDTH - offset, 0);
             axisContext.lineTo(YAXIS_WIDTH - offset,
                 self.canvasHeight + offset);
-            axisContext.lineTo($element.width(),    
+            axisContext.lineTo(self.$element.width(),    
                 self.canvasHeight + offset);
             axisContext.stroke();
             axisContext.closePath();
@@ -202,7 +202,7 @@ function ($, Iris, DragBox, Scale) {
             var labeler = horizontalContigs ? horizontalLabeler : verticalLabel;
             
             var labelOffset = YAXIS_WIDTH + XGUTTER;
-            ctgOrder.forEach(function (key) {
+            self.ctgOrder.forEach(function (key) {
                 var ctg = self.contigs[key];
                 var ctgWidth = self.xAxis.toRange(ctg.len);
                 var origin = labelOffset + ctgWidth / 2;
@@ -210,7 +210,7 @@ function ($, Iris, DragBox, Scale) {
                 labelOffset += ctgWidth + XGUTTER;
             });
             horizontalLabeler("Contigs",
-                YAXIS_WIDTH + canvasWidth / 2,
+                YAXIS_WIDTH + self.canvasWidth / 2,
                 horizontalContigs ?
                     self.canvasHeight + 40 :
                     XAXIS_HEIGHT + self.canvasHeight - 1,
@@ -229,62 +229,64 @@ function ($, Iris, DragBox, Scale) {
             );
             axisContext.textAlign = "right";
             axisContext.textBaseline = "top";
-            axisContext.fillText(yAxis.domain()[1], YAXIS_WIDTH - 1, 0);
+            axisContext.fillText(self.yAxis.domain()[1], YAXIS_WIDTH - 1, 0);
             axisContext.textBaseline = "bottom";
-            axisContext.fillText(yAxis.domain()[0], YAXIS_WIDTH - 1,
+            axisContext.fillText(self.yAxis.domain()[0], YAXIS_WIDTH - 1,
                 self.canvasHeight);
         },
         
         drawManhattan: function () {
+            var self = this;
             var offset = XGUTTER;
             var ctg;
-            for (var i = 0; i < ctgOrder.length; i++) {
-                ctg = ctgOrder[i];
-                var scale = contigs[ctg].scale = new Scale();
-                var lenPx = xAxis.toRange(contigs[ctg].len);
-                scale.domain([0, contigs[ctg].len]);
+            for (var i = 0; i < self.ctgOrder.length; i++) {
+                ctg = self.ctgOrder[i];
+                var scale = self.contigs[ctg].scale = new Scale();
+                var lenPx = self.xAxis.toRange(self.contigs[ctg].len);
+                scale.domain([0, self.contigs[ctg].len]);
                 scale.range([offset, offset + lenPx]);
-                contigs[ctg].offset = offset + XGUTTER;
+                self.contigs[ctg].offset = offset + XGUTTER;
                 offset += lenPx + XGUTTER;
 
                 if (i % 2 === 0) {
-                    contigs[ctg].color = {
+                    self.contigs[ctg].color = {
                         max: [0, 0, 0],
                         min: [150, 150, 150]
                     };
                 } else {
-                    contigs[ctg].color = {
+                    self.contigs[ctg].color = {
                         max: [255, 0, 0],
                         min: [255, 165, 0]
                     };
                 }
             }
-            contigs.forEach(function (ctg) {
+            for (var name in self.contigs) {
+                ctg = self.contigs[name];
                 var c = ctg.color;
                 c.range = [];
                 for (var i = 0; i < c.max.length; i++) {
                     c.range.push(c.max[i] - c.min[i]);
                 }
-            });
-            this.scatterplot();
+            }
+            self.scatterplot();
         },
         
         scatterplot: function () {
             function intensity(v) { return Math.pow(v + 1, PINTENSITY); }
-            var normalized = intensity(maxscore);
+            var normalized = intensity(this.maxscore);
 
             // create a 2D histogram
             var histogram = {};
             var x2color = {};
             var maxTally=1;
-            for (var i = 0; i < variations.length; i++) {
-                var ctgN   = variations[i][0];
-                var xcoord = variations[i][1];
-                var ycoord = variations[i][2];
-                if (ctgIndex[ctgN] === null) continue;
-                var ctg    = contigs[ctgIndex[ctgN]];
+            for (var i = 0; i < this.variations.length; i++) {
+                var ctgN   = this.variations[i][0];
+                var xcoord = this.variations[i][1];
+                var ycoord = this.variations[i][2];
+                if (this.ctgIndex[ctgN] === null) continue;
+                var ctg    = this.contigs[this.ctgIndex[ctgN]];
                 var x      = ctg.scale.toRange(xcoord);
-                var y      = yAxis.toRange(ycoord);
+                var y      = this.yAxis.toRange(ycoord);
                 var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
                 var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
                 x2color[xbin] = ctg.color;
@@ -311,16 +313,12 @@ function ($, Iris, DragBox, Scale) {
                     var g = color(ratio, ctgcolor, 1);
                     var b = color(ratio, ctgcolor, 2);
                     
-                    ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+                    this.ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
                     
-                    if (DRAW_DISCS) {
-                        ctx.beginPath();
-                        ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
-                        ctx.closePath();
-                        ctx.fill();
-                    } else {
-                        ctx.fillRect(Math.floor(x), Math.floor(y), sc, sc);
-                    }
+                    this.ctx.beginPath();
+                    this.ctx.arc(Math.floor(x), Math.floor(y), RADIUS, 0, PI2, true);
+                    this.ctx.closePath();
+                    this.ctx.fill();
                 }
             }
         },
@@ -374,4 +372,12 @@ function ($, Iris, DragBox, Scale) {
             return this.yAxis.toDomain(py);
         }
     });
+    Manhattan.prototype.exampleData = function () {
+        var result = $.Deferred();
+        require(["text!examples/3396.json"], function (json) {
+            result.resolve(JSON.parse(json));
+        });
+        return result;
+    }
+    return Manhattan;
 });
