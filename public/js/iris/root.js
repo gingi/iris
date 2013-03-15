@@ -4,8 +4,8 @@
  * @module iris/root
  */
 define(["backbone", "underscore"], function (Backbone, _) {
-    var Root = function (attributes, options) {
-        attributes = attributes ? _.clone(attributes) : {};
+    var Root = function (options) {
+        this.options = options ? _.clone(options) : {};
         this.initialize.apply(this, arguments);
     };
     _.extend(Root.prototype, Backbone.Events, {

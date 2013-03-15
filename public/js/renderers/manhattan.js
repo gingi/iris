@@ -27,6 +27,11 @@ function ($, Iris, DragBox, Scale) {
     var XAXIS_HEIGHT = 80;
 
     var Manhattan = Iris.Renderer.extend({
+        about: {
+            title: "Manhattan Plot",
+            name: "manhattan",
+            author: "Andrew Olson"
+        },
         initialize: function (options) {
             options = options || {};
             options.filterContig =

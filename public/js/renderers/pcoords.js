@@ -26,10 +26,11 @@ define(["iris", "jquery", "underscore"], function (Iris, $, _) {
             this.maxcolor = [];
             pcoordId++;
         },
-        render: function (args) {
+        render: function () {
             var self = this;
+            var args = {};
             args = args ? _.clone(args) : {};
-            var div = $(args.element);
+            var div = $(self.options.element);
             div.text('');
             this.containerNode = div;
             var canvasHeight = Math.max(div.parent().height(), 250);
