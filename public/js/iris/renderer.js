@@ -35,7 +35,7 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         getData: function () {
             return this.data;
         },
-        /**
+        /*
          *
          */
         set: function (args) {
