@@ -1,4 +1,5 @@
-require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
+require(["jquery", "underscore", "backbone", "util/viewport"],
+function ($, _, Backbone, Viewport) {
     function li(content) { return $("<li>").append(content); }
     function a(link, text) { return $("<a>", { href: link }).html(text); }
     
@@ -21,14 +22,14 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
             .append(pair("Description", about.description));
     }
 
-    function show(component, fn) {
-        $("#content").empty().append(header(component.about));
-        require(["util/viewport"], function (Viewport) {
-            var viewport = new Viewport({
-                parent: $("#content")
-            });
-            fn(viewport);
+    function show(Component, fn) {
+        $("#content").empty();
+        var viewport = new Viewport({
+            parent: $("#content")
         });
+        var component = new Component({ element: viewport });
+        $("#content").prepend(header(component.about));
+        fn(component);
     }
 
     var Router = Backbone.Router.extend({
@@ -39,27 +40,33 @@ require(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         },
         widget: function (name) {
             require(["widgets/" + name], function (Widget) {
-                var widget = new Widget();
-                show(widget, function (element) {
-                    widget.display(element);
-                });
+                show(Widget, function (widget) { widget.display(); });
             });
         },
         renderer: function (name) {
             require(["renderers/" + name], function (Renderer) {
-                var renderer = new Renderer();
-                renderer.exampleData().then(function (data) {
-                    renderer.setData(data);
-                    show(renderer, function (element) {
-                        renderer.render({ element: element });
-                    });
+                show(Renderer, function (renderer) {
+                    var exampleData = renderer.exampleData();
+                    if (exampleData) {
+                        if (typeof exampleData.done === 'function') {
+                            exampleData.done(function (data) {
+                                renderer.setData(data);
+                                renderer.render();
+                            });
+                        } else {
+                            renderer.setData(exampleData);
+                            renderer.render();
+                        }
+                    } else {
+                        renderer.render();
+                    }
                 });
             });
         },
         default: function () {
         }
     });
-    
+
     var router = new Router();
     Backbone.history.start();
 });
