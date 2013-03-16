@@ -2,8 +2,8 @@
  * Manhattan Plot
  * @module renderers/manhattan
  */
-define(['jquery', 'iris', 'util/dragbox', 'util/scale'],
-function ($, Iris, DragBox, Scale) {
+define(['jquery', 'iris', 'util/dragbox', 'util/scale', 'underscore'],
+function ($, Iris, DragBox, Scale, _) {
     function createCanvas(container, options) {
         options = (options || {});
         var canvas = $("<canvas>")
@@ -15,7 +15,7 @@ function ($, Iris, DragBox, Scale) {
         return canvas[0].getContext('2d');
     }
 
-    function color(r, cc, c) { return cc.min[c] + Math.floor(r * cc.range[c]); }
+    function color(r, cc, c) { return cc.min[c] - Math.floor(r * cc.range[c]); }
 
     var PI2          = Math.PI * 2;
     var AXIS_COLOR   = '#CCC';
@@ -25,6 +25,11 @@ function ($, Iris, DragBox, Scale) {
     var PINTENSITY   = 0.4;
     var YAXIS_WIDTH  = 30;
     var XAXIS_HEIGHT = 80;
+    
+    var COLORS = [
+        { max: [0, 0, 0],   min: [150, 150, 150], range: [150, 150, 150] },
+        { max: [255, 0, 0], min: [255, 165, 0],   range: [0, 165, 0] }
+    ];
 
     var Manhattan = Iris.Renderer.extend({
         about: {
@@ -68,6 +73,11 @@ function ($, Iris, DragBox, Scale) {
             }
             this.variations  = data.variations;
             this.maxscore    = data.maxscore;
+            if (!this.maxscore) {
+                this.maxscore = _.max(_.map(this.variations, function (v) {
+                    return v[2];
+                }));
+            }
         },
         getData: function () {
             return {
@@ -107,12 +117,12 @@ function ($, Iris, DragBox, Scale) {
                 return "-log p [" + pvals[0] + " " + pvals[1] + "]";
             });
             dragbox.pinpointHandler(function (x, y) {
-                self.emit("pinpoint", [
+                self.trigger("pinpoint", [
                     self.canvasToScore(y), self.canvasToCtg(x, x)
                 ]);
             });
             dragbox.selectionHandler(function (x1, y1, x2, y2) {
-                self.emit("selection", [
+                self.trigger("selection", [
                     self.canvasToScore(y1),
                     self.canvasToScore(y2),
                     self.canvasToCtg(x1, x2)
@@ -121,16 +131,16 @@ function ($, Iris, DragBox, Scale) {
             self.drawManhattan();
         },
         highlight: function (loci) {
-            var ctx = this.hlCtx;
+            var self = this;
+            var ctx = self.hlCtx;
             if (ctx) {
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             } else {
-                ctx = this.hlCtx = createCanvas(this.plotArea, { z: 1 });
+                ctx = self.hlCtx = createCanvas(self.plotArea, { z: 1 });
             }
             ctx.strokeStyle = "rgba(31,120,180,0.7)";
             ctx.fillStyle = "rgba(166,206,227,0.7)";
             ctx.lineWidth = 0.5;
-            var self = this;
             loci.forEach(function (locus) {
                 if (locus === null) return;
                 var ctg = self.contigs[locus.contig];
@@ -151,7 +161,7 @@ function ($, Iris, DragBox, Scale) {
         setRanges: function () {
             var yAxisMax = Math.ceil(this.maxscore) + 1;
             this.yAxis.domain([0, yAxisMax]);
-            this.yAxis.range([self.canvasHeight, 0]);
+            this.yAxis.range([this.canvasHeight, 0]);
             if (this.genomeLength === 0) {
                 throw new Error("setRanges(): Contig data not set");
             }
@@ -179,7 +189,6 @@ function ($, Iris, DragBox, Scale) {
                 self.canvasHeight + offset);
             axisContext.stroke();
             axisContext.closePath();
-            
             function verticalLabel(text, x, y, options) {
                 options = (options || {});
                 axisContext.save();
@@ -193,7 +202,6 @@ function ($, Iris, DragBox, Scale) {
                 axisContext.fillText(text, 0, 0);
                 axisContext.restore();
             }
-            
             function horizontalLabeler(text, x, y, options) {
                 options = (options || {});
                 axisContext.save();
@@ -202,10 +210,8 @@ function ($, Iris, DragBox, Scale) {
                 axisContext.fillText(text, x, y);
                 axisContext.restore();
             }
-            
             var horizontalContigs = contigsAreWide();
             var labeler = horizontalContigs ? horizontalLabeler : verticalLabel;
-            
             var labelOffset = YAXIS_WIDTH + XGUTTER;
             self.ctgOrder.forEach(function (key) {
                 var ctg = self.contigs[key];
@@ -239,11 +245,11 @@ function ($, Iris, DragBox, Scale) {
             axisContext.fillText(self.yAxis.domain()[0], YAXIS_WIDTH - 1,
                 self.canvasHeight);
         },
-        
         drawManhattan: function () {
             var self = this;
             var offset = XGUTTER;
             var ctg;
+            // Per-contig scales and offsets
             for (var i = 0; i < self.ctgOrder.length; i++) {
                 ctg = self.ctgOrder[i];
                 var scale = self.contigs[ctg].scale = new Scale();
@@ -252,26 +258,6 @@ function ($, Iris, DragBox, Scale) {
                 scale.range([offset, offset + lenPx]);
                 self.contigs[ctg].offset = offset + XGUTTER;
                 offset += lenPx + XGUTTER;
-
-                if (i % 2 === 0) {
-                    self.contigs[ctg].color = {
-                        max: [0, 0, 0],
-                        min: [150, 150, 150]
-                    };
-                } else {
-                    self.contigs[ctg].color = {
-                        max: [255, 0, 0],
-                        min: [255, 165, 0]
-                    };
-                }
-            }
-            for (var name in self.contigs) {
-                ctg = self.contigs[name];
-                var c = ctg.color;
-                c.range = [];
-                for (var i = 0; i < c.max.length; i++) {
-                    c.range.push(c.max[i] - c.min[i]);
-                }
             }
             self.scatterplot();
         },
@@ -294,7 +280,7 @@ function ($, Iris, DragBox, Scale) {
                 var y      = this.yAxis.toRange(ycoord);
                 var xbin   = 1.5*RADIUS * Math.floor(x/(1.5*RADIUS));
                 var ybin   = 1.5*RADIUS * Math.floor(y/(1.5*RADIUS));
-                x2color[xbin] = ctg.color;
+                x2color[xbin] = COLORS[ctgN % COLORS.length];
                 if (histogram.hasOwnProperty(xbin)) {
                     if (histogram[xbin].hasOwnProperty(ybin)) {
                         histogram[xbin][ybin]++;
