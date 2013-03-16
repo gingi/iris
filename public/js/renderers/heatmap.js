@@ -1,3 +1,6 @@
+/**
+ * @module renderers/heatmap
+ */
 define(['jquery', 'd3', 'underscore', 'util/dragbox'],
 function ($, d3, _, DragBox) {
     var MAX_CELLS = 24000;

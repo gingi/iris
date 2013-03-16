@@ -1,5 +1,5 @@
-define(["iris", "app/widget"], function (Iris, Widget) {
-    var widget = new Object();
+define(["iris"], function (Iris) {
+    var widget = {};
     widget.about = {
         title: "Manhattan Plot",
         name: "manhattan",
@@ -9,22 +9,22 @@ define(["iris", "app/widget"], function (Iris, Widget) {
     var ctx;
     var ctxi;
     var canvasi;
-    var tool = new Object();
+    var tool = {};
     tool.started = false;
     var global_min = 0;
     var globalMax = 0;
-    var chrLengths = new Array();
+    var chrLengths = [];
     var totalLen = 0;
     var sc = 2;
     var radius = 2;
     var circles = true;
     var XGUTTER = 10;
     var colorByDensity = true;
-    var chrRange = new Array();
+    var chrRange = [];
     var scoreA;
     var scoreB;
-    var mincolor = new Array();
-    var maxcolor = new Array();
+    var mincolor = [];
+    var maxcolor = [];
 
     var goDiv1;
     var goDiv2;
@@ -37,8 +37,8 @@ define(["iris", "app/widget"], function (Iris, Widget) {
         var myDiv = $(element);
         myDiv.append('<div id="' + element.id + '_man">');
         var div = $(document.getElementById(element.id + "_man"));
-        var canvasHeight = Math.max(div.height(), 250);
-        var canvasWidth = Math.max(div.parent().width(), 100);
+        var canvasHeight = Math.max(div.height(), $("body").height());
+        var canvasWidth = Math.max(div.parent().width(), $("body").width());
         GOWidth = Math.min(Math.floor(canvasWidth/2), 300);
         div.append('<canvas id="' + element.id + '_canvas", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:0;"></canvas>');
         div.append('<canvas id="' + element.id + '_canvasi", width=' + canvasWidth + ' height=' + canvasHeight + ' style="position:absolute;left:0;top:0;z-index:1;"></canvas>');
@@ -65,13 +65,13 @@ define(["iris", "app/widget"], function (Iris, Widget) {
 
         // fetch the list of chromosomes and their lengths
         totalLen = 0;
-        Iris.getJSON("/species/" + species + "/chromosomes", function (json) {
+        $.getJSON("/species/" + species + "/chromosomes", function (json) {
             for (var chr in json) {
                 chrLengths[chr] = json[chr];
                 totalLen += parseInt(json[chr]);
             }
             // fetch the max score for this study
-            Iris.getJSON("/gwas/" + study + "/maxscore", function (json) {
+            $.getJSON("/gwas/" + study + "/maxscore", function (json) {
                 globalMax = Math.ceil(json[0][0]);
                 drawManhattan(study);
             });
@@ -84,7 +84,7 @@ define(["iris", "app/widget"], function (Iris, Widget) {
         if (limits) {
             url += "?w=" + limits;
         }
-        Iris.getJSON(url, function (json) {
+        $.getJSON(url, function (json) {
             Iris.Renderer.table.render( { target: goDiv2, width: GOWidth, height: GOWidth, data: {data: json, header: ["GOSlim term", "Genes"]}});
             // combine tiny slices of the pie into an "Other" category
             var sum=0;
@@ -92,7 +92,7 @@ define(["iris", "app/widget"], function (Iris, Widget) {
                 sum += json[i][1];
             }
             var cutoff = sum*tooSmall;
-            var pieData = new Array();
+            var pieData = [];
             var other=0;
             for (var i=0; i<json.length; i++) {
                 if (json[i][1] < cutoff) {
@@ -138,7 +138,7 @@ define(["iris", "app/widget"], function (Iris, Widget) {
         var gutters = (chrLengths.length + 1) * XGUTTER;
         var nt2px = (ctxi.canvas.width - gutters) / totalLen;
         var aPos, bPos;
-        var chrNames = new Array();
+        var chrNames = [];
         for (var chr in chrLengths) {
             chrNames.push(chr);
         }
@@ -178,7 +178,7 @@ define(["iris", "app/widget"], function (Iris, Widget) {
 
     function doScatter(ctx, study, chr, offset, xsize, ysize, chrLen) {
         var path = "/gwas/" + study + "/scatter" + "?chr=" + chr + "&b1=" + Math.floor(xsize / sc) + "&b2=" + Math.floor(ysize / sc) + "&x1=" + chrLen + "&x2=" + globalMax;
-        Iris.getJSON(path, function (json) {
+        $.getJSON(path, function (json) {
             if (! json) {
                 return;
             }
@@ -320,5 +320,7 @@ define(["iris", "app/widget"], function (Iris, Widget) {
         return encodeURIComponent(where);
     }
 
-    return widget;
+    return Iris.Widget.extend({
+        display: widget.display
+    });
 });

@@ -307,7 +307,7 @@ Options:
 
 The following components are available:
 
-    node        Various modules required by Node.js
+    modules     Various modules required by Node.js
     snapdragon  Compiles the Snapdragon library"
 function iris_cmd_install {
     local verbose=1
@@ -325,7 +325,7 @@ function iris_cmd_install {
     local component=$1
     if [ -n "$component" ]; then
         if [ "$component" != 'snapdragon' -a \
-             "$component" != 'node' ]; then
+             "$component" != 'modules' ]; then
             echo "Install component '$component' is not recognized!"
             iris_cmd_help install
         fi
@@ -344,7 +344,7 @@ LOG_HEADER
     [ "$verbose" -eq 1 ] && echo "Installing Git modules..."
     git submodule update --recursive --init 2>&1 >> $INSTALL_LOG
 
-    if [ "$component" == "all" -o "$component" == "node" ]; then
+    if [ "$component" == "all" -o "$component" == "modules" ]; then
         [ "$verbose" -eq 1 ] && echo "Installing Node modules..."
         # Install Node.js dependencies
         cd $NODEDIR

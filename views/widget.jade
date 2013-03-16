@@ -2,19 +2,14 @@ link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
 block scripts
-    script(type="text/javascript", data-main="/js/app", src="/js/require.js")
+    script(type="text/javascript", src="/js/require.js")
     script(type="text/javascript")
-        requirejs.onError = function (err) {
-            if (err.requireType == 'scripterror') {
-                require(["jquery"], function ($) {
-                    $("#content").html("Widget #{name} does not exist");
-                })
-            }
-            console.log("RequireJS error", err);
-        }
-        require(["widgets/#{name}"], function (widget) {
-            widget.display(document.getElementById("widget"));
-        });
+        require(["/js/config.js"], function () {
+            require(["widgets/#{name}"], function (Widget) {
+                var widget = new Widget();
+                widget.display(document.getElementById("widget"));
+            });
+        })
 
 block content
     div(id="widget", style="position: relative; min-width:500px")

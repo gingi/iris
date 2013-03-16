@@ -1,0 +1,16 @@
+{
+    "opts": {
+        "destination": "./dist/doc/api",
+        "recurse": true,
+        "lenient": true
+    },
+	"source": {
+        "include": [ "public/js" ],
+        "exclude": [
+            "public/js/jquery.dataTables.js",
+            "public/js/DataTables/extras/ColumnFilterWidgets.js",
+            "public/js/require.js"
+        ],
+        "excludePattern": "lib\/.*"
+    }
+}

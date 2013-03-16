@@ -1,13 +1,18 @@
+<div style="float:right">
+    <img src="public/img/iris-logo-tiny.png" title="Iris logo" />
+</div>
 # Iris
 **Version 0.1.0**
 
 A web library for data visualization and exploration.
 
+[![Build Status](https://travis-ci.org/gingi/iris.png)](https://travis-ci.org/gingi/iris)
+
 ##External Dependencies
 The following tools need to be installed separately (e.g., with [Homebrew](http://mxcl.github.com/homebrew/)) before Iris and its dependencies can be installed:
 
-* node (nodejs.org)
-* git (git-scm.com)
+* [Node.js](nodejs.org)
+* [Git](git-scm.com)
 
 ##Overview
 Iris is equipped with a command-line tool, quaintly named `iris`, to manage the project. It can be used to install dependencies, start Iris and it services, monitor Iris, and shut it down.

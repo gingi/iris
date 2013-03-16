@@ -9,7 +9,7 @@
 	url = git://github.com/mbostock/d3.git
 [submodule "examples"]
 	path = examples
-	url = git://github.com/gingi/iris-examples
+	url = git://github.com/silvn/iris-examples
 [submodule "external/snapdragon"]
 	path = external/snapdragon
 	url = git://github.com/silvn/snapdragon
@@ -34,3 +34,6 @@
 [submodule "external/requirejs-text"]
 	path = external/requirejs-text
 	url = git://github.com/requirejs/text.git
+[submodule "external/jsdoc"]
+	path = external/jsdoc
+	url = git://github.com/jsdoc3/jsdoc.git
