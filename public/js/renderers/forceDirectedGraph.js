@@ -7,14 +7,12 @@ define(["iris", "d3", "underscore"], function (Iris, d3, _) {
         },
         defaults: {
             radius: 5,
-            force: {
-                linkDistance: 20,
-                linkStrength: 1,
-                friction: 0.9,
-                charge: -30,
-                theta: 0.8,
-                gravity: 0.1
-            },
+            linkDistance: 20,
+            linkStrength: 1,
+            friction: 0.9,
+            charge: -30,
+            theta: 0.8,
+            gravity: 0.1,
             edgestyle: {
                 "stroke": "#999",
                 "stroke-opacity": 0.6,
@@ -382,11 +380,13 @@ define(["iris", "d3", "underscore"], function (Iris, d3, _) {
                 ]
             };
         },
-        render: function (settings) {
-            settings = settings ? _.clone(settings) : {};
-            _.defaults(settings, this.defaults);
-            settings.data = settings.data || this.exampleData();
-            var element = $(settings.element);
+        initialize: function (options) {
+            this.options = options ? _.clone(options) : {};
+            _.defaults(this.options, this.defaults);
+        },
+        render: function () {
+            var settings = this.options;
+            var element = $(this.options.element);
             element.empty();
             var width = (element.width() || 800);
             var height = (element.height() || 500);
@@ -397,19 +397,18 @@ define(["iris", "d3", "underscore"], function (Iris, d3, _) {
                 .attr("width",width)
                 .attr("height",height);
 
-            var graph = settings.data;
+            var graph = this.getData();
 
             force
                 .nodes(graph.nodes)
                 .links(graph.edges)
-                .linkDistance(settings.force.linkDistance)
-                .linkStrength(settings.force.linkStrength)
-                .friction(settings.force.friction)
-                .charge(settings.force.charge)
-                .theta(settings.force.theta)
-                .gravity(settings.force.gravity)
+                .linkDistance(this.options.linkDistance)
+                .linkStrength(this.options.linkStrength)
+                .friction(this.options.friction)
+                .charge(this.options.charge)
+                .theta(this.options.theta)
+                .gravity(this.options.gravity)
                 .start();
-
 
             var link = svg.selectAll("line.link")
                 .data(graph.edges)
