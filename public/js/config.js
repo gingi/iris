@@ -14,6 +14,7 @@ requirejs.config({
             exports: "Backbone",
             deps: [ "backbone" ]
         },
+        "jquery-ui": { deps: [ "jquery" ] },
         datatables: {
             deps: [ "jquery" ],
             exports: "jQuery.fn.dataTableExt"
