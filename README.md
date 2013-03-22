@@ -1,5 +1,5 @@
 <div style="float:right">
-    <img src="public/img/iris-logo-tiny.png" title="Iris logo" />
+    <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
 **Version 0.1.0**
