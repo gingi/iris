@@ -71,7 +71,7 @@ The client-side library can be used on the browser as in the following example:
     <body>
     </body>
 
-Please refer to the [API documentation](https://bitbucket.org/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
+Please refer to the [API documentation](https://github.com/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
 
 ##Changelog
 ####v0.1.0

@@ -455,7 +455,8 @@ require([
                             tbl.asDataSearch.length == tbl.aoData.length) {
                             return;
                         }
-                        var filtered = _.uniq(_.map(tbl.asDataSearch, function (t) {
+                        var filtered = _.uniq(_.map(tbl.asDataSearch,
+                        function (t) {
                             return t.split(/\s+/)[0];
                         }));
                         if (filtered.length > 0) {

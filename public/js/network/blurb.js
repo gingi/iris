@@ -69,7 +69,7 @@ define(["jquery"], function ($) {
                     " or comments.")))
             .append(section(3, "Related Links")
                 .append(link("/", "<strong>KBase Datavis Library<strong>"))
-                .append(link("https://bitbucket.org/gingi/kbase-datavis", "<strong>Project @ Bitbucket<strong>"))
+                .append(link("https://github.com/gingi/kbase-datavis", "<strong>Project @ GitHub<strong>"))
                 .append(link("http://www.kbase.us", "KBase Homepage"))
                 .append(link("http://www.kbase.us/labs", "KBase Labs"))
                 .append(link("http://www.kbase.us/developer-zone", "KBase Developer Zone"))
