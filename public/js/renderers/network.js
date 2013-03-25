@@ -398,7 +398,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     return isDocked(d) ? 3 : null
                 })
                 
-                .on("click",    function (d) {
+                .on("click", function (d) {
                     var el = this;
                     d3.event.stopPropagation();
                     clickbuffer = true;
