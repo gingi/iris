@@ -23,19 +23,19 @@
             "name": "proxy", 
             "nodefile": "proxy.js",
             "port": 4747
-        }, 
+        },
         {
             "config": "examples-config.js", 
             "name": "examples", 
             "nodefile": "examples.js", 
             "port": 4748
-        }, 
+        },
         {
             "config": "examples-config.js", 
             "name": "examples-fastbit", 
             "nodefile": "fastbit.js", 
             "port": 4749
-        }, 
+        },
         {
             "config": "examples-config.js", 
             "name": "examples-mongo", 
