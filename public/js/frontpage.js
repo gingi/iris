@@ -48,18 +48,9 @@ function ($, _, Backbone, Viewport) {
                 show(Renderer, function (renderer) {
                     var exampleData = renderer.exampleData();
                     if (exampleData) {
-                        if (typeof exampleData.done === 'function') {
-                            exampleData.done(function (data) {
-                                renderer.setData(data);
-                                renderer.render();
-                            });
-                        } else {
-                            renderer.setData(exampleData);
-                            renderer.render();
-                        }
-                    } else {
-                        renderer.render();
+                        renderer.setData(exampleData);
                     }
+                    renderer.render();
                 });
             });
         },
