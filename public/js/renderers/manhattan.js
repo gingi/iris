@@ -59,6 +59,7 @@ function ($, Iris, DragBox, Scale, _) {
             this.options = options;
         },
         setData: function (data) {
+            if (data === null || _.isEmpty(data)) return;
             this.contigs = {};
             for (var i = 0; i < data.contigs.length; i++) {
                 var ctg = data.contigs[i];
@@ -105,30 +106,14 @@ function ($, Iris, DragBox, Scale, _) {
             self.plotArea.width(self.canvasWidth).height(self.canvasHeight);
             self.ctx = createCanvas(self.plotArea, { z: 5 });
             self.$element.append(self.plotArea);
-            self.setRanges();
-            self.drawAxes();
-
-            var dragbox = new DragBox(self.plotArea, { z: 10 });
-            dragbox.textHandler(function (x, y, w, h) {
-                var pvals = [
-                    self.yAxis.toDomain(y).toFixed(2),
-                    self.yAxis.toDomain(y + h).toFixed(2)
-                ].sort();
-                return "-log p [" + pvals[0] + " " + pvals[1] + "]";
-            });
-            dragbox.pinpointHandler(function (x, y) {
-                self.trigger("pinpoint", [
-                    self.canvasToScore(y), self.canvasToCtg(x, x)
-                ]);
-            });
-            dragbox.selectionHandler(function (x1, y1, x2, y2) {
-                self.trigger("selection", [
-                    self.canvasToScore(y1),
-                    self.canvasToScore(y2),
-                    self.canvasToCtg(x1, x2)
-                ]);
-            });
-            self.drawManhattan();
+            if (self.waitingForData) {
+                self.waitingForData.done(function (data) {
+                    self.setData(data);
+                    self.drawManhattan();
+                });
+            } else {
+                self.drawManhattan();
+            }
         },
         highlight: function (loci) {
             var self = this;
@@ -247,6 +232,30 @@ function ($, Iris, DragBox, Scale, _) {
         },
         drawManhattan: function () {
             var self = this;
+            self.setRanges();
+            self.drawAxes();
+
+            var dragbox = new DragBox(self.plotArea, { z: 10 });
+            dragbox.textHandler(function (x, y, w, h) {
+                var pvals = [
+                    self.yAxis.toDomain(y).toFixed(2),
+                    self.yAxis.toDomain(y + h).toFixed(2)
+                ].sort();
+                return "-log p [" + pvals[0] + " " + pvals[1] + "]";
+            });
+            dragbox.pinpointHandler(function (x, y) {
+                self.trigger("pinpoint", [
+                    self.canvasToScore(y), self.canvasToCtg(x, x)
+                ]);
+            });
+            dragbox.selectionHandler(function (x1, y1, x2, y2) {
+                self.trigger("selection", [
+                    self.canvasToScore(y1),
+                    self.canvasToScore(y2),
+                    self.canvasToCtg(x1, x2)
+                ]);
+            });
+            
             var offset = XGUTTER;
             var ctg;
             // Per-contig scales and offsets
@@ -364,11 +373,12 @@ function ($, Iris, DragBox, Scale, _) {
         }
     });
     Manhattan.prototype.exampleData = function () {
-        var result = $.Deferred();
+        var self = this;
+        self.waitingForData = $.Deferred();
         require(["text!examples/3396.json"], function (json) {
-            result.resolve(JSON.parse(json));
+            self.waitingForData.resolve(JSON.parse(json));
         });
-        return result;
+        return {}; // Dummy object
     }
     return Manhattan;
 });
