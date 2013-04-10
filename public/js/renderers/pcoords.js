@@ -38,7 +38,7 @@ define(["iris", "jquery", "underscore"], function (Iris, $, _) {
             div.height(canvasHeight);
             div.width(canvasWidth);
             function createCanvas(args) {
-                var canvasId = 'pcoord_canvas_' + args.suffix + '_' + pcoordId;
+                var canvasId = ['pcrd_cnvs', args.suffix, pcoordId].join("_");
                 var style = [
                     "position:absolute",
                     "left:0",
@@ -47,10 +47,10 @@ define(["iris", "jquery", "underscore"], function (Iris, $, _) {
                     "width:" + canvasWidth + 'px',
                     "height:" + canvasHeight + 'px'
                 ].join(';');
-                    div.append('<canvas id="' + canvasId + '"' +
-                        ' width="' + canvasWidth + '"' +
-                        ' height="' + canvasHeight + '"' +
-                        ' style="' + style + '"></canvas>');
+                div.append('<canvas id="' + canvasId + '"' +
+                    ' width="' + canvasWidth + '"' +
+                    ' height="' + canvasHeight + '"' +
+                    ' style="' + style + '"></canvas>');
                 return document.getElementById(canvasId);
             }
             var canvas  = createCanvas({ z: 0, suffix: '' });

@@ -13,6 +13,7 @@ The following tools need to be installed separately (e.g., with [Homebrew](http:
 
 * [Node.js](nodejs.org)
 * [Git](git-scm.com)
+* [Cairo](http://cairographics.org) (*for testing only*)
 
 ##Overview
 Iris is equipped with a command-line tool, quaintly named `iris`, to manage the project. It can be used to install dependencies, start Iris and it services, monitor Iris, and shut it down.
