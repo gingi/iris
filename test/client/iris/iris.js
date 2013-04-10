@@ -63,4 +63,11 @@ describe('Iris.Renderer', function () {
             done();
         })
     });
+    it("should use body element by default", function (done) {
+        requirejs(['iris'], function (Iris) {
+            var renderer = new Iris.Renderer();
+            renderer.options.element.should.equal("body");
+            done();
+        });
+    });
 });

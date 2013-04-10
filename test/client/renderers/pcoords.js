@@ -31,4 +31,12 @@ describe('Pcoords', function () {
             done();
         });
     });
+    it("should render data correctly", function (done) {
+        requirejs(['renderers/pcoords'], function (Pcoords) {
+            var renderer = new Pcoords();
+            renderer.setData({});
+            (function () { renderer.render() }).should.not.throw;
+            done();
+        });
+    })
 });

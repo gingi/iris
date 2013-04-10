@@ -27,8 +27,11 @@
       , "underscore"       : ">=1.4.4"
       , "web-cache"        : ">=0.0.2"
       , "xmlhttprequest"   : ">=1.5.0"
-    },
-    "scripts": {
+    }
+  , "devDependencies" : {
+      "canvas" : ">=1.0.2"
+    }
+  , "scripts": {
         "start": "iris start"
     } 
 }

@@ -12,7 +12,7 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
             }
         },
         defaults: {
-            // defaults extend args passed to other functions
+            element: "body"
         },
         setDefaults: function () {
              // defaults defined at run time
