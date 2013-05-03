@@ -14,12 +14,6 @@
  * });
  * var renderer = new MyRenderer({ element: "#datavis" }); 
  */
-
-/**
- * @global
- * @name Renderer
- * @memberof Iris
- */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
     /**
      * @constructor
