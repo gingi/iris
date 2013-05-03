@@ -1,54 +1,115 @@
 /**
- * Iris.Renderer. A base class that handles the display of specific data.
+ * A base class that handles the display of specific data.
  *
  * @module iris/renderer
+ *
+ * @example
+ * // Create instance
+ * var renderer = new Iris.Renderer({ foo: "bar" });
+ *
+ * @example
+ * // Extend Iris.Renderer
+ * var MyRenderer = Iris.Renderer.extend({
+ *     render: function () {}
+ * });
+ * var renderer = new MyRenderer({ element: "#datavis" }); 
+ */
+
+/**
+ * @global
+ * @name Renderer
+ * @memberof Iris
  */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
-    return Root.extend({
+    /**
+     * @constructor
+     * @alias module:iris/renderer
+     */
+    var renderer = {
         schema: { // uses revalidator.js to check args
             properties: {
                 data:    { required: true, type: 'any' },
                 element: { required: true, type: 'any' }
             }
         },
+        /** Renderer defaults */
         defaults: {
             element: "body"
         },
-        setDefaults: function () {
-             // defaults defined at run time
-        },
+
+        /**
+         * Returns example data, used to demo renderer.
+         * @instance
+         * @virtual
+         * @deprecated
+         */
         exampleData: function () {
-            console.log(this.about.name + ": exampleData() function not implemented");
+            console.log(this.about.name +
+                ": exampleData() function not implemented");
         },
+
         setup: function (args) {
             // renderer specific initialization code such as loading css
         },
+
+        /**
+         * Renders a data visualization.
+         * @instance
+         * @abtract
+         * @param {hash} args - Runtime rendering arguments.
+         */
         render: function (args) {
-            console.log(this.about.name + ": render() function not implemented");
+            console.log(this.about.name +
+                ": render() function not implemented");
         },
+
+        /**
+         * Updates the visualization. Used for handling changes to underlying
+         * data.
+         * @instance
+         * @virtual
+         * @param {hash} args - runtime update arguments.
+         */
         update: function (args) {
-            console.log(this.about.name + ": update() function not implemented");
+            console.log(this.about.name +
+                ": update() function not implemented");
         },
+
         setData: function (data) {
             this.data = data;
         },
+
+        /**
+         * Get the data used for rendering.
+         * @instance
+         * @return {object} data - The data
+         */
         getData: function () {
             return this.data;
         },
-        /*
-         *
+
+        /**
+         * Set renderer options.
+         * @instance
+         * @param {hash} args - key-value pair of options.
          */
         set: function (args) {
             
         },
-        // always call renderer.prepare() before calling renderer.render()
-        // min usage: renderer.render(renderer.prepare(args));
+
+        /**
+         * Prepare for rendering.
+         * @instance
+         * @deprecated
+         * @example
+         * // min usage
+         * renderer.render(renderer.prepare(args));
+         */
         prepare: function (args) {
             var renderer = this;
             args = (args || {});
             // extend args with default values
             _.defaults(args, renderer.defaults);
-            _.defaults(args, renderer.setDefaults());
             // use example data if not defined
             if (args.data === null) {
                 args.data = renderer.exampleData();
@@ -66,5 +127,7 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
             renderer.setup(args);
             return args;
         }
-    });
+    };
+
+    return Root.extend(renderer);
 });
