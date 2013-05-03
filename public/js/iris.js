@@ -1,6 +1,6 @@
 /**
- * The main Iris object.
- * @namespace iris
+ * The Iris object.
+ * @namespace Iris
  */
 define(function (require) {
     var Iris      = {};

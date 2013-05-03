@@ -28,10 +28,11 @@ init-npm:
 init-submodules:
 	@ $(GIT) submodule update --init
 
-init: init-npm init-submodule
+init: init-npm init-submodules
 
 docs:
 	@ $(JSDOC) --configure $(JSDOCCONF) --destination $(JSDOCDEST)
+	@ echo "Documentation written to $(JSDOCDEST)"
 
 dist: init docs
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
