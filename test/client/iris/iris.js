@@ -70,4 +70,11 @@ describe('Iris.Renderer', function () {
             done();
         });
     });
+    it("should allow target element to be overridden", function (done) {
+        requirejs(['iris'], function (Iris) {
+            var renderer = new Iris.Renderer({ element: "#element-id" });
+            renderer.options.element.should.equal("#element-id");
+            done();
+        })
+    });
 });
