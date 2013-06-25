@@ -28,6 +28,9 @@ function ($, d3, _, DragBox) {
         
         function maxStrLen(strarr) {
             return _.reduce(strarr, function (m, str) {
+                // FIXME: compute outside of this function?
+                if (typeof str !== "string")
+                    return Math.log(str) / Math.log(10);
                 return Math.max(m, str.length)
             }, 0);
         }
@@ -58,6 +61,7 @@ function ($, d3, _, DragBox) {
             M.x = Math.max(M.x, 6 * maxStrLen(rows));
             M.y = Math.max(M.y, 6 * maxStrLen(columns));
             maxScore = data.maxScore || 1;
+            console.log("Score", maxScore);
         };
         self.getData = function () {
             return {
@@ -66,7 +70,6 @@ function ($, d3, _, DragBox) {
                 matrix: matrix
             };
         }
-        
         function adjustedDim(arr) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
         }

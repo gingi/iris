@@ -6,5 +6,12 @@
  */
 define(["iris/root"], function (Root) {
     return Root.extend({
+        /** Widget defaults */
+        defaults: {
+            element: "body"
+        },
+        initialize: function (options) {
+            this.element = options.element;
+        }
     });
 });
