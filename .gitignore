@@ -1,5 +1,12 @@
 node_modules/
 .tm_properties
-dist/datavis.js
+dist/*
+conf/services.json
 logs
 build
+
+# Fastbit artifacts
+bin/
+include/
+lib/
+share/
