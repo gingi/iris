@@ -24,6 +24,19 @@ describe('Iris.Widget', function () {
             done();
         });
     });
+    it("should allow instantiation with element", function (done) {
+        requirejs(['iris'], function (Iris) {
+            var Widget = Iris.Widget.extend({
+                foo: function () {
+                    this.element.should.equal("myeye");
+                    [this.otherProp].should.be.undefined;
+                    done();
+                }
+            });
+            var widget = new Widget({ element: "myeye", otherProp: "hi" });
+            widget.foo();
+        });
+    })
 });
 
 describe('Iris.Renderer', function () {

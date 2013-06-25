@@ -11,7 +11,7 @@ JSDOCCONF = ./conf/jsdoc.json
 JSDOCDEST = ./dist/doc/api
 TESTDIR ?= test
 BUILD   ?= ./dist/app.build.js
-DISTLIB ?= ./dist/datavis.js
+DISTLIB ?= ./dist/iris.js
 MINIFY  ?= 1
 
 BUILDDIR = ./build
@@ -41,7 +41,7 @@ build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
-test: init-npm
+test:
 	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
 clean:
