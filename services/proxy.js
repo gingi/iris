@@ -19,10 +19,10 @@ function directoryContents(response, dir) {
 }
 
 function isJS(s) {
-	if (s.match(/\.js$/)) {
-		return true;
-	}
-	return false;
+    if (s.match(/\.js$/)) {
+        return true;
+    }
+    return false;
 }
 
 // Routes
@@ -121,7 +121,7 @@ app.get('/renderer/:renderer', function (req, res, next) {
 
 app.get('/workspace', function (req, res) {
     var widgets = [];
-	routes.workspace(req, res, widgets);
+    routes.workspace(req, res, widgets);
 });
 
 app.get('/simple', function (req, res) {

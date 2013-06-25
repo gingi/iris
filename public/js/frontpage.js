@@ -7,8 +7,9 @@ function ($, _, Backbone, Viewport) {
         .append(li(a("#renderer/manhattan", "Manhattan")))
         .append(li(a("#renderer/pcoords", "Pcoords")))
         .append(li(a("#widget/RegulatoryNetwork", "Regulatory Network")))
-        .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")));
-    
+        .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
+        .append(li(a("#widget/hypomethylation", "Conservation vs. Hypomethylation")));
+
     function pair(k, v) {
         var str =
             $("<span>").html("<strong>" + k + "</strong> ")
@@ -28,6 +29,7 @@ function ($, _, Backbone, Viewport) {
             parent: $("#content")
         });
         var component = new Component({ element: viewport });
+        
         $("#content").prepend(header(component.about));
         fn(component);
     }
@@ -39,7 +41,7 @@ function ($, _, Backbone, Viewport) {
             "*action"        : "default"
         },
         widget: function (name) {
-            require(["widgets/" + name], function (Widget) {
+            require(["/js/widgets/" + name + ".js"], function (Widget) {
                 show(Widget, function (widget) { widget.display(); });
             });
         },
