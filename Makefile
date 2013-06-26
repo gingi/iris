@@ -6,12 +6,14 @@ RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
+DISTDIR   = ./dist
 MOCHAOPTS =
 JSDOCCONF = ./conf/jsdoc.json
-JSDOCDEST = ./dist/doc/api
+JSDOCDEST = $(DISTDIR)/doc/api
 TESTDIR ?= test
-BUILD   ?= ./dist/app.build.js
-DISTLIB ?= ./dist/iris.js
+BUILD   ?= $(DISTDIR)/app.build.js
+DISTLIB ?= $(DISTDIR)/iris.js
+DISTCSS ?= $(DISTDIR)/iris.css
 MINIFY  ?= 1
 
 BUILDDIR = ./build
@@ -36,6 +38,7 @@ docs:
 
 dist: init docs
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
+	@ $(RJS) -o out=$(DISTCSS) cssIn=public/css/iris.css $(RJSOPTS)
 	
 build: init
 	@ $(RJS) -o $(BUILD) \

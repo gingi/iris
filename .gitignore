@@ -1,6 +1,7 @@
 node_modules/
 .tm_properties
-dist/*
+dist/iris.*
+dist/doc/api
 conf/services.json
 logs
 build
