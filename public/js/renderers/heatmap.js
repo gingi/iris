@@ -31,16 +31,17 @@ function ($, d3, _, DragBox) {
                 // FIXME: compute outside of this function?
                 if (typeof str !== "string")
                     return Math.log(str) / Math.log(10);
-                return Math.max(m, str.length)
+                return Math.max(m, str.length);
             }, 0);
         }
         
         self.setData = function (data) {
-            if (data == null) return;
+            if (data === null) return;
+            // TODO: Extract into Root or Renderer?
             function requiredProperty(prop) {
                 if (!data.hasOwnProperty(prop)) {
-                    throw new Error("setData(): Required property '"
-                        + prop + "' not found");
+                    throw new Error("setData(): Required property '" +
+                        prop + "' not found");
                 }
             }
             requiredProperty('matrix');
@@ -52,7 +53,7 @@ function ($, d3, _, DragBox) {
                 columns = data.columns;
             }
             matrix = data.matrix;
-            if (matrix == null) {
+            if (matrix === null) {
                 throw new Error("Empty matrix");
             }
             if (matrix.length > MAX_CELLS) {
@@ -61,7 +62,6 @@ function ($, d3, _, DragBox) {
             M.x = Math.max(M.x, 6 * maxStrLen(rows));
             M.y = Math.max(M.y, 6 * maxStrLen(columns));
             maxScore = data.maxScore || 1;
-            console.log("Score", maxScore);
         };
         self.getData = function () {
             return {
@@ -69,11 +69,12 @@ function ($, d3, _, DragBox) {
                 columns: columns,
                 matrix: matrix
             };
-        }
+        };
         function adjustedDim(arr) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
         }
         self.render = function () {
+            var i;
             width = element.width();
             height = element.height();
             minDim = Math.min(width, height);
@@ -126,7 +127,7 @@ function ($, d3, _, DragBox) {
                         return [
                             "rotate(-90)translate(", bbox.width/2 + 6,
                             ",", bbox.height,")"
-                        ].join("")
+                        ].join("");
                     });
             
 
@@ -136,9 +137,9 @@ function ($, d3, _, DragBox) {
                 new DragBox($("#" + element.attr('id') + "-plotarea"));
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
-            })
+            });
 
-            for (var i = 0; i < matrix.length; i++) {
+            for (i = 0; i < matrix.length; i++) {
                 var cell = matrix[i];
                 var row = cell[0];
                 var col = cell[1];
@@ -151,14 +152,14 @@ function ($, d3, _, DragBox) {
             }
             var schemeIndex = 0;
             var schemes = 'RdYlBu Spectral BrBG YlGnBu'.split(" ");
-            for (var i in schemes) {
+            for (i in schemes) {
                 if (schemes[i] == options.colorscheme) {
                     schemes.splice(i, 1);
                     break;
                 }
             }
             schemes.unshift(options.colorscheme);
-        }
+        };
         return self;
     }
     return Heatmap;
