@@ -2,7 +2,7 @@ link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
 
 block scripts
-    style
+    style.
         ul.workspace { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px }
 
     script(type="text/javascript", src="/js/jquery-ui.js")
@@ -10,7 +10,7 @@ block scripts
     script(type="text/javascript", src="/js/iris.js")
     - each widget in list
         script(type="text/javascript", src="#{widget.js}")
-    script
+    script.
         var widgetCounter = 1;
         var widgets = {};
         function addWidgetDiv() {
