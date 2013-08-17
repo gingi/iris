@@ -39,7 +39,7 @@ docs:
 dist: init docs
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=public/css/iris.css $(RJSOPTS)
-	
+
 build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
@@ -49,8 +49,8 @@ test:
 
 clean:
 	rm -rf $(DISTLIB) $(BUILDDIR) $(JSDOCDEST)
-	
+
 dist-clean: clean
 	rm -rf node_modules/
-	
+
 .PHONY: test all dist

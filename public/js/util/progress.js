@@ -1,3 +1,8 @@
+/**
+ * Show progress for an interface element
+ *
+ * @module util/progress
+ */
 define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
     var _BAR = "bar", _SPIN = "spin";
     var defaults = {
