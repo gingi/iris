@@ -1,11 +1,11 @@
-/**
- * Show progress for an interface element
- *
- * @module util/progress
- */
 define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
     /**
-     * @alias module:util/progress
+     * Show progress for an interface element.
+     *
+     * @module util
+     * @class Progress
+     * @constructor
+     * @param {hash} options Progress options
      */
     function Progress(options) {
         progressCounter++;
@@ -17,7 +17,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         var _id = "progress-container-" + progressCounter;
         var indicator;
         /** Show the progress indicator
-         *  @function
+         *  @method show
          *  @param {string} message The message to display
          */
         this.show = function (message) {
@@ -43,7 +43,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         };
         /**
          * Set the current progress
-         * @function
+         * @method progress
          * @param {number} percent The ratio of completion
          */
         this.progress = function (percent) {
@@ -56,7 +56,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         };
         /**
          * Hide the progress indicator
-         * @function
+         * @method dismiss
          */
         this.dismiss = function () {
             if (indicator) indicator.hide();

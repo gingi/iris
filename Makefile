@@ -1,15 +1,15 @@
 PACKAGE  = iris
 NODEBIN  = ./node_modules/.bin
 MOCHA    = $(NODEBIN)/mocha
-JSDOC    = ./external/jsdoc/jsdoc
+YDOC     = $(NODEBIN)/yuidoc
 RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
 DISTDIR   = ./dist
 MOCHAOPTS =
-JSDOCCONF = ./conf/jsdoc.json
-JSDOCDEST = $(DISTDIR)/doc/api
+YDOCCONF = ./conf/yuidoc.json
+DOCDEST = $(DISTDIR)/doc/api
 TESTDIR ?= test
 BUILD   ?= $(DISTDIR)/app.build.js
 DISTLIB ?= $(DISTDIR)/iris.js
@@ -33,8 +33,8 @@ init-submodules:
 init: init-npm init-submodules
 
 docs:
-	@ $(JSDOC) --configure $(JSDOCCONF) --destination $(JSDOCDEST)
-	@ echo "Documentation written to $(JSDOCDEST)"
+	@ $(YDOC) --config $(YDOCCONF) --outdir $(DOCDEST)
+	@ echo "Documentation written to $(DOCDEST)"
 
 dist: init docs
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
@@ -48,7 +48,7 @@ test:
 	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
 clean:
-	rm -rf $(DISTLIB) $(BUILDDIR) $(JSDOCDEST)
+	rm -rf $(DISTLIB) $(BUILDDIR) $(DOCDEST)
 
 dist-clean: clean
 	rm -rf node_modules/

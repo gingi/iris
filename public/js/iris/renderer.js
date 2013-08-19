@@ -1,18 +1,19 @@
 /**
  * A base class that handles the display of specific data.
  *
- * @module iris/renderer
+ * @module iris
+ * @submodule renderer
  *
  * @example
- * // Create instance
- * var renderer = new Iris.Renderer({ foo: "bar" });
+ *     // Create instance
+ *     var renderer = new Iris.Renderer({ foo: "bar" });
  *
  * @example
- * // Extend Iris.Renderer
- * var MyRenderer = Iris.Renderer.extend({
- *     render: function () {}
- * });
- * var renderer = new MyRenderer({ element: "#datavis" }); 
+ *     // Extend Iris.Renderer
+ *     var MyRenderer = Iris.Renderer.extend({
+ *         render: function () {}
+ *     });
+ *     var renderer = new MyRenderer({ element: "#datavis" }); 
  */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
     /**
