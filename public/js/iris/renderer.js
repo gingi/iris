@@ -1,7 +1,6 @@
 /**
  * A base class that handles the display of specific data.
  *
- * @module iris
  * @class Renderer
  *
  * @example
@@ -14,11 +13,10 @@
  *         render: function () {}
  *     });
  *     var renderer = new MyRenderer({ element: "#datavis" }); 
- * @constructor
+ *
+ * @module iris
  */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
-    /**
-     */
     var renderer = {
         schema: { // uses revalidator.js to check args
             properties: {
@@ -120,5 +118,9 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         }
     };
 
+    /**
+     * @class Renderer
+     * @constructor
+     */
     return Root.extend(renderer);
 });
