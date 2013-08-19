@@ -1,11 +1,74 @@
 define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
+    var _BAR = "bar", _SPIN = "spin";
+    var progressCounter = 0;
+    function create(options, id) {
+        if (options.type == Progress.SPIN) {
+            var spinner = new Spinner(options.spinner);
+            return {
+                show: function (container) { spinner.spin(container[0]) },
+                hide: function () {
+                    spinner.stop();
+                    if (options.fade) $("#" + id).remove();
+                }
+            };
+        } else {
+            var div = $("<div>")
+                .addClass("progress progress-striped active")
+                .css("display", "none")
+                .append($("<div>").addClass("bar")
+                    .css("width", options.width));
+            return {
+                show: function (container, message) {
+                    container.append(div);
+                    if (message) {
+                        div.find("#progress-message").remove();
+                        div.append($("<span>")
+                            .attr("id", "progress-message")
+                            .text(message)
+                        );
+                    }
+                    div.fadeIn();
+                },
+                hide: function () {
+                    div.fadeOut(function () {
+                        if (options.fade) $("#" + id).remove();
+                    });
+                },
+                width: function (percent) {
+                    div.find(".bar").css("width", percent);
+                }
+            };
+        }
+    }
+    
+    var defaults = {
+        fade: true,
+        spinner: {},
+        progress: {},
+        type: _SPIN,
+        initialWidth: "100%"
+    };
+    var spinnerDefaults = {
+        length: 5,
+        width: 2,
+        radius: 5,
+        corners: 1,
+        rotate: 69,
+        color: '#666',
+        speed: 1.3,
+        trail: 42
+    };
+
     /**
      * Show progress for an interface element.
      *
      * @module util
      * @class Progress
      * @constructor
-     * @param {hash} options Progress options
+     *
+     * @param {Object} [options] Progress options
+     *    @param {Boolean} [options.fade] Use fading effects
+     *    @default true
      */
     function Progress(options) {
         progressCounter++;
@@ -62,64 +125,6 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
             if (indicator) indicator.hide();
         };
         return this;
-    }
-    var _BAR = "bar", _SPIN = "spin";
-    var defaults = {
-        fade: true,
-        spinner: {},
-        progress: {},
-        type: _SPIN,
-        initialWidth: "100%"
-    };
-    var spinnerDefaults = {
-        length: 5,
-        width: 2,
-        radius: 5,
-        corners: 1,
-        rotate: 69,
-        color: '#666',
-        speed: 1.3,
-        trail: 42
-    };
-    var progressCounter = 0;
-    function create(options, id) {
-        if (options.type == Progress.SPIN) {
-            var spinner = new Spinner(options.spinner);
-            return {
-                show: function (container) { spinner.spin(container[0]) },
-                hide: function () {
-                    spinner.stop();
-                    if (options.fade) $("#" + id).remove();
-                }
-            };
-        } else {
-            var div = $("<div>")
-                .addClass("progress progress-striped active")
-                .css("display", "none")
-                .append($("<div>").addClass("bar")
-                    .css("width", options.width));
-            return {
-                show: function (container, message) {
-                    container.append(div);
-                    if (message) {
-                        div.find("#progress-message").remove();
-                        div.append($("<span>")
-                            .attr("id", "progress-message")
-                            .text(message)
-                        );
-                    }
-                    div.fadeIn();
-                },
-                hide: function () {
-                    div.fadeOut(function () {
-                        if (options.fade) $("#" + id).remove();
-                    });
-                },
-                width: function (percent) {
-                    div.find(".bar").css("width", percent);
-                }
-            };
-        }
     }
     Progress.BAR  = _BAR;
     Progress.SPIN = _SPIN;

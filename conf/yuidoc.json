@@ -5,6 +5,7 @@
     "logo": "../../../public/img/iris-logo-tiny.png",
     "options": {
         "paths": "public/js",
-        "exclude": "lib,require.js"
+        "exclude": "lib,require.js",
+        "theme": "simple"
     }
 }
