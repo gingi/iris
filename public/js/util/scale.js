@@ -1,10 +1,9 @@
 define(function () {
     /**
      * Map between two numerical coordinate systems.
-     *
-     * @module util
      * @class Scale
      * @constructor
+     * @module util
      */
     function Scale() {
         var self = this;

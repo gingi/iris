@@ -6,6 +6,6 @@
     "options": {
         "paths": "public/js",
         "exclude": "lib,require.js",
-        "theme": "simple"
+        "theme": "default"
     }
 }

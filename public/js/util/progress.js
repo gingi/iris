@@ -62,13 +62,14 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
     /**
      * Show progress for an interface element.
      *
-     * @module util
      * @class Progress
      * @constructor
      *
      * @param {Object} [options] Progress options
      *    @param {Boolean} [options.fade] Use fading effects
-     *    @default true
+     *       @default true
+     *
+     * @module util
      */
     function Progress(options) {
         progressCounter++;
