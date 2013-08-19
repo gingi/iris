@@ -1,6 +1,6 @@
 [submodule "external/bootstrap"]
 	path = external/bootstrap
-	url = git://github.com/twitter/bootstrap.git
+	url = git://github.com/twbs/bootstrap
 [submodule "external/jquery"]
 	path = external/jquery
 	url = git://github.com/jquery/jquery.git
@@ -13,9 +13,6 @@
 [submodule "external/snapdragon"]
 	path = external/snapdragon
 	url = git://github.com/silvn/snapdragon
-[submodule "external/CodeMirror"]
-	path = external/CodeMirror
-	url = git://github.com/marijnh/CodeMirror.git
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
 	url = git://github.com/jeromegn/Backbone.localStorage.git
