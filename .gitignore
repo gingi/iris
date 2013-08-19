@@ -7,7 +7,7 @@ logs
 build
 
 # Fastbit artifacts
-bin/
-include/
-lib/
-share/
+/bin
+/include
+/lib
+/share
