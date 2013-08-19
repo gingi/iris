@@ -1,1 +1,1 @@
-../../../external/jquery/dist/jquery.min.js
+../../../node_modules/jquery/tmp/jquery.js
