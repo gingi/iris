@@ -1,0 +1,10 @@
+{
+    "name": "Iris",
+    "description": "A web library for data visualization and exploration",
+    "version": "0.1.1",
+    "logo": "../../../public/img/iris-logo-tiny.png",
+    "options": {
+        "paths": "public/js",
+        "exclude": "lib,require.js"
+    }
+}
