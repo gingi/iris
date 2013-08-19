@@ -1,12 +1,10 @@
-/**
- * Root class for all Iris classes.
- *
- * @module iris/root
- */
 define(["backbone", "underscore"], function (Backbone, _) {
     /**
+     * Root class for all Iris classes.
+     *
+     * @module iris
+     * @class Root
      * @constructor
-     * @alias module:iris/root
      */
     var Root = function (options) {
         this.options = options ? _.clone(options) : {};
@@ -21,12 +19,13 @@ define(["backbone", "underscore"], function (Backbone, _) {
         initialize: function () {},
         about: {}
     });
+
     /**
      * Extends the class.
-     * @function
-     * @param {hash} object - A hash of functions and object that extend
-     *        the class
-     * @return {hash} A new subclass of this class.
+     * @method extend
+     * @param {Object} object
+     *        A hash of functions and object that extend the class
+     * @return {Object} A new subclass of this class.
      */
     Root.extend = Backbone.View.extend;
     return Root;
