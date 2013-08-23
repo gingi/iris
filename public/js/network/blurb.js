@@ -62,9 +62,13 @@ define(["jquery"], function ($) {
                 )
         blurb.append(div);
         blurb.append($("<div>").addClass("row")
-            .append(section(6, "Developers")
-                .append(developerTable())
-                .append($("<small>").text("This project relies on user input and " +
+            .append(section(6, "Credits")
+                .append($("<p>").html(
+                    "The Network Workbench was developed by the KBase Team. " +
+                    "For questions and comments email " +
+                    "<a href=\"help@kbase.us\">help@kbase.us</a>."
+                ))
+                .append($("<p>").text("This project relies on user input and " +
                     "testing, so please contact us with any suggestions "+
                     " or comments.")))
             .append(section(3, "Related Links")
