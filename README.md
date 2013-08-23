@@ -1,5 +1,5 @@
 # KBase Data Visualization Library
-**Version 0.1.0**
+**Version 0.1.1**
 
 The library provides web-based client-side JavaScript visualizations for [the KBase project](http://kbase.us). It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
 
@@ -71,9 +71,13 @@ The client-side library can be used on the browser as in the following example:
     <body>
     </body>
 
-Please refer to the [API documentation](https://github.com/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
+Please refer to the [API documentation](https://bitbucket.org/gingi/kbase-datavis/src/master/dist/doc/index.html) for more information on available renderers and options.
 
 ##Changelog
+####v0.1.1
+
+* Minor fixes and improvements
+
 ####v0.1.0
 
 * Server-side and client-side error handling.

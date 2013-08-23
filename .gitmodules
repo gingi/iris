@@ -3,7 +3,7 @@
 	url = git://github.com/mbostock/d3.git
 [submodule "external/bootstrap"]
 	path = external/bootstrap
-	url = git://github.com/twitter/bootstrap.git
+	url = git://github.com/twbs/bootstrap.git
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
 	url = git://github.com/jeromegn/Backbone.localStorage.git
