@@ -62,14 +62,18 @@ define(["jquery"], function ($) {
                 )
         blurb.append(div);
         blurb.append($("<div>").addClass("row")
-            .append(section(6, "Developers")
-                .append(developerTable())
-                .append($("<small>").text("This project relies on user input and " +
+            .append(section(6, "Credits")
+                .append($("<p>").html(
+                    "The Network Workbench was developed by the KBase Team. " +
+                    "For questions and comments email " +
+                    "<a href=\"help@kbase.us\">help@kbase.us</a>."
+                ))
+                .append($("<p>").text("This project relies on user input and " +
                     "testing, so please contact us with any suggestions "+
                     " or comments.")))
             .append(section(3, "Related Links")
                 .append(link("/", "<strong>KBase Datavis Library<strong>"))
-                .append(link("https://bitbucket.org/gingi/kbase-datavis", "<strong>Project @ Bitbucket<strong>"))
+                .append(link("https://github.com/gingi/kbase-datavis", "<strong>Project @ GitHub<strong>"))
                 .append(link("http://www.kbase.us", "KBase Homepage"))
                 .append(link("http://www.kbase.us/labs", "KBase Labs"))
                 .append(link("http://www.kbase.us/developer-zone", "KBase Developer Zone"))
