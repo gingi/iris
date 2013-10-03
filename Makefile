@@ -23,7 +23,7 @@ init:
 
 dist: init
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
-	
+
 build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
