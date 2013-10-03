@@ -204,8 +204,6 @@ pre .null { color: magenta; }
 pre .key { color: red; }
 
 
-.navbar small { line-height: auto; }
-
 #genome-info small {
     color: #aaa;
     margin-right: 12px;
@@ -275,7 +273,7 @@ canvas.dragbox:active {
     width: 100%;
     min-height: 1px;
 }
-.dt-info: {
+.dt-info {
     display: inline-block;
     width: 50px;
 }

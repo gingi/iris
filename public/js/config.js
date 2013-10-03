@@ -20,7 +20,6 @@ requirejs.config({
         },
         columnfilter: {
             deps: [ "datatables" ]
-        },
-        'util/spin':  { exports: "Spinner" }
+        }
     },
 })

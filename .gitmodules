@@ -22,3 +22,6 @@
 [submodule "external/requirejs-text"]
 	path = external/requirejs-text
 	url = git://github.com/requirejs/text.git
+[submodule "external/spin.js"]
+	path = external/spin.js
+	url = git://github.com/fgnass/spin.js
