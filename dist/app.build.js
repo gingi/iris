@@ -1,9 +1,13 @@
 ({
     baseUrl:        "../public/js",
     mainConfigFile: "../public/js/config.js",
-    namespace:      "datavis",
+    namespace:      "KBVis",
     name:           "datavis",
     create:         true,
+    wrap: {
+        start: "(function () {",
+        end: "window.KBVis = KBVis; jQuery.noConflict(true); }());"
+    },
     paths: {
         requireLib: "require"
     },
