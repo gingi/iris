@@ -1,5 +1,5 @@
 # KBase Data Visualization Library
-**Version 0.1.1**
+**Version 0.1.2**
 
 The library provides web-based client-side JavaScript visualizations for [the KBase project](http://kbase.us). It also includes a reference server that provides service endpoints for data exchange. The server both transforms data from the KBase API for direct use by the visualization modules and caches data for performance.
 
