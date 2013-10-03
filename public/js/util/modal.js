@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "text!templates/modal.html"],
+define(["jquery", "underscore", "text!templates/modal.html", "bootstrap"],
 function ($, _, html) {
     var defaults = {
         element: "body",

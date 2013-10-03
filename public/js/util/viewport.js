@@ -8,7 +8,8 @@ function ($, _, Progress, Syntax, Modal) {
         title: "Viewport",
         toolbox: true,
         maximize: true,
-        resizable: false
+        resizable: false,
+        toolboxHides: false
     };
     var MaximizeModal = new Modal({
         backdrop: true,
@@ -72,15 +73,18 @@ function ($, _, Progress, Syntax, Modal) {
         if (options.toolbox) {
             self.toolbox = toolbox(options);
             div.append(self.toolbox);
-            div.on("mouseenter", function () {
-                if (self.toolbox._isShown) return;
-                self.toolbox._isShown = true;
-                self.toolbox.show('fast');
-            })
-            .on("mouseleave",  function () {
-                self.toolbox._isShown = false;
-                self.toolbox.hide('fast')
-            });
+            if (options.toolboxHides) {
+                div.css("display", "none");
+                div.on("mouseenter", function () {
+                    if (self.toolbox._isShown) return;
+                    self.toolbox._isShown = true;
+                    self.toolbox.show('fast');
+                })
+                .on("mouseleave",  function () {
+                    self.toolbox._isShown = false;
+                    self.toolbox.hide('fast')
+                });
+            }
             if (options.sortContainer) {
                 var target = $(options.sortContainer);
                 target.sortable({
@@ -113,21 +117,20 @@ function ($, _, Progress, Syntax, Modal) {
         
         function toolbox(options) {
             var div = $("<div>")
-                .addClass("viewport-toolbox btn-group")
-                .css("display", "none")
+                .addClass("viewport-toolbox btn-group btn-group-sm");
             div.append($("<button>", { "data-toggle": "dropdown" })
-                .addClass("btn btn-mini")
+                .addClass("btn btn-default")
                 .html("<i class=\"icon-cog\"></i>")
             )
             if (options.maximize) {
                 div.append($("<div>", { id: "btn-maximize" })
-                    .addClass("btn btn-mini")
+                    .addClass("btn btn-default")
                     .html("<i class=\"icon-resize-full\"></i>")
                     .click(toggleMaximize));
             }
             if (options.sortContainer != null) {
                 div.append($("<div>")
-                    .addClass("btn btn-mini drag-button")
+                    .addClass("btn btn-default drag-button")
                     .html("<i class=\"icon-move\"></i>"))
             }
             div.append($("<ul>", { id: "viewport-toolbox"})
