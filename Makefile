@@ -9,13 +9,13 @@ TESTDIR  = test
 BUILD   ?= ./dist/app.build.js
 DISTLIB ?= ./dist/datavis.js
 DISTCSS ?= ./dist/datavis.css
-MINIFY  ?= 1
+MINIFY  ?= 0
 
 BUILDDIR = ./build
 SOURCES  = $(shell find $(JSDIR) -name "*.js")
 CSS_SOURCES = $(shell find public/css -name "*.css")
 
-ifeq ($(MINIFY),0)
+ifeq ($(MINIFY),0)	
 	RJSOPTS = "optimize=none"
 endif
 
@@ -28,7 +28,7 @@ init:
 $(DISTCSS): $(CSS_SOURCES)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
 
-$(DISTLIB): $(SOURCES)
+$(DISTLIB): $(SOURCES) $(BUILD)
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
 
 dist: init $(DISTLIB) $(DISTCSS)
