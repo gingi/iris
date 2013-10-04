@@ -634,3 +634,6 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 	z-index: 100;
 	border: 1px dotted black;
 }
+.navbar {
+    background-color: white;
+}
