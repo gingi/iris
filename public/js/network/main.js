@@ -321,7 +321,7 @@ require(['jquery', 'backbone', 'underscore',
     function showTable() {
         require(['renderers/table'], function (Table) {
                 var div = $("<div>").attr("id", "cluster-list")
-                .addClass("span8 offset2");
+                .addClass("col-md-1 col-md-offset-2");
             $("#container").find("#cluster-list-row").remove();
             $("#container")
                 .append($("<div>").addClass("row")

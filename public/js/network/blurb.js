@@ -21,7 +21,7 @@ define(["jquery"], function ($) {
         var router = $(options.router);
         var blurb = $("<div>", { id: "blurb"});
         parent.append(blurb);
-        var div = $("<div>").addClass("hero-unit").css("min-height", 300)
+        var div = $("<div>").addClass("jumbotron").css("min-height", 300)
             .append($("<img>", {
                 src: "/img/network-icon.png",
                 class: "logo"

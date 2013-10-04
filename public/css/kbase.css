@@ -25,7 +25,7 @@ footer {
     margin: 20px 0;
 }
 a:visited.close { color: inherit; }
-.hero-unit h2 { color: black; font-size: 200%; }
+.jumbotron h2 { color: black; font-size: 200%; }
 .hud .close {
     color: #ddd;
     margin-right: 10px;

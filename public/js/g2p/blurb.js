@@ -17,7 +17,7 @@ define(["jquery"], function ($) {
     loadCss("/css/bootstrap-arrows.css");
     function Blurb(parent, router) {
         parent = $(parent);
-        var div = $("<div>").addClass("hero-unit").css("min-height", 300)
+        var div = $("<div>").addClass("jumbotron").css("min-height", 300)
             .append($("<div>").append($("<img>", {
                 src: "/img/g2p-icon.png",
                 class: "logo"
