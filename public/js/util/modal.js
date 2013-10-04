@@ -46,7 +46,7 @@ function ($, _, html) {
                 dialog.width(options.width);
             }
             if (options.height) {
-                var top = ($("body").height() - options.height) / 2;
+                var top = ($("body").height() - options.height);
                 dialog.outerHeight(options.height);
                 modalBody.outerHeight(dialog.innerHeight()
                     - modalHeader.outerHeight()
