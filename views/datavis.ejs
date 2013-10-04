@@ -7,8 +7,6 @@
         href="/css/colorbrewer.css">
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
         href="/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/bootstrap-responsive.css">
     <link rel="stylesheet" type="text/css" charset="utf-8"
         href="/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
@@ -30,20 +28,20 @@
     <script src="/js/bootstrap.js"></script>
 </head>
 <div id="wrap">
-    <div id="nav" class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
+    <div id="nav navbar-nav" class="navbar navbar-fixed-top">
+        <div class="navbar-header">
             <a href="#">
                 <img class="logo" src="/img/kbase-logo-small.png" width="46px"/>
             </a>
-            <a class="brand" href="#"><%= title %></a>
-            <ul class="nav" id="nav-content">
-            </ul>
-            <ul class="nav pull-right" id="nav-content-right">
-                <li><a href="#" id="help-link"><i class="icon-question-sign"></i> Help</a></li>
-                <li><a href="/">Datavis Library</a></li>
-            </ul>
-            <div id="progress-indicator" class="span2 pull-right"></div>
+            <a class="navbar-brand" href="#"><%= title %></a>
         </div>
+        <ul class="nav navbar-nav" id="nav-content">
+        </ul>
+        <ul class="nav navbar-nav pull-right" id="nav-content-right">
+            <li><a href="#" id="help-link"><i class="icon-question-sign"></i> Help</a></li>
+            <li><a href="/">Datavis Library</a></li>
+        </ul>
+        <div id="progress-indicator" class="col-md-2 pull-right"></div>
     </div>
     <div id="container" class="container">
         <div id="datavis" class="container"></div>
