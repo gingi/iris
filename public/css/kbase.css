@@ -165,9 +165,9 @@ li > a.disabled {
     padding: 3px 7px;
     font-size: 12px;
     font-weight: bold;
-    background-color: #e5e5e5;
+    background-color: #EBEDEA;
     border: 1px solid #ddd;
-    color: #9da0a4;
+    color: #787A7E;
     -webkit-border-radius: 4px 0 4px 0;
        -moz-border-radius: 4px 0 4px 0;
             border-radius: 4px 0 4px 0;
@@ -635,5 +635,14 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 	border: 1px dotted black;
 }
 .navbar {
-    background-color: white;
+    border-bottom: 1px solid #CCC;
+}
+.jumbotron {
+    border: 1px solid #CCC;
+}
+.navbar, .jumbotron {
+    background-color: #EBEDEA;    
+}
+.navbar a {
+    color: #787A7E;
 }

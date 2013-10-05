@@ -1,6 +1,11 @@
-define(["jquery", "underscore", "util/progress", "util/syntax", "util/modal",
-    "jquery-ui"],
-function ($, _, Progress, Syntax, Modal) {
+define([
+    "jquery",
+    "underscore",
+    "util/progress",
+    "util/syntax",
+    "util/modal",
+    "jquery-ui"
+], function ($, _, Progress, Syntax, Modal) {
     var viewportCounter = 1;
     var defaults = {
         height: 400,
