@@ -87,7 +87,7 @@ define(['jquery', 'underscore'],
             sDom: "<'dt-top'Wlfr>" +
                  "<'table-wrapper't><'dt-bottom'ip>",
             fnInitComplete: function (table) {
-                $('.dataTables_length').find("select").addClass("span2");
+                $('.dataTables_length').find("select").addClass("col-md-2");
                 $('.dataTables_filter').find(":input")
                     .addClass("input-small search-query")
                     .attr("placeholder", "Search");

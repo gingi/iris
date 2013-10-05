@@ -17,7 +17,7 @@ define(["jquery"], function ($) {
     loadCss("/css/bootstrap-arrows.css");
     function Blurb(parent, router) {
         parent = $(parent);
-        var div = $("<div>").addClass("hero-unit").css("min-height", 300)
+        var div = $("<div>").addClass("jumbotron").css("min-height", 400)
             .append($("<div>").append($("<img>", {
                 src: "/img/g2p-icon.png",
                 class: "logo"
@@ -107,7 +107,7 @@ define(["jquery"], function ($) {
         }
         
         function section(size, heading) {
-            return $("<div>").addClass("span"+size)
+            return $("<div>").addClass("col-md-"+size)
                 .append($("<h3>").text(heading));
         }
             
