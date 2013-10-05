@@ -101,7 +101,7 @@ require([
             genome.set({ id: genomeId });
             dropdown.select(genomeId);
             for (var elementId in charts) {
-                var wrapper = $("<div>").addClass("span4");
+                var wrapper = $("<div>").addClass("col-md-4");
                 row.append(wrapper);
                 var viewport = new Viewport({
                     parent: wrapper,
