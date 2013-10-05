@@ -14,11 +14,12 @@
         "web-cache"       : ">=0.0.2",
         "requirejs"       : ">=2.1.8",
         "amdefine"        : ">=0.0.8"
-     }, 
+    },
     "name": "datavis", 
     "private": true, 
     "scripts": {
         "start": "node app"
-    }, 
+    },
+    "main": "app.js",
     "version": "0.1.2"
 }
