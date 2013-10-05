@@ -2,12 +2,17 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>Datavis Documentation</title>
-    <link rel="stylesheet" href="kbase.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../datavis.css" type="text/css" charset="utf-8">
     <script src="../datavis.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        KBVis.require(['charts/bar'], function (Bar) {
+        KBVis.require(["charts/bar", "util/viewport"], function (Bar, Viewport) {
+            var viewport = new Viewport({
+                minHeight: "500px",
+                parent: "#datavis",
+                title: "example"
+            });
             var chart = new Bar({
-                element: "#datavis",
+                element: viewport,
                 yTitle: "Kbase-devel emails per day"
             });
             chart.setData([

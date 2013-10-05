@@ -2,7 +2,6 @@
     baseUrl:        "../public/js",
     mainConfigFile: "../public/js/config.js",
     namespace:      "KBVis",
-    name:           "datavis",
     create:         true,
     wrap: {
         start: "(function () {",
@@ -26,5 +25,11 @@
         "util/progress",
         "util/hud",
         "util/viewport"
-    ]
+    ],
+    onBuildRead: function (moduleName, path, contents) {
+        if (moduleName == "util/spin") {
+            return contents.replace(/\bdefine\b/g, "KBVis.define");
+        }
+        return contents;
+    }
 })

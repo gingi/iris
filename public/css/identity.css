@@ -8,9 +8,7 @@
          url('../fonts/Oxygen-webfont.svg#OxygenRegular') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
-
 @font-face {
     font-family: 'OxygenItalic';
     src: url('../fonts/Oxygen-Italic-webfont.eot');
@@ -20,9 +18,7 @@
          url('../fonts/Oxygen-Italic-webfont.svg#OxygenItalic') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
-
 @font-face {
     font-family: 'OxygenBold';
     src: url('../fonts/Oxygen-Bold-webfont.eot');
@@ -32,9 +28,7 @@
          url('../fonts/Oxygen-Bold-webfont.svg#OxygenBold') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
-
 @font-face {
     font-family: 'OxygenBoldItalic';
     src: url('../fonts/Oxygen-BoldItalic-webfont.eot');
@@ -44,7 +38,6 @@
          url('../fonts/Oxygen-BoldItalic-webfont.svg#OxygenBoldItalic') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 @font-face {
     font-family: 'OxygenMonoRegular';
@@ -55,7 +48,6 @@
          url('../fonts/OxygenMono-Regular-webfont.svg#OxygenMonoRegular') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
 @font-face {
     font-family: 'RobotoBlack';
@@ -66,32 +58,31 @@
          url('../fonts/Roboto-Black-webfont.svg#RobotoBlack') format('svg');
     font-weight: normal;
     font-style: normal;
-
 }
  
 h1 {
-	font: 1.75em/2em 'RobotoBlack', Arial, sans-serif;
+	font-family:'RobotoBlack', Arial, sans-serif;
 	letter-spacing: 0; 
 	color: #232323;
 	font-weight: normal;
 	}
 h2 {
-	font: 1.5em/1.75em 'RobotoBlack', Arial, sans-serif; 
+	font-family: 'RobotoBlack', Arial, sans-serif; 
 	font-weight: normal; 
 	color: #898989; 
 	letter-spacing: 0;
 	}
 h3 {
-	font: 1.15em/1.25em 'RobotoBlack', Arial, sans-serif; 
+	font-family: 'RobotoBlack', Arial, sans-serif; 
 	letter-spacing: 0;
 	font-weight: normal;
 	}
 h4 {
-	font: 1.15em/1.25em 'OxygenItalic', Arial, sans-serif;
+	font-family: 'OxygenItalic', Arial, sans-serif;
 	letter-spacing: .07em;
 	}
 body {
-	font: .875em/1.375em 'OxygenRegular', Arial, sans-serif; 
+	font-family: 'OxygenRegular', Arial, sans-serif; 
 	color: #333333; 
 	background-color: #fff;
 	}
@@ -112,9 +103,11 @@ a {
 	color: #0088cc; 
 	text-decoration: none;
 	}
+a:hover    {
+	text-decoration: underline;
+	color: #005580;
+	}
 pre, code {
 	font-family: 'OxygenMonoRegular', "Lucida Console", "Lucida Sans Typewriter", monospace;
 	font-style: normal;
 	}
-
-
