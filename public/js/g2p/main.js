@@ -136,7 +136,7 @@ require([
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
             Vent.on('genes', this.fetchModel, this);
-            var wrapper = $("<div>").addClass("span4");
+            var wrapper = $("<div>").addClass("col-md-4");
             $("#subviews").append(wrapper);
             this.viewport = new Viewport({
                 parent: wrapper,
@@ -245,7 +245,7 @@ require([
                 return;
             }
             self.progress.dismiss();
-            var spanContainer = $("<div>").addClass("span12");
+            var spanContainer = $("<div>").addClass("col-md-12");
             self.manhattanContainer.empty().append(spanContainer);
             var viewport = new Viewport({
                 parent: spanContainer,

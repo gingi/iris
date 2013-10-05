@@ -79,16 +79,20 @@ define([
             self.toolbox = toolbox(options);
             div.append(self.toolbox);
             if (options.toolboxHides) {
-                div.css("display", "none");
-                div.on("mouseenter", function () {
+                self.toolbox.hide();
+                div.on("mouseenter", function (e) {
+                    e.preventDefault();
                     if (self.toolbox._isShown) return;
                     self.toolbox._isShown = true;
                     self.toolbox.show('fast');
-                })
-                .on("mouseleave",  function () {
+                }).on("mouseleave", function (e) {
+                    e.preventDefault();
                     self.toolbox._isShown = false;
                     self.toolbox.hide('fast')
-                });
+                }).on("click", function (e) {
+                    $(this).find(".dropdown-menu").toggle();
+                    e.stopPropagation();
+                })
             }
             if (options.sortContainer) {
                 var target = $(options.sortContainer);
@@ -123,10 +127,30 @@ define([
         function toolbox(options) {
             var div = $("<div>")
                 .addClass("viewport-toolbox btn-group btn-group-sm");
-            div.append($("<button>", { "data-toggle": "dropdown" })
-                .addClass("btn btn-default")
-                .html("<i class=\"icon-cog\"></i>")
-            )
+            div.append($("<div>").addClass("btn-group btn-group-sm")
+                .append($("<a>", { href: "#", "data-toggle": "dropdown" })
+                    .addClass("btn btn-default")
+                    .html("<i class=\"icon icon-cog\"></i>")
+                ).append($("<ul>", {
+                    id: "viewport-toolbox",
+                    class: "dropdown-menu"
+                }).append($("<li>").html($("<a>", {
+                    href: window.location.hash
+                }).html("<i class=\"icon icon-download-alt\"></i> Export data"))
+                    .click(function () {
+                        if (self.renderer == null) {
+                            return;
+                        }
+                        var exportData = Syntax(self.renderer.getData());
+                        $("#export-content").empty().append($("<pre>")
+                            .html(exportData)
+                        );
+                        ExportModal.show();
+                        return false;
+                    })
+                    )
+                )
+            );
             if (options.maximize) {
                 div.append($("<div>", { id: "btn-maximize" })
                     .addClass("btn btn-default")
@@ -138,22 +162,6 @@ define([
                     .addClass("btn btn-default drag-button")
                     .html("<i class=\"icon-move\"></i>"))
             }
-            div.append($("<ul>", { id: "viewport-toolbox"})
-                .addClass("dropdown-menu")
-                .append($("<li>").html($("<a>", { href: window.location.hash })
-                    .html("<i class=\"icon-download-alt\"></i> Export data"))
-                    .click(function () {
-                        if (self.renderer == null) {
-                            return;
-                        }
-                        var exportData = Syntax(self.renderer.getData());
-                        $("#export-content").empty().append($("<pre>")
-                            .html(exportData)
-                        );
-                        ExportModal.show();
-                        return false;
-                    }))
-            );
             return div;
         }
         function toggleMaximize() {
