@@ -1,5 +1,5 @@
 node_modules/
 .tm_properties
-dist/datavis.js
+dist/datavis.*
 logs
 build

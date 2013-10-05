@@ -1,5 +1,4 @@
-define(['jquery', 'underscore'], function ($, _) {
-    var Spinner = {};
+define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
     var _BAR = "bar", _SPIN = "spin";
     var defaults = {
         fade: true,
