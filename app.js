@@ -119,6 +119,7 @@ app.get('/g2p',              routes.g2p);
 app.get('/charts',           routes.charts);
 app.get('/heatmap',          routes.heatmap);
 app.get('/heatmap-chunking', routes.heatmapChunked);
+app.get('/filtered-network', routes.filteredNetwork);
 
 app.get('/data/trait/:id', function (request, response, next) {
     var args = {
@@ -470,11 +471,21 @@ function transformNetwork(networkJson) {
     return json;
 }
 
-app.get('/data/network/:network', function (request, response, next) {
+function parseNetworkType(request, response, next) {
+    if (request.params.id !== undefined) {
+        request.networkId = request.params.id;
+    } else {
+        request.networkId = 'regulome';
+    }
+    next();
+}
+
+app.get('/data/network/:network/:id?', parseNetworkType,
+function (request, response, next) {
     response.contentType = 'json';
     var fetcher, filename;
     if (request.params.network == 'kbase') {
-        filename = path.join(__dirname, 'data', 'regulome') + '.json';
+        filename = path.join(__dirname, 'data', request.networkId) + '.json';
         fetcher = function () {
             var json = require(filename);
             response.send(transformNetwork(json));
