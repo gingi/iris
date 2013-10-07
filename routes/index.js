@@ -33,3 +33,10 @@ exports.g2p = function (req, res) {
 exports.network = function (req, res) {
     res.render("datavis", { title: "Networks Workbench", js: "network/main" });
 };
+
+exports.filteredNetwork = function (req, res) {
+    res.render("datavis", {
+        title: "Filtered Network",
+        js: "network/filtered"
+    });
+}
