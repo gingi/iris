@@ -8,6 +8,7 @@ function ($, _, Network, Viewport) {
         title: "Network",
         maximize: true
     });
+    viewport.css("min-height", "800px");
     var datasetFilter = function () { return true; };
     var goLink = _.template("http://www.ebi.ac.uk/QuickGO/GTerm?id=<%= id %>");
     var network = new Network({
@@ -58,7 +59,7 @@ function ($, _, Network, Viewport) {
             id: "strength-slider",
             class: "btn btn-default tool"
         });
-        var slider = $("<div/>", { style: "min-width:70px" });
+        var slider = $("<div/>", { style: "min-width:70px;margin-right:5px" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
                 .append($("<i/>", { class: "icon-adjust" })))
@@ -70,7 +71,7 @@ function ($, _, Network, Viewport) {
            placement: "bottom"
         });
         slider.slider({
-            min: 0, max: 1, step: 0.05, value: 0.8,
+            min: 0, max: 1, step: 0.01, value: 0.8,
             slide: function (event, ui) {
                 minStrength = ui.value;
                 network.update();
@@ -96,10 +97,12 @@ function ($, _, Network, Viewport) {
         list.append(dropdownLink("All data sets", "", "all"));
         _.each(data.datasets, function (ds) {
             var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
-            list.append(dropdownLink(dsStr, ds.description, ds.id));
+            list.append(dropdownLink(dsStr, ds.description, ds.id))
         });
         list.find("a").on("click", function (event) {
             var id = $(this).data("value");
+            list.find("li").removeClass("active");
+            $(this).parent().addClass("active");
             if (id == "all")
                 datasetFilter = function () { return true; };
             else
