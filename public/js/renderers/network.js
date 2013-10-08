@@ -5,7 +5,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         dock: true,
         joinAttribute: "name",
         nodeLabel: {},
-        highlightLink: true
+        highlightNeighbors: true
     };
     var visCounter = 1;
     
@@ -41,7 +41,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
      * @constructor
      * @param infoOn {String} (all|click|hover)
      * @param nodeFilter {Object} { type: "CLUSTER" }
-     * @param highlightLink {Boolean}
+     * @param highlightNeighbors {Boolean}
+     * @param nodeInfo {Function}
      */
     var Network = function (options) {
         var self = this;
@@ -532,12 +533,15 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 return;
             }
             selected = element;
-            var neighs = self.neighbors(d);
             var neighborSelect = { nodes: {}, links: {} };
-            _.each(neighs, function (n) {
-                neighborSelect.links[n[1].id] = true;
-                neighborSelect.nodes[n[0].id] = true;
-            });
+
+            if (options.highlightNeighbors) {
+                var neighs = self.neighbors(d);
+                _.each(neighs, function (n) {
+                    neighborSelect.links[n[1].id] = true;
+                    neighborSelect.nodes[n[0].id] = true;
+                });
+            }
             neighborSelect.nodes[d.id] = true;
             svgLinks.style("stroke", function (n) {
                 return neighborSelect.links[n.id]
@@ -569,10 +573,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     .append($("<td>").text(val))
                 );
             }
-            row("Name", d.name);
-            row("Type", d.type);
-            row("KBase ID", d.entityId);
-            row("Neighbors", self.neighbors(d).length);
+            if (options.nodeInfo === undefined) {
+                row("Name", d.name);
+                row("Type", d.type);
+                row("KBase ID", d.entityId);
+                row("Neighbors", self.neighbors(d).length);
+            } else {
+                options.nodeInfo($table)
+            }
             return $table;
         }
         
