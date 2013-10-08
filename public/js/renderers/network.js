@@ -5,22 +5,26 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         dock: true,
         joinAttribute: "name",
         nodeLabel: {},
+        highlightNeighbors: true,
+        searchTerms: function (node, indexMe) {
+            indexMe(node.name);
+        }
     };
     var visCounter = 1;
     
     var Physics = {
-        GENE:    { charge: -150 },
-        CLUSTER: { charge: -150 },
+        GENE:    { charge: -70 },
+        CLUSTER: { charge: -70 },
         "GENE:GENE": {
-            linkDistance:  120,
+            linkDistance:  60,
             linkStrength:  0.6
         },
         "CLUSTER:GENE": {
-            linkDistance:  150,
-            linkStrength:  0.1,
+            linkDistance:  80,
+            linkStrength:  1,
         },
         "CLUSTER:CLUSTER": {
-            linkDistance:   100,
+            linkDistance:   80,
             linkStrength:   1
         },
         default: {
@@ -30,13 +34,21 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
     }
     
-    var NODE_SIZE  = { GENE: 8, CLUSTER: 20 };
+    var NODE_SIZE  = { GENE: 8, CLUSTER: 12 };
     var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
+    var EDGE_COLOR = "#999";
+    var SELECT_FILL_COLOR    = "#444";
+    var SELECT_STROKE_COLOR  = "#222";
     
     /**
      * @constructor
      * @param infoOn {String} (all|click|hover)
      * @param nodeFilter {Object} { type: "CLUSTER" }
+     * @param highlightNeighbors {Boolean}
+     * @param nodeInfo {Function}
+     * @param searchTerms {Function} searchTerms(node, indexMe) {
+     *      indexMe(node.name)
+     * }
      */
     var Network = function (options) {
         var self = this;
@@ -236,21 +248,56 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        self.highlight = function (name) {
-            var node = self.findNode(name, "name");
-            if (node) {
-                d3.select("#" + node.elementId)
-                    .style("stroke", HIGHLIGHT_COLOR)
-                    .style("stroke-width", 3)
-                    .style("stroke-location", "outside")
-            }
-            return this;
+        function _highlight(element) {
+            element
+                .style("stroke", HIGHLIGHT_COLOR)
+                .style("stroke-width", 3)
+                .style("stroke-location", "outside")
         }
-        self.unhighlightAll = function () {
-            nodeG.selectAll(".node")
+        
+        function _unhighlight(element) {
+            element
                 .style("stroke", null)
                 .style("stroke-width", null)
                 .style("stroke-location", null)
+        }
+        
+        self.highlight = function (name) {
+            var node = self.findNode(name, "name");
+            if (node) {
+                _highlight(d3.select("#" + node.elementId));
+            }
+            return this;
+        }
+
+        self.updateSearch = function (searchTerm) {
+            searchRegEx = new RegExp(searchTerm.toLowerCase());
+            return svgNodes.each(function (d) {
+                var element, match = -1;
+                var searchContents = [];
+                options.searchTerms(d, function (text) {
+                    searchContents.push(text);
+                });
+                element = d3.select(this);
+                _.each(searchContents, function (text) {
+                    match =
+                        _.max([match, text.toLowerCase().search(searchRegEx)]);
+                });
+                console.log("Match?", match, searchContents);
+                if (searchTerm.length > 0 && match >= 0) {
+                    _highlight(element);
+                    return d.searched = true;
+                } else {
+                    d.searched = false;
+                    _unhighlight(element);
+                }
+            });
+        };
+
+
+
+        self.unhighlightAll = function () {
+            _unhighlight(nodeG.selectAll(".node"));
             return this;
         }
         
@@ -430,7 +477,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
-                .style("stroke", function (d) { return color(d.datasetId); })
+                .style("stroke", function (d) { return EDGE_COLOR; })
                 .style("stroke-width", function(d) { return d.weight * 2; });
             svgLinks.exit().remove();
 
@@ -521,45 +568,61 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 z: 2000
             });
         self.clickNode = function (d, element) {
-            if (selected) {
-                selected.style["fill"] = originalFill;
-            }
             if (selected == element) {
                 hud.dismiss();
                 selected = null;
                 return;
             }
             selected = element;
-            originalFill = selected.style["fill"];
-            var fill = d3.hsl(originalFill);
-            selected.style["fill"] = "#444";
+            var neighborSelect = { nodes: {}, links: {} };
+
+            if (options.highlightNeighbors) {
+                var neighs = self.neighbors(d);
+                _.each(neighs, function (n) {
+                    neighborSelect.links[n[1].id] = true;
+                    neighborSelect.nodes[n[0].id] = true;
+                });
+            }
+            neighborSelect.nodes[d.id] = true;
+            svgLinks.style("stroke", function (n) {
+                return neighborSelect.links[n.id]
+                    ? SELECT_STROKE_COLOR : EDGE_COLOR;
+            });
+            svgNodes.style("fill", function (n) {
+                return neighborSelect.nodes[n.id]
+                    ? SELECT_FILL_COLOR : groupColor[n.id];
+            });
         
             hud.empty().append(nodeInfo(d));
             hud.show();
             hud.on("dismiss", function () {
                 if (selected != null) {
-                    selected.style["fill"] = originalFill;
                     selected = null;
                 }
             });
         }
-        
-        // TODO: Get this out of the renderer.
+
         function nodeInfo(d) {
             var $table =
-                $("<table id='nodeInfo' class='table table-condensed'>")
-                .append($("<tbody>"));
+                $("<table/>", {
+                    id: "nodeInfo", class: "table table-condensed"
+                })
+                .append($("<tbody/>"));
             function row(key, val) {
                 if (!val) return;
                 $table.find("tbody").append($("<tr>")
                     .append($("<th>").text(key))
-                    .append($("<td>").text(val))
+                    .append($("<td>").html(val))
                 );
             }
-            row("Name", d.name);
-            row("Type", d.type);
-            row("KBase ID", d.entityId);
-            row("Neighbors", self.neighbors(d).length);
+            if (options.nodeInfo === undefined) {
+                row("Name", d.name);
+                row("Type", d.type);
+                row("KBase ID", d.entityId);
+                row("Neighbors", self.neighbors(d).length);
+            } else {
+                options.nodeInfo(d, row);
+            }
             return $table;
         }
         
