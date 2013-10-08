@@ -655,7 +655,6 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 }
 .btn-pad > input {
     line-height: 1em;
-    font-weight: x-small;
     border-width: 1px;
 }
 /* jQuery-UI Slider */
@@ -672,4 +671,8 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 }
 .ui-corner-all {
     border-radius: 2px;
+}
+.ui-widget-content,
+.ui-state-default, .ui-widget-content .ui-state-default {
+    background-image: none;
 }

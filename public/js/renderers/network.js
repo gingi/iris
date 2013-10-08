@@ -89,11 +89,16 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             edgeFilter = function (edge) {
                 var filtered = options.edgeFilter(edge);
                 if (filtered) {
-                    filterCache[edge.source] = filterCache[edge.target] = true; 
+                    if (typeof edge.source === "object")
+                        filterCache[edge.source.id] =
+                        filterCache[edge.target.id] = true;
+                    else
+                        filterCache[edge.source] =
+                        filterCache[edge.target] = true; 
                 }
                 return filtered;
             }
-            nodeFilter = function (d) {
+            nodeFilter = function (d) { 
                 return filterCache[parseInt(d.id)] !== undefined;
             };
         } else {
@@ -745,6 +750,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             $element = $(options.element);
         }
         self.dock = dock;
+        self.update = update;
         
         return self;
     };
