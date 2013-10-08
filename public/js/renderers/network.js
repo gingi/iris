@@ -87,7 +87,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             }
         } else if (options.edgeFilter !== undefined) {
             edgeFilter = function (edge) {
-                console.log("File")
                 var filtered = options.edgeFilter(edge);
                 if (filtered) {
                     filterCache[edge.source] = filterCache[edge.target] = true; 
@@ -420,11 +419,9 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         
         function update() {
             filterCache = {};
-            console.dir(links);
             if (svgLinks) svgLinks.remove();
             svgLinks = linkG.selectAll("line.link")
                 .data(_.filter(links, edgeFilter));
-            console.log("filterCache", filterCache);
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
