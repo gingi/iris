@@ -451,7 +451,11 @@ Object.clone = function(obj) {
     );
 }
 function transformNetwork(networkJson) {
-    var json = { nodes: [], edges: [] };
+    var json = {};
+    for (var property in networkJson) {
+        json[property] = networkJson[property];
+    }
+    json.nodes = []; json.edges = [];
     var nodeMap = {};
     for (var i in networkJson.nodes) {
         var node = Object.clone(networkJson.nodes[i]);

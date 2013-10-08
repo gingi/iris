@@ -22,14 +22,13 @@ function ($, Network, Viewport) {
     
     
     $.getJSON("/data/network/kbase/coex").done(function (data) {
+        addDatasetDropdown(toolbox, data);
         network.setData(data);
         network.render();
     });
     
     function addSlider($container) {
-        var wrapper = $("<div/>", {
-            class: "btn btn-default tool"
-        });
+        var wrapper = $("<div/>", { class: "btn btn-default tool" });
         var slider = $("<div/>", { style: "min-width:60px" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
@@ -43,14 +42,35 @@ function ($, Network, Viewport) {
     }
     
     function addSearch($container) {
-        var wrapper = $("<div/>", {
-            class: "btn btn-default tool"
-        });
+        var wrapper = $("<div/>", { class: "btn btn-default tool" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
                 .append($("<input/>", { type: "text", class: " input-xs" })))
             .append($("<div/>", { class: "btn-pad" })
                 .append($("<i/>", { class: "icon-search" })));
+        $container.prepend(wrapper);
+    }
+    
+    function addDatasetDropdown($container, data) {
+        var wrapper = $("<div/>", { class: "btn-group tool" });
+        var list = $("<ul/>", { class: "dropdown-menu", role: "menu" });
+        _.each(data.datasets, function (ds) {
+            var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
+            list.append($("<li/>")
+                .append($("<a/>", {
+                    href: "#",
+                    "data-toggle": "tooltip",
+                    "data-container": "body",
+                    "title": ds.description,
+                    "data-original-title": ds.description
+                }).html(dsStr)));
+        })
+        wrapper
+            .append($("<div/>", {
+                class: "btn btn-default btn-sm dropdown-toggle",
+                "data-toggle": "dropdown"
+            }).text("Data Set ").append($("<span/>", { class: "caret"})))
+            .append(list);
         $container.prepend(wrapper);
     }
 });
