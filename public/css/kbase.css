@@ -90,6 +90,9 @@ li > a.disabled {
 .hud ul {
     margin-left: 0;
 }
+.hud table ul {
+    padding-left: 0;
+}
 .hud li {
     margin-left: 0;
     list-style: none;
@@ -110,6 +113,9 @@ li > a.disabled {
 }
 #nodeInfo {
     font-size: 10pt;
+}
+#nodeInfo th {
+    width: 100px !important;
 }
 .progress-indicator {
     min-width: 50px;
