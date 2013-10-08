@@ -646,3 +646,19 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 .navbar a {
     color: #787A7E;
 }
+.btn-pad {
+    padding: 0 5px;
+    float: left;
+}
+/* jQuery-UI Slider */
+.ui-slider-horizontal {
+    height: .4em;
+    top: .5em;
+}
+.ui-slider-horizontal .ui-slider-handle {
+    top: -.4em;
+    width: .6em;
+}
+.ui-corner-all {
+    border-radius: 2px;
+}

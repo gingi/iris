@@ -2,7 +2,8 @@ requirejs.config({
     baseUrl: "/js",
     paths: {
         columnfilter: "DataTables/extras/ColumnFilterWidgets",
-        datatables:   "jquery.dataTables"
+        datatables:   "jquery.dataTables",
+        slider:       "bootstrap-slider"
     },
     shim: {
         jquery:      { exports: ["$", "jQuery"] },
@@ -14,6 +15,8 @@ requirejs.config({
             exports: "Backbone",
             deps: [ "backbone" ]
         },
+        "jquery-ui": { deps: [ "jquery" ] },
+        slider:     { deps: [ "jquery" ] },
         datatables: {
             deps: [ "jquery" ],
             exports: "jQuery.fn.dataTableExt"
