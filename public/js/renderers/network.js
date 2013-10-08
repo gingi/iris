@@ -9,18 +9,18 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     var visCounter = 1;
     
     var Physics = {
-        GENE:    { charge: -150 },
-        CLUSTER: { charge: -150 },
+        GENE:    { charge: -70 },
+        CLUSTER: { charge: -70 },
         "GENE:GENE": {
-            linkDistance:  120,
+            linkDistance:  60,
             linkStrength:  0.6
         },
         "CLUSTER:GENE": {
-            linkDistance:  150,
-            linkStrength:  0.1,
+            linkDistance:  80,
+            linkStrength:  1,
         },
         "CLUSTER:CLUSTER": {
-            linkDistance:   100,
+            linkDistance:   80,
             linkStrength:   1
         },
         default: {
@@ -30,8 +30,9 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
     }
     
-    var NODE_SIZE  = { GENE: 8, CLUSTER: 20 };
+    var NODE_SIZE  = { GENE: 8, CLUSTER: 12 };
     var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
+    var EDGE_COLOR = "#999";
     
     /**
      * @constructor
@@ -430,7 +431,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
-                .style("stroke", function (d) { return color(d.datasetId); })
+                .style("stroke", function (d) { return EDGE_COLOR; })
                 .style("stroke-width", function(d) { return d.weight * 2; });
             svgLinks.exit().remove();
 
