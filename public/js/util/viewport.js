@@ -45,7 +45,17 @@ define([
         .attr('unselectable', 'on')
         .css('user-select', 'none')
         .on('selectstart', false);
-    
+
+    /**
+     * @constructor
+     * 
+     * @param {String|Number} id
+     * @param {String|Object} parent
+     * @param {String} title
+     * @param {String} classes
+     * @param {String|Number} height
+     * @param {String|Number} width
+     */
     function Viewport(options) {
         var self = this;
         options = options ? _.clone(options) : {};
@@ -76,7 +86,7 @@ define([
         div.css("height", "99%");
 
         if (options.toolbox) {
-            self.toolbox = toolbox(options);
+            self.toolbox = createToolbox(options);
             div.append(self.toolbox);
             if (options.toolboxHides) {
                 self.toolbox.hide();
@@ -122,9 +132,12 @@ define([
         content.renderer = function (r) {
             self.renderer = r;
         }
+        content.toolbox = function () {
+            return self.toolbox;
+        }
         return content;
         
-        function toolbox(options) {
+        function createToolbox(options) {
             var div = $("<div>")
                 .addClass("viewport-toolbox btn-group btn-group-sm");
             div.append($("<div>").addClass("btn-group btn-group-sm")

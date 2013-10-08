@@ -33,6 +33,11 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     var NODE_SIZE  = { GENE: 8, CLUSTER: 20 };
     var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
     
+    /**
+     * @constructor
+     * @param infoOn {String} (all|click|hover)
+     * @param nodeFilter {Object} { type: "CLUSTER" }
+     */
     var Network = function (options) {
         var self = this;
         options = options ? _.clone(options) : {};
@@ -41,6 +46,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var _idSequence = 1;
         var _autoUpdate = false;
         var _initialized = false;
+        var nodeFilter, edgeFilter, filterCache = {};
 
         var _linkCache = {};
         var _paused = false;
@@ -54,6 +60,51 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var color;
         var visId = "network-vis-" + visCounter++;
         var width, height;
+        
+        if (options.infoOn !== undefined) {
+            var clickNode = function (event, node, element) {
+                self.clickNode(node, element);
+            }
+            if (options.infoOn == "all" || options.infoOn == "click") {
+                self.on("click-node", clickNode);
+            }
+            if (options.infoOn == "all" || options.infoOn == "hover") {
+                self.on("mouseover-node", clickNode);
+            }
+        }
+        
+        if (options.nodeFilter !== undefined) {
+            nodeFilter = function (d) {
+                var passed = true;
+                for (var key in options.nodeFilter) {
+                    if (d[key] != options.nodeFilter[key])
+                        passed = false;
+                }
+                return passed;
+            };
+            edgeFilter = function (edge) {
+                return nodeFilter(edge.source) && nodeFilter(edge.target);
+            }
+        } else if (options.edgeFilter !== undefined) {
+            edgeFilter = function (edge) {
+                var filtered = options.edgeFilter(edge);
+                if (filtered) {
+                    if (typeof edge.source === "object")
+                        filterCache[edge.source.id] =
+                        filterCache[edge.target.id] = true;
+                    else
+                        filterCache[edge.source] =
+                        filterCache[edge.target] = true; 
+                }
+                return filtered;
+            }
+            nodeFilter = function (d) { 
+                return filterCache[parseInt(d.id)] !== undefined;
+            };
+        } else {
+            nodeFilter = function () { return true; };
+            edgeFilter = function () { return true; };
+        }
         
         var Foci = {
             CLUSTER: {
@@ -372,8 +423,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         
         function update() {
+            filterCache = {};
             if (svgLinks) svgLinks.remove();
-            svgLinks = linkG.selectAll("line.link").data(links);
+            svgLinks = linkG.selectAll("line.link")
+                .data(_.filter(links, edgeFilter));
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
@@ -382,7 +435,8 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             svgLinks.exit().remove();
 
             if (svgNodes) svgNodes.remove();
-            svgNodes = nodeG.selectAll("circle.node").data(nodes);
+            svgNodes = nodeG.selectAll("circle.node")
+                .data(_.filter(nodes, nodeFilter));
             var clickbuffer = false, fixNodeTimer = null;
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
@@ -413,6 +467,9 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     clickbuffer = false;
                     d3.event.stopPropagation();
                     self.emit("dblclick-node", [d, this]);
+                })
+                .on("mouseover", function (d) {
+                    self.emit("mouseover-node", [d, this]);
                 })
                 .on("mousedown", function (d) {
                     fixNodeTimer = {
@@ -693,6 +750,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             $element = $(options.element);
         }
         self.dock = dock;
+        self.update = update;
         
         return self;
     };
