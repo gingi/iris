@@ -647,17 +647,28 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
     color: #787A7E;
 }
 .btn-pad {
-    padding: 0 5px;
+    padding: 5px 5px;
     float: left;
+}
+.btn.tool {
+    padding: 0;
+}
+.btn-pad > input {
+    line-height: 1em;
+    font-weight: x-small;
+    border-width: 1px;
 }
 /* jQuery-UI Slider */
 .ui-slider-horizontal {
     height: .4em;
-    top: .5em;
+    top: .4em;
+    background-color: #E4EEFD;
 }
 .ui-slider-horizontal .ui-slider-handle {
-    top: -.4em;
-    width: .6em;
+    top: -.5em;
+    background-color: white;
+    border: 1px solid #999;
+    border-radius: 8px;
 }
 .ui-corner-all {
     border-radius: 2px;

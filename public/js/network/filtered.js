@@ -16,18 +16,21 @@ function ($, Network, Viewport) {
         }
     });
     viewport.addTool($("<a/>", { href: "#" }).html("Click me!"));
-    makeSlider(viewport.toolbox());
+    var toolbox = viewport.toolbox();
+    addSlider(toolbox);
+    addSearch(toolbox);
+    
     
     $.getJSON("/data/network/kbase/coex").done(function (data) {
         network.setData(data);
         network.render();
     });
     
-    function makeSlider($container) {
+    function addSlider($container) {
         var wrapper = $("<div/>", {
-            class: "btn btn-default"
+            class: "btn btn-default tool"
         });
-        var slider = $("<div/>", { style: "min-width:60px;float:left" });
+        var slider = $("<div/>", { style: "min-width:60px" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
                 .append($("<i/>", { class: "icon-adjust" })))
@@ -37,6 +40,17 @@ function ($, Network, Viewport) {
         slider.slider({
             min: 0, max: 1, step: 0.05, value: 0.8
         }).on("slide", function () { });
-        return slider;
+    }
+    
+    function addSearch($container) {
+        var wrapper = $("<div/>", {
+            class: "btn btn-default tool"
+        });
+        wrapper
+            .append($("<div/>", { class: "btn-pad" })
+                .append($("<input/>", { type: "text", class: " input-xs" })))
+            .append($("<div/>", { class: "btn-pad" })
+                .append($("<i/>", { class: "icon-search" })));
+        $container.prepend(wrapper);
     }
 });
