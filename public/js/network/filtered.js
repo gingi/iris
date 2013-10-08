@@ -1,5 +1,7 @@
-require(["jquery", "renderers/network", "util/viewport", "jquery-ui"],
-function ($, Network, Viewport) {
+require([
+    "jquery", "underscore", "renderers/network", "util/viewport", "jquery-ui"
+],
+function ($, _, Network, Viewport) {
     var minStrength = 0.7;
     var viewport = new Viewport({
         parent: "#datavis",
@@ -7,6 +9,7 @@ function ($, Network, Viewport) {
         maximize: true
     });
     var datasetFilter = function () { return true; };
+    var goLink = _.template("http://www.ebi.ac.uk/QuickGO/GTerm?id=<%= id %>");
     var network = new Network({
         element: viewport,
         dock: false,
@@ -16,6 +19,26 @@ function ($, Network, Viewport) {
             return edge.source != edge.target &&
                 (edge.strength >= minStrength || edge.strength == 0) &&
                 datasetFilter(edge);
+        },
+        nodeInfo: function (node, makeRow) {
+            makeRow("Name", node.name);
+            makeRow("Type", node.type);
+            makeRow("KBase ID", link(node.entityId, "#"));
+            if (node.type === "GENE" && node.userAnnotations !== undefined) {
+                var annotations = node.userAnnotations;
+                if (annotations.external_id !== undefined)
+                    makeRow("External ID", link(annotations.external_id, "#"));
+                if (annotations.functions !== undefined)
+                    makeRow("Function", annotations.functions);
+                if (annotations.ontologies !== undefined) {
+                    var goList = $("<ul/>");
+                    _.each(_.keys(annotations.ontologies), function (item) {
+                        goList.append($("<li/>")
+                            .append(link(item, goLink({ id: item }))));
+                    });
+                    makeRow("GO terms", goList);
+                }
+            }
         }
     });
     viewport.addTool($("<a/>", { href: "#" }).html("Click me!"));
@@ -104,5 +127,8 @@ function ($, Network, Viewport) {
                 "data-original-title": title,
                 "data-value": value
             }).html(linkText));
+    }
+    function link(content, href, attrs) {
+        return $("<a/>", _.extend({ href: href }, attrs)).html(content);
     }
 });
