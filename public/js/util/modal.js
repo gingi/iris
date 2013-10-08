@@ -1,5 +1,5 @@
 define(["jquery", "underscore", "text!templates/modal.html", "bootstrap"],
-function ($, _, html) {
+function (JQ, _, html) {
     var defaults = {
         element: "body",
         z: 3000,
@@ -20,7 +20,7 @@ function ($, _, html) {
             options.contentId = options.id + "-content";
         }
         modalCounter++;
-        var modal = $(template(options));
+        var modal = JQ(template(options));
         var modalBody   = modal.find(".modal-body");
         var modalFooter = modal.find(".modal-footer");
         var modalHeader = modal.find(".modal-header");
@@ -41,12 +41,15 @@ function ($, _, html) {
             modalBody.empty();
         }
         modal.init = function () {
-            $(options.element).append(modal);
+            if (options.element === undefined) {
+                throw new Error("Nothing to which to append modal");
+            }
+            JQ(options.element).append(modal);
             if (options.width)  {
                 dialog.width(options.width);
             }
             if (options.height) {
-                var top = ($("body").height() - options.height);
+                var top = (JQ("body").height() - options.height);
                 dialog.outerHeight(options.height);
                 modalBody.outerHeight(dialog.innerHeight()
                     - modalHeader.outerHeight()

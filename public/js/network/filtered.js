@@ -1,7 +1,7 @@
 require([
     "jquery", "underscore", "renderers/network", "util/viewport", "jquery-ui"
 ],
-function ($, _, Network, Viewport) {
+function (JQ, _, Network, Viewport) {
     var minStrength = 0.7;
     var viewport = new Viewport({
         parent: "#datavis",
@@ -31,9 +31,9 @@ function ($, _, Network, Viewport) {
                 if (annotations.functions !== undefined)
                     makeRow("Function", annotations.functions);
                 if (annotations.ontologies !== undefined) {
-                    var goList = $("<ul/>");
+                    var goList = JQ("<ul/>");
                     _.each(_.keys(annotations.ontologies), function (item) {
-                        goList.append($("<li/>")
+                        goList.append(JQ("<li/>")
                             .append(link(item, goLink({ id: item }))));
                     });
                     makeRow("GO terms", goList);
@@ -50,12 +50,13 @@ function ($, _, Network, Viewport) {
             }
         }
     });
-    viewport.addTool($("<a/>", { href: "#" }).html("Click me!"));
+    viewport.renderer(network);
+    viewport.addTool(JQ("<a/>", { href: "#" }).html("Click me!"));
     var toolbox = viewport.toolbox();
     addSlider(toolbox);
     addSearch(toolbox);
     
-    $.getJSON("/data/network/kbase/coex").done(function (data) {
+    JQ.getJSON("/data/network/kbase/coex").done(function (data) {
         addDatasetDropdown(toolbox, data);
         network.setData(data);
         network.render();
@@ -63,18 +64,18 @@ function ($, _, Network, Viewport) {
     
     function addSlider($container) {
         var tipTitle = "Minimum edge strength: ";
-        var wrapper = $("<div/>", {
+        var wrapper = JQ("<div/>", {
             id: "strength-slider",
             class: "btn btn-default tool"
         });
-        var slider = $("<div/>", { style: "min-width:70px;margin-right:5px" });
+        var slider = JQ("<div/>", { style: "min-width:70px;margin-right:5px" });
         wrapper
-            .append($("<div/>", { class: "btn-pad" })
-                .append($("<i/>", { class: "icon-adjust" })))
-            .append($("<div/>", { class: "btn-pad" })
+            .append(JQ("<div/>", { class: "btn-pad" })
+                .append(JQ("<i/>", { class: "icon-adjust" })))
+            .append(JQ("<div/>", { class: "btn-pad" })
                 .append(slider));
         $container.prepend(wrapper);
-        $("#strength-slider").tooltip({
+        JQ("#strength-slider").tooltip({
            title: tipTitle + minStrength.toFixed(2),
            placement: "bottom"
         });
@@ -83,39 +84,39 @@ function ($, _, Network, Viewport) {
             slide: function (event, ui) {
                 minStrength = ui.value;
                 network.update();
-                $("#strength-slider").next().find(".tooltip-inner")
+                JQ("#strength-slider").next().find(".tooltip-inner")
                     .text(tipTitle + minStrength.toFixed(2));
             }
         });
     }
     
     function addSearch($container) {
-        var wrapper = $("<div/>", { class: "btn btn-default tool" });
+        var wrapper = JQ("<div/>", { class: "btn btn-default tool" });
         wrapper
-            .append($("<div/>", { class: "btn-pad" })
-                .append($("<input/>", {
+            .append(JQ("<div/>", { class: "btn-pad" })
+                .append(JQ("<input/>", {
                     id: "network-search", type: "text", class: " input-xs"
                 })))
-            .append($("<div/>", { class: "btn-pad" })
-                .append($("<i/>", { class: "icon-search" })));
+            .append(JQ("<div/>", { class: "btn-pad" })
+                .append(JQ("<i/>", { class: "icon-search" })));
         $container.prepend(wrapper);
-        $("#network-search").keyup(function () {
-            network.updateSearch($(this).val());
+        JQ("#network-search").keyup(function () {
+            network.updateSearch(JQ(this).val());
         });
     }
     
     function addDatasetDropdown($container, data) {
-        var wrapper = $("<div/>", { class: "btn-group tool" });
-        var list = $("<ul/>", { class: "dropdown-menu", role: "menu" });
+        var wrapper = JQ("<div/>", { class: "btn-group tool" });
+        var list = JQ("<ul/>", { class: "dropdown-menu", role: "menu" });
         list.append(dropdownLink("All data sets", "", "all"));
         _.each(data.datasets, function (ds) {
             var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
             list.append(dropdownLink(dsStr, ds.description, ds.id))
         });
         list.find("a").on("click", function (event) {
-            var id = $(this).data("value");
+            var id = JQ(this).data("value");
             list.find("li").removeClass("active");
-            $(this).parent().addClass("active");
+            JQ(this).parent().addClass("active");
             if (id == "all")
                 datasetFilter = function () { return true; };
             else
@@ -123,19 +124,21 @@ function ($, _, Network, Viewport) {
                     return edge.datasetId == id;
                 }
             network.update();
-        })
+        });
+        var button = JQ("<div/>", {
+            class: "btn btn-default btn-sm dropdown-toggle",
+            "data-toggle": "dropdown"
+        }).text("Data Set ").append(JQ("<span/>", { class: "caret"}))
+            .dropdown();
         wrapper
-            .append($("<div/>", {
-                class: "btn btn-default btn-sm dropdown-toggle",
-                "data-toggle": "dropdown"
-            }).text("Data Set ").append($("<span/>", { class: "caret"})))
-            .append(list);
+            .append(button)
+            .append(list)
         $container.prepend(wrapper);
     }
     
     function dropdownLink(linkText, title, value) {
-        return $("<li/>")
-            .append($("<a/>", {
+        return JQ("<li/>")
+            .append(JQ("<a/>", {
                 href: "#",
                 "data-toggle": "tooltip",
                 "data-container": "body",
@@ -145,6 +148,6 @@ function ($, _, Network, Viewport) {
             }).html(linkText));
     }
     function link(content, href, attrs) {
-        return $("<a/>", _.extend({ href: href }, attrs)).html(content);
+        return JQ("<a/>", _.extend({ href: href }, attrs)).html(content);
     }
 });

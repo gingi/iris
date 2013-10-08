@@ -1,7 +1,7 @@
 require(['jquery', 'backbone', 'underscore',
     'renderers/network', 'util/progress', 'util/hud', 'util/viewport',
     'util/graph', 'network/nav', 'network/blurb', 'util/help', 'util/modal'],
-    function ($, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav,
+    function (JQ, Backbone, _, NetworkVis, Progress, HUD, Viewport, Graph, Nav,
         Blurb, Help, Modal) {
         
     var neighborTemplate = _.template("/data/node/<%= id %>/neighbors");
@@ -27,13 +27,13 @@ require(['jquery', 'backbone', 'underscore',
     });
     var NetworkData = new NetworkModel;
     var Datavis = new NetworkVis({
-        element: $("#datavis"),
+        element: JQ("#datavis"),
         dock: true,
         joinAttribute: "entityId",
         nodeLabel: { type: "CLUSTER" }
     });
     function setLayout() {
-        $("#datavis").empty();
+        JQ("#datavis").empty();
         var viewport = new Viewport({
             parent: "#datavis",
             title: "Network",
@@ -64,7 +64,7 @@ require(['jquery', 'backbone', 'underscore',
                 coNeighborAction([ node ], docked);
             } else {
                 if (DataSets.asString() == 'fake') {
-                    $.ajax({
+                    JQ.ajax({
                         url: neighborTemplate({ id: node.entityId }),
                         dataType: 'json',
                         data: { datasets: DataSets.asString() }
@@ -89,14 +89,14 @@ require(['jquery', 'backbone', 'underscore',
     var nodeClusters = {};
     Datavis.addDockAction(function (nodes) {
         var dock = this;
-        var button = $("<button>")
+        var button = JQ("<button>")
             .addClass("btn btn-small btn-primary")
             .attr("id", "btn-get-clusters")
             .html("<i class=\"icon-plus-sign\"></i> Clusters");
         button.on("click", function () {
             AppProgress.progress(0);
             AppProgress.show("Getting clusters");
-            var deferred = $.Deferred(), chained = deferred;
+            var deferred = JQ.Deferred(), chained = deferred;
             var nodesDone = 0;
             function incProgress() {
                 nodesDone++;
@@ -112,7 +112,7 @@ require(['jquery', 'backbone', 'underscore',
                     }
                     var neighbors = new NetworkModel;
                     neighbors.url = neighborTemplate({ id: entityId });
-                    var promise = $.Deferred();
+                    var promise = JQ.Deferred();
                     neighbors.fetch({
                         data: {
                             datasets: DataSets.asString(),
@@ -159,7 +159,7 @@ require(['jquery', 'backbone', 'underscore',
     var clusterNeighbors = {};
     Datavis.addDockAction(function (nodes) {
         var dock = this;
-        var button = $("<button>").addClass("btn btn-small")
+        var button = JQ("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
             .css("margin-left", 5)
             .attr("disabled", !clusters || clusters.length == 0)
@@ -169,7 +169,7 @@ require(['jquery', 'backbone', 'underscore',
     });
     Datavis.addDockAction(function (nodes) {
         var dock = this;
-        var button = $("<button>").addClass("btn btn-small")
+        var button = JQ("<button>").addClass("btn btn-small")
             .attr("id", "btn-co-neighbors")
             .css("margin-left", 5)
             .html("<i class=\"icon-external-link\"></i> Internal");
@@ -179,7 +179,7 @@ require(['jquery', 'backbone', 'underscore',
     function coNeighborAction(clusters, dockedNodes) {
         AppProgress.progress(20); // Some width to indicate doing something
         AppProgress.show("Getting co-neighbors");
-        var deferred = $.Deferred(),
+        var deferred = JQ.Deferred(),
             chained = deferred;
         var clustersDone = 0;
         var dockNeighbors = null;
@@ -191,7 +191,7 @@ require(['jquery', 'backbone', 'underscore',
                 if (clusterNeighbors[cluster.entityId]) {
                     return true;
                 }
-                var codeferred = $.Deferred();
+                var codeferred = JQ.Deferred();
                 var neighbors = new NetworkModel;
                 neighbors.url = neighborTemplate({ id: cluster.entityId });
                 neighbors.fetch({
@@ -273,7 +273,7 @@ require(['jquery', 'backbone', 'underscore',
     function enableBuildNetwork() {
         clusters = Datavis.find("CLUSTER", "type");
         if (clusters.length) {
-            $("#btn-co-neighbors").attr("disabled", false);
+            JQ("#btn-co-neighbors").attr("disabled", false);
             showTable();
         }
     }
@@ -290,12 +290,12 @@ require(['jquery', 'backbone', 'underscore',
         });
         viewport.css("min-height", 400)
         var progress = new Progress({ element: viewport });
-        var progressDeferred = $.Deferred();
+        var progressDeferred = JQ.Deferred();
         setTimeout(function () {
             progress.show();
             progressDeferred.resolve();
         }, 1000);
-        $.ajax({
+        JQ.ajax({
             url: internalTemplate(),
             data: {
                 nodes: _.pluck(nodes, "entityId").join(","),
@@ -320,19 +320,19 @@ require(['jquery', 'backbone', 'underscore',
     }
     function showTable() {
         require(['renderers/table'], function (Table) {
-                var div = $("<div>").attr("id", "cluster-list")
+                var div = JQ("<div>").attr("id", "cluster-list")
                 .addClass("col-md-1 col-md-offset-2");
-            $("#container").find("#cluster-list-row").remove();
-            $("#container")
-                .append($("<div>").addClass("row")
+            JQ("#container").find("#cluster-list-row").remove();
+            JQ("#container")
+                .append(JQ("<div>").addClass("row")
                 .attr("id", "cluster-list-row").append(div));
             var clusterFill = {};
             var table = new Table({
                 element: "#cluster-list",
                 scrollY: 100,
                 rowCallback: function (row) {
-                    $(this).css("background-color", clusterFill[row[1]]);
-                    $(this).find("td").css("background-color",
+                    JQ(this).css("background-color", clusterFill[row[1]]);
+                    JQ(this).find("td").css("background-color",
                         clusterFill[row[1]]);
                 }
             });
@@ -376,13 +376,13 @@ require(['jquery', 'backbone', 'underscore',
             });
             table.render({
                 success: function () {
-                    $(".toggle-cluster").click(function () {
+                    JQ(".toggle-cluster").click(function () {
                         if (this._hiddenNode) {
                             Datavis.unhideNode(this._hiddenNode);
                             delete this._hiddenNode;
                         } else {
                             var node = Datavis.findNode(
-                                $(this).data("cluster"), "entityId");
+                                JQ(this).data("cluster"), "entityId");
                             node = Datavis.hideNode(node);
                             this._hiddenNode = node;
                         }
@@ -392,7 +392,7 @@ require(['jquery', 'backbone', 'underscore',
         })
     }
     function fetchDockGeneNeighbors(docked) {
-        return $.ajax({
+        return JQ.ajax({
             url: neighborQueryTemplate(),
             dataType: "json",
             data: {
@@ -436,7 +436,7 @@ require(['jquery', 'backbone', 'underscore',
     }
     
     var AppView = Backbone.View.extend({
-        el: $("#container"),
+        el: JQ("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
             if (NetworkData != null)
@@ -460,7 +460,7 @@ require(['jquery', 'backbone', 'underscore',
     };
     
     var DataSetView = Backbone.View.extend({
-        el: $("#container"),
+        el: JQ("#container"),
         initialize: function () {
             _.bindAll(this, 'render');
             DataSets.on('change', this.render);
@@ -472,13 +472,13 @@ require(['jquery', 'backbone', 'underscore',
                 position: { top: 50, left: 20 },
                 width: 400
             });
-            var list = $("<ul>");
+            var list = JQ("<ul>");
             if (DataSets == null ||
                     DataSets.get('datasets') == null) {
                 hud.text("No datasets");
             } else {
                 var datasets = DataSets.get('datasets');
-                hud.append($("<h4>").text("Data Sets"))
+                hud.append(JQ("<h4>").text("Data Sets"))
                 hud.append(list);
                 datasets.forEach(function (ds) {
                     list.append(self.template({
@@ -498,16 +498,16 @@ require(['jquery', 'backbone', 'underscore',
     })
     
     function resetData() {
-        $("#cluster-list").remove();
+        JQ("#cluster-list").remove();
         Datavis.reset();
         NetworkData.clear({ silent: true });
     }
     
     var SearchBox = Backbone.View.extend({
-        el: $("#nav-search"),
+        el: JQ("#nav-search"),
         events: { "submit": "search" },
         search: function (data) {
-            var query = $("#nav-search [type=text]").val();
+            var query = JQ("#nav-search [type=text]").val();
             resetNetwork = false;
             router.navigate("#node/" + query, true);
         }
@@ -549,7 +549,7 @@ require(['jquery', 'backbone', 'underscore',
         },
         addNodes: function (nodeInput, datasetInput) {
             if (blurb) {
-                blurb.fadeOut(function () { $(this).remove(); });
+                blurb.fadeOut(function () { JQ(this).remove(); });
                 setLayout();
             }
             setLayout();
@@ -600,8 +600,8 @@ require(['jquery', 'backbone', 'underscore',
             });
         },
         default: function () {
-            $("#datavis").empty();
-            $("#cluster-list").remove();
+            JQ("#datavis").empty();
+            JQ("#cluster-list").remove();
             blurb = new Blurb({ parent: "#datavis", router: router });
         }
     });

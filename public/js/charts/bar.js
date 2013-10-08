@@ -1,4 +1,4 @@
-define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
+define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
     var defaults = {
         yTitle: 'Y Axis',
         axisLabelFontSize: 10,
@@ -17,7 +17,7 @@ define(['jquery', 'd3', 'underscore'], function ($, d3, _) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        var $el = $(options.element);
+        var $el = JQ(options.element);
         var data;
         self.setData = function (inData) {
             if (typeof inData === "object") {

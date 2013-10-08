@@ -5,7 +5,7 @@ define([
     "util/syntax",
     "util/modal",
     "jquery-ui"
-], function ($, _, Progress, Syntax, Modal) {
+], function (JQ, _, Progress, Syntax, Modal) {
     var viewportCounter = 1;
     var defaults = {
         height: 400,
@@ -14,12 +14,13 @@ define([
         toolbox: true,
         maximize: true,
         resizable: false,
-        toolboxHides: false
+        toolboxHides: false,
+        sortContainer: null
     };
     var MaximizeModal = new Modal({
         backdrop: true,
-        height: $("body").height() - 100,
-        width: $("body").width() - 100
+        height: JQ("body").height() - 100,
+        width: JQ("body").width() - 100
     });
     MaximizeModal.init();
     var ExportModal = new Modal({
@@ -27,21 +28,21 @@ define([
         contentId: "export-content"
     });
     ExportModal.footer(
-        $("<a>", { href: "#", download: "export.json" })
+        JQ("<a>", { href: "#", download: "export.json" })
             .addClass("btn btn-primary")
-            .append($("<i>").addClass("icon-download-alt"))
+            .append(JQ("<i>").addClass("icon-download-alt"))
             .append(" Download").click(function (e) {
                 e.preventDefault();
                 var uriContent =
                     "data:application/json," +
-                    encodeURIComponent($("#export-content").text());
+                    encodeURIComponent(JQ("#export-content").text());
                 window.open(uriContent, "export.json");
                 return false;
             }
         )
     );
     ExportModal.init();
-    $(".viewport")
+    JQ(".viewport")
         .attr('unselectable', 'on')
         .css('user-select', 'none')
         .on('selectstart', false);
@@ -59,21 +60,21 @@ define([
     function Viewport(options) {
         var self = this;
         options = options ? _.clone(options) : {};
-        options.parent = $(options.parent);
+        options.parent = JQ(options.parent);
         if (!options.height && options.parent.height() > 0)
             options.height = options.parent.height();
         _.defaults(options, defaults);
         options.id = options.id || ["viewport", viewportCounter].join("-");
         viewportCounter++;
         
-        var div = $("<div>")
+        var div = JQ("<div>")
             .addClass("viewport")
             .attr("data-title", options.title)
             .attr("id", options.id + "-wrapper")
             .css("min-height", options.height)
-            .css("min-width", options.width)
+            .css("min-width", options.width);
         if (options.classes) { div.addClass(options.classes); }
-        var content = $("<div>")
+        var content = JQ("<div>")
             .addClass("viewport-content")
             .attr("id", options.id);
         content.progress = new Progress({ element: content });
@@ -81,7 +82,7 @@ define([
         div.append(content);
         content
             .css("min-height", div.height())
-            .css("min-width", div.width())
+            .css("min-width", div.width());
         div.css("width", "99%");
         div.css("height", "99%");
 
@@ -98,14 +99,14 @@ define([
                 }).on("mouseleave", function (e) {
                     e.preventDefault();
                     self.toolbox._isShown = false;
-                    self.toolbox.hide('fast')
+                    self.toolbox.hide('fast');
                 }).on("click", function (e) {
-                    $(this).find(".dropdown-menu").toggle();
+                    JQ(this).find(".dropdown-menu").toggle();
                     e.stopPropagation();
-                })
+                });
             }
-            if (options.sortContainer) {
-                var target = $(options.sortContainer);
+            if (options.sortContainer !== null) {
+                var target = JQ(options.sortContainer);
                 target.sortable({
                     containment: target,
                     handle: ".drag-button",
@@ -113,67 +114,67 @@ define([
                     tolerance: "pointer",
                     helper: "clone"
                 });
-                target.disableSelection()
+                target.disableSelection();
             }
         }
         content.showError = function (params) {
             params = params ? _.clone(params) : {};
             params.message = params.message || "Viewport error";
             content.empty();
-            content.append($("<div>").addClass("alert alert-error")
-                .append($("<h3>").text("Error"))
-                .append($("<span>").html(params.message)));
-        }
+            content.append(JQ("<div>").addClass("alert alert-error")
+                .append(JQ("<h3>").text("Error"))
+                .append(JQ("<span>").html(params.message)));
+        };
         content.addTool = function (tool) {
             return self.toolbox.find("#viewport-toolbox").append(
-                $("<li>").append(tool)
+                JQ("<li>").append(tool)
             );
-        }
+        };
         content.renderer = function (r) {
             self.renderer = r;
-        }
+        };
         content.toolbox = function () {
             return self.toolbox;
-        }
+        };
         return content;
         
         function createToolbox(options) {
-            var div = $("<div>")
+            var div = JQ("<div>")
                 .addClass("viewport-toolbox btn-group btn-group-sm");
-            div.append($("<div>").addClass("btn-group btn-group-sm")
-                .append($("<a>", { href: "#", "data-toggle": "dropdown" })
+            div.append(JQ("<div>").addClass("btn-group btn-group-sm")
+                .append(JQ("<a>", { href: "#", "data-toggle": "dropdown" })
                     .addClass("btn btn-default")
-                    .html("<i class=\"icon icon-cog\"></i>")
-                ).append($("<ul>", {
+                    .html(JQ("<i>", { class: "icon icon-cog" }))
+                    .dropdown()
+                ).append(JQ("<ul>", {
                     id: "viewport-toolbox",
                     class: "dropdown-menu"
-                }).append($("<li>").html($("<a>", {
-                    href: window.location.hash
-                }).html("<i class=\"icon icon-download-alt\"></i> Export data"))
-                    .click(function () {
-                        if (self.renderer == null) {
-                            return;
-                        }
+                }).append(JQ("<li>")
+                    .append(JQ("<a>", { href: "#" + window.location.hash })
+                        .html(JQ("<i>", { class: "icon icon-download-alt" })
+                            .append(" Export data")))
+                    .click(function (event) {
+                        event.preventDefault();
+                        if (self.renderer === null) { return; }
                         var exportData = Syntax(self.renderer.getData());
-                        $("#export-content").empty().append($("<pre>")
+                        JQ("#export-content").empty().append(JQ("<pre>")
                             .html(exportData)
                         );
                         ExportModal.show();
                         return false;
-                    })
-                    )
+                    }))
                 )
             );
             if (options.maximize) {
-                div.append($("<div>", { id: "btn-maximize" })
+                div.append(JQ("<div>", { id: "btn-maximize" })
                     .addClass("btn btn-default")
-                    .html("<i class=\"icon-resize-full\"></i>")
+                    .html(JQ("<i>", { class: "icon-resize-full" }))
                     .click(toggleMaximize));
             }
-            if (options.sortContainer != null) {
-                div.append($("<div>")
+            if (options.sortContainer !== null) {
+                div.append(JQ("<div>")
                     .addClass("btn btn-default drag-button")
-                    .html("<i class=\"icon-move\"></i>"))
+                    .html(JQ("<i>", { class: "icon-move" })));
             }
             return div;
         }
@@ -186,7 +187,7 @@ define([
                 MaximizeModal.emptyBody();
                 MaximizeModal.shown = false;
                 self.toolbox.find("#btn-maximize").find("i")
-                    .removeClass().addClass("icon-resize-full")
+                    .removeClass().addClass("icon-resize-full");
             }
             if (MaximizeModal.shown) {
                 minimize();
@@ -208,4 +209,4 @@ define([
         }
     }
     return Viewport;
-})
+});

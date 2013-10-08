@@ -1,8 +1,8 @@
 define(['jquery', 'util/eventemitter', 'util/dragbox', 'util/scale'],
-function ($, EventEmitter, DragBox, Scale) {
+function (JQ, EventEmitter, DragBox, Scale) {
     function createCanvas(container, options) {
         options = (options || {});
-        var canvas = $("<canvas>")
+        var canvas = JQ("<canvas>")
             .attr("width", container.width())
             .attr("height", container.height())
             .css("position", "absolute")
@@ -18,7 +18,7 @@ function ($, EventEmitter, DragBox, Scale) {
         options = options || {};
         options.filterContig =
             (options.filterContig || function () { return false; });
-        var $element = $(options.element);
+        var $element = JQ(options.element);
         
         var yAxis = new Scale(),
             xAxis = new Scale();
@@ -75,7 +75,7 @@ function ($, EventEmitter, DragBox, Scale) {
             canvasWidth  = containerWidth  - YAXIS_WIDTH;
             $element.css("position", "relative");
             self.plotArea =
-                $('<div>').css("position", "absolute").css("left", YAXIS_WIDTH);
+                JQ('<div>').css("position", "absolute").css("left", YAXIS_WIDTH);
             self.plotArea.width(canvasWidth).height(canvasHeight);
             ctx = createCanvas(self.plotArea, { z: 5 });
             $element.append(self.plotArea);
@@ -364,6 +364,6 @@ function ($, EventEmitter, DragBox, Scale) {
         }
     };
 
-    $.extend(ManhattanPlot.prototype, EventEmitter);    
+    JQ.extend(ManhattanPlot.prototype, EventEmitter);    
     return ManhattanPlot;
 });
