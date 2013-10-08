@@ -22,7 +22,6 @@ function ($, _, Network, Viewport) {
                 datasetFilter(edge);
         },
         nodeInfo: function (node, makeRow) {
-            makeRow("Name", node.name);
             makeRow("Type", node.type);
             makeRow("KBase ID", link(node.entityId, "#"));
             if (node.type === "GENE" && node.userAnnotations !== undefined) {
@@ -39,6 +38,15 @@ function ($, _, Network, Viewport) {
                     });
                     makeRow("GO terms", goList);
                 }
+            }
+        },
+        searchTerms: function (node, indexMe) {
+            indexMe(node.entityId);
+            indexMe(node.kbid);
+            if (node.userAnnotations !== undefined) {
+                var annotations = node.userAnnotations;
+                if (annotations.functions !== undefined)
+                    indexMe(annotations.functions);
             }
         }
     });
@@ -85,10 +93,15 @@ function ($, _, Network, Viewport) {
         var wrapper = $("<div/>", { class: "btn btn-default tool" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
-                .append($("<input/>", { type: "text", class: " input-xs" })))
+                .append($("<input/>", {
+                    id: "network-search", type: "text", class: " input-xs"
+                })))
             .append($("<div/>", { class: "btn-pad" })
                 .append($("<i/>", { class: "icon-search" })));
         $container.prepend(wrapper);
+        $("#network-search").keyup(function () {
+            network.updateSearch($(this).val());
+        });
     }
     
     function addDatasetDropdown($container, data) {

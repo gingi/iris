@@ -5,7 +5,10 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         dock: true,
         joinAttribute: "name",
         nodeLabel: {},
-        highlightNeighbors: true
+        highlightNeighbors: true,
+        searchTerms: function (node, indexMe) {
+            indexMe(node.name);
+        }
     };
     var visCounter = 1;
     
@@ -43,6 +46,9 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
      * @param nodeFilter {Object} { type: "CLUSTER" }
      * @param highlightNeighbors {Boolean}
      * @param nodeInfo {Function}
+     * @param searchTerms {Function} searchTerms(node, indexMe) {
+     *      indexMe(node.name)
+     * }
      */
     var Network = function (options) {
         var self = this;
@@ -242,21 +248,56 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
             return this;
         }
         
-        self.highlight = function (name) {
-            var node = self.findNode(name, "name");
-            if (node) {
-                d3.select("#" + node.elementId)
-                    .style("stroke", HIGHLIGHT_COLOR)
-                    .style("stroke-width", 3)
-                    .style("stroke-location", "outside")
-            }
-            return this;
+        function _highlight(element) {
+            element
+                .style("stroke", HIGHLIGHT_COLOR)
+                .style("stroke-width", 3)
+                .style("stroke-location", "outside")
         }
-        self.unhighlightAll = function () {
-            nodeG.selectAll(".node")
+        
+        function _unhighlight(element) {
+            element
                 .style("stroke", null)
                 .style("stroke-width", null)
                 .style("stroke-location", null)
+        }
+        
+        self.highlight = function (name) {
+            var node = self.findNode(name, "name");
+            if (node) {
+                _highlight(d3.select("#" + node.elementId));
+            }
+            return this;
+        }
+
+        self.updateSearch = function (searchTerm) {
+            searchRegEx = new RegExp(searchTerm.toLowerCase());
+            return svgNodes.each(function (d) {
+                var element, match = -1;
+                var searchContents = [];
+                options.searchTerms(d, function (text) {
+                    searchContents.push(text);
+                });
+                element = d3.select(this);
+                _.each(searchContents, function (text) {
+                    match =
+                        _.max([match, text.toLowerCase().search(searchRegEx)]);
+                });
+                console.log("Match?", match, searchContents);
+                if (searchTerm.length > 0 && match >= 0) {
+                    _highlight(element);
+                    return d.searched = true;
+                } else {
+                    d.searched = false;
+                    _unhighlight(element);
+                }
+            });
+        };
+
+
+
+        self.unhighlightAll = function () {
+            _unhighlight(nodeG.selectAll(".node"));
             return this;
         }
         
