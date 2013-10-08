@@ -5,6 +5,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         dock: true,
         joinAttribute: "name",
         nodeLabel: {},
+        highlightLink: true
     };
     var visCounter = 1;
     
@@ -33,11 +34,14 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
     var NODE_SIZE  = { GENE: 8, CLUSTER: 12 };
     var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
     var EDGE_COLOR = "#999";
+    var SELECT_FILL_COLOR    = "#444";
+    var SELECT_STROKE_COLOR  = "#222";
     
     /**
      * @constructor
      * @param infoOn {String} (all|click|hover)
      * @param nodeFilter {Object} { type: "CLUSTER" }
+     * @param highlightLink {Boolean}
      */
     var Network = function (options) {
         var self = this;
@@ -522,24 +526,32 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 z: 2000
             });
         self.clickNode = function (d, element) {
-            if (selected) {
-                selected.style["fill"] = originalFill;
-            }
             if (selected == element) {
                 hud.dismiss();
                 selected = null;
                 return;
             }
             selected = element;
-            originalFill = selected.style["fill"];
-            var fill = d3.hsl(originalFill);
-            selected.style["fill"] = "#444";
+            var neighs = self.neighbors(d);
+            var neighborSelect = { nodes: {}, links: {} };
+            _.each(neighs, function (n) {
+                neighborSelect.links[n[1].id] = true;
+                neighborSelect.nodes[n[0].id] = true;
+            });
+            neighborSelect.nodes[d.id] = true;
+            svgLinks.style("stroke", function (n) {
+                return neighborSelect.links[n.id]
+                    ? SELECT_STROKE_COLOR : EDGE_COLOR;
+            });
+            svgNodes.style("fill", function (n) {
+                return neighborSelect.nodes[n.id]
+                    ? SELECT_FILL_COLOR : groupColor[n.id];
+            });
         
             hud.empty().append(nodeInfo(d));
             hud.show();
             hud.on("dismiss", function () {
                 if (selected != null) {
-                    selected.style["fill"] = originalFill;
                     selected = null;
                 }
             });
