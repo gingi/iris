@@ -6,7 +6,7 @@
 exports.index = function (req, res) {
     res.render('index', {
         title: 'KBase Data Visualization Library',
-        version: "0.2.1"
+        version: "0.2.2"
     });
 };
 
