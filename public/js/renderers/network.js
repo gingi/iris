@@ -560,17 +560,18 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 }
             });
         }
-        
-        // TODO: Get this out of the renderer.
+
         function nodeInfo(d) {
             var $table =
-                $("<table id='nodeInfo' class='table table-condensed'>")
-                .append($("<tbody>"));
+                $("<table/>", {
+                    id: "nodeInfo", class: "table table-condensed"
+                })
+                .append($("<tbody/>"));
             function row(key, val) {
                 if (!val) return;
                 $table.find("tbody").append($("<tr>")
                     .append($("<th>").text(key))
-                    .append($("<td>").text(val))
+                    .append($("<td>").html(val))
                 );
             }
             if (options.nodeInfo === undefined) {
@@ -579,7 +580,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                 row("KBase ID", d.entityId);
                 row("Neighbors", self.neighbors(d).length);
             } else {
-                options.nodeInfo($table)
+                options.nodeInfo(d, row);
             }
             return $table;
         }
