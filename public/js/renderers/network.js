@@ -283,7 +283,6 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
                     match =
                         _.max([match, text.toLowerCase().search(searchRegEx)]);
                 });
-                console.log("Match?", match, searchContents);
                 if (searchTerm.length > 0 && match >= 0) {
                     _highlight(element);
                     return d.searched = true;
