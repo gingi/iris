@@ -5,12 +5,17 @@ function ($, Network, Viewport) {
         title: "Network",
         maximize: true
     });
-    viewport.css("min-height", "700px");
     var network = new Network({
         element: viewport,
         dock: false,
-        nodeLabel: { type: "CLUSTER" }
+        nodeLabel: { type: "CLUSTER" },
+        infoOn: "hover",
+        edgeFilter: function (edge) {
+            return edge.source != edge.target &&
+            edge.strength >= 0.7;
+        }
     });
+    
     $.getJSON("/data/network/kbase/coex").done(function (data) {
         network.setData(data);
         network.render();
