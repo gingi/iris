@@ -1,5 +1,5 @@
 require(['jquery', 'backbone', 'underscore', 'renderers/heatmap', 'util/viewport'],
-function ($, Backbone, _, Heatmap, Viewport) {
+function (JQ, Backbone, _, Heatmap, Viewport) {
     function randomData(num) {
         var genes = new Array(num);
         var matrix = [];
@@ -43,7 +43,7 @@ function ($, Backbone, _, Heatmap, Viewport) {
     });
     
     var randomViewport = new Viewport({
-        parent: $("#datavis"),
+        parent: JQ("#datavis"),
         width: 150,
         height: 150,
         title: "Random Heatmap"
@@ -85,7 +85,7 @@ function ($, Backbone, _, Heatmap, Viewport) {
     });
     var expression = new ExpressionModel;
     var viewport = new Viewport({
-        parent: $("#datavis"),
+        parent: JQ("#datavis"),
         title: "Expression Profile"
     })
     var view = new View({

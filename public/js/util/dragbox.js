@@ -1,9 +1,9 @@
-define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
+define(['jquery', 'util/eventemitter'], function (JQ, EventEmitter) {
     var FGCOLOR = "red";
     function DragBox(element, options) {
         var self = this;
         options = (options || {})
-        element = $(element);
+        element = JQ(element);
 
         var tool = new Object();
         tool.started = false;
@@ -14,7 +14,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             text:      null
         };
 
-        var canvas = $("<canvas>")
+        var canvas = JQ("<canvas>")
             .attr("width", element.width())
             .attr("height", element.height())
             .css("position", "absolute")
@@ -109,7 +109,7 @@ define(['jquery', 'util/eventemitter'], function ($, EventEmitter) {
             handlers.text = callback;
         }
     }
-    $.extend(DragBox.prototype, EventEmitter);
+    JQ.extend(DragBox.prototype, EventEmitter);
     return DragBox;
     
 })

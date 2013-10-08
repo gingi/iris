@@ -7,7 +7,7 @@ define(function () {
 	    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
 	        var cls = 'number';
 	        if (/^"/.test(match)) {
-	            if (/:$/.test(match)) {
+	            if (/:JQ/.test(match)) {
 	                cls = 'key';
 	            } else {
 	                cls = 'string';
