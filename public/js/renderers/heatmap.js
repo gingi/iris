@@ -1,5 +1,5 @@
 define(['jquery', 'd3', 'underscore', 'util/dragbox'],
-function ($, d3, _, DragBox) {
+function (JQ, d3, _, DragBox) {
     var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 4;
     var MAX_CELL_SIZE = 60;
@@ -14,7 +14,7 @@ function ($, d3, _, DragBox) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        var element = $(options.element);
+        var element = JQ(options.element);
         
         var matrix = [], row, columns;
         var maxScore;
@@ -81,7 +81,7 @@ function ($, d3, _, DragBox) {
             var adjWidth  = adjustedDim(columns);
             var adjHeight = adjustedDim(rows);
             var containerId = element.attr('id') + "-container";
-            var container = $("<div>").attr("id", containerId)
+            var container = JQ("<div>").attr("id", containerId)
                 .css("position", "relative")
                 .width(width)
                 .height(height);
@@ -127,7 +127,7 @@ function ($, d3, _, DragBox) {
             var quantize = d3.scale
                 .quantile().domain([0, maxScore]).range(d3.range(9));
             var dragbox =
-                new DragBox($("#" + element.attr('id') + "-plotarea"));
+                new DragBox(JQ("#" + element.attr('id') + "-plotarea"));
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
             })

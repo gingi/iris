@@ -1,6 +1,6 @@
 define(['jquery', 'd3', 'underscore',
     'util/dock', 'util/eventemitter', 'util/hud'],
-function ($, d3, _, Dock, EventEmitter, HUD) {
+function (JQ, d3, _, Dock, EventEmitter, HUD) {
     var defaults = {
         dock: true,
         joinAttribute: "name",
@@ -54,7 +54,7 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        var $element = $(options.element);
+        var $element = JQ(options.element);
         var _idSequence = 1;
         var _autoUpdate = false;
         var _initialized = false;
@@ -603,15 +603,15 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
 
         function nodeInfo(d) {
             var $table =
-                $("<table/>", {
+                JQ("<table/>", {
                     id: "nodeInfo", class: "table table-condensed"
                 })
-                .append($("<tbody/>"));
+                .append(JQ("<tbody/>"));
             function row(key, val) {
                 if (!val) return;
-                $table.find("tbody").append($("<tr>")
-                    .append($("<th>").text(key))
-                    .append($("<td>").html(val))
+                $table.find("tbody").append(JQ("<tr>")
+                    .append(JQ("<th>").text(key))
+                    .append(JQ("<td>").html(val))
                 );
             }
             if (options.nodeInfo === undefined) {
@@ -809,13 +809,13 @@ function ($, d3, _, Dock, EventEmitter, HUD) {
         }
         self.setElement = function (element) {
             options.element = element;
-            $element = $(options.element);
+            $element = JQ(options.element);
         }
         self.dock = dock;
         self.update = update;
         
         return self;
     };
-    $.extend(Network.prototype, EventEmitter);
+    JQ.extend(Network.prototype, EventEmitter);
     return Network;
 });

@@ -5,8 +5,11 @@ requirejs.config({
         datatables:   "jquery.dataTables",
         slider:       "bootstrap-slider"
     },
+    map: {
+        "*":          { jquery: "noconflict" },
+        "noconflict": { jquery: "jquery" }
+    },
     shim: {
-        jquery:       { exports: ["$", "jQuery"] },
         d3:           { exports: "d3"          },
         underscore:   { exports: "_"           },
         colorbrewer:  { exports: "colorbrewer" },
