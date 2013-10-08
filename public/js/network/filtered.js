@@ -28,7 +28,11 @@ function ($, Network, Viewport) {
     });
     
     function addSlider($container) {
-        var wrapper = $("<div/>", { class: "btn btn-default tool" });
+        var tipTitle = "Minimum edge strength: ";
+        var wrapper = $("<div/>", {
+            id: "strength-slider",
+            class: "btn btn-default tool"
+        });
         var slider = $("<div/>", { style: "min-width:70px" });
         wrapper
             .append($("<div/>", { class: "btn-pad" })
@@ -36,11 +40,17 @@ function ($, Network, Viewport) {
             .append($("<div/>", { class: "btn-pad" })
                 .append(slider));
         $container.prepend(wrapper);
+        $("#strength-slider").tooltip({
+           title: tipTitle + minStrength.toFixed(2),
+           placement: "bottom"
+        });
         slider.slider({
             min: 0, max: 1, step: 0.05, value: 0.8,
             slide: function (event, ui) {
                 minStrength = ui.value;
                 network.update();
+                $("#strength-slider").next().find(".tooltip-inner")
+                    .text(tipTitle + minStrength.toFixed(2));
             }
         });
     }
