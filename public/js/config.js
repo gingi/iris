@@ -20,6 +20,7 @@ requirejs.config({
             { exports: "Backbone", deps: ["backbone"] },
         "jquery-ui":  { deps: ["jquery"] },
         slider:       { deps: ["jquery"] },
-        datatables:   { deps: ["jquery"], exports: "jQuery.fn.dataTableExt" }
+        datatables:   { deps: ["jquery"], exports: "jQuery.fn.dataTableExt" },
+        revalidator:  { exports: "window.json" }
     }
 })

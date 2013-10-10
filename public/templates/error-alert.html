@@ -1,0 +1,12 @@
+<div class="alert alert-block alert-danger">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <h4>Error!</h4>
+  <%= message %>
+  <% if (errors !== undefined) { %>:
+      <ul>
+      <% _.each(errors, function (e) { %>
+          <li><%= e %></li>
+      <% }); %>
+      </ul>
+  <% } %>
+</div>
