@@ -1,8 +1,8 @@
 require([
     "jquery", "underscore", "renderers/network", "util/viewport",
-    "text!sample-data/network1.json", "jquery-ui"
+    "text!sample-data/network1.json", "transformers/netindex", "jquery-ui"
 ],
-function (JQ, _, Network, Viewport, Example) {
+function (JQ, _, Network, Viewport, Example, NetIndex) {
     Example = JSON.parse(Example);
     var minStrength = 0.7;
     var viewport = new Viewport({
@@ -58,7 +58,7 @@ function (JQ, _, Network, Viewport, Example) {
     addSlider(toolbox);
     addSearch(toolbox);
     
-    var fetchData = Example;
+    var fetchData = NetIndex(Example);
     // var fetchData = JQ.getJSON("/data/network/kbase/coex");
     
     JQ.when(fetchData).done(function (data) {
