@@ -237,18 +237,18 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             };
         };
         
-        this.setNodes = function (nodes) {
+        this.setNodes = function (input) {
             initialize();
-            force.nodes(nodes);
+            force.nodes(input);
             nodes = force.nodes();
             nodes.forEach(function (node) { setColor(node); });
             _idSequence = d3.max(nodes, function (n) { return n.id; }) + 1;
             return this;
         };
         
-        this.setEdges = function (edges) {
+        this.setEdges = function (input) {
             initialize();
-            force.links(edges);
+            force.links(input);
             links = force.links();
             return this;
         };
