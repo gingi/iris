@@ -688,3 +688,11 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
     font-weight: inherit;
     
 }
+.slider-container {
+    width: 100%;
+    padding: 10px 10px;
+    min-height: 1em;
+}
+.viewport .dropdown-menu {
+    overflow-y: inherit;
+}

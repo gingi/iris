@@ -1,8 +1,9 @@
 require([
     "jquery", "underscore", "renderers/network", "util/viewport",
-    "text!sample-data/network1.json", "transformers/netindex", "jquery-ui"
+    "text!sample-data/network1.json", "transformers/netindex", "util/slider",
+    "jquery-ui"
 ],
-function (JQ, _, Network, Viewport, Example, NetIndex) {
+function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
     Example = JSON.parse(Example);
     var minStrength = 0.7;
     var viewport = new Viewport({
@@ -53,13 +54,16 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
         }
     });
     viewport.renderer(network);
-    viewport.addTool(JQ("<a/>", { href: "#" }).html("Click me!"));
+    forceSlider(viewport, "charge",   "Node charge", 5);
+    forceSlider(viewport, "distance", "Edge distance");
+    forceSlider(viewport, "strength", "Edge strength", 0.01);
+    forceSlider(viewport, "gravity",  "Gravity", 0.005);
     var toolbox = viewport.toolbox();
     addSlider(toolbox);
     addSearch(toolbox);
     
-    var fetchData = NetIndex(Example);
-    // var fetchData = JQ.getJSON("/data/network/kbase/coex");
+    // var fetchData = NetIndex(Example);
+    var fetchData = JQ.getJSON("/data/network/kbase/coex");
     
     JQ.when(fetchData).done(function (data) {
         addDatasetDropdown(toolbox, data);
@@ -72,6 +76,22 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
         }
         network.render();
     });
+    
+    function forceSlider(viewport, property, title, factor) {
+        if (factor === undefined)
+            factor = 1;
+        viewport.addTool((new Slider({
+            title: title,
+            value: 0,
+            min: -10,
+            max: 10,
+            step: 1,
+            slide: function (value) {
+                network.forceDelta(property, value * factor);
+                network.update();
+            }
+        })).element());
+    }
     
     function addSlider($container) {
         var tipTitle = "Minimum edge strength: ";
@@ -99,6 +119,20 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
                     .text(tipTitle + minStrength.toFixed(2));
             }
         });
+/*
+        var thresholdSlider = new Slider({
+            min: 0,
+            max: 1,
+            step: 0.01,
+            value: 0.8,
+            slide: function (event, ui) {
+                minStrength = ui.value;
+                network.update();
+                JQ("#strength-slider").next().find(".tooltip-inner")
+                    .text(tipTitle + minStrength.toFixed(2));
+            }
+        })
+*/
     }
     
     function addSearch($container) {

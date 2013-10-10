@@ -58,6 +58,8 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             charge:        -70
         }
     };
+    var GRAVITY = 0.1;
+    var THETA   = 0.8;
     
     var NODE_SIZE  = { GENE: 8, CLUSTER: 12 };
     var HIGHLIGHT_COLOR = "rgba(255,255,70,0.9)";
@@ -97,6 +99,13 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         var color;
         var visId = "network-vis-" + visCounter++;
         var width, height;
+        var Delta = {
+            charge: 0,
+            distance: 0,
+            strength: 0,
+            gravity: 0,
+            theta: 0
+        };
         
         if (options.infoOn !== undefined) {
             var clickNode = function (event, node, element) {
@@ -424,9 +433,15 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             return physics(key, prop);
         }
         
-        function nodeCharge(d)   { return nodePhysics(d, "charge"); }
-        function linkDistance(d) { return linkPhysics(d, "linkDistance"); }
-        function linkStrength(d) { return linkPhysics(d, "linkStrength"); }
+        function nodeCharge(d)   {
+            return Delta.charge + nodePhysics(d, "charge");
+        }
+        function linkDistance(d) {
+            return Delta.distance + linkPhysics(d, "linkDistance");
+        }
+        function linkStrength(d) {
+            return Delta.strength + linkPhysics(d, "linkStrength");
+        }
 
         if (options.dock) { dock = new Dock(); }
             
@@ -856,6 +871,17 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
         self.dock = dock;
         self.update = update;
+        self.forceDelta = function (property, value) {
+            if (Delta.hasOwnProperty(property)) {
+                Delta[property] += value;
+            }
+            if (property === "gravity") {
+                force.gravity(GRAVITY + value);
+            }
+            if (property === "theta") {
+                force.theta(THETA + value);
+            }
+        };
         
         return self;
     };
