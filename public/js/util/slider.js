@@ -20,6 +20,9 @@ function (JQ, _, template) {
         var tiptext = options.title ?
             function () { return options.title + ": " + datum.toFixed(2); } :
             function () { return datum.toFixed(2) };
+        if (options.label === undefined) {
+            options.label = options.title;
+        }
         var callback = options.slide;
         function onSlide(event, ui) {
             datum = ui.value;
@@ -31,6 +34,7 @@ function (JQ, _, template) {
         if (options.element !== undefined) {
             JQ(options.element).append(self.$wrapper);
         }
+        self.$wrapper.find(".slider-label").append(options.label);
         self.$slider = self.$wrapper.find(".slider");
         self.$slider.tooltip({
             title: tiptext(),
