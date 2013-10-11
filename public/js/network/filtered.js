@@ -1,17 +1,19 @@
 /* jshint sub:true */
 require([
     "jquery", "underscore", "renderers/network", "util/viewport",
-    "text!templates/checkbox.html", "jquery-ui"
+    "text!sample-data/network1.json", "transformers/netindex",
+	"text!templates/checkbox.html", "jquery-ui"
 ],
-function (JQ, _, Network, Viewport, CheckboxTemplate) {
+function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
     "use strict";
+    Example = JSON.parse(Example);
     var minStrength = 0.7;
     var viewport = new Viewport({
         parent: "#datavis",
         title: "Network",
         maximize: true
     });
-    viewport.css("min-height", "800px");
+    viewport.css("min-height", "600px");
     var datasetFilter = function () { return true; };
     var goLink = _.template("http://www.ebi.ac.uk/QuickGO/GTerm?id=<%= id %>");
     var network = new Network({
@@ -60,8 +62,17 @@ function (JQ, _, Network, Viewport, CheckboxTemplate) {
     addSlider(toolbox);
     addSearch(toolbox);
     
-    JQ.getJSON("/data/network/kbase/coex").done(function (data) {
-        network.setData(data);
+    var fetchData = NetIndex(Example);
+    // var fetchData = JQ.getJSON("/data/network/kbase/coex");
+    
+    JQ.when(fetchData).done(function (data) {
+        try {
+            network.setData(data);
+        } catch (error) {
+            require(["text!templates/error-alert.html"], function (template) {
+                JQ("#container").prepend(_.template(template, error));
+            });
+        }
         network.render();
         addDatasetDropdown(toolbox, data);
         addClusterDropdown(toolbox, data);
