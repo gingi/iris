@@ -662,6 +662,7 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 .btn-pad > input {
     line-height: 1em;
     border-width: 1px;
+    padding: 0;
 }
 /* jQuery-UI Slider */
 .ui-slider-horizontal {
@@ -681,4 +682,50 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 .ui-widget-content,
 .ui-state-default, .ui-widget-content .ui-state-default {
     background-image: none;
+}
+.dropdown-menu-item {
+    padding: 3px 20px;
+}
+.dropdown-menu-item > label {
+    display: block;
+    font-weight: normal;
+    clear: both;
+    margin: 0;
+    width: 100%;
+    white-space: nowrap;
+}
+.alert h4 {
+    font-family: inherit;
+    font-weight: inherit;
+    
+}
+.slider-container {
+    width: 100%;
+    height: 1.5em;
+    line-height: 1.5em;
+    vertical-align: middle;
+}
+.viewport .dropdown-menu {
+    overflow-y: inherit;
+}
+.slider-label, .slider-pad {
+    line-height: 1.5em;
+    vertical-align:middle;
+}
+.slider-label {
+    float: left;
+    min-width:10px;
+    padding-right: 5px;
+}
+.slider-pad {
+    float: right;
+}
+.slider {
+    min-width: 60px;
+}
+.dropdown-menu .slider-container {
+    padding: 3px 20px;
+}
+a.ui-slider-handle:focus {
+    outline: none;
 }
