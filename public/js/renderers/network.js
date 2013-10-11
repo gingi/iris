@@ -2,6 +2,7 @@ define(['jquery', 'd3', 'underscore',
     'util/dock', 'util/eventemitter', 'util/hud', 'revalidator'],
 function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
     "use strict";
+    var FIX_NODE_DELAY = 2000;
     var defaults = {
         dock: true,
         joinAttribute: "name",
@@ -591,7 +592,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                     if (fixNodeTimer) {
                         if (fixNodeTimer.node == d) {
                             var timenow = new Date().getTime();
-                            if (timenow - fixNodeTimer.time > 500) {
+                            if (timenow - fixNodeTimer.time > FIX_NODE_DELAY) {
                                 if (!dock || !isDocked(d)) toggleFixed(d);
                             }
                         }
@@ -622,7 +623,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             return size;
         }
 
-        var selected, originalFill,
+        var originalFill,
             hud = new HUD({
                 position: { bottom: 20, left: 20 },
                 width: 300,
@@ -630,12 +631,6 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                 z: 2000
             });
         self.clickNode = function (d, element) {
-            if (selected == element) {
-                hud.dismiss();
-                selected = null;
-                return;
-            }
-            selected = element;
             var neighborSelect = { nodes: {}, links: {} };
 
             if (options.highlightNeighbors) {
@@ -646,21 +641,23 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                 });
             }
             neighborSelect.nodes[d.id] = true;
-            svgLinks.style("stroke", function (n) {
-                return neighborSelect.links[n.id] ?
-                    SELECT_STROKE_COLOR : EDGE_COLOR;
-            });
-            svgNodes.style("fill", function (n) {
-                return neighborSelect.nodes[n.id] ?
-                    SELECT_FILL_COLOR : groupColor[n.id];
-            });
+            function updateStyle() {
+                svgLinks.style("stroke", function (n) {
+                    return neighborSelect.links[n.id] ?
+                        SELECT_STROKE_COLOR : EDGE_COLOR;
+                });
+                svgNodes.style("fill", function (n) {
+                    return neighborSelect.nodes[n.id] ?
+                        SELECT_FILL_COLOR : groupColor[n.id];
+                });
+            }
+            updateStyle();
         
             hud.empty().append(nodeInfo(d));
             hud.show();
             hud.on("dismiss", function () {
-                if (selected !== null) {
-                    selected = null;
-                }
+                neighborSelect = { nodes: {}, links: {} };
+                updateStyle();
             });
         };
 
