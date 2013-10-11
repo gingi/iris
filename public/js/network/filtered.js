@@ -119,7 +119,7 @@ function (JQ, _, Network, Viewport, CheckboxTemplate) {
         var list = JQ("<fieldset>");
         var menu = JQ("<ul>", { class: "dropdown-menu", role: "menu" })
             .append(JQ("<li>").append(list));
-        var allClusters = dropdownCheckbox("all", "All clusters");
+        var allClusters = dropdownCheckbox("all", "All clusters", true);
         allClusters.css("background-color", "#666").css("color", "#fff");
         list.append(allClusters);
         var clusters = [];
@@ -208,11 +208,12 @@ function (JQ, _, Network, Viewport, CheckboxTemplate) {
                 "data-value": value
             }).append(linkText));
     }
-    function dropdownCheckbox(value, label) {
+    function dropdownCheckbox(value, label, checked) {
         return JQ("<div>", { class: "dropdown-menu-item" })
             .append(_.template(CheckboxTemplate, {
                 label: label,
-                value: value
+                value: value,
+                checked: checked
             }));
     }
     function link(content, href, attrs) {
