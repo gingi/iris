@@ -688,3 +688,33 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
     font-weight: inherit;
     
 }
+.slider-container {
+    width: 100%;
+    height: 1.5em;
+    line-height: 1.5em;
+    vertical-align: middle;
+}
+.viewport .dropdown-menu {
+    overflow-y: inherit;
+}
+.slider-label, .slider-pad {
+    line-height: 1.5em;
+    vertical-align:middle;
+}
+.slider-label {
+    float: left;
+    min-width:10px;
+    padding-right: 5px;
+}
+.slider-pad {
+    float: right;
+}
+.slider {
+    min-width: 60px;
+}
+.dropdown-menu .slider-container {
+    padding: 3px 20px;
+}
+a.ui-slider-handle:focus {
+    outline: none;
+}

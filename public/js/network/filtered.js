@@ -1,8 +1,9 @@
 require([
     "jquery", "underscore", "renderers/network", "util/viewport",
-    "text!sample-data/network1.json", "transformers/netindex", "jquery-ui"
+    "text!sample-data/network1.json", "transformers/netindex", "util/slider",
+    "jquery-ui"
 ],
-function (JQ, _, Network, Viewport, Example, NetIndex) {
+function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
     Example = JSON.parse(Example);
     var minStrength = 0.7;
     var viewport = new Viewport({
@@ -53,13 +54,22 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
         }
     });
     viewport.renderer(network);
-    viewport.addTool(JQ("<a/>", { href: "#" }).html("Click me!"));
+    forceSlider(viewport, "charge",   "Node charge", JQ("<i>", {
+        class: "icon-magnet"
+    }), 5);
+    forceSlider(viewport, "distance", "Edge distance", JQ("<i>", {
+        class: "icon-resize-horizontal"
+    }));
+    forceSlider(viewport, "strength", "Edge strength", JQ("<span>", {
+        class: "glyphicon glyphicon-link"
+    }), 0.015);
+    forceSlider(viewport, "gravity",  "Gravity", "G", 0.012);
     var toolbox = viewport.toolbox();
     addSlider(toolbox);
     addSearch(toolbox);
     
-    var fetchData = NetIndex(Example);
-    // var fetchData = JQ.getJSON("/data/network/kbase/coex");
+    // var fetchData = NetIndex(Example);
+    var fetchData = JQ.getJSON("/data/network/kbase/coex");
     
     JQ.when(fetchData).done(function (data) {
         addDatasetDropdown(toolbox, data);
@@ -73,38 +83,47 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
         network.render();
     });
     
-    function addSlider($container) {
-        var tipTitle = "Minimum edge strength: ";
-        var wrapper = JQ("<div/>", {
-            id: "strength-slider",
-            class: "btn btn-default tool"
-        });
-        var slider = JQ("<div/>", { style: "min-width:70px;margin-right:5px" });
-        wrapper
-            .append(JQ("<div/>", { class: "btn-pad" })
-                .append(JQ("<i/>", { class: "icon-adjust" })))
-            .append(JQ("<div/>", { class: "btn-pad" })
-                .append(slider));
-        $container.prepend(wrapper);
-        JQ("#strength-slider").tooltip({
-           title: tipTitle + minStrength.toFixed(2),
-           placement: "bottom"
-        });
-        slider.slider({
-            min: 0, max: 1, step: 0.01, value: 0.8,
-            slide: function (event, ui) {
-                minStrength = ui.value;
+    function forceSlider(viewport, property, title, label, factor) {
+        if (factor === undefined)
+            factor = 1;
+        viewport.addTool((new Slider({
+            title: title,
+            label: label,
+            value: 0,
+            min: -10,
+            max: 10,
+            step: 1,
+            slide: function (value) {
+                network.forceDelta(property, value * factor);
                 network.update();
-                JQ("#strength-slider").next().find(".tooltip-inner")
-                    .text(tipTitle + minStrength.toFixed(2));
+            }
+        })).element());
+    }
+    
+    function addSlider($container) {
+        var slider = new Slider({
+            label: JQ("<i>", { class: "icon-adjust" }),
+            title: "Minimum edge strength",
+            min: 0,
+            max: 1,
+            step: 0.01,
+            value: 0.8,
+            slide: function (value) {
+                minStrength = value;
+                network.update();
             }
         });
+        $container.prepend(JQ("<div>", { class: "btn btn-default tool" })
+            .append(JQ("<div>", { class: "btn-pad" })
+                .append(slider.element())
+            )
+        );
     }
     
     function addSearch($container) {
-        var wrapper = JQ("<div/>", { class: "btn btn-default tool" });
+        var wrapper = JQ("<div>", { class: "btn btn-default tool" });
         wrapper
-            .append(JQ("<div/>", { class: "btn-pad" })
+            .append(JQ("<div>", { class: "btn-pad" })
                 .append(JQ("<input/>", {
                     id: "network-search", type: "text", class: " input-xs"
                 })))
@@ -117,8 +136,8 @@ function (JQ, _, Network, Viewport, Example, NetIndex) {
     }
     
     function addDatasetDropdown($container, data) {
-        var wrapper = JQ("<div/>", { class: "btn-group tool" });
-        var list = JQ("<ul/>", { class: "dropdown-menu", role: "menu" });
+        var wrapper = JQ("<div>", { class: "btn-group tool" });
+        var list = JQ("<ul>", { class: "dropdown-menu", role: "menu" });
         list.append(dropdownLink("All data sets", "", "all"));
         _.each(data.datasets, function (ds) {
             var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
