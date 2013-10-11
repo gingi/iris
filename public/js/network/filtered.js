@@ -25,7 +25,9 @@ function (
         infoOn: "hover",
         edgeFilter: function (edge) {
             return edge.source != edge.target &&
-                (edge.strength >= minStrength || edge.strength === 0) &&
+                (edge.strength >= minStrength ||
+                    edge.source.type === "CLUSTER" ||
+                    edge.target.type === "CLUSTER") &&
                 datasetFilter(edge);
         },
         nodeInfo: function (node, makeRow) {
@@ -215,11 +217,13 @@ function (
                 });
                 return;
             }
+            network.pause();
             if (checked) {
-                network.unhideNode(node);
+                unhideCluster(node);
             } else {
-                network.hideNode(node);
+                hideCluster(node);
             }
+            network.resume();
         });
         var button = JQ("<div>", {
             class: "btn btn-default btn-sm dropdown-toggle",
@@ -230,6 +234,27 @@ function (
             .append(button)
             .append(menu)
         );
+    }
+    
+    function unhideCluster(cluster) {
+        network.unhideNode(cluster);
+        var neighbors = network.neighbors(cluster, null);
+        _.each(neighbors, function (nPair) {
+            console.log("neighbor", nPair)
+            var node = nPair[0];
+            if (node.type === 'GENE')
+                network.unhideNode(node);
+        });
+    }
+
+    function hideCluster(cluster) {
+        var neighbors = network.neighbors(cluster);
+        _.each(neighbors, function (nPair) {
+            var node = nPair[0];
+            if (node.type === 'GENE')
+                network.hideNode(node);
+        })
+        network.hideNode(cluster);
     }
 
     function addDatasetDropdown($container, data) {

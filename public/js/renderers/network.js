@@ -347,7 +347,6 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         function _hashKey(arr) { return arr.join("-"); }
         
         self.render = function () {
-            _autoUpdate = true;
             initialize();
             width =  $element.width();
             height = $element.height();
@@ -364,7 +363,10 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             linkG =  vis.append("g").attr("id", "networkLinks");
             nodeG =  vis.append("g").attr("id", "networkNodes");
             labelG = vis.append("g").attr("id", "networkLabels");
+            force.on("tick", tick);
+            force.start();
             update();
+            _autoUpdate = true;
             return this;
         };
 
@@ -531,9 +533,10 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         
         function update() {
             filterCache = {};
+            var filteredEdges = _.filter(links, edgeFilter);
+            var filteredNodes = _.filter(nodes, nodeFilter);
             if (svgLinks) svgLinks.remove();
-            svgLinks = linkG.selectAll("line.link")
-                .data(_.filter(links, edgeFilter));
+            svgLinks = linkG.selectAll("line.link").data(filteredEdges);
             var linkEnter = svgLinks.enter()
                 .append("line")
                 .attr("class", "link")
@@ -542,8 +545,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             svgLinks.exit().remove();
 
             if (svgNodes) svgNodes.remove();
-            svgNodes = nodeG.selectAll("circle.node")
-                .data(_.filter(nodes, nodeFilter));
+            svgNodes = nodeG.selectAll("circle.node").data(filteredNodes);
             var clickbuffer = false, fixNodeTimer = null;
             var nodeEnter = svgNodes.enter().append("circle")
                 .attr("class", "node")
@@ -608,7 +610,6 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             svgLabels.exit().remove();
             svgNodes.exit().remove();
 
-            force.on("tick", tick);
             if (!_paused) force.start();
         }
         
@@ -693,7 +694,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             args = args || {};
             var neigh = [];
             
-            links.forEach(function (link) {
+            function addNeighbor(link) {
                 var n;
                 if (link.source.id == node.id) {
                     n = link.target;
@@ -710,6 +711,10 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                 }
                 if (n !== undefined && n !== node)
                     neigh.push([ n, link ]);
+            }
+            _.each(links, addNeighbor);
+            _.each(_.values(hiddenNodes), function (hidden) {
+                _.each(hidden.edges, addNeighbor);
             });
             return neigh;
         };
@@ -846,8 +851,16 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             var element = d3.select("#" + node.elementId);
             return element.style(prop);
         };
+        self.isHidden = function (node) {
+            return hiddenNodes[node.id] !== undefined;
+        }
         self.hideNode = function (node) {
-            var hNode = hiddenNodes[node.id] = { node: node, edges: [] };
+            var hNode = hiddenNodes[node.id];
+            if (hNode !== undefined) {
+                return node;
+            } else {
+                hNode = hiddenNodes[node.id] = { node: node, edges: [] };
+            }
             var splicedEdges = [];
             self.removeNode(node.id, splicedEdges);
             splicedEdges.forEach(function (edge) {
@@ -862,8 +875,12 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                 return node;
             node = hNode.node;
             nodes.push(node);
-            hNode.edges.forEach(function (edge) {
-                links.push(edge);
+            _.each(hNode.edges, function (edge) {
+                // Only unhide edge if neighbor is unhidden
+                var neighbor = edge.source.id == node.id ?
+                    edge.target : edge.source;
+                if (!self.isHidden(neighbor))
+                    links.push(edge);
             });
             delete hiddenNodes[node.id];
             if (_autoUpdate) update();
@@ -879,6 +896,14 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
         self.dock = dock;
         self.update = update;
+        self.pause = function () {
+            force.stop();
+            _paused = true;
+        }
+        self.resume = function () {
+            _paused = false;
+            force.resume();
+        }
         self.forceDelta = function (property, value) {
             if (Delta.hasOwnProperty(property)) {
                 Delta[property] += value;
