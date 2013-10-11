@@ -189,22 +189,21 @@ function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
             if (id === "all")
                 return;
             var node = network.findNode(id);
-            if (node === undefined) {
+            if (node === null) {
                 require(["text!templates/error-alert.html"],
                 function (template) {
                     JQ("#container").prepend(_.template(template, {
-                        message: "Could not find node " + node.entityId
+                        message: "Could not find node " + id
                     }));
                 });
+                return;
             }
             if (checked) {
-                console.log("unhiding node");
                 network.unhideNode(node);
             } else {
-                console.log("hiding node");
                 network.hideNode(node);
             }
-        })
+        });
         var button = JQ("<div>", {
             class: "btn btn-default btn-sm dropdown-toggle",
             "data-toggle": "dropdown"
