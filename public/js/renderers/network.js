@@ -366,7 +366,8 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             if (typeof key === 'string') {
                 key = key.toUpperCase();
                 equalToKey = function (val) {
-                    return val !== null && key === val.toUpperCase();
+                    return val !== null &&
+                        key === new String(val).toUpperCase();
                 };
             } else {
                 equalToKey = function (val) {
@@ -374,7 +375,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                 };
             }
             var hash = _hashKey([key, type]);
-            if (_nodeCache[hash] !== null) return _nodeCache[hash];
+            if (_nodeCache[hash] !== undefined) return _nodeCache[hash];
             for (var i in nodes) {
                 if (equalToKey(nodes[i][type])) {
                     _nodeCache[hash] = nodes[i];
@@ -835,7 +836,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
         self.unhideNode = function (node) {
             var hNode = hiddenNodes[node.id];
-            if (hNode === null)
+            if (hNode === undefined)
                 return node;
             node = hNode.node;
             nodes.push(node);
