@@ -707,8 +707,8 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                         if (n[prop] != args[prop])
                             n = null;
                     }
-                }    
-                if (n !== null && n !== node)
+                }
+                if (n !== undefined && n !== node)
                     neigh.push([ n, link ]);
             });
             return neigh;
