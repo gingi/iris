@@ -2,7 +2,7 @@
   <button type="button" class="close" data-dismiss="alert">&times;</button>
   <h4>Error!</h4>
   <%= message %>
-  <% if (errors !== undefined) { %>:
+  <% if (typeof errors !== "undefined") { %>:
       <ul>
       <% _.each(errors, function (e) { %>
           <li><%= e %></li>

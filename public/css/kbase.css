@@ -683,6 +683,17 @@ table.dataTable tr.even td.sorting_3 { background-color: transparent; }
 .ui-state-default, .ui-widget-content .ui-state-default {
     background-image: none;
 }
+.dropdown-menu-item {
+    padding: 3px 20px;
+}
+.dropdown-menu-item > label {
+    display: block;
+    font-weight: normal;
+    clear: both;
+    margin: 0;
+    width: 100%;
+    white-space: nowrap;
+}
 .alert h4 {
     font-family: inherit;
     font-weight: inherit;

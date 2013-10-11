@@ -1,9 +1,13 @@
+/* jshint sub:true */
 require([
     "jquery", "underscore", "renderers/network", "util/viewport",
-    "text!sample-data/network1.json", "transformers/netindex", "util/slider",
-    "jquery-ui"
+    "text!sample-data/network1.json", "transformers/netindex",
+    "util/slider", "text!templates/checkbox.html", "jquery-ui"
 ],
-function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
+function (
+    JQ, _, Network, Viewport, Example, NetIndex, Slider, CheckboxTemplate
+) {
+    "use strict";
     Example = JSON.parse(Example);
     var minStrength = 0.7;
     var viewport = new Viewport({
@@ -21,7 +25,7 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
         infoOn: "hover",
         edgeFilter: function (edge) {
             return edge.source != edge.target &&
-                (edge.strength >= minStrength || edge.strength == 0) &&
+                (edge.strength >= minStrength || edge.strength === 0) &&
                 datasetFilter(edge);
         },
         nodeInfo: function (node, makeRow) {
@@ -29,10 +33,11 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             makeRow("KBase ID", link(node.entityId, "#"));
             if (node.type === "GENE" && node.userAnnotations !== undefined) {
                 var annotations = node.userAnnotations;
-                if (annotations.external_id !== undefined)
-                    makeRow("External ID", link(annotations.external_id, "#"));
-                if (annotations.functions !== undefined)
-                    makeRow("Function", annotations.functions);
+                if (annotations["external_id"] !== undefined)
+                    makeRow("External ID",
+                        link(annotations["external_id"], "#"));
+                if (annotations["functions"] !== undefined)
+                    makeRow("Function", annotations["functions"]);
                 if (annotations.ontologies !== undefined) {
                     var goList = JQ("<ul/>");
                     _.each(_.keys(annotations.ontologies), function (item) {
@@ -48,8 +53,8 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             indexMe(node.kbid);
             if (node.userAnnotations !== undefined) {
                 var annotations = node.userAnnotations;
-                if (annotations.functions !== undefined)
-                    indexMe(annotations.functions);
+                if (annotations["functions"] !== undefined)
+                    indexMe(annotations["functions"]);
             }
         }
     });
@@ -72,7 +77,6 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
     var fetchData = JQ.getJSON("/data/network/kbase/coex");
     
     JQ.when(fetchData).done(function (data) {
-        addDatasetDropdown(toolbox, data);
         try {
             network.setData(data);
         } catch (error) {
@@ -81,6 +85,8 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             });
         }
         network.render();
+        addDatasetDropdown(toolbox, data);
+        addClusterDropdown(toolbox, data);
     });
     
     function forceSlider(viewport, property, title, label, factor) {
@@ -119,13 +125,15 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             )
         );
     }
-    
+
     function addSearch($container) {
         var wrapper = JQ("<div>", { class: "btn btn-default tool" });
         wrapper
             .append(JQ("<div>", { class: "btn-pad" })
                 .append(JQ("<input/>", {
-                    id: "network-search", type: "text", class: " input-xs"
+                    id: "network-search",
+                    type: "text",
+                    class: "input-xs"
                 })))
             .append(JQ("<div/>", { class: "btn-pad" })
                 .append(JQ("<i/>", { class: "icon-search" })));
@@ -134,14 +142,103 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             network.updateSearch(JQ(this).val());
         });
     }
-    
+
+    function addClusterDropdown($container, data) {
+        var list = JQ("<fieldset>");
+        var menu = JQ("<ul>", { class: "dropdown-menu", role: "menu" })
+            .append(JQ("<li>").append(list));
+        var allClusters = dropdownCheckbox("all", "All clusters", true);
+        var allCheckbox = allClusters.find("input");
+        allClusters.css("background-color", "#666").css("color", "#fff");
+        list.append(allClusters);
+        var clusters = [];
+        
+        // A bit of a Schwartzian Transform to sort by neighbors
+        _.map(
+            _.filter(data.nodes, function (n) { return n.type === "CLUSTER"; }),
+            function (node) {
+                clusters.push({
+                    node: node,
+                    neighbors: network.neighbors(node).length
+                });
+            }
+        );
+        _.each(_.sortBy(clusters,
+            function (entry) { return -entry.neighbors; }),
+            function (entry) {
+                var box = dropdownCheckbox(entry.node.id, "", true);
+                var labelDiv = JQ("<div>", { style: "min-width:120px" })
+                .append(
+                    JQ("<span>", { style: "float: left" })
+                        .html(entry.node.entityId)
+                ).append(
+                    JQ("<span>", { style: "float:right;color:#aaa" })
+                        .html("N:" + entry.neighbors)
+                );
+                box.children("label").first().append(labelDiv);
+                list.append(box);
+            }
+        );
+        list.find("label").click(function (event) {
+            event.preventDefault();
+        });
+        list.find("input[type='checkbox']").click(function (event) {
+            // Prevent menu from closing on checkbox
+            event.stopPropagation();
+            var box = JQ(this);
+            var id = box.val();
+            var checked = box.prop("checked");
+            var clSelect = "input[type='checkbox'][value!='all']";
+            if (id === "all") {
+                list.find(clSelect)
+                    .prop("checked", checked)
+                    .trigger("change");
+            } else {
+                if (list.find(clSelect + ":not(:checked)").length === 0)
+                    allCheckbox.prop("checked", true);
+                else
+                    allCheckbox.prop("checked", false);
+                
+            }
+        }).change(function (event) {
+            var id = JQ(this).val();
+            var checked = JQ(this).prop("checked");
+            if (id === "all")
+                return;
+            var node = network.findNode(id);
+            if (node === null) {
+                require(["text!templates/error-alert.html"],
+                function (template) {
+                    JQ("#container").prepend(_.template(template, {
+                        message: "Could not find node " + id
+                    }));
+                });
+                return;
+            }
+            if (checked) {
+                network.unhideNode(node);
+            } else {
+                network.hideNode(node);
+            }
+        });
+        var button = JQ("<div>", {
+            class: "btn btn-default btn-sm dropdown-toggle",
+            "data-toggle": "dropdown"
+        }).text("Clusters ").append(JQ("<span/>", { class: "caret"}))
+            .dropdown();
+        $container.prepend(JQ("<div>", { class: "btn-group tool" })
+            .append(button)
+            .append(menu)
+        );
+    }
+
     function addDatasetDropdown($container, data) {
         var wrapper = JQ("<div>", { class: "btn-group tool" });
         var list = JQ("<ul>", { class: "dropdown-menu", role: "menu" });
         list.append(dropdownLink("All data sets", "", "all"));
         _.each(data.datasets, function (ds) {
             var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
-            list.append(dropdownLink(dsStr, ds.description, ds.id))
+            list.append(dropdownLink(dsStr, ds.description, ds.id));
         });
         list.find("a").on("click", function (event) {
             var id = JQ(this).data("value");
@@ -152,7 +249,7 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             else
                 datasetFilter = function (edge) {
                     return edge.datasetId == id;
-                }
+                };
             network.update();
         });
         var button = JQ("<div/>", {
@@ -162,22 +259,30 @@ function (JQ, _, Network, Viewport, Example, NetIndex, Slider) {
             .dropdown();
         wrapper
             .append(button)
-            .append(list)
+            .append(list);
         $container.prepend(wrapper);
     }
-    
+
     function dropdownLink(linkText, title, value) {
-        return JQ("<li/>")
-            .append(JQ("<a/>", {
+        return JQ("<li>")
+            .append(JQ("<a>", {
                 href: "#",
                 "data-toggle": "tooltip",
                 "data-container": "body",
                 "title": title,
                 "data-original-title": title,
                 "data-value": value
-            }).html(linkText));
+            }).append(linkText));
+    }
+    function dropdownCheckbox(value, label, checked) {
+        return JQ("<div>", { class: "dropdown-menu-item" })
+            .append(_.template(CheckboxTemplate, {
+                label: label,
+                value: value,
+                checked: checked
+            }));
     }
     function link(content, href, attrs) {
-        return JQ("<a/>", _.extend({ href: href }, attrs)).html(content);
+        return JQ("<a>", _.extend({ href: href }, attrs)).html(content);
     }
 });
