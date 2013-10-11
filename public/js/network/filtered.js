@@ -153,7 +153,12 @@ function (JQ, _, Network, Viewport, CheckboxTemplate) {
         list.find("input[type='checkbox']").click(function (event) {
             // Prevent menu from closing on checkbox
             event.stopPropagation();
-            console.log(JQ(this).val(), JQ(this).prop("checked"));
+            var box = JQ(this);
+            var id = box.val();
+            var checked = box.prop("checked");
+            if (id === "all") {
+                list.find("input[type='checkbox']").prop("checked", checked);
+            }
         })
         var button = JQ("<div>", {
             class: "btn btn-default btn-sm dropdown-toggle",
