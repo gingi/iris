@@ -27,6 +27,7 @@ init:
 
 $(DISTCSS): $(CSS_SOURCES)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
+	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 
 $(DISTLIB): $(SOURCES) $(BUILD)
 	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
