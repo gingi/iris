@@ -157,7 +157,20 @@ function (JQ, _, Network, Viewport, CheckboxTemplate) {
             var id = box.val();
             var checked = box.prop("checked");
             if (id === "all") {
-                list.find("input[type='checkbox']").prop("checked", checked);
+                list.find("input[type='checkbox'][value!='all']")
+                    .prop("checked", checked)
+                    .trigger("change");
+            }
+        }).change(function (event) {
+            var id = JQ(this).val();
+            var checked = JQ(this).prop("checked");
+            if (id === "all")
+                return;
+            var node = network.findNode(id);
+            if (checked) {
+                network.unhideNode(node);
+            } else {
+                network.hideNode(node);
             }
         })
         var button = JQ("<div>", {
