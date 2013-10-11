@@ -57,9 +57,10 @@ function (JQ, _, Network, Viewport) {
     addSearch(toolbox);
     
     JQ.getJSON("/data/network/kbase/coex").done(function (data) {
-        addDatasetDropdown(toolbox, data);
         network.setData(data);
         network.render();
+        addDatasetDropdown(toolbox, data);
+        addClusterDropdown(toolbox, data);
     });
     
     function addSlider($container) {
@@ -105,9 +106,47 @@ function (JQ, _, Network, Viewport) {
         });
     }
     
+    function addClusterDropdown($container, data) {
+        var wrapper = JQ("<div>", { class: "btn-group tool" });
+        var list = JQ("<ul>", { class: "dropdown-menu", role: "menu" });
+        list.append(dropdownLink("All clusters", "", "all"));
+        var clusters = [];
+        _.map(_.filter(data.nodes,
+            function (n) { return n.type === "CLUSTER"; }),
+            function (n) {
+                clusters.push([network.neighbors(n).length, n]);
+            }
+        );
+        _.each(_.sortBy(clusters, function (entry) { return -entry[0]; }),
+            function (entry) {
+                var neighbors = entry[0];
+                var node = entry[1];
+                list.append(
+                    dropdownLink(
+                        node.entityId, neighbors + " neighbors", node.id)
+                        .click(function (event) {
+                            var id = JQ(this).data("value");
+                            list.find("li").removeClass("active");
+                            JQ(this).parent().addClass("active");
+                            network.update();
+                        })
+                );
+            }
+        );
+        var button = JQ("<div>", {
+            class: "btn btn-default btn-sm dropdown-toggle",
+            "data-toggle": "dropdown"
+        }).text("Clusters ").append(JQ("<span/>", { class: "caret"}))
+            .dropdown();
+        wrapper
+            .append(button)
+            .append(list)
+        $container.prepend(wrapper);
+    }
+    
     function addDatasetDropdown($container, data) {
-        var wrapper = JQ("<div/>", { class: "btn-group tool" });
-        var list = JQ("<ul/>", { class: "dropdown-menu", role: "menu" });
+        var wrapper = JQ("<div>", { class: "btn-group tool" });
+        var list = JQ("<ul>", { class: "dropdown-menu", role: "menu" });
         list.append(dropdownLink("All data sets", "", "all"));
         _.each(data.datasets, function (ds) {
             var dsStr = ds.id.replace(/^kb.*\.ws\/\//, "");
@@ -137,8 +176,8 @@ function (JQ, _, Network, Viewport) {
     }
     
     function dropdownLink(linkText, title, value) {
-        return JQ("<li/>")
-            .append(JQ("<a/>", {
+        return JQ("<li>")
+            .append(JQ("<a>", {
                 href: "#",
                 "data-toggle": "tooltip",
                 "data-container": "body",
@@ -148,6 +187,6 @@ function (JQ, _, Network, Viewport) {
             }).html(linkText));
     }
     function link(content, href, attrs) {
-        return JQ("<a/>", _.extend({ href: href }, attrs)).html(content);
+        return JQ("<a>", _.extend({ href: href }, attrs)).html(content);
     }
 });
