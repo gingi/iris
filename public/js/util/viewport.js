@@ -135,7 +135,7 @@ define([
         };
         content.toolbox = function () {
             return self.toolbox;
-        };
+        };        
         return content;
         
         function createToolbox(options) {
