@@ -131,6 +131,7 @@ function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
         var menu = JQ("<ul>", { class: "dropdown-menu", role: "menu" })
             .append(JQ("<li>").append(list));
         var allClusters = dropdownCheckbox("all", "All clusters", true);
+        var allCheckbox = allClusters.find("input");
         allClusters.css("background-color", "#666").css("color", "#fff");
         list.append(allClusters);
         var clusters = [];
@@ -148,7 +149,7 @@ function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
         _.each(_.sortBy(clusters,
             function (entry) { return -entry.neighbors; }),
             function (entry) {
-                var box = dropdownCheckbox(entry.node.id, "");
+                var box = dropdownCheckbox(entry.node.id, "", true);
                 var labelDiv = JQ("<div>", { style: "min-width:120px" })
                 .append(
                     JQ("<span>", { style: "float: left" })
@@ -161,16 +162,26 @@ function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
                 list.append(box);
             }
         );
+        list.find("label").click(function (event) {
+            event.preventDefault();
+        });
         list.find("input[type='checkbox']").click(function (event) {
             // Prevent menu from closing on checkbox
             event.stopPropagation();
             var box = JQ(this);
             var id = box.val();
             var checked = box.prop("checked");
+            var clSelect = "input[type='checkbox'][value!='all']";
             if (id === "all") {
-                list.find("input[type='checkbox'][value!='all']")
+                list.find(clSelect)
                     .prop("checked", checked)
                     .trigger("change");
+            } else {
+                if (list.find(clSelect + ":not(:checked)").length === 0)
+                    allCheckbox.prop("checked", true);
+                else
+                    allCheckbox.prop("checked", false);
+                
             }
         }).change(function (event) {
             var id = JQ(this).val();
@@ -178,9 +189,19 @@ function (JQ, _, Network, Viewport, Example, NetIndex, CheckboxTemplate) {
             if (id === "all")
                 return;
             var node = network.findNode(id);
+            if (node === undefined) {
+                require(["text!templates/error-alert.html"],
+                function (template) {
+                    JQ("#container").prepend(_.template(template, {
+                        message: "Could not find node " + node.entityId
+                    }));
+                });
+            }
             if (checked) {
+                console.log("unhiding node");
                 network.unhideNode(node);
             } else {
+                console.log("hiding node");
                 network.hideNode(node);
             }
         })
