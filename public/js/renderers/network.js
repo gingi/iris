@@ -382,6 +382,13 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
                     return nodes[i];
                 }
             }
+            for (var id in hiddenNodes) {
+                var n = hiddenNodes[id].node;
+                if (equalToKey(n[type])) {
+                    _nodeCache[hash] = n;
+                    return n;
+                }
+            }
             return null;
         };
         this.findEdge = function (source, target) {
