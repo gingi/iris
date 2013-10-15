@@ -3,7 +3,7 @@ var requirejs = require('../../client-require')();
 describe('Iris', function () {
     it("should be an object", function (done) {
         requirejs(['iris'], function (Iris) {
-            Iris.should.be.a("object");
+            Iris.should.be.an.Object;
             done();
         });
     });
@@ -20,7 +20,7 @@ describe('Iris.Widget', function () {
     it("should allow extending", function (done) {
         requirejs(['iris'], function (Iris) {
             Iris.Widget.should.have.property("extend");
-            Iris.Widget.extend.should.be.a("function");
+            Iris.Widget.extend.should.be.a.Function;
             done();
         });
     });
@@ -43,7 +43,7 @@ describe('Iris.Renderer', function () {
     it("should allow extending", function (done) {
         requirejs(['iris'], function (Iris) {
             Iris.Renderer.should.have.property("extend");
-            Iris.Renderer.extend.should.be.a("function");
+            Iris.Renderer.extend.should.be.a.Function;
             done();
         });
     });
@@ -61,8 +61,8 @@ describe('Iris.Renderer', function () {
     it("should have getData and setData", function (done) {
         requirejs(['iris'], function (Iris) {
             var renderer = new Iris.Renderer();
-            renderer.setData.should.be.a("function");
-            renderer.getData.should.be.a("function");
+            renderer.setData.should.be.a.Function;
+            renderer.getData.should.be.a.Function;
             done();
         });
     });
