@@ -60,22 +60,22 @@ define(["util/dropdown"], function (DropDown) {
             itemLink: function (item) {
                 return item.trait ? "#" + item.type + "/" + item.id : null;
             },
-            itemTemplate: $("<script>").attr("type", "text/template").html(
+            itemTemplate: JQ("<script>").attr("type", "text/template").html(
                 '<a href="<%= link %>"><%= title %></a>'
             )
         });
 
         function breadcrumb(type) {
-            return $("<li>")
-                .append($("<a>", { id: "breadcrumb-" + type }))
-                .append($("<span>").addClass("divider").text("/"));
+            return JQ("<li>")
+                .append(JQ("<a>", { id: "breadcrumb-" + type }))
+                .append(JQ("<span>").addClass("divider").text("/"));
         }
         
         function init() {
-            breadcrumbs = $("<ul>", {
+            breadcrumbs = JQ("<ul>", {
                 id: "dropdown-breadcrumbs"
             }).addClass("breadcrumb").css("display", "none");
-            $("#datavis").before(breadcrumbs);
+            JQ("#datavis").before(breadcrumbs);
             
             for (var type in dropdowns) {
                 var dd = dropdowns[type];
@@ -87,7 +87,7 @@ define(["util/dropdown"], function (DropDown) {
                 }, dd));
                 breadcrumbs.append(breadcrumb(type));
             }
-            $("li:last-child", breadcrumbs).children(".divider").remove();
+            JQ("li:last-child", breadcrumbs).children(".divider").remove();
             dropdowns.genome.view.fetch();
         }
         

@@ -1,9 +1,9 @@
 extends layout
 
 block content
-    .row
-        .span12
-            .hero-unit
-                img(src="/img/iris-logo.png", width="100px",align="left",style="margin-right:20px")
-                h1(style="font-family:'Rockwell'") Iris
-                p A web library for data visualization and exploration
+    .jumbotron
+        .container
+            img(src="/img/iris-logo.png", width="120px",align="left",style="margin-right:20px")
+            h1(style="font-family:'Rockwell'") Iris
+                small &nbsp;v#{version}
+            p A web library for data visualization and exploration

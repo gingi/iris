@@ -3,7 +3,7 @@ var requirejs = require('../../client-require')();
 describe('Pcoords', function () {
     it("should be a function", function (done) {
         requirejs(['renderers/pcoords'], function (Pcoords) {
-            Pcoords.should.be.a("function");
+            Pcoords.should.be.a.Function;
             done();
         });
     });

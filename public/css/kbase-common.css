@@ -5,22 +5,9 @@
 
 /* start overwrites default bootstrap styling */
 
-.navbar .brand {
+.navbar-brand {
     padding: 15px 20px 10px;
 }
-
-.navbar-inner {
-    min-height: 50px;
-}
-
-.navbar-fixed-top .navbar-inner {
-    padding-left: 10px;
-}
-
-.navbar-inner li {
-    line-height: 30px;
-}
-
 
 /* end overwrites of default bootstrap styling */
 

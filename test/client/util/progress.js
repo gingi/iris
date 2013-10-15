@@ -7,7 +7,7 @@ function wrapRequire(callback) {
 describe('Iris.Util.Progress', function () {
     it("should be a function", function (done) {
         wrapRequire(function (Progress) {
-            Progress.should.be.a("function");
+            Progress.should.be.a.Function;
             done();
         });
     });

@@ -378,7 +378,7 @@ define(['iris', '../../js/dataTable.min.js'], function (Iris) {
 	  // goto
 	  var goto_text = document.createElement("input");
 	  goto_text.setAttribute("value", offset + 1);
-	  goto_text.setAttribute("class", "span1");
+	  goto_text.setAttribute("class", "col-md-1");
 	  var goto_button = document.createElement("input");
 	  goto_button.setAttribute("type", "button");
 	  goto_button.setAttribute("value", "go");
@@ -418,13 +418,13 @@ define(['iris', '../../js/dataTable.min.js'], function (Iris) {
 		renderer.render(options);
 	      }
 	    };
-	  var ppspan1 = document.createElement("span");
-	  ppspan1.innerHTML = " show ";
-	  var ppspan2 = document.createElement("span");
-	  ppspan2.innerHTML = " rows at a time";
-	  target.appendChild(ppspan1);
+	  var ppcol-md-1 = document.createElement("span");
+	  ppcol-md-1.innerHTML = " show ";
+	  var ppcol-md-2 = document.createElement("span");
+	  ppcol-md-2.innerHTML = " rows at a time";
+	  target.appendChild(ppcol-md-1);
 	  target.appendChild(perpage);
-	  target.appendChild(ppspan2);
+	  target.appendChild(ppcol-md-2);
 	}
       });
 });

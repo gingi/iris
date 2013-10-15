@@ -91,7 +91,7 @@ The client-side library can be used on the browser as in the following example:
 
     <!DOCTYPE html>
     <head>
-        <link rel="stylesheet" href="kbase.css" type="text/css">
+        <link rel="stylesheet" href="iris.css" type="text/css">
         <script src="iris.js" type="text/javascript"></script>
         <script>
             iris.require(['charts/bar'], function (Chart) {

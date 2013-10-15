@@ -11,7 +11,7 @@ require([
     'g2p/blurb',
     'g2p/genepad'],
     function (
-        $, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, Help,
+        JQ, Backbone, _, ManhattanPlot, Progress, Viewport, HUD, Help,
         DropDowns, Blurb, GenePad
     ) {
   
@@ -37,7 +37,7 @@ require([
         parse: function (json) {
             if (json["trait"]) {
                 this.name = json["trait"]["name"];
-                this.genome = json["trait"]["id"].replace(/\.trait.*$/, '');
+                this.genome = json["trait"]["id"].replace(/\.trait.*JQ/, '');
                 this.experiment = this.parentId = json["trait"]["experiment"];
             }
             return json;
@@ -136,14 +136,14 @@ require([
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
             Vent.on('genes', this.fetchModel, this);
-            var wrapper = $("<div>").addClass("span4");
-            $("#subviews").append(wrapper);
+            var wrapper = JQ("<div>").addClass("col-md-4");
+            JQ("#subviews").append(wrapper);
             this.viewport = new Viewport({
                 parent: wrapper,
                 height: 400,
                 title: this.options.title,
                 id: this.options.elementId,
-                sortContainer: $("#subviews")
+                sortContainer: JQ("#subviews")
             });
             this.progress = new Progress({ element: this.viewport });
             this.progress.show();
@@ -167,7 +167,7 @@ require([
             var self = this;
             if (genes === null || genes === "") {
                 self.viewport.append(
-                    $("<div>").addClass("alert alert-block alert-info")
+                    JQ("<div>").addClass("alert alert-block alert-info")
                         .text("Nothing to show!"));
                 this.progress.dismiss();
                 return;
@@ -182,10 +182,10 @@ require([
             this.model.fetch({
                 data: data,
                 error: function (model, response) {
-                    var message = $("<span>")
+                    var message = JQ("<span>")
                         .text("Uhoh! Got bad vibes from the server")
-                        .append($("<h5>").text("The dirty details:"))
-                        .append($("<pre>").addClass("mini")
+                        .append(JQ("<h5>").text("The dirty details:"))
+                        .append(JQ("<pre>").addClass("mini")
                             .append(response.responseText)).html();
                     self.viewport.showError({ message: message });
                 }
@@ -194,11 +194,11 @@ require([
     });
     
     var ManhattanView = Backbone.View.extend({
-        el: $("#datavis"),
+        el: JQ("#datavis"),
         makeRow: function (id) {
             var row = this.$el.find("#" + id);
             if (!row.length) {
-                row = $("<div>").attr("id", id);
+                row = JQ("<div>").attr("id", id);
                 this.$el.append(row);
             }
             if (!row.hasClass('row')) row.addClass("row");
@@ -245,7 +245,7 @@ require([
                 return;
             }
             self.progress.dismiss();
-            var spanContainer = $("<div>").addClass("span12");
+            var spanContainer = JQ("<div>").addClass("col-md-12");
             self.manhattanContainer.empty().append(spanContainer);
             var viewport = new Viewport({
                 parent: spanContainer,
@@ -262,10 +262,10 @@ require([
             });
             vis.render();
             viewport.renderer(vis);
-            viewport.addTool($("<a>", { href: "#", id: "mnh-show-genes" })
+            viewport.addTool(JQ("<a>", { href: "#", id: "mnh-show-genes" })
                 .html("<i class=\"icon-eye-open\"></i> Show genes").click(
                     function () {
-                        var link = $(this);
+                        var link = JQ(this);
                         self.showGenes =
                             self.showGenes === null ? true : !self.showGenes;
                         if (self.showGenes) {
@@ -288,7 +288,7 @@ require([
                     genesXHR.abort();
                     hud.empty();
                 }
-                var tbody = $("<tbody>");
+                var tbody = JQ("<tbody>");
                 hud.empty();
                 hud.show();
                 setInterval(function () {
@@ -299,7 +299,7 @@ require([
                 if (pmin > pmax) {
                     var tmp = pmin; pmin = pmax; pmax = tmp;
                 }
-                genesXHR = $.ajax({
+                genesXHR = JQ.ajax({
                     url: dataAPI('/trait/' + self.model.id + '/genes'),
                     dataType: 'json',
                     data: {
@@ -340,13 +340,13 @@ require([
                 } catch (err) {
                     details = error.responseText;
                 }
-                text = $("<span>")
-                    .append($("<h3>").text("Unexpected Error"))
-                    .append($("<p>").html("Our apologies. Please " +
+                text = JQ("<span>")
+                    .append(JQ("<h3>").text("Unexpected Error"))
+                    .append(JQ("<p>").html("Our apologies. Please " +
                         "<a href=\"mailto:shiran@cshl.edu\">contact us</a> " +
                         "with the following details if this problem persists."
                     ))
-                    .append($("<pre>").css("font-size", "8pt").text([
+                    .append(JQ("<pre>").css("font-size", "8pt").text([
                         "TECHNICAL DETAILS",
                         "=================",
                         "Status:  " +
@@ -357,12 +357,12 @@ require([
             this.progress.dismiss();
             this.manhattanContainer.empty();
             this.subviewBar.empty();
-            this.$el.append($("<div>")
+            this.$el.append(JQ("<div>")
                 .addClass("alert alert-warning").html(text));
         },
         handleGeneSelection: function (genes, status, jqXhr) {
             var self = this;
-            var $p = $("<p>")
+            var $p = JQ("<p>")
                 .css("text-align",  "center")
                 .css("font-weight", "bold")
             $p.text(genes.length > 0
@@ -375,7 +375,7 @@ require([
             hud.progress.dismiss();
             hud.append($p);
             if (jqXhr.status == 206) {
-                hud.append($("<div>").addClass("alert mini").html(
+                hud.append(JQ("<div>").addClass("alert mini").html(
                     "<h3>Warning!</h3><p>Not all genes are shown. " +
                     "The app can't handle more genes at this time. " +
                     "Please select a smaller window.</p>"
@@ -387,7 +387,7 @@ require([
         createSubViews: function () {
             this.subviewBar.empty();
             var network = new Network;
-            var networkFetched = $.Deferred();
+            var networkFetched = JQ.Deferred();
             var networkVis = null;
             var networkView = new SubView({
                 model: network,
@@ -395,7 +395,7 @@ require([
                 elementId: 'network',
                 title: 'Internal Network',
                 renderParams: {
-                    hud: $("#subinfobox"),
+                    hud: JQ("#subinfobox"),
                     dock: false
                 },
                 beforeFetch: function (data) {
@@ -406,11 +406,11 @@ require([
                     networkFetched.resolve();
                     networkVis = vis;
                     vis.on('click-node', function (evt, node) {
-                        var tbody = $("<tbody>");
+                        var tbody = JQ("<tbody>");
                         function row(key, val) {
-                            tbody.append($("<tr>")
-                                .append($("<th>").text(key))
-                                .append($("<td>").text(val))
+                            tbody.append(JQ("<tr>")
+                                .append(JQ("<th>").text(key))
+                                .append(JQ("<td>").text(val))
                             );
                         }
                         row("Name", node.name);
@@ -418,7 +418,7 @@ require([
                         row("KBase ID", node.entityId);
                         row("Neighbors", vis.neighbors(node).length);
                         
-                        networkView.hud.empty().append($("<table>")
+                        networkView.hud.empty().append(JQ("<table>")
                             .addClass("table table-condensed")
                             .append(tbody));
                         networkView.hud.show();
@@ -448,7 +448,7 @@ require([
                 elementId: "gene-table",
                 title: "Trait Genes",
                 afterRender: function () {
-                    $("#gene-table").on("filter", function (evt, tbl) {
+                    JQ("#gene-table").on("filter", function (evt, tbl) {
                         // FIXME: Move functionality to renderer/table
                         if (networkVis) networkVis.unhighlightAll();
                         if (tbl.asDataSearch.length == 0 ||
@@ -482,7 +482,7 @@ require([
     function fetchGeneData(params) {
         var promises = [];
         function makeRequest(genes) {
-            return $.ajax({
+            return JQ.ajax({
                 url: params.url,
                 dataType: 'json',
                 data: { genes: genes.join(",") },
@@ -491,7 +491,7 @@ require([
         for (var i = 0; i < params.genes.length; i++) {
             promises.push(makeRequest(params.genes[i]));
         }
-        return $.when.apply($, promises).then(function () {
+        return JQ.when.apply(JQ, promises).then(function () {
             var json;
             if (arguments.length == 0) {
                 return null;
@@ -504,12 +504,12 @@ require([
             if (_.isArray(args[0])) {
                 json = [];
                 args.forEach(function (arg) {
-                    $.merge(json, arg);
+                    JQ.merge(json, arg);
                 });
             } else {
                 json = {};
                 args.unshift(true, json);
-                $.extend.apply($, args);
+                JQ.extend.apply(JQ, args);
             }
             return json;
         });
@@ -542,8 +542,8 @@ require([
             genepad.setGenes(genes);
         },
         default: function () {
-            $("#datavis").empty();
-            new Blurb($("#datavis"), router);
+            JQ("#datavis").empty();
+            new Blurb(JQ("#datavis"), router);
         },
     });
 

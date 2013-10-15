@@ -1,14 +1,7 @@
 node_modules/
-node_modules/.bin/
 .tm_properties
 dist/iris.*
 dist/doc/api
 conf/services.json
 logs
 build
-
-# Fastbit artifacts
-/bin
-/include
-/lib
-/share

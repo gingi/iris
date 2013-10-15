@@ -1,8 +1,5 @@
-/**
- * @module renderers/heatmap
- */
 define(['jquery', 'd3', 'underscore', 'util/dragbox'],
-function ($, d3, _, DragBox) {
+function (JQ, d3, _, DragBox) {
     var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 4;
     var MAX_CELL_SIZE = 60;
@@ -17,7 +14,7 @@ function ($, d3, _, DragBox) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        var element = $(options.element);
+        var element = JQ(options.element);
         
         var matrix = [], row, columns;
         var maxScore;
@@ -28,20 +25,16 @@ function ($, d3, _, DragBox) {
         
         function maxStrLen(strarr) {
             return _.reduce(strarr, function (m, str) {
-                // FIXME: compute outside of this function?
-                if (typeof str !== "string")
-                    return Math.log(str) / Math.log(10);
-                return Math.max(m, str.length);
+                return Math.max(m, str.length)
             }, 0);
         }
         
         self.setData = function (data) {
-            if (data === null) return;
-            // TODO: Extract into Root or Renderer?
+            if (data == null) return;
             function requiredProperty(prop) {
                 if (!data.hasOwnProperty(prop)) {
-                    throw new Error("setData(): Required property '" +
-                        prop + "' not found");
+                    throw new Error("setData(): Required property '"
+                        + prop + "' not found");
                 }
             }
             requiredProperty('matrix');
@@ -53,7 +46,7 @@ function ($, d3, _, DragBox) {
                 columns = data.columns;
             }
             matrix = data.matrix;
-            if (matrix === null) {
+            if (matrix == null) {
                 throw new Error("Empty matrix");
             }
             if (matrix.length > MAX_CELLS) {
@@ -69,12 +62,12 @@ function ($, d3, _, DragBox) {
                 columns: columns,
                 matrix: matrix
             };
-        };
+        }
+        
         function adjustedDim(arr) {
             return Math.floor(arr.length * (cellSize + options.borderWidth));
         }
         self.render = function () {
-            var i;
             width = element.width();
             height = element.height();
             minDim = Math.min(width, height);
@@ -88,7 +81,7 @@ function ($, d3, _, DragBox) {
             var adjWidth  = adjustedDim(columns);
             var adjHeight = adjustedDim(rows);
             var containerId = element.attr('id') + "-container";
-            var container = $("<div>").attr("id", containerId)
+            var container = JQ("<div>").attr("id", containerId)
                 .css("position", "relative")
                 .width(width)
                 .height(height);
@@ -127,19 +120,19 @@ function ($, d3, _, DragBox) {
                         return [
                             "rotate(-90)translate(", bbox.width/2 + 6,
                             ",", bbox.height,")"
-                        ].join("");
+                        ].join("")
                     });
             
 
             var quantize = d3.scale
                 .quantile().domain([0, maxScore]).range(d3.range(9));
             var dragbox =
-                new DragBox($("#" + element.attr('id') + "-plotarea"));
+                new DragBox(JQ("#" + element.attr('id') + "-plotarea"));
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(" ");
-            });
+            })
 
-            for (i = 0; i < matrix.length; i++) {
+            for (var i = 0; i < matrix.length; i++) {
                 var cell = matrix[i];
                 var row = cell[0];
                 var col = cell[1];
@@ -152,14 +145,14 @@ function ($, d3, _, DragBox) {
             }
             var schemeIndex = 0;
             var schemes = 'RdYlBu Spectral BrBG YlGnBu'.split(" ");
-            for (i in schemes) {
+            for (var i in schemes) {
                 if (schemes[i] == options.colorscheme) {
                     schemes.splice(i, 1);
                     break;
                 }
             }
             schemes.unshift(options.colorscheme);
-        };
+        }
         return self;
     }
     return Heatmap;

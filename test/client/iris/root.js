@@ -3,7 +3,7 @@ var requirejs = require('../../client-require')();
 describe('Iris.Root', function () {
     it("should be a function", function (done) {
         requirejs(['iris/root'], function (Root) {
-            Root.should.be.a("function");
+            Root.should.be.a.Function;
             done();
         })
     })
@@ -33,7 +33,7 @@ describe('Iris.Root', function () {
             object.should.be.instanceof(Root);
             object.should.have.property("foo", "bar");
             object.should.have.property("fn");
-            object.fn.should.be.a("function");
+            object.fn.should.be.a.Function;
             object.fn().should.equal(51);
             done();
         })
