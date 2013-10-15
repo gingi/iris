@@ -30,7 +30,6 @@
       , "underscore"       : ">=1.5.2"
       , "web-cache"        : ">=0.0.3"
       , "xmlhttprequest"   : ">=1.6.0"
-      , "yuidocjs"         : ">=0.3.45"
     }
   , "devDependencies" : {
       "canvas-win" : ">=0.1.7"
