@@ -1,12 +1,24 @@
 /**
+ * @class Widget
+ * 
  * Iris.Widget. A controller class for managing data and renderers for
  * visualization
+ * 
+ *     @example
+ *     var MyWidget = Iris.Widget.extend({});
+ *     var widget = new MyWidget();
+ * 
+ * Or:
+ * 
+ *     @example
+ *     iris.require(["widget"], function (Widget) {
+ *         var widget = Widget.extend({});
+ *     });
  *
- * @module iris/widget
+ * @singleton
  */
 define(["iris/root"], function (Root) {
     return Root.extend({
-        /** Widget defaults */
         defaults: {
             element: "body"
         },
