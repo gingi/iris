@@ -1,4 +1,4 @@
-define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
+define(['jquery', 'd3', 'colorbrewer'], function (JQ, d3, colorbrewer) {
     function PieChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
@@ -6,7 +6,7 @@ define(['jquery', 'd3', 'colorbrewer'], function ($, d3, colorbrewer) {
         options.categories = (options.categories || 9);
         options.colorscheme = (options.colorscheme || 'Spectral'); 
         
-        var $el = $(options.element);
+        var $el = JQ(options.element);
         var data;
         self.setData = function (inData) {
             data = inData;

@@ -1,5 +1,5 @@
 define(['jquery', 'underscore', 'backbone', 'util/progress'],
-function ($, _, Backbone, Progress) {
+function (JQ, _, Backbone, Progress) {
     var Gene = Backbone.Model.extend({
         urlTemplate: _.template("/data/feature/<%= name %>"),
         url: function () {
@@ -14,18 +14,18 @@ function ($, _, Backbone, Progress) {
     });
     
     function popoverContent() {
-        return $("<div>").css("padding", "8px")
-            .append($("<textarea>", {
+        return JQ("<div>").css("padding", "8px")
+            .append(JQ("<textarea>", {
                 id: "textarea-genepad",
                 placeholder: "List of genes",
                 rows: 3
             }))
-            .append($("<div>").css("display", "inline-block")
+            .append(JQ("<div>").css("display", "inline-block")
                 .css("padding-top", 8)
-                .append($("<button>", { id: "btn-genepad-upload" })
+                .append(JQ("<button>", { id: "btn-genepad-upload" })
                     .addClass("btn btn-primary btn-mini")
                     .html("<i class=\"icon-upload-alt\"></i>")))
-            .append($("<div>", { id: "genepad-progress"})
+            .append(JQ("<div>", { id: "genepad-progress"})
                 .css("width", "160px")
                 .addClass("progress-indicator"))
     }
@@ -41,8 +41,8 @@ function ($, _, Backbone, Progress) {
             this.render();
         },
         render: function () {
-            var li = $("<li>")
-                .append($("<a>").text("Gene Pad"));
+            var li = JQ("<li>")
+                .append(JQ("<a>").text("Gene Pad"));
             this.$el.append(li);
             this.popoverContent = popoverContent();
             li.popover({
@@ -54,7 +54,7 @@ function ($, _, Backbone, Progress) {
         upload: function (genes) {
             var progress = new Progress({
                 type: Progress.BAR,
-                element: $("#genepad-progress")
+                element: JQ("#genepad-progress")
             });
             progress.progress("5%")
             progress.show();
@@ -63,10 +63,10 @@ function ($, _, Backbone, Progress) {
                 _.map(_.compact(genes), function (name) { return { name: name }
             }));
             var fetched = 1;
-            var deferred = $.Deferred(), chained = deferred;
+            var deferred = JQ.Deferred(), chained = deferred;
             collection.each(function (model) {
                 chained = chained.then(function () {
-                    var promise = $.Deferred();
+                    var promise = JQ.Deferred();
                     model.fetch({ success: function () {
                         fetched++
                         progress.progress(fetched /
@@ -84,9 +84,9 @@ function ($, _, Backbone, Progress) {
         },
         startPad: function () {
             var genestr =
-                $("#textarea-genepad").val()
+                JQ("#textarea-genepad").val()
                     .replace(/[^\w\s\|\.\-\@]/g, '')
-                    .replace(/^\s+|\s+$/, '')
+                    .replace(/^\s+|\s+JQ/, '')
                     .replace(/,\s*|\s+/g, ',');
             this.router.navigate("#genepad/" + genestr, true);
         },
