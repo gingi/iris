@@ -1,10 +1,10 @@
 exports.index = function (req, res) {
-    res.render('index');
+    res.render('index', { version: "0.1.1" });
 };
 
 exports.widget = function (req, res, args) {
     var view = args.layout ? 'widget-layout' : 'widget';
-    res.render(view, args);        
+    res.render(view, args);
 };
 
 exports.renderer = function (req, res, args) {
