@@ -1,20 +1,22 @@
 /**
+ * @class Renderer
+ * @extends Root
+ *
  * A base class that handles the display of specific data.
  *
- * @class Renderer
- *
- * @example
+ *     @example
  *     // Create instance
  *     var renderer = new Iris.Renderer({ foo: "bar" });
+ * Or:
  *
- * @example
+ *     @example
  *     // Extend Iris.Renderer
  *     var MyRenderer = Iris.Renderer.extend({
  *         render: function () {}
  *     });
  *     var renderer = new MyRenderer({ element: "#datavis" }); 
- *
- * @module iris
+ * 
+ * @singleton
  */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
     var renderer = {
@@ -87,12 +89,13 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
 
         /**
          * Prepare for rendering.
-         * @method prepare
-         * @deprecated
-         * @example
+         * 
+         *     @example
          *     // minimum usage
          *     renderer.render(renderer.prepare(args));
+         * 
          * @param {Object} [args] Prepare arguments
+         * @deprecated
          */
         prepare: function (args) {
             var renderer = this;
@@ -118,9 +121,5 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         }
     };
 
-    /**
-     * @class Renderer
-     * @constructor
-     */
     return Root.extend(renderer);
 });

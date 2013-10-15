@@ -51,7 +51,11 @@ endif
 	@ $(JSDUCK) --builtin-classes --output $(APIDOC) \
 		--exclude $(DOCROOT)/js/d3.js \
 		--exclude $(DOCROOT)/js/bootstrap.js \
+		--exclude $(DOCROOT)/js/require.js \
 		--exclude $(DOCROOT)/js/jquery.js \
+		--exclude $(DOCROOT)/js/jquery-ui.js \
+		--exclude $(DOCROOT)/js/jquery.dataTables.js \
+		--exclude $(DOCROOT)/js/lib \
 		--exclude $(DOCROOT)/js/renderers/old \
 		--exclude $(DOCROOT)/js/widgets/old \
 		-- $(DOCROOT)/js

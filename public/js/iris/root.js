@@ -1,10 +1,14 @@
+/**
+ * @class Root
+ * 
+ * Root class for all Iris classes.
+ * 
+ * @singleton
+ */
 define(["backbone", "underscore"], function (Backbone, _) {
-    /**
-     * Root class for all Iris classes.
-     *
-     * @module iris
-     * @class Root
+    /** 
      * @constructor
+     * @param {Object} options Constructor options.
      */
     var Root = function (options) {
         this.options = options ? _.clone(options) : {};
