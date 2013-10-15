@@ -9,7 +9,7 @@ function runtest(fn) {
 describe('Manhattan', function () {
     it("should be a function", function (done) {
         runtest(function (Manhattan) {
-            Manhattan.should.be.a("function");
+            Manhattan.should.be.a.Function;
             done();
         });
     });

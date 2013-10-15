@@ -8,7 +8,7 @@ GIT      = git
 
 DOCSROOT  = ./public
 DISTDIR   = ./dist
-MOCHAOPTS =
+MOCHAOPTS ?= 
 YDOCCONF = ./conf/yuidoc.json
 DOCDEST = $(DISTDIR)/doc/api
 TESTDIR ?= test
@@ -27,8 +27,10 @@ endif
 
 all: test
 
-init-npm:
+node_modules:
 	@ $(NPM) install
+
+init-npm: node_modules
 
 init-submodules:
 	@ $(GIT) submodule update --init
@@ -48,7 +50,7 @@ build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
-test:
+test: init
 	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
 clean:
