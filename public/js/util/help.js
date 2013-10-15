@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
+define(["jquery", "underscore", "backbone"], function (JQ, _, Backbone) {
     var defaults = {
         title: "Help",
         target: "#help-link",
@@ -8,16 +8,16 @@ define(["jquery", "underscore", "backbone"], function ($, _, Backbone) {
         options = options ? _.clone(options) : {}
         _.defaults(options, defaults);
         var View = Backbone.View.extend({
-            el: $(options.target),
+            el: JQ(options.target),
             initialize: function () {
                 this.render();
             },
             render: function () {
                 require(["text!" + options.template], function (html) {
-                    $("#help-link").click(function () {
+                    JQ("#help-link").click(function () {
                         return false;
                     })
-                    $("#help-link").popover({
+                    JQ("#help-link").popover({
                         title: options.title,
                         content: html,
                         placement: "bottom",

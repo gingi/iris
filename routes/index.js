@@ -1,10 +1,10 @@
 exports.index = function (req, res) {
-    res.render('index');
+    res.render('index', { title: "Homepage", version: "0.1.2" });
 };
 
 exports.widget = function (req, res, args) {
     var view = args.layout ? 'widget-layout' : 'widget';
-    res.render(view, args);        
+    res.render(view, args);
 };
 
 exports.renderer = function (req, res, args) {
@@ -51,3 +51,10 @@ exports.g2p = function (req, res) {
 exports.network = function (req, res) {
     res.render("datavis", { title: "Networks Workbench", js: "network/main" });
 };
+
+exports.filteredNetwork = function (req, res) {
+    res.render("datavis", {
+        title: "Filtered Network",
+        js: "network/filtered"
+    });
+}

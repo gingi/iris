@@ -3,7 +3,7 @@ link(rel="stylesheet", href="/css/iris.css")
 
 block scripts
     script(type="text/javascript", data-main="/js/app", src="/js/require.js")
-    script(type="text/javascript")
+    script(type="text/javascript").
         requirejs.onError = function (err) {
             if (err.requireType == 'scripterror') {
                 require(["jquery"], function ($) {

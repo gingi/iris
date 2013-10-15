@@ -1,24 +1,24 @@
 /**
+ * @class Renderer
+ * @extends Root
+ *
  * A base class that handles the display of specific data.
  *
- * @module iris/renderer
+ *     @example
+ *     // Create instance
+ *     var renderer = new Iris.Renderer({ foo: "bar" });
+ * Or:
  *
- * @example
- * // Create instance
- * var renderer = new Iris.Renderer({ foo: "bar" });
- *
- * @example
- * // Extend Iris.Renderer
- * var MyRenderer = Iris.Renderer.extend({
- *     render: function () {}
- * });
- * var renderer = new MyRenderer({ element: "#datavis" }); 
+ *     @example
+ *     // Extend Iris.Renderer
+ *     var MyRenderer = Iris.Renderer.extend({
+ *         render: function () {}
+ *     });
+ *     var renderer = new MyRenderer({ element: "#datavis" }); 
+ * 
+ * @singleton
  */
 define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
-    /**
-     * @constructor
-     * @alias module:iris/renderer
-     */
     var renderer = {
         schema: { // uses revalidator.js to check args
             properties: {
@@ -26,15 +26,13 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
                 element: { required: true, type: 'any' }
             }
         },
-        /** Renderer defaults */
         defaults: {
             element: "body"
         },
 
         /**
          * Returns example data, used to demo renderer.
-         * @instance
-         * @virtual
+         * @method exampleData
          * @deprecated
          */
         exampleData: function () {
@@ -48,9 +46,8 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
 
         /**
          * Renders a data visualization.
-         * @instance
-         * @abtract
-         * @param {hash} args - Runtime rendering arguments.
+         * @method render
+         * @param {Object} args Runtime rendering arguments.
          */
         render: function (args) {
             console.log(this.about.name +
@@ -60,9 +57,8 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         /**
          * Updates the visualization. Used for handling changes to underlying
          * data.
-         * @instance
-         * @virtual
-         * @param {hash} args - runtime update arguments.
+         * @method update
+         * @param {Object} args Runtime update arguments.
          */
         update: function (args) {
             console.log(this.about.name +
@@ -75,7 +71,7 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
 
         /**
          * Get the data used for rendering.
-         * @instance
+         * @method getData
          * @return {object} data - The data
          */
         getData: function () {
@@ -84,8 +80,8 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
 
         /**
          * Set renderer options.
-         * @instance
-         * @param {hash} args - key-value pair of options.
+         * @method set
+         * @param {Object} args - key-value pair of options.
          */
         set: function (args) {
             
@@ -93,11 +89,13 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
 
         /**
          * Prepare for rendering.
-         * @instance
+         * 
+         *     @example
+         *     // minimum usage
+         *     renderer.render(renderer.prepare(args));
+         * 
+         * @param {Object} [args] Prepare arguments
          * @deprecated
-         * @example
-         * // min usage
-         * renderer.render(renderer.prepare(args));
          */
         prepare: function (args) {
             var renderer = this;

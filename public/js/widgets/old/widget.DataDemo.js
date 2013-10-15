@@ -41,9 +41,9 @@ define(["iris"], function (Iris) {
       }
       select_disp.appendChild(btn1);
 
-      var span1 = document.createElement("span");
-      span1.innerHTML = "<br><br>";
-      select_disp.appendChild(span1);
+      var col-md-1 = document.createElement("span");
+      col-md-1.innerHTML = "<br><br>";
+      select_disp.appendChild(col-md-1);
 
       var btn2 = document.createElement("input");
       btn2.setAttribute("type", "button");

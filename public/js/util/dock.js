@@ -1,5 +1,5 @@
 define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
-function ($, d3, EventEmitter, HUD) {
+function (JQ, d3, EventEmitter, HUD) {
     
     var DOCK_HEIGHT = 30;
     var Dock = function (parentElement) {  
@@ -11,11 +11,11 @@ function ($, d3, EventEmitter, HUD) {
         var docked = {};
         var updateActions = [];
         if (parent) { setParent(parent) }
-        var dockRenderPromise = $.Deferred();
+        var dockRenderPromise = JQ.Deferred();
         
         var dockHudContentCallback = function (nodes) {
             var dock = this;
-            var list = $("<ul>");
+            var list = JQ("<ul>");
             dock.hud.append(list);
             nodes.forEach(function (d) {
                 list.append("<li>" + d.name + "</li>");
@@ -200,6 +200,6 @@ function ($, d3, EventEmitter, HUD) {
         self.showHUD = dockhud;
     };
     
-    $.extend(Dock.prototype, EventEmitter);
+    JQ.extend(Dock.prototype, EventEmitter);
     return Dock;
 });

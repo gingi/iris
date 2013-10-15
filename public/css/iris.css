@@ -1,3 +1,5 @@
+@import url("colorbrewer.css");
+
 body,html { height:100%;}
 .container { height: 100% }
 .link { stroke: #999; stroke-opacity: 0.6; }
