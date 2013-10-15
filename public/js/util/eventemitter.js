@@ -1,5 +1,5 @@
-define(['jquery'], function ($) {
-    var jq = $(this);
+define(['jquery'], function (JQ) {
+    var jq = JQ(this);
     return {
         emit: function (evt, data) {
             jq.trigger(evt, data);

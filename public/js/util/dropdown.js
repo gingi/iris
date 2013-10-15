@@ -1,6 +1,6 @@
 define(['jquery', 'backbone', 'underscore',
     'util/progress', 'backbone.localstorage'],
-function($, Backbone, _, Progress) {
+function(JQ, Backbone, _, Progress) {
     var defaults = {
         container:    "body",
         listTemplate: "#ddListTemplate",
@@ -13,10 +13,10 @@ function($, Backbone, _, Progress) {
         var self = this;
         options = options ? _.clone(options) : {};
         _.defaults(options, defaults);
-        options.container    = $(options.container);
-        options.listTemplate = $(options.listTemplate);
-        options.itemTemplate = $(options.itemTemplate);
-        options.copyTemplate = $(options.copyTemplate);
+        options.container    = JQ(options.container);
+        options.listTemplate = JQ(options.listTemplate);
+        options.itemTemplate = JQ(options.itemTemplate);
+        options.copyTemplate = JQ(options.copyTemplate);
         options.parseItem = (options.parseItem || function (data, item) {
             item.id    = data[0];
             item.title = data[1];
@@ -27,12 +27,12 @@ function($, Backbone, _, Progress) {
         
         if (!options.itemTemplate.html()) {
             options.itemTemplate =
-                $("<script>").attr("type", "text/template").html(
+                JQ("<script>").attr("type", "text/template").html(
                     '<a href="<%= link %>"><%= title %></a>'
                 );
         }
         if (!options.listTemplate.html()) {
-            options.listTemplate = $("<script>")
+            options.listTemplate = JQ("<script>")
                 .attr("type", "text/template").html(
                 '<li class="dropdown">' +
                 '<a class="dropdown-toggle" id="<%= label %>" ' +
@@ -42,7 +42,7 @@ function($, Backbone, _, Progress) {
                 'role="menu" aria-labelledby="<%= label %>"></ul></li>');
         }
         if (!options.copyTemplate.html()) {
-            options.copyTemplate = $("<script>").attr("type", "text/template")
+            options.copyTemplate = JQ("<script>").attr("type", "text/template")
                 .html('<br/><small id="copy" class="muted"></small>');
         }
         var DDItem = Backbone.Model.extend({
@@ -66,7 +66,7 @@ function($, Backbone, _, Progress) {
             selectItem: function () {
                 this.$el.parent().children().removeClass('active');
                 this.$el.addClass('active');
-                $(this.options.copyTarget).text(this.$el.text());
+                JQ(this.options.copyTarget).text(this.$el.text());
             },
             render: function() {
                 this.$el.append(this.template(this.model));
@@ -84,15 +84,15 @@ function($, Backbone, _, Progress) {
             initialize: function() {
                 this.collection.bind("sync", this.renderItems, this);
                 if (this.options.copyTarget == null) {
-                    $("#" + this.options.label)
+                    JQ("#" + this.options.label)
                         .append(_.template(options.copyTemplate.html())());
                     this.options.copyTarget =
-                        $("#" + this.options.label).find("#copy");
+                        JQ("#" + this.options.label).find("#copy");
                 }
                 this.render();
             },
             render: function() {
-                this.container = $(this.template({
+                this.container = JQ(this.template({
                     label:  this.options.label,
                     listId: this.options.listId,
                     title:  this.options.title
@@ -100,7 +100,7 @@ function($, Backbone, _, Progress) {
                 this.$el.append(this.container);
             },
             updateCopy: function (text) {
-                $(this.options.copyTarget).text(text);
+                JQ(this.options.copyTarget).text(text);
             },
             renderItems: function () {
                 var $topics = this.$el.find("#" + this.options.listId);
@@ -116,7 +116,7 @@ function($, Backbone, _, Progress) {
                         $topics.append(itemView.render().el);
                     }, this);
                 } else {
-                    $topics.append($("<li>")
+                    $topics.append(JQ("<li>")
                         .css("padding", "5px")
                         .addClass("text-warning")
                         .text('No ' + this.options.name));
