@@ -7,7 +7,7 @@ require([
     'renderers/table',
     'util/viewport',
     'util/dropdown'
-], function ($, Backbone, _, BarChart, PieChart, Table, Viewport, DropDown) {
+], function (JQ, Backbone, _, BarChart, PieChart, Table, Viewport, DropDown) {
     var Genome = Backbone.Model.extend({
         defaults: { name: "" },
         urlRoot: "/data/genome",
@@ -93,15 +93,15 @@ require([
             "*actions": "show"
         },
         show: function (genomeId) {
-            $("#datavis").empty();
-            var row = $("<div>").addClass("row");
-            $("#datavis").append(row);
+            JQ("#datavis").empty();
+            var row = JQ("<div>").addClass("row");
+            JQ("#datavis").append(row);
             var genome = new Genome;
             genomeId = genomeId || 'kb|g.3899';
             genome.set({ id: genomeId });
             dropdown.select(genomeId);
             for (var elementId in charts) {
-                var wrapper = $("<div>").addClass("span4");
+                var wrapper = JQ("<div>").addClass("col-md-4");
                 row.append(wrapper);
                 var viewport = new Viewport({
                     parent: wrapper,
@@ -118,37 +118,37 @@ require([
             }
             genome.fetch({
                 success: function (model, json) {
-                $("#genome-name").text(json.info["scientific_name"]);
-                $("#genome-info").empty();
-                $("#genome-info")
-                    .append($("<small>").html(json.info["dna_size"] + " bp"))
-                    .append($("<small>").html(json.info["pegs"] + " genes"))
+                JQ("#genome-name").text(json.info["scientific_name"]);
+                JQ("#genome-info").empty();
+                JQ("#genome-info")
+                    .append(JQ("<small>").html(json.info["dna_size"] + " bp"))
+                    .append(JQ("<small>").html(json.info["pegs"] + " genes"))
                 },
                 error: function (model, xhr) {
-                    var content = $("<span>");
+                    var content = JQ("<span>");
                     if (xhr.status == 404) {
                         content.append(JSON.parse(xhr.responseText).error);
                     } else {
                         content
-                            .append($("<p>")
+                            .append(JQ("<p>")
                                 .text("Couldn't get genome " + model.get('id'))
                             )
-                            .append($("<h5>").text("Technical details"))
-                            .append($("<pre>").css("font-size", "65%")
+                            .append(JQ("<h5>").text("Technical details"))
+                            .append(JQ("<pre>").css("font-size", "65%")
                                 .text(xhr.responseText));
                     }
-                    $("#datavis").empty().prepend(
-                        $("<div>").addClass("alert alert-block alert-error")
+                    JQ("#datavis").empty().prepend(
+                        JQ("<div>").addClass("alert alert-block alert-error")
                             .css("margin-top", "50px")
-                            .append($("<h3>").text("Oops!")).append(content)
+                            .append(JQ("<h3>").text("Oops!")).append(content)
                     );
                 }
             });
         },
     });
     
-    $("#datavis").before("<h2 id=\"genome-name\"></h2>")
-    $("#datavis").before("<div id=\"genome-info\"></div>");
+    JQ("#datavis").before("<h2 id=\"genome-name\"></h2>")
+    JQ("#datavis").before("<div id=\"genome-info\"></div>");
     var router = new Router;
     Backbone.history.start();
 });

@@ -1,7 +1,7 @@
-require(['jquery', 'backbone', 'underscore', 'd3', 'util/ajaxstream'], function ($, Backbone, _, d3, Stream) {
+require(['jquery', 'backbone', 'underscore', 'd3', 'util/ajaxstream'], function (JQ, Backbone, _, d3, Stream) {
     
-    var width = $("#container").width();
-    var height = Math.max($("#container").height(), 800);
+    var width = JQ("#container").width();
+    var height = Math.max(JQ("#container").height(), 800);
     var svg  = d3.select("#container").append("svg")
         .attr("class", "GnBu")
         .attr("width", width)

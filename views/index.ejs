@@ -4,54 +4,53 @@
     <title><%= title %></title>
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
         href="/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/bootstrap-responsive.css">
     <link rel="stylesheet" type="text/css" charset="utf-8"
         href="/css/font-awesome.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
-        href="/css/identity.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8"
-        href="/css/kbase-common.css">
     <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/kbase.css">
+        href="/css/iris.css">
     <style type="text/css" media="screen">
-    .span3 { position: relative; height: 150px ;}
-    .span3 a.btn { position: absolute; bottom: 0; }
+    .col-md-3 { position: relative; height: 150px ;}
+    .col-md-3 a.btn { position: absolute; bottom: 0; }
     .logo { float: right; margin-top: 20px; }
     </style>
   </head>
   <body>
       <div id="wrap" style="padding:50px 10px">
       <div class="container">
-          <div class="hero-unit">
-              <a href="http://kbase.us" class="logo">
-                  <img width="200px" align="right" src="/img/kbase-logo.png"/>
-              </a>
+          <div class="jumbotron">
+              <img width="200px" align="right" src="/img/kbase-logo.png"/>
               <div>
-                  <h1>KBase DataVis <small><%= version %></small></h1>
-                  <h4>A data visualization library for the KBase Project</h4>
+                  <h1>Iris <small><%= version %></small></h1>
+                  <h4>A web library for data visualization and exploration.</h4>
               </div>
           </div>
           <div class="row">
-              <div class="span3">
-                  <h3>Networks</h3>
+              <div class="col-md-3">
+                  <h3>The Network Workbench</h3>
                   <p>A workbench for network exploration.</p>
                   <a class="btn" href="/network">Launch »</a>
               </div>
-              <div class="span3">
-                  <h3>GenoPheno</h3>
-                  <p>Visualizations of genomic diversity</p>
+              <div class="col-md-3">
+                  <h3>The G2P Workbench</h3>
+                  <p>Explore genotype-to-phenotype relationships through
+                  visualizations of genomic diversity a</p>
                   <p><a class="btn" href="/g2p">Launch »</a></p>
               </div>
-              <div class="span3">
+              <div class="col-md-3">
                   <h3>Heatmap</h3>
                   <p>Expression profile heatmaps. There&#x27;s also <a href="/heatmap-chunking">an example</a> demonstrating HTTP chunking.</p>
                   <p><a class="btn" href="/heatmap">Launch »</a></p>
               </div>
-              <div class="span3">
+              <div class="col-md-3">
                   <h3>Charts</h3>
                   <p>Basic charts for KBase data.</p>
                   <p><a class="btn" href="/charts">Launch »</a></p>
+              </div>
+              <div class="col-md-3">
+                  <h3>Filtered Network</h3>
+                  <p>Make sense of network hairballs with filter and search
+                  controls.</p>
+                  <p><a class="btn" href="/filtered-network">Launch »</a></p>
               </div>
           </div>
       </div>

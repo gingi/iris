@@ -4,6 +4,10 @@
     namespace:      "iris",
     name:           "iris",
     create:         true,
+    wrap: {
+        start: "(function () {",
+        end: "window.Iris = Iris; jQuery.noConflict(true); }());"
+    },
     paths: {
         requireLib: "require"
     },
@@ -22,5 +26,11 @@
         "util/progress",
         "util/hud",
         "util/viewport"
-    ]
+    ],
+    onBuildRead: function (moduleName, path, contents) {
+        if (moduleName == "util/spin") {
+            return contents.replace(/\bdefine\b/g, "Iris.define");
+        }
+        return contents;
+    }
 })
