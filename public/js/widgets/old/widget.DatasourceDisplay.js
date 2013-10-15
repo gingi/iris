@@ -60,15 +60,15 @@
 
       select_disp.appendChild(select_list);
       
-      var span3 = document.createElement('span');
-      span3.innerHTML = "<br><br><b>Available Resource Types</b><br><select id='data_source_resource_select' onchange='document.getElementById(\"data_source_pull_resource\").value=this.options[this.selectedIndex].value;'></select><br>";
-      select_disp.appendChild(span3);
+      var col-md-3 = document.createElement('span');
+      col-md-3.innerHTML = "<br><br><b>Available Resource Types</b><br><select id='data_source_resource_select' onchange='document.getElementById(\"data_source_pull_resource\").value=this.options[this.selectedIndex].value;'></select><br>";
+      select_disp.appendChild(col-md-3);
 
       select_list.onchange();
 
-     //  var span1 = document.createElement('span');
-//       span1.innerHTML = "<br><br><b>add new source</b><br><table style='text-align: left;'><tr><th class='span2'>ID</th><td><input type='text' id='data_source_add_id'></td></tr><tr><th>type</th><td><select id='data_source_add_type'><option>default</option><option>SHOCK</option><option>CDMI</option></select></td></tr><tr><th>URL</th><td><input type='text' id='data_source_add_url'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_add_button' value='add' class='btn'></td></tr></table>";
-//       select_disp.appendChild(span1);
+     //  var col-md-1 = document.createElement('span');
+//       col-md-1.innerHTML = "<br><br><b>add new source</b><br><table style='text-align: left;'><tr><th class='col-md-2'>ID</th><td><input type='text' id='data_source_add_id'></td></tr><tr><th>type</th><td><select id='data_source_add_type'><option>default</option><option>SHOCK</option><option>CDMI</option></select></td></tr><tr><th>URL</th><td><input type='text' id='data_source_add_url'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_add_button' value='add' class='btn'></td></tr></table>";
+//       select_disp.appendChild(col-md-1);
       
 //       document.getElementById('data_source_add_button').onclick = function () {
 // 	if (document.getElementById('data_source_add_id').value && document.getElementById('data_source_add_url').value) {
@@ -79,12 +79,12 @@
 // 	}	
 //       };
 
-      var span2 = document.createElement('span');
-      span2.innerHTML = "<br><b>Pull data a from selected data source</b><br><table style='text-align: left;'><tr><th class='span2'>Resource Type</th></tr><tr><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>Identifier</th></tr><tr><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>Attributes</th></tr><tr><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='Pull' class='btn'></td></tr></table>";
+      var col-md-2 = document.createElement('span');
+      col-md-2.innerHTML = "<br><b>Pull data a from selected data source</b><br><table style='text-align: left;'><tr><th class='col-md-2'>Resource Type</th></tr><tr><td><input type='text' id='data_source_pull_resource'></td></tr><tr><th>Identifier</th></tr><tr><td><input type='text' id='data_source_pull_rest' value='[]'></td></tr><tr><th>Attributes</th></tr><tr><td><input type='text' id='data_source_pull_cgi' value='[]'></td></tr><tr><td colspan=2 style='text-align: right;'><input type='button' id='data_source_pull_button' value='Pull' class='btn'></td></tr></table>";
       if (canned) {
-	span2.setAttribute("style", "display: none;");
+	col-md-2.setAttribute("style", "display: none;");
       }
-      select_disp.appendChild(span2);
+      select_disp.appendChild(col-md-2);
       
       document.getElementById('data_source_pull_button').onclick = function () {
 	if (document.getElementById('data_source_pull_resource').value) {
@@ -105,16 +105,16 @@
 	}	
       };
 
-      var span4 = document.createElement("span");
-      span4.innerHTML = "<br><b>Load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
+      var col-md-4 = document.createElement("span");
+      col-md-4.innerHTML = "<br><b>Load data from file</b><br><input type='file' onchange='Iris._DataHandler.file_upload(event, function() { alert(\"data loaded\"); }, null);'>";
       if (canned) {
-	span4.setAttribute("style", "display: none;");
+	col-md-4.setAttribute("style", "display: none;");
       }
-      select_disp.appendChild(span4);
+      select_disp.appendChild(col-md-4);
 
       if (canned) {
-	var span5 = document.createElement("span");
-	span5.innerHTML = "<br><b>Example Predefined Queries</b><br>";
+	var col-md-5 = document.createElement("span");
+	col-md-5.innerHTML = "<br><b>Example Predefined Queries</b><br>";
 	var canned_queries_select = document.createElement("select");
 	canned_queries_select.innerHTML = "<option value=1>CDMI genome list</option><option value=2>SHOCK metagenomes</option><option value=3>MG-RAST abundance profile</option>";
 	var canned_button = document.createElement("input");
@@ -143,9 +143,9 @@
 	  break;
 	  }
 	};
-	span5.appendChild(canned_queries_select);
-	span5.appendChild(canned_button);
-	select_disp.appendChild(span5);
+	col-md-5.appendChild(canned_queries_select);
+	col-md-5.appendChild(canned_button);
+	select_disp.appendChild(col-md-5);
       }
       
     };
