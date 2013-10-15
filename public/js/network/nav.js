@@ -1,4 +1,4 @@
-define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
+define(["jquery", "backbone", "underscore"], function (JQ, Backbone, _) {
     var Example = Backbone.Model.extend({
         defaults: { nodes: "", datasets: "", title: "" }
     });
@@ -41,7 +41,7 @@ define(["jquery", "backbone", "underscore"], function ($, Backbone, _) {
         render: function () {
             var dd = this.template({ title: "Examples" });
             this.$el.append(dd);
-            dd = $("#example-links");
+            dd = JQ("#example-links");
             examples.forEach(function (example) {
                 dd.append(ExampleTemplate(example.toJSON()));
             });

@@ -1,1 +1,1 @@
-../../external/bootstrap/docs/assets/js/bootstrap.js
+../../external/bootstrap/dist/js/bootstrap.js

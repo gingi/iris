@@ -1,5 +1,5 @@
 define(['jquery', 'underscore'],
-    function ($, _) {
+    function (JQ, _) {
     var defaults = {
         scrollY: 300,
         element: "body",
@@ -23,10 +23,10 @@ define(['jquery', 'underscore'],
             return self.data;
         };
         self.render = function (args) {
-            var $element = $(options.element);
+            var $element = JQ(options.element);
             var elementOffset = $element.offset();
             args = args ? _.clone(args) : {};
-            var $table = $("<table>").attr("cellpadding", 0)
+            var $table = JQ("<table>").attr("cellpadding", 0)
                 .attr("cellspacing",0).attr("border", 0)
                 .addClass('table table-striped table-bordered');
             $element.empty().append($table);
@@ -59,7 +59,7 @@ define(['jquery', 'underscore'],
                     });
                     adjustHeight('.dataTables_wrapper');
                     adjustHeight('.table-wrapper');
-                    $(".column-filter-widget").find("select").addClass("mini");
+                    JQ(".column-filter-widget").find("select").addClass("mini");
                     $element.offset({
                         top: elementOffset.top, left: elementOffset.left
                     });
@@ -68,12 +68,12 @@ define(['jquery', 'underscore'],
             });
         };
         function adjustHeight(selector) {
-            $(selector).each(function () {
-                var w = $(this);
+            JQ(selector).each(function () {
+                var w = JQ(this);
                 var p = w.parent();
                 var totalHeight = 0;
                 p.children().each(function () {
-                    totalHeight += $(this).outerHeight(true)
+                    totalHeight += JQ(this).outerHeight(true)
                 });
                 w.css("min-height",
                     p.height() + w.outerHeight(true) - totalHeight);
@@ -83,15 +83,15 @@ define(['jquery', 'underscore'],
     
     function dataTableBehavior() {
         /* Set the defaults for DataTables initialization */
-        $.extend(true, $.fn.dataTable.defaults, {
+        JQ.extend(true, JQ.fn.dataTable.defaults, {
             sDom: "<'dt-top'Wlfr>" +
                  "<'table-wrapper't><'dt-bottom'ip>",
             fnInitComplete: function (table) {
-                $('.dataTables_length').find("select").addClass("span2");
-                $('.dataTables_filter').find(":input")
+                JQ('.dataTables_length').find("select").addClass("col-md-2");
+                JQ('.dataTables_filter').find(":input")
                     .addClass("input-small search-query")
                     .attr("placeholder", "Search");
-                $('.dataTables_length > label').contents().filter(function() {
+                JQ('.dataTables_length > label').contents().filter(function() {
                     return this.nodeType != 1;
                 }).wrap("<span class='mini help-inline'>");
             },
@@ -105,13 +105,13 @@ define(['jquery', 'underscore'],
 
 
         /* Default class modification */
-        $.extend($.fn.dataTableExt.oStdClasses, {
+        JQ.extend(JQ.fn.dataTableExt.oStdClasses, {
             sWrapper: "dataTables_wrapper form-inline",
             sInfo: "mini muted dt-info"
         });
 
         /* API method to get paging information */
-        $.fn.dataTableExt.oApi.fnPagingInfo = function (opts) {
+        JQ.fn.dataTableExt.oApi.fnPagingInfo = function (opts) {
             return {
                 iStart:         opts._iDisplayStart,
                 iEnd:           opts.fnDisplayEnd(),
@@ -127,7 +127,7 @@ define(['jquery', 'underscore'],
 
 
         /* Bootstrap style pagination control */
-        $.extend($.fn.dataTableExt.oPagination, {
+        JQ.extend(JQ.fn.dataTableExt.oPagination, {
             bootstrap: {
                 fnInit: function (opts, nPaging, fnDraw) {
                     var oLang = opts.oLanguage.oPaginate;
@@ -137,7 +137,7 @@ define(['jquery', 'underscore'],
                             fnDraw(opts);
                         }
                     };
-                    $(nPaging).addClass('pagination pagination-mini').append(_.template(
+                    JQ(nPaging).addClass('pagination pagination-mini').append(_.template(
                         '<ul>' +
                             '<li class="prev disabled">' +
                             '<a href="#">&larr;</a></li>'+
@@ -145,10 +145,10 @@ define(['jquery', 'underscore'],
                             '<a href="#">&rarr;</a></li>'+
                         '</ul>', { prev: oLang.sPrevious, next: oLang.sNext })
                     );
-                    var els = $('a', nPaging);
-                    $(els[0]).bind('click.DT',
+                    var els = JQ('a', nPaging);
+                    JQ(els[0]).bind('click.DT',
                         { action: "previous" }, fnClickHandler);
-                    $(els[1]).bind('click.DT',
+                    JQ(els[1]).bind('click.DT',
                         { action: "next" }, fnClickHandler);
                 },
                 fnUpdate: function (opts, fnDraw) {
@@ -174,31 +174,31 @@ define(['jquery', 'underscore'],
 
                     for (i=0, iLen=an.length ; i<iLen ; i++) {
                         // Remove the middle elements
-                        $('li:gt(0)', an[i]).filter(':not(:last)').remove();
+                        JQ('li:gt(0)', an[i]).filter(':not(:last)').remove();
 
                         // Add the new list items and their event handlers
                         for (j=iStart ;j<=iEnd ;j++) {
                             sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-                            $('<li '+sClass+'><a href="#">'+j+'</a></li>')
-                                .insertBefore($('li:last', an[i])[0])
+                            JQ('<li '+sClass+'><a href="#">'+j+'</a></li>')
+                                .insertBefore(JQ('li:last', an[i])[0])
                                 .bind('click', function (e) {
                                     e.preventDefault();
-                                    opts._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+                                    opts._iDisplayStart = (parseInt(JQ('a', this).text(),10)-1) * oPaging.iLength;
                                     fnDraw(opts);
                                 } );
                         }
 
                         // Add / remove disabled classes from the static elements
                         if (oPaging.iPage === 0) {
-                            $('li:first', an[i]).addClass('disabled');
+                            JQ('li:first', an[i]).addClass('disabled');
                         } else {
-                            $('li:first', an[i]).removeClass('disabled');
+                            JQ('li:first', an[i]).removeClass('disabled');
                         }
 
                         if (oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0) {
-                            $('li:last', an[i]).addClass('disabled');
+                            JQ('li:last', an[i]).addClass('disabled');
                         } else {
-                            $('li:last', an[i]).removeClass('disabled');
+                            JQ('li:last', an[i]).removeClass('disabled');
                         }
                     }
                 }
@@ -210,9 +210,9 @@ define(['jquery', 'underscore'],
          * TableTools Bootstrap compatibility
          * Required TableTools 2.1+
          */
-        if ($.fn.DataTable.TableTools) {
+        if (JQ.fn.DataTable.TableTools) {
             // Set the classes that TableTools uses to something suitable for Bootstrap
-            $.extend(true, $.fn.DataTable.TableTools.classes, {
+            JQ.extend(true, JQ.fn.DataTable.TableTools.classes, {
                 container: "DTTT btn-group",
                 buttons: {
                     normal: "btn",
@@ -234,7 +234,7 @@ define(['jquery', 'underscore'],
             });
 
             // Have the collection use a bootstrap compatible dropdown
-            $.extend(true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
+            JQ.extend(true, JQ.fn.DataTable.TableTools.DEFAULTS.oTags, {
                 collection: {
                     container: "ul",
                     button: "li",

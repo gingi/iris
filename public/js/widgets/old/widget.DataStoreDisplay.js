@@ -34,7 +34,7 @@
       
       select_list = document.createElement("select");
       select_list.setAttribute("id", "data_store_list_select");
-      select_list.setAttribute("class", "span2");
+      select_list.setAttribute("class", "col-md-2");
 
       var btn = document.createElement("a");
       btn.setAttribute("href", "#");
@@ -95,13 +95,13 @@
       select_disp.appendChild(btn);
       select_disp.appendChild(btn2);
 
-      var span1 = document.createElement("span");
-      span1.innerHTML = "<br><b>Available Identifiers</b><br>";
-      select_disp.appendChild(span1);
+      var col-md-1 = document.createElement("span");
+      col-md-1.innerHTML = "<br><b>Available Identifiers</b><br>";
+      select_disp.appendChild(col-md-1);
 
       var id_list = document.createElement("select");
       id_list.setAttribute("id", "data_store_id_select");
-      id_list.setAttribute("class", "span2");
+      id_list.setAttribute("class", "col-md-2");
       select_disp.appendChild(id_list);
 
       var btn3 = document.createElement("a");
@@ -130,13 +130,13 @@
       };
       select_disp.appendChild(btn4);
 
-      var span2 = document.createElement("span");
-      span2.innerHTML = "<br><b>Available Attributes</b><br>";
-      select_disp.appendChild(span2);
+      var col-md-2 = document.createElement("span");
+      col-md-2.innerHTML = "<br><b>Available Attributes</b><br>";
+      select_disp.appendChild(col-md-2);
 
       var att_list = document.createElement("select");
       att_list.setAttribute("id", "data_store_att_select");
-      att_list.setAttribute("class", "span2");
+      att_list.setAttribute("class", "col-md-2");
       select_disp.appendChild(att_list);
 
       var btn5 = document.createElement("a");
@@ -168,9 +168,9 @@
       };
       select_disp.appendChild(btn6);
 
-      var span3 = document.createElement("span");
-      span3.innerHTML = "<br><br>";
-      select_disp.appendChild(span3);
+      var col-md-3 = document.createElement("span");
+      col-md-3.innerHTML = "<br><br>";
+      select_disp.appendChild(col-md-3);
 
       var btn7 = document.createElement("input");
       btn7.setAttribute("type", "button");

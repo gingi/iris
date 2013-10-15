@@ -1,4 +1,4 @@
-define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
+define(['jquery', 'underscore', 'util/spin'], function (JQ, _, Spinner) {
     var _BAR = "bar", _SPIN = "spin";
     var defaults = {
         fade: true,
@@ -25,21 +25,21 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                 show: function (container) { spinner.spin(container[0]) },
                 hide: function () {
                     spinner.stop();
-                    if (options.fade) $("#" + id).remove();
+                    if (options.fade) JQ("#" + id).remove();
                 }
             };
         } else {
-            var div = $("<div>")
+            var div = JQ("<div>")
                 .addClass("progress progress-striped active")
                 .css("display", "none")
-                .append($("<div>").addClass("bar")
+                .append(JQ("<div>").addClass("bar")
                     .css("width", options.width));
             return {
                 show: function (container, message) {
                     container.append(div);
                     if (message) {
                         div.find("#progress-message").remove();
-                        div.append($("<span>")
+                        div.append(JQ("<span>")
                             .attr("id", "progress-message")
                             .text(message)
                         );
@@ -48,7 +48,7 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
                 },
                 hide: function () {
                     div.fadeOut(function () {
-                        if (options.fade) $("#" + id).remove();
+                        if (options.fade) JQ("#" + id).remove();
                     });
                 },
                 width: function (percent) {
@@ -63,13 +63,13 @@ define(['jquery', 'underscore', 'util/spin'], function ($, _, Spinner) {
         _.defaults(options, defaults);
         _.defaults(options.spinner, spinnerDefaults);
         options.width = options.initialWidth;
-        var $el = $(options.element);
+        var $el = JQ(options.element);
         var _id = "progress-container-" + progressCounter;
         var indicator;
         this.show = function (message) {
             var container;
             if (options.fade) {
-                container = $("<div>")
+                container = JQ("<div>")
                     .attr("id", _id)
                     .css("z-index", 30)
                     .css("background-color", "rgba(100%, 100%, 100%, 0.8)")

@@ -1,53 +1,81 @@
 PACKAGE  = iris
 NODEBIN  = ./node_modules/.bin
 MOCHA    = $(NODEBIN)/mocha
-JSDOC    = ./external/jsdoc/jsdoc
 RJS      = $(NODEBIN)/r.js
 NPM      = npm
 GIT      = git
 
-MOCHAOPTS =
-JSDOCCONF = ./conf/jsdoc.json
-JSDOCDEST = ./dist/doc/api
+JSDUCK  := $(shell which jsduck)
+
+DOCROOT  = ./public
+DISTDIR   = ./dist
+MOCHAOPTS ?= 
+APIDOC  = $(DISTDIR)/doc/api
 TESTDIR ?= test
-BUILD   ?= ./dist/app.build.js
-DISTLIB ?= ./dist/iris.js
+BUILD   ?= $(DISTDIR)/app.build.js
+DISTLIB ?= $(DISTDIR)/iris.js
+DISTCSS ?= $(DISTDIR)/iris.css
 MINIFY  ?= 1
 
 BUILDDIR = ./build
+SOURCES  = $(shell find $(DOCROOT)/js -name "*.js")
+CSS_SOURCES = $(shell find $(DOCROOT)/css -name "*.css")
 
 ifeq ($(MINIFY),0)
 	RJSOPTS = "optimize=none"
 endif
 
-all: test
+all: test dist docs
 
-init-npm:
+node_modules:
 	@ $(NPM) install
+
+init-npm: node_modules
 
 init-submodules:
 	@ $(GIT) submodule update --init
 
 init: init-npm init-submodules
 
-docs:
-	@ $(JSDOC) --configure $(JSDOCCONF) --destination $(JSDOCDEST)
-	@ echo "Documentation written to $(JSDOCDEST)"
+$(DISTCSS): $(CSS_SOURCES)
+	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
+	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 
-dist: init docs
-	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)
-	
+$(DISTLIB): $(SOURCES) $(BUILD)
+	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)\
+
+$(APIDOC)/index.html: $(SOURCES)
+ifndef JSDUCK
+	$(error JSDuck not found (install with `gem install jsduck`).)
+endif
+	@ $(JSDUCK) --builtin-classes --output $(APIDOC) \
+		--exclude $(DOCROOT)/js/d3.js \
+		--exclude $(DOCROOT)/js/bootstrap.js \
+		--exclude $(DOCROOT)/js/require.js \
+		--exclude $(DOCROOT)/js/jquery.js \
+		--exclude $(DOCROOT)/js/jquery-ui.js \
+		--exclude $(DOCROOT)/js/jquery.dataTables.js \
+		--exclude $(DOCROOT)/js/lib \
+		--exclude $(DOCROOT)/js/renderers/old \
+		--exclude $(DOCROOT)/js/widgets/old \
+		-- $(DOCROOT)/js
+
+
+dist: init $(DISTLIB) $(DISTCSS)
+
 build: init
 	@ $(RJS) -o $(BUILD) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
-test:
+test: init
 	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
+docs: init $(APIDOC)/index.html
+
 clean:
-	rm -rf $(DISTLIB) $(BUILDDIR) $(JSDOCDEST)
-	
+	rm -rf $(DISTLIB) $(BUILDDIR) $(APIDOC)
+
 dist-clean: clean
 	rm -rf node_modules/
-	
+
 .PHONY: test all dist

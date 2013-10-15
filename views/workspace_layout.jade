@@ -3,7 +3,7 @@ html(lang="en")
 head
     title Iris - #{title}
     link(rel="stylesheet", href="/css/bootstrap.css")
-    style
+    style.
         html, body { background-color: #eee; }
         body { padding-top: 40px; }
         .content {
@@ -21,12 +21,12 @@ head
             padding: 20px 20px 10px;
             margin: -20px -20px 20px;
         }
-        .content .span8,
-        .content .span4 {
+        .content .col-md-8,
+        .content .col-md-4 {
             min-height: 300px;
         }
         /* Give a quick and non-cross-browser friendly divider */
-        .content .span4 {
+        .content .col-md-4 {
             margin-left: 0;
             padding-left: 19px;
             border-left: 1px solid #eee;
@@ -55,7 +55,7 @@ body
     .container
         .content
             .row
-                .span12
+                .col-md-12
                     script(type="text/javascript",src="/js/jquery.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-tooltip.js")
                     script(type="text/javascript",src="/js/bootstrap/bootstrap-popover.js")

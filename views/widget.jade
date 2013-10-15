@@ -1,10 +1,8 @@
-link(rel="stylesheet", href="/css/widgets.css")
 link(rel="stylesheet", href="/css/iris.css")
-link(rel="stylesheet", href="/css/colorbrewer.css")
 
 block scripts
     script(type="text/javascript", src="/js/require.js")
-    script(type="text/javascript")
+    script(type="text/javascript").
         require(["/js/config.js"], function () {
             require(["widgets/#{name}"], function (Widget) {
                 var widget = new Widget();
