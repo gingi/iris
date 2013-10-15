@@ -22,9 +22,9 @@
         render: function (options) {
             var data = options.data;
             var target = jQuery(options.target);
-            var form = jQuery("<form>").addClass("form-horizontal").addClass("span12");
+            var form = jQuery("<form>").addClass("form-horizontal").addClass("col-md-12");
 
-            var url = jQuery("<input>").attr("type", "text").attr("name", "url").addClass("span7").addClass("disabled").attr("disabled", "").attr("value", "http://bio-data-1.mcs.anl.gov/services/cdmi_api");
+            var url = jQuery("<input>").attr("type", "text").attr("name", "url").addClass("col-md-7").addClass("disabled").attr("disabled", "").attr("value", "http://bio-data-1.mcs.anl.gov/services/cdmi_api");
             form.append(makeFormRow("API location: ", url));
             target.append(form);
             var API = {
@@ -47,9 +47,9 @@
                     }
                 }
             }
-            var input = jQuery("<input></input>").attr("type", "text").addClass("span7").attr("name", "function");
+            var input = jQuery("<input></input>").attr("type", "text").addClass("col-md-7").attr("name", "function");
             form.append(makeFormRow("Function: ", input));
-            var args = jQuery("<input>").attr("type", "text").attr("name", "args").addClass("span7").attr("default", "[]");
+            var args = jQuery("<input>").attr("type", "text").attr("name", "args").addClass("col-md-7").attr("default", "[]");
             form.append(makeFormRow("Arguments", args));
             form.append(jQuery("<button>").addClass("btn").html("Query"));
             input.typeahead({
@@ -57,7 +57,7 @@
                 items: 10
             });
             var pre = $("<pre>").css("display", "none");
-            target.append($("<div>").html(pre).addClass("span10"));
+            target.append($("<div>").html(pre).addClass("col-md-10"));
             form.bind("submit", form, function(e) {
                 var fun = e.data.find('[name="function"]').attr('value');
                 var args = e.data.find('[name="args"]').attr('value');

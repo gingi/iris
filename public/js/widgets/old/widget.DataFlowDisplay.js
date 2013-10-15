@@ -30,7 +30,7 @@
 	div.appendChild(rend_disp);
       }
 
-      select_disp.innerHTML += "<input class='span2' type='text' id='dataflow_command'>";
+      select_disp.innerHTML += "<input class='col-md-2' type='text' id='dataflow_command'>";
       
       var button = document.createElement("a");
       button.setAttribute("href", "#");
@@ -51,18 +51,18 @@
       
       select_disp.appendChild(button);
       
-      var span1 = document.createElement("span");
+      var col-md-1 = document.createElement("span");
       var flow_list = "";
       var loaded = Iris._FrameBuilder.available_dataflows;
       for (i in loaded) {
 	flow_list += "<option title='"+Iris._FrameBuilder.dataflows[i].description+"'>"+i+"</option>";
       }
       var flow_select = document.createElement("select");
-      flow_select.setAttribute("class", "span2");
+      flow_select.setAttribute("class", "col-md-2");
       flow_select.setAttribute("id", "loaded_dataflows");
       flow_select.innerHTML = flow_list;
-      span1.innerHTML = "<br><b>Available Data Flows<b><br>";
-      span1.appendChild(flow_select)
+      col-md-1.innerHTML = "<br><b>Available Data Flows<b><br>";
+      col-md-1.appendChild(flow_select)
       var flow_button = document.createElement("a");
       flow_button.setAttribute("href", "#");
       flow_button.setAttribute("class", "btn btn-small");
@@ -73,9 +73,9 @@
 	    alert("data flow execution complete");
 	  });
       }
-      span1.appendChild(flow_button);
+      col-md-1.appendChild(flow_button);
             
-      select_disp.appendChild(span1);
+      select_disp.appendChild(col-md-1);
 
     };
 
