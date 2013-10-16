@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">(function (exports) {
+  exports.validate = validate;
+  exports.mixin = mixin;
+
+  //
+  // ### function validate (object, schema, options)
+  // #### {Object} object the object to validate.
+  // #### {Object} schema (optional) the JSON Schema to validate against.
+  // #### {Object} options (optional) options controlling the validation
+  //      process. See {@link #validate.defaults) for details.
+  // Validate &lt;code&gt;object&lt;/code&gt; against a JSON Schema.
+  // If &lt;code&gt;object&lt;/code&gt; is self-describing (i.e. has a
+  // &lt;code&gt;$schema&lt;/code&gt; property), it will also be validated
+  // against the referenced schema. [TODO]: This behaviour bay be
+  // suppressed by setting the {@link #validate.options.???}
+  // option to &lt;code&gt;???&lt;/code&gt;.[/TODO]
+  //
+  // If &lt;code&gt;schema&lt;/code&gt; is not specified, and &lt;code&gt;object&lt;/code&gt;
+  // is not self-describing, validation always passes.
+  //
+  // &lt;strong&gt;Note:&lt;/strong&gt; in order to pass options but no schema,
+  // &lt;code&gt;schema&lt;/code&gt; &lt;em&gt;must&lt;/em&gt; be specified in the call to
+  // &lt;code&gt;validate()&lt;/code&gt;; otherwise, &lt;code&gt;options&lt;/code&gt; will
+  // be interpreted as the schema. &lt;code&gt;schema&lt;/code&gt; may be passed
+  // as &lt;code&gt;null&lt;/code&gt;, &lt;code&gt;undefinded&lt;/code&gt;, or the empty object
+  // (&lt;code&gt;{}&lt;/code&gt;) in this case.
+  //
+  function validate(object, schema, options) {
+    options = mixin({}, options, validate.defaults);
+    var errors = [];
+
+    validateObject(object, schema, options, errors);
+
+    //
+    // TODO: self-described validation
+    // if (! options.selfDescribing) { ... }
+    //
+
+    return {
+      valid: !(errors.length),
+      errors: errors
+    };
+  };
+
+<span id='global-property-defaults'>  /**
+</span>   * Default validation options. Defaults can be overridden by
+   * passing an 'options' hash to {@link #validate}. They can
+   * also be set globally be changing the values in
+   * &lt;code&gt;validate.defaults&lt;/code&gt; directly.
+   */
+  validate.defaults = {
+<span id='global-property-validateFormats'>      /**
+</span>       * &lt;p&gt;
+       * Enforce 'format' constraints.
+       * &lt;/p&gt;&lt;p&gt;
+       * &lt;em&gt;Default: &lt;code&gt;true&lt;/code&gt;&lt;/em&gt;
+       * &lt;/p&gt;
+       */
+      validateFormats: true,
+<span id='global-property-validateFormatsStrict'>      /**
+</span>       * &lt;p&gt;
+       * When {@link #validateFormats} is &lt;code&gt;true&lt;/code&gt;,
+       * treat unrecognized formats as validation errors.
+       * &lt;/p&gt;&lt;p&gt;
+       * &lt;em&gt;Default: &lt;code&gt;false&lt;/code&gt;&lt;/em&gt;
+       * &lt;/p&gt;
+       *
+       * @see validation.formats for default supported formats.
+       */
+      validateFormatsStrict: false,
+<span id='global-property-validateFormatExtensions'>      /**
+</span>       * &lt;p&gt;
+       * When {@link #validateFormats} is &lt;code&gt;true&lt;/code&gt;,
+       * also validate formats defined in {@link #validate.formatExtensions}.
+       * &lt;/p&gt;&lt;p&gt;
+       * &lt;em&gt;Default: &lt;code&gt;true&lt;/code&gt;&lt;/em&gt;
+       * &lt;/p&gt;
+       */
+      validateFormatExtensions: true
+  };
+
+<span id='global-property-messages'>  /**
+</span>   * Default messages to include with validation errors.
+   */
+  validate.messages = {
+      required:         &quot;is required&quot;,
+      minLength:        &quot;is too short (minimum is %{expected} characters)&quot;,
+      maxLength:        &quot;is too long (maximum is %{expected} characters)&quot;,
+      pattern:          &quot;invalid input&quot;,
+      minimum:          &quot;must be greater than or equal to %{expected}&quot;,
+      maximum:          &quot;must be less than or equal to %{expected}&quot;,
+      exclusiveMinimum: &quot;must be greater than %{expected}&quot;,
+      exclusiveMaximum: &quot;must be less than %{expected}&quot;,
+      divisibleBy:      &quot;must be divisible by %{expected}&quot;,
+      minItems:         &quot;must contain more than %{expected} items&quot;,
+      maxItems:         &quot;must contain less than %{expected} items&quot;,
+      uniqueItems:      &quot;must hold a unique set of values&quot;,
+      format:           &quot;is not a valid %{expected}&quot;,
+      conform:          &quot;must conform to given constraint&quot;,
+      type:             &quot;must be of %{expected} type&quot;
+  };
+  validate.messages['enum'] = &quot;must be present in given enumerator&quot;;
+
+<span id='global-property-formats'>  /**
+</span>   *
+   */
+  validate.formats = {
+    'email':          /^((([a-z]|\d|[!#\$%&amp;'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&amp;'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i,
+    'ip-address':     /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/i,
+    'ipv6':           /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/,
+    'date-time':      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:.\d{1,3})?Z$/,
+    'date':           /^\d{4}-\d{2}-\d{2}$/,
+    'time':           /^\d{2}:\d{2}:\d{2}$/,
+    'color':          /^#[a-z0-9]{6}|#[a-z0-9]{3}|(?:rgb\(\s*(?:[+-]?\d+%?)\s*,\s*(?:[+-]?\d+%?)\s*,\s*(?:[+-]?\d+%?)\s*\))aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|and yellow$/i,
+    //'style':        (not supported)
+    //'phone':        (not supported)
+    //'uri':          (not supported)
+    'host-name':      /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])/,
+    'utc-millisec':   {
+      test: function (value) {
+        return typeof(value) === 'number' &amp;&amp; value &gt;= 0;
+      }
+    },
+    'regex':          {
+      test: function (value) {
+        try { new RegExp(value) }
+        catch (e) { return false }
+
+        return true;
+      }
+    }
+  };
+
+<span id='global-property-formatExtensions'>  /**
+</span>   *
+   */
+  validate.formatExtensions = {
+    'url': /^(https?|ftp|git):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&amp;'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&amp;'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&amp;'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&amp;'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&amp;'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i
+  };
+
+  function mixin(obj) {
+    var sources = Array.prototype.slice.call(arguments, 1);
+    while (sources.length) {
+      var source = sources.shift();
+      if (!source) { continue }
+
+      if (typeof(source) !== 'object') {
+        throw new TypeError('mixin non-object');
+      }
+
+      for (var p in source) {
+        if (source.hasOwnProperty(p)) {
+          obj[p] = source[p];
+        }
+      }
+    }
+
+    return obj;
+  };
+
+  function validateObject(object, schema, options, errors) {
+    var props, allProps = Object.keys(object),
+        visitedProps = [];
+
+    // see 5.2
+    if (schema.properties) {
+      props = schema.properties;
+      for (var p in props) {
+        if (props.hasOwnProperty(p)) {
+          visitedProps.push(p);
+          validateProperty(object, object[p], p, props[p], options, errors);
+        }
+      }
+    }
+
+    // see 5.3
+    if (schema.patternProperties) {
+      props = schema.patternProperties;
+      for (var p in props) {
+        if (props.hasOwnProperty(p)) {
+          var re = new RegExp(p);
+
+          // Find all object properties that are matching `re`
+          for (var k in object) {
+            if (object.hasOwnProperty(k)) {
+              visitedProps.push(k);
+              if (re.exec(k) !== null) {
+                validateProperty(object, object[k], p, props[p], options, errors);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // see 5.4
+    if (undefined !== schema.additionalProperties) {
+      var i, l;
+
+      var unvisitedProps = allProps.filter(function(k){
+        return -1 === visitedProps.indexOf(k);
+      });
+
+      // Prevent additional properties; each unvisited property is therefore an error
+      if (schema.additionalProperties === false &amp;&amp; unvisitedProps.length &gt; 0) {
+        for (i = 0, l = unvisitedProps.length; i &lt; l; i++) {
+          error(&quot;additionalProperties&quot;, unvisitedProps[i], object[unvisitedProps[i]], false, errors);
+        }
+      }
+      // additionalProperties is a schema and validate unvisited properties against that schema
+      else if (typeof schema.additionalProperties == &quot;object&quot; &amp;&amp; unvisitedProps.length &gt; 0) {
+        for (i = 0, l = unvisitedProps.length; i &lt; l; i++) {
+          validateProperty(object, object[unvisitedProps[i]], unvisitedProps[i], schema.unvisitedProperties, options, errors);
+        }
+      }
+    }
+
+  };
+
+  function validateProperty(object, value, property, schema, options, errors) {
+    var format,
+        valid,
+        spec,
+        type;
+
+    function constrain(name, value, assert) {
+      if (schema[name] !== undefined &amp;&amp; !assert(value, schema[name])) {
+        error(name, property, value, schema, errors);
+      }
+    }
+
+    if (value === undefined) {
+      if (schema.required &amp;&amp; schema.type !== 'any') {
+        return error('required', property, undefined, schema, errors);
+      } else {
+        return;
+      }
+    }
+
+    if (options.cast) {
+      if (('integer' === schema.type || 'number' === schema.type) &amp;&amp; value == +value) {
+        value = +value;
+      }
+
+      if ('boolean' === schema.type) {
+        if ('true' === value || '1' === value || 1 === value) {
+          value = true;
+        }
+
+        if ('false' === value || '0' === value || 0 === value) {
+          value = false;
+        }
+      }
+    }
+
+    if (schema.format &amp;&amp; options.validateFormats) {
+      format = schema.format;
+
+      if (options.validateFormatExtensions) { spec = validate.formatExtensions[format] }
+      if (!spec) { spec = validate.formats[format] }
+      if (!spec) {
+        if (options.validateFormatsStrict) {
+          return error('format', property, value, schema, errors);
+        }
+      }
+      else {
+        if (!spec.test(value)) {
+          return error('format', property, value, schema, errors);
+        }
+      }
+    }
+
+    if (schema['enum'] &amp;&amp; schema['enum'].indexOf(value) === -1) {
+      error('enum', property, value, schema, errors);
+    }
+
+    // Dependencies (see 5.8)
+    if (typeof schema.dependencies === 'string' &amp;&amp;
+        object[schema.dependencies] === undefined) {
+      error('dependencies', property, null, schema, errors);
+    }
+
+    if (isArray(schema.dependencies)) {
+      for (var i = 0, l = schema.dependencies.length; i &lt; l; i++) {
+        if (object[schema.dependencies[i]] === undefined) {
+          error('dependencies', property, null, schema, errors);
+        }
+      }
+    }
+
+    if (typeof schema.dependencies === 'object') {
+      validateObject(object, schema.dependencies, options, errors);
+    }
+
+    checkType(value, schema.type, function(err, type) {
+      if (err) return error('type', property, typeof value, schema, errors);
+
+      constrain('conform', value, function (a, e) { return e(a) });
+
+      switch (type || (isArray(value) ? 'array' : typeof value)) {
+        case 'string':
+          constrain('minLength', value.length, function (a, e) { return a &gt;= e });
+          constrain('maxLength', value.length, function (a, e) { return a &lt;= e });
+          constrain('pattern',   value,        function (a, e) {
+            e = typeof e === 'string'
+              ? e = new RegExp(e)
+              : e;
+            return e.test(a)
+          });
+          break;
+        case 'integer':
+        case 'number':
+          constrain('minimum',     value, function (a, e) { return a &gt;= e });
+          constrain('maximum',     value, function (a, e) { return a &lt;= e });
+          constrain('exclusiveMinimum', value, function (a, e) { return a &gt; e });
+          constrain('exclusiveMaximum', value, function (a, e) { return a &lt; e });
+          constrain('divisibleBy', value, function (a, e) {
+            var multiplier = Math.max((a - Math.floor(a)).toString().length - 2, (e - Math.floor(e)).toString().length - 2);
+            multiplier = multiplier &gt; 0 ? Math.pow(10, multiplier) : 1;
+            return (a * multiplier) % (e * multiplier) === 0
+          });
+          break;
+        case 'array':
+          constrain('items', value, function (a, e) {
+            for (var i = 0, l = a.length; i &lt; l; i++) {
+              validateProperty(object, a[i], property, e, options, errors);
+            }
+            return true;
+          });
+          constrain('minItems', value, function (a, e) { return a.length &gt;= e });
+          constrain('maxItems', value, function (a, e) { return a.length &lt;= e });
+          constrain('uniqueItems', value, function (a) {
+            var h = {};
+
+            for (var i = 0, l = a.length; i &lt; l; i++) {
+              var key = JSON.stringify(a[i]);
+              if (h[key]) return false;
+              h[key] = true;
+            }
+
+            return true;
+          });
+          break;
+        case 'object':
+          // Recursive validation
+          if (schema.properties || schema.patternProperties || schema.additionalProperties) {
+            validateObject(value, schema, options, errors);
+          }
+          break;
+      }
+    });
+  };
+
+  function checkType(val, type, callback) {
+    var result = false,
+        types = isArray(type) ? type : [type];
+
+    // No type - no check
+    if (type === undefined) return callback(null, type);
+
+    // Go through available types
+    // And fine first matching
+    for (var i = 0, l = types.length; i &lt; l; i++) {
+      type = types[i].toLowerCase().trim();
+      if (type === 'string' ? typeof val === 'string' :
+          type === 'array' ? isArray(val) :
+          type === 'object' ? val &amp;&amp; typeof val === 'object' &amp;&amp;
+                             !isArray(val) :
+          type === 'number' ? typeof val === 'number' :
+          type === 'integer' ? typeof val === 'number' &amp;&amp; ~~val === val :
+          type === 'null' ? val === null :
+          type === 'boolean'? typeof val === 'boolean' :
+          type === 'any' ? typeof val !== 'undefined' : false) {
+        return callback(null, type);
+      }
+    };
+
+    callback(true);
+  };
+
+  function error(attribute, property, actual, schema, errors) {
+    var lookup = { expected: schema[attribute], attribute: attribute, property: property };
+    var message = schema.messages &amp;&amp; schema.messages[attribute] || schema.message || validate.messages[attribute] || &quot;no default message&quot;;
+    message = message.replace(/%\{([a-z]+)\}/ig, function (_, match) { return lookup[match.toLowerCase()] || ''; });
+    errors.push({
+      attribute: attribute,
+      property:  property,
+      expected:  schema[attribute],
+      actual:    actual,
+      message:   message
+    });
+  };
+
+  function isArray(value) {
+    var s = typeof value;
+    if (s === 'object') {
+      if (value) {
+        if (typeof value.length === 'number' &amp;&amp;
+           !(value.propertyIsEnumerable('length')) &amp;&amp;
+           typeof value.splice === 'function') {
+           return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
+})(typeof(window) === 'undefined' ? module.exports : (window.json = window.json || {}));
+</pre>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;backbone&quot;, &quot;underscore&quot;], function (JQ, Backbone, _) {
+    var Example = Backbone.Model.extend({
+        defaults: { nodes: &quot;&quot;, datasets: &quot;&quot;, title: &quot;&quot; }
+    });
+    
+    var ExampleTemplate = _.template(
+        &quot;&lt;li&gt;&lt;a href=\&quot;#nodes/&lt;%= nodes %&gt;/datasets/&lt;%= datasets %&gt;\&quot;&gt;&quot; +
+        &quot;&lt;%= title %&gt;&lt;/a&gt;&lt;/li&gt;&quot;
+    );
+
+    var examples = new Backbone.Collection();
+    examples
+    // .add({
+    //     nodes: &quot;kb|g.21765.CDS.3832,kb|g.21765.CDS.1709,kb|g.21765.CDS.71&quot;,
+    //     datasets: &quot;kb|netdataset.regprecise.301,kb|netdataset.modelseed.5&quot;,
+    //     title: &quot;Glyoxylate bypass subsystem (&lt;em&gt;E. coli&lt;/em&gt;)&quot;
+    // })
+    .add({
+        nodes: &quot;kb|g.20848.CDS.837,kb|g.20848.CDS.3186,kb|g.20848.CDS.537&quot;,
+        datasets: &quot;kb|netdataset.regprecise.1,kb|dataset.mak2,kb|dataset.mak4&quot;,
+        title: &quot;Arginine metabolism (&lt;em&gt;S. oneidensis&lt;/em&gt;)&quot;
+    })
+    .add({
+        nodes: &quot;kb|g.1870.peg.3322,kb|g.1870.peg.1532,kb|g.1870.peg.2087&quot;,
+        datasets: &quot;kb|netdataset.regprecise.301,kb|netdataset.modelseed.1697,kb|netdataset.ppi.7,kb|dataset.cmonkey.14&quot;,
+        title: &quot;Fatty acid degradation (&lt;em&gt;E. coli&lt;/em&gt;)&quot;
+    })
+    ;
+    
+    var Navbar = Backbone.View.extend({
+        template: _.template(&quot;&lt;li class=\&quot;dropdown\&quot;&gt;&quot; +
+                &quot;&lt;a class=\&quot;dropdown-toggle\&quot; id=\&quot;dLabel\&quot;&quot; +
+                    &quot;data-toggle=\&quot;dropdown\&quot;&quot; +
+                    &quot;data-target=\&quot;#\&quot; href=\&quot;#\&quot;&gt;&lt;%= title %&gt;&quot; +
+                &quot;&lt;b class=\&quot;caret\&quot;&gt;&lt;/b&gt;&lt;/a&gt;&quot; +
+                &quot;&lt;ul id=\&quot;example-links\&quot; class=\&quot;dropdown-menu\&quot; &quot; +
+                    &quot;role=\&quot;menu\&quot; aria-labelledby=\&quot;dLabel\&quot;&gt;&lt;/ul&gt;&lt;/li&gt;&quot;),
+        initialize: function () {
+            this.render();
+        },
+        render: function () {
+            var dd = this.template({ title: &quot;Examples&quot; });
+            this.$el.append(dd);
+            dd = JQ(&quot;#example-links&quot;);
+            examples.forEach(function (example) {
+                dd.append(ExampleTemplate(example.toJSON()));
+            });
+            return this;
+        }
+    })
+    return Navbar;
+})</pre>
+</body>
+</html>

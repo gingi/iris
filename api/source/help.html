@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;underscore&quot;, &quot;backbone&quot;], function (JQ, _, Backbone) {
+    var defaults = {
+        title: &quot;Help&quot;,
+        target: &quot;#help-link&quot;,
+        width: 300
+    };
+    function Help(options) {
+        options = options ? _.clone(options) : {}
+        _.defaults(options, defaults);
+        var View = Backbone.View.extend({
+            el: JQ(options.target),
+            initialize: function () {
+                this.render();
+            },
+            render: function () {
+                require([&quot;text!&quot; + options.template], function (html) {
+                    JQ(&quot;#help-link&quot;).click(function () {
+                        return false;
+                    })
+                    JQ(&quot;#help-link&quot;).popover({
+                        title: options.title,
+                        content: html,
+                        placement: &quot;bottom&quot;,
+                        html: true,
+                        container: &quot;body&quot;,
+                        width: options.width
+                    })
+                })
+            },
+            show: function () {
+                this.popover.popover(&quot;show&quot;);
+            }
+        });
+        return new View();
+    }
+
+    return Help;
+})</pre>
+</body>
+</html>

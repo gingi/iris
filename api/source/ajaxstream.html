@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(function () {
+    function AJAXStream(options) {
+        if (!options.url) {
+            throw new Error(&quot;URL is required&quot;);
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open(&quot;GET&quot;, options.url, true);
+        var offset = 0;
+        var DELIM = &quot;\r\n\r\n&quot;;
+        xhr.onreadystatechange = function (e) {
+            if (this.readyState == 3 &amp;&amp; this.status == 200) {
+                var chunk = this.responseText.substring(offset);
+                offset = this.responseText.length;
+                
+                var payloads = chunk.split(DELIM); payloads.pop();
+                payloads.forEach(function (payload) {
+                    var json;
+                    try {
+                        json = JSON.parse(payload)
+                    } catch (err) {
+                        throw new Error(&quot;Can't parse chunk [&quot; + payload + &quot;]&quot;);
+                    }
+                    options.chunk(json);
+                })
+            } else if (this.readyState == 4) {
+            }
+        };
+        xhr.send();
+        return this;
+    }
+    return AJAXStream;
+});</pre>
+</body>
+</html>

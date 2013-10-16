@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">require(['jquery', 'backbone', 'underscore', 'renderers/heatmap', 'util/viewport'],
+function (JQ, Backbone, _, Heatmap, Viewport) {
+    function randomData(num) {
+        var genes = new Array(num);
+        var matrix = [];
+        for (var i = 0; i &lt; num; i++) {
+            genes[i] = 'Gene' + (i+1);
+        }
+        for (var i = num - 1; i &gt;= 0; i--) {
+            var j = Math.floor(Math.random() * i);
+            var tmp  = genes[j];
+            genes[j] = genes[i];
+            genes[i] = tmp;
+        }
+        for (var i = 0; i &lt; num; i++) {
+            for (var j = 0; j &lt; num; j++) {
+                if (i != j) {
+                    matrix.push([i, j, Math.random()]);
+                }
+            }
+        }
+        return { rows: genes, matrix: matrix };
+    }
+    var RandomHeatmapModel = Backbone.Model.extend({
+        initialize: function () {
+            var NUM_GENES = 10;
+            this.set(randomData(NUM_GENES));
+        },
+    })
+    var View = Backbone.View.extend({
+        initialize: function () {
+            _.bindAll(this, 'render');
+            this.model.on('sync', this.render);
+            this.$el.progress.show();
+        },
+        render: function () {
+            var heatmap = new Heatmap({ element: this.$el });
+            heatmap.setData(this.model.toJSON());
+            this.$el.progress.dismiss();
+            heatmap.render();
+            this.viewport.renderer(heatmap);
+        }
+    });
+    
+    var randomViewport = new Viewport({
+        parent: JQ(&quot;#datavis&quot;),
+        width: 150,
+        height: 150,
+        title: &quot;Random Heatmap&quot;
+    });
+    var randomView = new View({
+        el: randomViewport,
+        model: new RandomHeatmapModel,
+    });
+    randomView.viewport = randomViewport;
+    randomView.render();
+    
+    var ExpressionModel = Backbone.Model.extend({
+        defaults: {
+            terms: &quot;PO:0009005,PO:0009006,PO:0009025&quot;,
+            genes: &quot;kb|g.3899.locus.2366,kb|g.3899.locus.1892,&quot; +
+                   &quot;kb|g.3899.locus.2354,kb|g.3899.locus.2549,&quot; +
+                   &quot;kb|g.3899.locus.2420,kb|g.3899.locus.2253,&quot; + 
+                   &quot;kb|g.3899.locus.2229&quot;.split(&quot;,&quot;),
+        },
+        url: function () {
+            return &quot;/data/query/expression&quot;
+        },
+        parse: function (json) {
+            var matrix = [];
+            var columns = [];
+            var maxScore = 0;
+            json.data.forEach(function (values, i) {
+                for (var j = 0; j &lt; values.length; j++) {
+                    var val = parseFloat(values[j]);
+                    matrix.push([i, j, val]);
+                    maxScore = Math.max(val, maxScore);
+                }
+            });
+            this.set('rows',     _.pluck(json.genes, &quot;name&quot;));
+            this.set('columns',  _.pluck(json.terms, &quot;name&quot;));
+            this.set('matrix',   matrix);
+            this.set('maxScore', maxScore);
+        }
+    });
+    var expression = new ExpressionModel;
+    var viewport = new Viewport({
+        parent: JQ(&quot;#datavis&quot;),
+        title: &quot;Expression Profile&quot;
+    })
+    var view = new View({
+        el: viewport,
+        model: expression,
+    });
+    view.viewport = viewport;
+    expression.fetch({ data: {
+        genes: expression.get('genes'),
+        terms: expression.get('terms'),
+        type: 'plant'
+    }});
+});</pre>
+</body>
+</html>

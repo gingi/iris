@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'underscore'],
+    function (JQ, _) {
+    var defaults = {
+        scrollY: 300,
+        element: &quot;body&quot;,
+        rowCallback: function () {}
+    };
+    function Table(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        var filterExclude = [];
+        self.setData = function (data) {
+            self.data = data;
+            data.filter = data.filter || [];
+            for (var i = 0; i &lt; data.columns.length; i++) {
+                if (!_.contains(data.filter, data.columns[i])) {
+                    filterExclude.push(i);
+                }
+            }
+        };
+        self.getData = function () {
+            return self.data;
+        };
+        self.render = function (args) {
+            var $element = JQ(options.element);
+            var elementOffset = $element.offset();
+            args = args ? _.clone(args) : {};
+            var $table = JQ(&quot;&lt;table&gt;&quot;).attr(&quot;cellpadding&quot;, 0)
+                .attr(&quot;cellspacing&quot;,0).attr(&quot;border&quot;, 0)
+                .addClass('table table-striped table-bordered');
+            $element.empty().append($table);
+            var cols = _.map(self.data.columns, function (d) {
+                return { sTitle: d };
+            });
+            options.scrollY = Math.max($element.height()-100, options.scrollY);
+            require(['datatables'], function () {
+                require(['columnfilter'], function () {
+                    $table.dataTable({
+                        sInfo: &quot;muted&quot;,
+                        aaData: self.data.data,
+                        aoColumns: cols,
+                        sPaginationType: &quot;bootstrap&quot;,
+                        sScrollY: options.scrollY,
+                        bPaginate: false,
+                        aaSorting: [],
+                        oLanguage: {
+                            sLengthMenu: &quot;_MENU_ per page&quot;,
+                            sInfoThousands: &quot;,&quot;
+                        },
+                        oColumnFilterWidgets: {
+                            aiExclude: filterExclude,
+                            bGroupTerms: true
+                        },
+                        fnRowCallback: function (tr, data) {
+                            options.rowCallback.call(tr, data);
+                        },
+                        fnDrawCallback: args.success
+                    });
+                    adjustHeight('.dataTables_wrapper');
+                    adjustHeight('.table-wrapper');
+                    JQ(&quot;.column-filter-widget&quot;).find(&quot;select&quot;).addClass(&quot;mini&quot;);
+                    $element.offset({
+                        top: elementOffset.top, left: elementOffset.left
+                    });
+                });
+                dataTableBehavior();
+            });
+        };
+        function adjustHeight(selector) {
+            JQ(selector).each(function () {
+                var w = JQ(this);
+                var p = w.parent();
+                var totalHeight = 0;
+                p.children().each(function () {
+                    totalHeight += JQ(this).outerHeight(true)
+                });
+                w.css(&quot;min-height&quot;,
+                    p.height() + w.outerHeight(true) - totalHeight);
+            });
+        }
+    }
+    
+    function dataTableBehavior() {
+        /* Set the defaults for DataTables initialization */
+        JQ.extend(true, JQ.fn.dataTable.defaults, {
+            sDom: &quot;&lt;'dt-top'Wlfr&gt;&quot; +
+                 &quot;&lt;'table-wrapper't&gt;&lt;'dt-bottom'ip&gt;&quot;,
+            fnInitComplete: function (table) {
+                JQ('.dataTables_length').find(&quot;select&quot;).addClass(&quot;col-md-2&quot;);
+                JQ('.dataTables_filter').find(&quot;:input&quot;)
+                    .addClass(&quot;input-small search-query&quot;)
+                    .attr(&quot;placeholder&quot;, &quot;Search&quot;);
+                JQ('.dataTables_length &gt; label').contents().filter(function() {
+                    return this.nodeType != 1;
+                }).wrap(&quot;&lt;span class='mini help-inline'&gt;&quot;);
+            },
+            sPaginationType: &quot;bootstrap&quot;,
+            oLanguage: {
+                sLengthMenu: &quot;_MENU_ records per page&quot;,
+                sInfo: &quot;&lt;b&gt;_START_-_END_&lt;/b&gt; of &lt;b&gt;_TOTAL_&lt;/b&gt; entries&quot;,
+                sSearch: &quot;&quot;
+            }
+        });
+
+
+        /* Default class modification */
+        JQ.extend(JQ.fn.dataTableExt.oStdClasses, {
+            sWrapper: &quot;dataTables_wrapper form-inline&quot;,
+            sInfo: &quot;mini muted dt-info&quot;
+        });
+
+        /* API method to get paging information */
+        JQ.fn.dataTableExt.oApi.fnPagingInfo = function (opts) {
+            return {
+                iStart:         opts._iDisplayStart,
+                iEnd:           opts.fnDisplayEnd(),
+                iLength:        opts._iDisplayLength,
+                iTotal:         opts.fnRecordsTotal(),
+                iFilteredTotal: opts.fnRecordsDisplay(),
+                iPage:
+                    Math.ceil(opts._iDisplayStart / opts._iDisplayLength),
+                iTotalPages:
+                    Math.ceil(opts.fnRecordsDisplay() / opts._iDisplayLength)
+            };
+        };
+
+
+        /* Bootstrap style pagination control */
+        JQ.extend(JQ.fn.dataTableExt.oPagination, {
+            bootstrap: {
+                fnInit: function (opts, nPaging, fnDraw) {
+                    var oLang = opts.oLanguage.oPaginate;
+                    var fnClickHandler = function (e) {
+                        e.preventDefault();
+                        if (opts.oApi._fnPageChange(opts, e.data.action)) {
+                            fnDraw(opts);
+                        }
+                    };
+                    JQ(nPaging).addClass('pagination pagination-mini').append(_.template(
+                        '&lt;ul&gt;' +
+                            '&lt;li class=&quot;prev disabled&quot;&gt;' +
+                            '&lt;a href=&quot;#&quot;&gt;&amp;larr;&lt;/a&gt;&lt;/li&gt;'+
+                            '&lt;li class=&quot;next disabled&quot;&gt;'+
+                            '&lt;a href=&quot;#&quot;&gt;&amp;rarr;&lt;/a&gt;&lt;/li&gt;'+
+                        '&lt;/ul&gt;', { prev: oLang.sPrevious, next: oLang.sNext })
+                    );
+                    var els = JQ('a', nPaging);
+                    JQ(els[0]).bind('click.DT',
+                        { action: &quot;previous&quot; }, fnClickHandler);
+                    JQ(els[1]).bind('click.DT',
+                        { action: &quot;next&quot; }, fnClickHandler);
+                },
+                fnUpdate: function (opts, fnDraw) {
+                    var iListLength = 5;
+                    var oPaging = opts.oInstance.fnPagingInfo();
+                    var an = opts.aanFeatures.p;
+                    var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
+
+                    if ( oPaging.iTotalPages &lt; iListLength) {
+                        iStart = 1;
+                        iEnd = oPaging.iTotalPages;
+                    }
+                    else if (oPaging.iPage &lt;= iHalf) {
+                        iStart = 1;
+                        iEnd = iListLength;
+                    } else if (oPaging.iPage &gt;= (oPaging.iTotalPages-iHalf)) {
+                        iStart = oPaging.iTotalPages - iListLength + 1;
+                        iEnd = oPaging.iTotalPages;
+                    } else {
+                        iStart = oPaging.iPage - iHalf + 1;
+                        iEnd = iStart + iListLength - 1;
+                    }
+
+                    for (i=0, iLen=an.length ; i&lt;iLen ; i++) {
+                        // Remove the middle elements
+                        JQ('li:gt(0)', an[i]).filter(':not(:last)').remove();
+
+                        // Add the new list items and their event handlers
+                        for (j=iStart ;j&lt;=iEnd ;j++) {
+                            sClass = (j==oPaging.iPage+1) ? 'class=&quot;active&quot;' : '';
+                            JQ('&lt;li '+sClass+'&gt;&lt;a href=&quot;#&quot;&gt;'+j+'&lt;/a&gt;&lt;/li&gt;')
+                                .insertBefore(JQ('li:last', an[i])[0])
+                                .bind('click', function (e) {
+                                    e.preventDefault();
+                                    opts._iDisplayStart = (parseInt(JQ('a', this).text(),10)-1) * oPaging.iLength;
+                                    fnDraw(opts);
+                                } );
+                        }
+
+                        // Add / remove disabled classes from the static elements
+                        if (oPaging.iPage === 0) {
+                            JQ('li:first', an[i]).addClass('disabled');
+                        } else {
+                            JQ('li:first', an[i]).removeClass('disabled');
+                        }
+
+                        if (oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0) {
+                            JQ('li:last', an[i]).addClass('disabled');
+                        } else {
+                            JQ('li:last', an[i]).removeClass('disabled');
+                        }
+                    }
+                }
+            }
+        });
+
+
+        /*
+         * TableTools Bootstrap compatibility
+         * Required TableTools 2.1+
+         */
+        if (JQ.fn.DataTable.TableTools) {
+            // Set the classes that TableTools uses to something suitable for Bootstrap
+            JQ.extend(true, JQ.fn.DataTable.TableTools.classes, {
+                container: &quot;DTTT btn-group&quot;,
+                buttons: {
+                    normal: &quot;btn&quot;,
+                    disabled: &quot;disabled&quot;
+                },
+                collection: {
+                    container: &quot;DTTT_dropdown dropdown-menu&quot;,
+                    buttons: {
+                        normal: &quot;&quot;,
+                        disabled: &quot;disabled&quot;
+                    }
+                },
+                print: {
+                    info: &quot;DTTT_print_info modal&quot;
+                },
+                select: {
+                    row: &quot;active&quot;
+                }
+            });
+
+            // Have the collection use a bootstrap compatible dropdown
+            JQ.extend(true, JQ.fn.DataTable.TableTools.DEFAULTS.oTags, {
+                collection: {
+                    container: &quot;ul&quot;,
+                    button: &quot;li&quot;,
+                    liner: &quot;a&quot;
+                }
+            });
+        }
+    }
+
+    return Table;
+});</pre>
+</body>
+</html>

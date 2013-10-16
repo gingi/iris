@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'underscore', 'util/spin'], function (JQ, _, Spinner) {
+    var _BAR = &quot;bar&quot;, _SPIN = &quot;spin&quot;;
+    var defaults = {
+        fade: true,
+        spinner: {},
+        progress: {},
+        type: _SPIN,
+        initialWidth: &quot;100%&quot;
+    };
+    var spinnerDefaults = {
+        length: 5,
+        width: 2,
+        radius: 5,
+        corners: 1,
+        rotate: 69,
+        color: '#666',
+        speed: 1.3,
+        trail: 42
+    };
+    var progressCounter = 0;
+    function create(options, id) {
+        if (options.type == Progress.SPIN) {
+            var spinner = new Spinner(options.spinner);
+            return {
+                show: function (container) { spinner.spin(container[0]) },
+                hide: function () {
+                    spinner.stop();
+                    if (options.fade) JQ(&quot;#&quot; + id).remove();
+                }
+            };
+        } else {
+            var div = JQ(&quot;&lt;div&gt;&quot;)
+                .addClass(&quot;progress progress-striped active&quot;)
+                .css(&quot;display&quot;, &quot;none&quot;)
+                .append(JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;bar&quot;)
+                    .css(&quot;width&quot;, options.width));
+            return {
+                show: function (container, message) {
+                    container.append(div);
+                    if (message) {
+                        div.find(&quot;#progress-message&quot;).remove();
+                        div.append(JQ(&quot;&lt;span&gt;&quot;)
+                            .attr(&quot;id&quot;, &quot;progress-message&quot;)
+                            .text(message)
+                        );
+                    }
+                    div.fadeIn();
+                },
+                hide: function () {
+                    div.fadeOut(function () {
+                        if (options.fade) JQ(&quot;#&quot; + id).remove();
+                    });
+                },
+                width: function (percent) {
+                    div.find(&quot;.bar&quot;).css(&quot;width&quot;, percent);
+                }
+            };
+        }
+    }
+    function Progress(options) {
+        progressCounter++;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        _.defaults(options.spinner, spinnerDefaults);
+        options.width = options.initialWidth;
+        var $el = JQ(options.element);
+        var _id = &quot;progress-container-&quot; + progressCounter;
+        var indicator;
+        this.show = function (message) {
+            var container;
+            if (options.fade) {
+                container = JQ(&quot;&lt;div&gt;&quot;)
+                    .attr(&quot;id&quot;, _id)
+                    .css(&quot;z-index&quot;, 30)
+                    .css(&quot;background-color&quot;, &quot;rgba(100%, 100%, 100%, 0.8)&quot;)
+                    .css(&quot;position&quot;, &quot;absolute&quot;)
+                    .css(&quot;top&quot;, 0)
+                    .css(&quot;left&quot;, 0)
+                    .height($el.height())
+                    .width($el.width());
+                $el.append(container);
+            } else {
+                container = $el;
+            }
+            if (!indicator) {
+                indicator = create(options, _id);
+            }
+            indicator.show(container, message);
+        };
+        this.progress = function (percent) {
+            if (options.type == Progress.BAR) {
+                if (!indicator) {
+                    indicator = create(options);
+                }
+                indicator.width(percent);
+            }
+        };
+        this.dismiss = function () {
+            if (indicator) indicator.hide();
+        };
+        return this;
+    }
+    Progress.BAR  = _BAR;
+    Progress.SPIN = _SPIN;
+    return Progress;
+});</pre>
+</body>
+</html>

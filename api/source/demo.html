@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;app/widget&quot;,&quot;renderers/code&quot;], function (widget,code) {
+	widget.about = {
+		author: &quot;Andrew Olson&quot;,
+		name: &quot;demo&quot;,
+		description: &quot;example widget&quot;
+	};
+	var codeDiv, renderDiv, csettings, rsettings;
+	var refresh = function(value) {
+		require(['renderers/'+value], function(demo) {
+			rsettings = demo.prepare({element: renderDiv});
+			csettings.data = rsettings;
+			code.render(csettings);
+			demo.render(rsettings);
+			code.jscode.observe( function(usettings) {
+				$.extend(true,rsettings,usettings);
+				demo.render(rsettings);
+			});
+		});
+	};
+	widget.display = function (element,args) {
+		var e = $(element);
+		// fill a selection box with the various renderers
+		$.getJSON(&quot;/renderer&quot;,function (jslist) {
+			var select = document.createElement(&quot;select&quot;);
+			select.setAttribute(&quot;name&quot;,&quot;rendererSelect&quot;);
+			select.setAttribute(&quot;id&quot;,&quot;rendererSelect&quot;);
+			select.onchange=function() {
+				var chosen = this.options[this.selectedIndex];
+				if (chosen.value !== &quot;0&quot;) {
+					refresh(chosen.value);
+				}
+			};
+			var option = document.createElement(&quot;option&quot;);
+			option.setAttribute(&quot;value&quot;,&quot;0&quot;);
+			option.innerHTML = &quot;Select Renderer&quot;
+			select.appendChild(option);
+			for (var i=0;i&lt;jslist.length;i++) {
+				var js = jslist[i].substring(0,jslist[i].length-3);
+				option = document.createElement(&quot;option&quot;);
+				option.setAttribute(&quot;value&quot;,js);
+				option.innerHTML = js;
+				select.appendChild(option);
+			}
+			var leftDiv = document.createElement(&quot;div&quot;);
+			var rightDiv = document.createElement(&quot;div&quot;);
+			leftDiv.setAttribute(&quot;style&quot;, &quot;width: 50%; float: left; height: 30px; border: 1px solid black;&quot;);
+			rightDiv.setAttribute(&quot;style&quot;, &quot;width: 49%; float: left; height: 30px; border: 1px solid black; border-left: 0px;&quot;);
+			leftDiv.innerHTML=&quot;Renderer settings&quot;;
+			rightDiv.appendChild(select);
+			codeDiv = document.createElement(&quot;div&quot;);
+			renderDiv = document.createElement(&quot;div&quot;);
+			codeDiv.setAttribute(&quot;id&quot;,&quot;code&quot;);
+			codeDiv.setAttribute(&quot;name&quot;,&quot;code&quot;);
+			codeDiv.setAttribute(&quot;style&quot;,&quot;width: 50%; float: left; height: 500px; border: 1px solid black;&quot;);
+			renderDiv.setAttribute(&quot;style&quot;,&quot;width: 49%; float: left; height: 500px; border: 1px solid black; border-left: 0px;&quot;);
+			e.append(leftDiv);
+			e.append(rightDiv);
+			e.append(codeDiv);
+			e.append(renderDiv);
+			csettings = code.prepare({element: codeDiv});
+		});
+	};
+
+	return widget;
+});
+</pre>
+</body>
+</html>

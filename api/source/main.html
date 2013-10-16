@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">require([
+    'jquery',
+    'backbone',
+    'underscore',
+    'charts/bar',
+    'charts/pie',
+    'renderers/table',
+    'util/viewport',
+    'util/dropdown'
+], function (JQ, Backbone, _, BarChart, PieChart, Table, Viewport, DropDown) {
+    var Genome = Backbone.Model.extend({
+        defaults: { name: &quot;&quot; },
+        urlRoot: &quot;/data/genome&quot;,
+        parse: function (data) {
+            var contigs = {};
+            for (var id in data.contigs) {
+                    var len = parseInt(data.contigs[id].length);
+                if (len &gt; 1e6) {
+                    contigs[data.contigs[id].name] = len;
+                }
+            }
+            this.set('name',    data.info[&quot;scientific_name&quot;]);
+            this.set('genes',   data.info[&quot;pegs&quot;]);
+            this.set('length',  data.info[&quot;dna_size&quot;]);
+            this.set('contigs', contigs);
+        }
+    });
+
+    var dropdownFactory = new DropDown({
+        container: &quot;#nav-content&quot;,
+        copyTarget: &quot;#genome-name&quot;
+    });
+    var dropdown = dropdownFactory.create({
+        name: &quot;Genome&quot;,
+        url: &quot;/data/genome&quot;,
+        listParse: function (response) {
+            return response.result;
+        }
+    }).fetch();
+    
+    var ChartView = Backbone.View.extend({
+        initialize: function () {
+            _.bindAll(this, 'render');
+            this.model.on('sync', this.render);
+        },
+        dataSpec: function (data) { return data; },
+        render: function () {
+            this.$el.empty();
+            var chartData = [];
+            var contigs = this.model.get('contigs');
+            for (var chr in contigs) {
+                chartData.push(this.dataPoint(contigs, chr));
+            }
+            var vis = new this.chartType({ element: this.$el });
+            vis.setData(this.dataSpec(chartData));
+            vis.render();
+            this.viewport.renderer(vis);
+            return this;
+        },
+    });
+    
+    var charts = {
+        barchart: {
+            title: &quot;Bar Chart&quot;,
+            dataPoint: function (contigs, id) {
+                return { x: id, y: contigs[id] }
+            },
+            chartType: BarChart
+        },
+        piechart: {
+            title: &quot;Pie Chart&quot;,
+            dataPoint: function (contigs, id) {
+                return [id, contigs[id]]
+            },
+            chartType: PieChart
+        },
+        tablesum: {
+            title: &quot;Table&quot;,
+            dataPoint: function (contigs, id) { return [ id, contigs[id] ] },
+            chartType: Table,
+            dataSpec: function (data) {
+                return {
+                    data: data,
+                    columns: ['Contig', 'Length'],
+                    filter: ['Contig']
+                }
+            }
+        }
+    }
+
+    var Router = Backbone.Router.extend({
+        routes: {
+            &quot;*actions&quot;: &quot;show&quot;
+        },
+        show: function (genomeId) {
+            JQ(&quot;#datavis&quot;).empty();
+            var row = JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;row&quot;);
+            JQ(&quot;#datavis&quot;).append(row);
+            var genome = new Genome;
+            genomeId = genomeId || 'kb|g.3899';
+            genome.set({ id: genomeId });
+            dropdown.select(genomeId);
+            for (var elementId in charts) {
+                var wrapper = JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;col-md-4&quot;);
+                row.append(wrapper);
+                var viewport = new Viewport({
+                    parent: wrapper,
+                    height: 400,
+                    title: charts[elementId].title,
+                    sortContainer: row
+                });
+                var View = ChartView.extend(charts[elementId]);
+                var view = new View({
+                    model: genome,
+                    el: viewport
+                });
+                view.viewport = viewport;
+            }
+            genome.fetch({
+                success: function (model, json) {
+                JQ(&quot;#genome-name&quot;).text(json.info[&quot;scientific_name&quot;]);
+                JQ(&quot;#genome-info&quot;).empty();
+                JQ(&quot;#genome-info&quot;)
+                    .append(JQ(&quot;&lt;small&gt;&quot;).html(json.info[&quot;dna_size&quot;] + &quot; bp&quot;))
+                    .append(JQ(&quot;&lt;small&gt;&quot;).html(json.info[&quot;pegs&quot;] + &quot; genes&quot;))
+                },
+                error: function (model, xhr) {
+                    var content = JQ(&quot;&lt;span&gt;&quot;);
+                    if (xhr.status == 404) {
+                        content.append(JSON.parse(xhr.responseText).error);
+                    } else {
+                        content
+                            .append(JQ(&quot;&lt;p&gt;&quot;)
+                                .text(&quot;Couldn't get genome &quot; + model.get('id'))
+                            )
+                            .append(JQ(&quot;&lt;h5&gt;&quot;).text(&quot;Technical details&quot;))
+                            .append(JQ(&quot;&lt;pre&gt;&quot;).css(&quot;font-size&quot;, &quot;65%&quot;)
+                                .text(xhr.responseText));
+                    }
+                    JQ(&quot;#datavis&quot;).empty().prepend(
+                        JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;alert alert-block alert-error&quot;)
+                            .css(&quot;margin-top&quot;, &quot;50px&quot;)
+                            .append(JQ(&quot;&lt;h3&gt;&quot;).text(&quot;Oops!&quot;)).append(content)
+                    );
+                }
+            });
+        },
+    });
+    
+    JQ(&quot;#datavis&quot;).before(&quot;&lt;h2 id=\&quot;genome-name\&quot;&gt;&lt;/h2&gt;&quot;)
+    JQ(&quot;#datavis&quot;).before(&quot;&lt;div id=\&quot;genome-info\&quot;&gt;&lt;/div&gt;&quot;);
+    var router = new Router;
+    Backbone.history.start();
+});</pre>
+</body>
+</html>

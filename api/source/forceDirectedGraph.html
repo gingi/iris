@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;iris&quot;, &quot;d3&quot;, &quot;underscore&quot;], function (Iris, d3, _) {
+    return Iris.Renderer.extend({
+        about: {
+            name: &quot;forceDirectedGraph&quot;,
+            author: &quot;Andrew Olson&quot;,
+            description: &quot;network renderer that uses d3's force layout&quot;
+        },
+        defaults: {
+            radius: 5,
+            linkDistance: 20,
+            linkStrength: 1,
+            friction: 0.9,
+            charge: -30,
+            theta: 0.8,
+            gravity: 0.1,
+            edgestyle: {
+                &quot;stroke&quot;: &quot;#999&quot;,
+                &quot;stroke-opacity&quot;: 0.6,
+                &quot;stroke-width&quot;: function(d) { return Math.sqrt(d.value); }
+            },
+            nodestyle: {
+                &quot;stroke&quot;: &quot;#999&quot;,
+                &quot;stroke-width&quot;: &quot;1.5px&quot;,
+                &quot;fill&quot;: function (d) { var colors = [&quot;#17becf&quot;,&quot;#1f77b4&quot;,&quot;#ff7f0e&quot;,&quot;#2ca02c&quot;,&quot;#d62728&quot;,&quot;#9467bd&quot;,&quot;#8c564b&quot;,&quot;#e377c2&quot;,&quot;#7f7f7f&quot;,&quot;#bcbd22&quot;,&quot;#ff7f0e&quot;]; return colors[d.group]; }
+            }
+        },
+        schema: {
+            properties: {
+                element: { type: 'any', required: true },
+                data: { type: 'object', required: true },
+                force: {
+                    type: 'object',
+                    properties: {
+                        linkDistance: { type: 'integer' },
+                        linkStrength: { type: 'integer' },
+                        friction: { type: 'number' },
+                        charge: { type: 'integer' },
+                        theta: {type: 'number' },
+                        gravity: {type: 'number' }
+                    }
+                }
+            }
+        },
+        exampleData: function () {
+            return {
+                &quot;nodes&quot;:[
+                {&quot;name&quot;:&quot;Myriel&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Napoleon&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Mlle.Baptistine&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Mme.Magloire&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;CountessdeLo&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Geborand&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Champtercier&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Cravatte&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Count&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;OldMan&quot;,&quot;group&quot;:1},
+                {&quot;name&quot;:&quot;Labarre&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Valjean&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Marguerite&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Mme.deR&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Isabeau&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Gervais&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Tholomyes&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Listolier&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Fameuil&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Blacheville&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Favourite&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Dahlia&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Zephine&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Fantine&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Mme.Thenardier&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Thenardier&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Cosette&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Javert&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Fauchelevent&quot;,&quot;group&quot;:0},
+                {&quot;name&quot;:&quot;Bamatabois&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Perpetue&quot;,&quot;group&quot;:3},
+                {&quot;name&quot;:&quot;Simplice&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Scaufflaire&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Woman1&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Judge&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Champmathieu&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Brevet&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Chenildieu&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Cochepaille&quot;,&quot;group&quot;:2},
+                {&quot;name&quot;:&quot;Pontmercy&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Boulatruelle&quot;,&quot;group&quot;:6},
+                {&quot;name&quot;:&quot;Eponine&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Anzelma&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Woman2&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;MotherInnocent&quot;,&quot;group&quot;:0},
+                {&quot;name&quot;:&quot;Gribier&quot;,&quot;group&quot;:0},
+                {&quot;name&quot;:&quot;Jondrette&quot;,&quot;group&quot;:7},
+                {&quot;name&quot;:&quot;Mme.Burgon&quot;,&quot;group&quot;:7},
+                {&quot;name&quot;:&quot;Gavroche&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Gillenormand&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Magnon&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Mlle.Gillenormand&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Mme.Pontmercy&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Mlle.Vaubois&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Lt.Gillenormand&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Marius&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;BaronessT&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Mabeuf&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Enjolras&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Combeferre&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Prouvaire&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Feuilly&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Courfeyrac&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Bahorel&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Bossuet&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Joly&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;Grantaire&quot;,&quot;group&quot;:8},
+                {&quot;name&quot;:&quot;MotherPlutarch&quot;,&quot;group&quot;:9},
+                {&quot;name&quot;:&quot;Gueulemer&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Babet&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Claquesous&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Montparnasse&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Toussaint&quot;,&quot;group&quot;:5},
+                {&quot;name&quot;:&quot;Child1&quot;,&quot;group&quot;:10},
+                {&quot;name&quot;:&quot;Child2&quot;,&quot;group&quot;:10},
+                {&quot;name&quot;:&quot;Brujon&quot;,&quot;group&quot;:4},
+                {&quot;name&quot;:&quot;Mme.Hucheloup&quot;,&quot;group&quot;:8}
+                ],
+                &quot;edges&quot;:[
+                {&quot;source&quot;:1,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:2,&quot;target&quot;:0,&quot;value&quot;:8},
+                {&quot;source&quot;:3,&quot;target&quot;:0,&quot;value&quot;:10},
+                {&quot;source&quot;:3,&quot;target&quot;:2,&quot;value&quot;:6},
+                {&quot;source&quot;:4,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:5,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:6,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:7,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:8,&quot;target&quot;:0,&quot;value&quot;:2},
+                {&quot;source&quot;:9,&quot;target&quot;:0,&quot;value&quot;:1},
+                {&quot;source&quot;:11,&quot;target&quot;:10,&quot;value&quot;:1},
+                {&quot;source&quot;:11,&quot;target&quot;:3,&quot;value&quot;:3},
+                {&quot;source&quot;:11,&quot;target&quot;:2,&quot;value&quot;:3},
+                {&quot;source&quot;:11,&quot;target&quot;:0,&quot;value&quot;:5},
+                {&quot;source&quot;:12,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:13,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:14,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:15,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:17,&quot;target&quot;:16,&quot;value&quot;:4},
+                {&quot;source&quot;:18,&quot;target&quot;:16,&quot;value&quot;:4},
+                {&quot;source&quot;:18,&quot;target&quot;:17,&quot;value&quot;:4},
+                {&quot;source&quot;:19,&quot;target&quot;:16,&quot;value&quot;:4},
+                {&quot;source&quot;:19,&quot;target&quot;:17,&quot;value&quot;:4},
+                {&quot;source&quot;:19,&quot;target&quot;:18,&quot;value&quot;:4},
+                {&quot;source&quot;:20,&quot;target&quot;:16,&quot;value&quot;:3},
+                {&quot;source&quot;:20,&quot;target&quot;:17,&quot;value&quot;:3},
+                {&quot;source&quot;:20,&quot;target&quot;:18,&quot;value&quot;:3},
+                {&quot;source&quot;:20,&quot;target&quot;:19,&quot;value&quot;:4},
+                {&quot;source&quot;:21,&quot;target&quot;:16,&quot;value&quot;:3},
+                {&quot;source&quot;:21,&quot;target&quot;:17,&quot;value&quot;:3},
+                {&quot;source&quot;:21,&quot;target&quot;:18,&quot;value&quot;:3},
+                {&quot;source&quot;:21,&quot;target&quot;:19,&quot;value&quot;:3},
+                {&quot;source&quot;:21,&quot;target&quot;:20,&quot;value&quot;:5},
+                {&quot;source&quot;:22,&quot;target&quot;:16,&quot;value&quot;:3},
+                {&quot;source&quot;:22,&quot;target&quot;:17,&quot;value&quot;:3},
+                {&quot;source&quot;:22,&quot;target&quot;:18,&quot;value&quot;:3},
+                {&quot;source&quot;:22,&quot;target&quot;:19,&quot;value&quot;:3},
+                {&quot;source&quot;:22,&quot;target&quot;:20,&quot;value&quot;:4},
+                {&quot;source&quot;:22,&quot;target&quot;:21,&quot;value&quot;:4},
+                {&quot;source&quot;:23,&quot;target&quot;:16,&quot;value&quot;:3},
+                {&quot;source&quot;:23,&quot;target&quot;:17,&quot;value&quot;:3},
+                {&quot;source&quot;:23,&quot;target&quot;:18,&quot;value&quot;:3},
+                {&quot;source&quot;:23,&quot;target&quot;:19,&quot;value&quot;:3},
+                {&quot;source&quot;:23,&quot;target&quot;:20,&quot;value&quot;:4},
+                {&quot;source&quot;:23,&quot;target&quot;:21,&quot;value&quot;:4},
+                {&quot;source&quot;:23,&quot;target&quot;:22,&quot;value&quot;:4},
+                {&quot;source&quot;:23,&quot;target&quot;:12,&quot;value&quot;:2},
+                {&quot;source&quot;:23,&quot;target&quot;:11,&quot;value&quot;:9},
+                {&quot;source&quot;:24,&quot;target&quot;:23,&quot;value&quot;:2},
+                {&quot;source&quot;:24,&quot;target&quot;:11,&quot;value&quot;:7},
+                {&quot;source&quot;:25,&quot;target&quot;:24,&quot;value&quot;:13},
+                {&quot;source&quot;:25,&quot;target&quot;:23,&quot;value&quot;:1},
+                {&quot;source&quot;:25,&quot;target&quot;:11,&quot;value&quot;:12},
+                {&quot;source&quot;:26,&quot;target&quot;:24,&quot;value&quot;:4},
+                {&quot;source&quot;:26,&quot;target&quot;:11,&quot;value&quot;:31},
+                {&quot;source&quot;:26,&quot;target&quot;:16,&quot;value&quot;:1},
+                {&quot;source&quot;:26,&quot;target&quot;:25,&quot;value&quot;:1},
+                {&quot;source&quot;:27,&quot;target&quot;:11,&quot;value&quot;:17},
+                {&quot;source&quot;:27,&quot;target&quot;:23,&quot;value&quot;:5},
+                {&quot;source&quot;:27,&quot;target&quot;:25,&quot;value&quot;:5},
+                {&quot;source&quot;:27,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:27,&quot;target&quot;:26,&quot;value&quot;:1},
+                {&quot;source&quot;:28,&quot;target&quot;:11,&quot;value&quot;:8},
+                {&quot;source&quot;:28,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:29,&quot;target&quot;:23,&quot;value&quot;:1},
+                {&quot;source&quot;:29,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:29,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:30,&quot;target&quot;:23,&quot;value&quot;:1},
+                {&quot;source&quot;:31,&quot;target&quot;:30,&quot;value&quot;:2},
+                {&quot;source&quot;:31,&quot;target&quot;:11,&quot;value&quot;:3},
+                {&quot;source&quot;:31,&quot;target&quot;:23,&quot;value&quot;:2},
+                {&quot;source&quot;:31,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:32,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:33,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:33,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:34,&quot;target&quot;:11,&quot;value&quot;:3},
+                {&quot;source&quot;:34,&quot;target&quot;:29,&quot;value&quot;:2},
+                {&quot;source&quot;:35,&quot;target&quot;:11,&quot;value&quot;:3},
+                {&quot;source&quot;:35,&quot;target&quot;:34,&quot;value&quot;:3},
+                {&quot;source&quot;:35,&quot;target&quot;:29,&quot;value&quot;:2},
+                {&quot;source&quot;:36,&quot;target&quot;:34,&quot;value&quot;:2},
+                {&quot;source&quot;:36,&quot;target&quot;:35,&quot;value&quot;:2},
+                {&quot;source&quot;:36,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:36,&quot;target&quot;:29,&quot;value&quot;:1},
+                {&quot;source&quot;:37,&quot;target&quot;:34,&quot;value&quot;:2},
+                {&quot;source&quot;:37,&quot;target&quot;:35,&quot;value&quot;:2},
+                {&quot;source&quot;:37,&quot;target&quot;:36,&quot;value&quot;:2},
+                {&quot;source&quot;:37,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:37,&quot;target&quot;:29,&quot;value&quot;:1},
+                {&quot;source&quot;:38,&quot;target&quot;:34,&quot;value&quot;:2},
+                {&quot;source&quot;:38,&quot;target&quot;:35,&quot;value&quot;:2},
+                {&quot;source&quot;:38,&quot;target&quot;:36,&quot;value&quot;:2},
+                {&quot;source&quot;:38,&quot;target&quot;:37,&quot;value&quot;:2},
+                {&quot;source&quot;:38,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:38,&quot;target&quot;:29,&quot;value&quot;:1},
+                {&quot;source&quot;:39,&quot;target&quot;:25,&quot;value&quot;:1},
+                {&quot;source&quot;:40,&quot;target&quot;:25,&quot;value&quot;:1},
+                {&quot;source&quot;:41,&quot;target&quot;:24,&quot;value&quot;:2},
+                {&quot;source&quot;:41,&quot;target&quot;:25,&quot;value&quot;:3},
+                {&quot;source&quot;:42,&quot;target&quot;:41,&quot;value&quot;:2},
+                {&quot;source&quot;:42,&quot;target&quot;:25,&quot;value&quot;:2},
+                {&quot;source&quot;:42,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:43,&quot;target&quot;:11,&quot;value&quot;:3},
+                {&quot;source&quot;:43,&quot;target&quot;:26,&quot;value&quot;:1},
+                {&quot;source&quot;:43,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:44,&quot;target&quot;:28,&quot;value&quot;:3},
+                {&quot;source&quot;:44,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:45,&quot;target&quot;:28,&quot;value&quot;:2},
+                {&quot;source&quot;:47,&quot;target&quot;:46,&quot;value&quot;:1},
+                {&quot;source&quot;:48,&quot;target&quot;:47,&quot;value&quot;:2},
+                {&quot;source&quot;:48,&quot;target&quot;:25,&quot;value&quot;:1},
+                {&quot;source&quot;:48,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:48,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:49,&quot;target&quot;:26,&quot;value&quot;:3},
+                {&quot;source&quot;:49,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:50,&quot;target&quot;:49,&quot;value&quot;:1},
+                {&quot;source&quot;:50,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:51,&quot;target&quot;:49,&quot;value&quot;:9},
+                {&quot;source&quot;:51,&quot;target&quot;:26,&quot;value&quot;:2},
+                {&quot;source&quot;:51,&quot;target&quot;:11,&quot;value&quot;:2},
+                {&quot;source&quot;:52,&quot;target&quot;:51,&quot;value&quot;:1},
+                {&quot;source&quot;:52,&quot;target&quot;:39,&quot;value&quot;:1},
+                {&quot;source&quot;:53,&quot;target&quot;:51,&quot;value&quot;:1},
+                {&quot;source&quot;:54,&quot;target&quot;:51,&quot;value&quot;:2},
+                {&quot;source&quot;:54,&quot;target&quot;:49,&quot;value&quot;:1},
+                {&quot;source&quot;:54,&quot;target&quot;:26,&quot;value&quot;:1},
+                {&quot;source&quot;:55,&quot;target&quot;:51,&quot;value&quot;:6},
+                {&quot;source&quot;:55,&quot;target&quot;:49,&quot;value&quot;:12},
+                {&quot;source&quot;:55,&quot;target&quot;:39,&quot;value&quot;:1},
+                {&quot;source&quot;:55,&quot;target&quot;:54,&quot;value&quot;:1},
+                {&quot;source&quot;:55,&quot;target&quot;:26,&quot;value&quot;:21},
+                {&quot;source&quot;:55,&quot;target&quot;:11,&quot;value&quot;:19},
+                {&quot;source&quot;:55,&quot;target&quot;:16,&quot;value&quot;:1},
+                {&quot;source&quot;:55,&quot;target&quot;:25,&quot;value&quot;:2},
+                {&quot;source&quot;:55,&quot;target&quot;:41,&quot;value&quot;:5},
+                {&quot;source&quot;:55,&quot;target&quot;:48,&quot;value&quot;:4},
+                {&quot;source&quot;:56,&quot;target&quot;:49,&quot;value&quot;:1},
+                {&quot;source&quot;:56,&quot;target&quot;:55,&quot;value&quot;:1},
+                {&quot;source&quot;:57,&quot;target&quot;:55,&quot;value&quot;:1},
+                {&quot;source&quot;:57,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:57,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:58,&quot;target&quot;:55,&quot;value&quot;:7},
+                {&quot;source&quot;:58,&quot;target&quot;:48,&quot;value&quot;:7},
+                {&quot;source&quot;:58,&quot;target&quot;:27,&quot;value&quot;:6},
+                {&quot;source&quot;:58,&quot;target&quot;:57,&quot;value&quot;:1},
+                {&quot;source&quot;:58,&quot;target&quot;:11,&quot;value&quot;:4},
+                {&quot;source&quot;:59,&quot;target&quot;:58,&quot;value&quot;:15},
+                {&quot;source&quot;:59,&quot;target&quot;:55,&quot;value&quot;:5},
+                {&quot;source&quot;:59,&quot;target&quot;:48,&quot;value&quot;:6},
+                {&quot;source&quot;:59,&quot;target&quot;:57,&quot;value&quot;:2},
+                {&quot;source&quot;:60,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:60,&quot;target&quot;:58,&quot;value&quot;:4},
+                {&quot;source&quot;:60,&quot;target&quot;:59,&quot;value&quot;:2},
+                {&quot;source&quot;:61,&quot;target&quot;:48,&quot;value&quot;:2},
+                {&quot;source&quot;:61,&quot;target&quot;:58,&quot;value&quot;:6},
+                {&quot;source&quot;:61,&quot;target&quot;:60,&quot;value&quot;:2},
+                {&quot;source&quot;:61,&quot;target&quot;:59,&quot;value&quot;:5},
+                {&quot;source&quot;:61,&quot;target&quot;:57,&quot;value&quot;:1},
+                {&quot;source&quot;:61,&quot;target&quot;:55,&quot;value&quot;:1},
+                {&quot;source&quot;:62,&quot;target&quot;:55,&quot;value&quot;:9},
+                {&quot;source&quot;:62,&quot;target&quot;:58,&quot;value&quot;:17},
+                {&quot;source&quot;:62,&quot;target&quot;:59,&quot;value&quot;:13},
+                {&quot;source&quot;:62,&quot;target&quot;:48,&quot;value&quot;:7},
+                {&quot;source&quot;:62,&quot;target&quot;:57,&quot;value&quot;:2},
+                {&quot;source&quot;:62,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:62,&quot;target&quot;:61,&quot;value&quot;:6},
+                {&quot;source&quot;:62,&quot;target&quot;:60,&quot;value&quot;:3},
+                {&quot;source&quot;:63,&quot;target&quot;:59,&quot;value&quot;:5},
+                {&quot;source&quot;:63,&quot;target&quot;:48,&quot;value&quot;:5},
+                {&quot;source&quot;:63,&quot;target&quot;:62,&quot;value&quot;:6},
+                {&quot;source&quot;:63,&quot;target&quot;:57,&quot;value&quot;:2},
+                {&quot;source&quot;:63,&quot;target&quot;:58,&quot;value&quot;:4},
+                {&quot;source&quot;:63,&quot;target&quot;:61,&quot;value&quot;:3},
+                {&quot;source&quot;:63,&quot;target&quot;:60,&quot;value&quot;:2},
+                {&quot;source&quot;:63,&quot;target&quot;:55,&quot;value&quot;:1},
+                {&quot;source&quot;:64,&quot;target&quot;:55,&quot;value&quot;:5},
+                {&quot;source&quot;:64,&quot;target&quot;:62,&quot;value&quot;:12},
+                {&quot;source&quot;:64,&quot;target&quot;:48,&quot;value&quot;:5},
+                {&quot;source&quot;:64,&quot;target&quot;:63,&quot;value&quot;:4},
+                {&quot;source&quot;:64,&quot;target&quot;:58,&quot;value&quot;:10},
+                {&quot;source&quot;:64,&quot;target&quot;:61,&quot;value&quot;:6},
+                {&quot;source&quot;:64,&quot;target&quot;:60,&quot;value&quot;:2},
+                {&quot;source&quot;:64,&quot;target&quot;:59,&quot;value&quot;:9},
+                {&quot;source&quot;:64,&quot;target&quot;:57,&quot;value&quot;:1},
+                {&quot;source&quot;:64,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:65,&quot;target&quot;:63,&quot;value&quot;:5},
+                {&quot;source&quot;:65,&quot;target&quot;:64,&quot;value&quot;:7},
+                {&quot;source&quot;:65,&quot;target&quot;:48,&quot;value&quot;:3},
+                {&quot;source&quot;:65,&quot;target&quot;:62,&quot;value&quot;:5},
+                {&quot;source&quot;:65,&quot;target&quot;:58,&quot;value&quot;:5},
+                {&quot;source&quot;:65,&quot;target&quot;:61,&quot;value&quot;:5},
+                {&quot;source&quot;:65,&quot;target&quot;:60,&quot;value&quot;:2},
+                {&quot;source&quot;:65,&quot;target&quot;:59,&quot;value&quot;:5},
+                {&quot;source&quot;:65,&quot;target&quot;:57,&quot;value&quot;:1},
+                {&quot;source&quot;:65,&quot;target&quot;:55,&quot;value&quot;:2},
+                {&quot;source&quot;:66,&quot;target&quot;:64,&quot;value&quot;:3},
+                {&quot;source&quot;:66,&quot;target&quot;:58,&quot;value&quot;:3},
+                {&quot;source&quot;:66,&quot;target&quot;:59,&quot;value&quot;:1},
+                {&quot;source&quot;:66,&quot;target&quot;:62,&quot;value&quot;:2},
+                {&quot;source&quot;:66,&quot;target&quot;:65,&quot;value&quot;:2},
+                {&quot;source&quot;:66,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:66,&quot;target&quot;:63,&quot;value&quot;:1},
+                {&quot;source&quot;:66,&quot;target&quot;:61,&quot;value&quot;:1},
+                {&quot;source&quot;:66,&quot;target&quot;:60,&quot;value&quot;:1},
+                {&quot;source&quot;:67,&quot;target&quot;:57,&quot;value&quot;:3},
+                {&quot;source&quot;:68,&quot;target&quot;:25,&quot;value&quot;:5},
+                {&quot;source&quot;:68,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:68,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:68,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:68,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:68,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:69,&quot;target&quot;:25,&quot;value&quot;:6},
+                {&quot;source&quot;:69,&quot;target&quot;:68,&quot;value&quot;:6},
+                {&quot;source&quot;:69,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:69,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:69,&quot;target&quot;:27,&quot;value&quot;:2},
+                {&quot;source&quot;:69,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:69,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:70,&quot;target&quot;:25,&quot;value&quot;:4},
+                {&quot;source&quot;:70,&quot;target&quot;:69,&quot;value&quot;:4},
+                {&quot;source&quot;:70,&quot;target&quot;:68,&quot;value&quot;:4},
+                {&quot;source&quot;:70,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:70,&quot;target&quot;:24,&quot;value&quot;:1},
+                {&quot;source&quot;:70,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:70,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:70,&quot;target&quot;:58,&quot;value&quot;:1},
+                {&quot;source&quot;:71,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:71,&quot;target&quot;:69,&quot;value&quot;:2},
+                {&quot;source&quot;:71,&quot;target&quot;:68,&quot;value&quot;:2},
+                {&quot;source&quot;:71,&quot;target&quot;:70,&quot;value&quot;:2},
+                {&quot;source&quot;:71,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:71,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:71,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:71,&quot;target&quot;:25,&quot;value&quot;:1},
+                {&quot;source&quot;:72,&quot;target&quot;:26,&quot;value&quot;:2},
+                {&quot;source&quot;:72,&quot;target&quot;:27,&quot;value&quot;:1},
+                {&quot;source&quot;:72,&quot;target&quot;:11,&quot;value&quot;:1},
+                {&quot;source&quot;:73,&quot;target&quot;:48,&quot;value&quot;:2},
+                {&quot;source&quot;:74,&quot;target&quot;:48,&quot;value&quot;:2},
+                {&quot;source&quot;:74,&quot;target&quot;:73,&quot;value&quot;:3},
+                {&quot;source&quot;:75,&quot;target&quot;:69,&quot;value&quot;:3},
+                {&quot;source&quot;:75,&quot;target&quot;:68,&quot;value&quot;:3},
+                {&quot;source&quot;:75,&quot;target&quot;:25,&quot;value&quot;:3},
+                {&quot;source&quot;:75,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:75,&quot;target&quot;:41,&quot;value&quot;:1},
+                {&quot;source&quot;:75,&quot;target&quot;:70,&quot;value&quot;:1},
+                {&quot;source&quot;:75,&quot;target&quot;:71,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:64,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:65,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:66,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:63,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:62,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:48,&quot;value&quot;:1},
+                {&quot;source&quot;:76,&quot;target&quot;:58,&quot;value&quot;:1}
+                ]
+            };
+        },
+        initialize: function (options) {
+            this.options = options ? _.clone(options) : {};
+            _.defaults(this.options, this.defaults);
+        },
+        render: function () {
+            var settings = this.options;
+            var element = $(this.options.element);
+            element.empty();
+            var width = (element.width() || 800);
+            var height = (element.height() || 500);
+            var force = d3.layout.force()
+                .size([width, height]);
+
+            var svg = d3.select(element[0]).append(&quot;svg&quot;)
+                .attr(&quot;width&quot;,width)
+                .attr(&quot;height&quot;,height);
+
+            var graph = this.getData();
+
+            force
+                .nodes(graph.nodes)
+                .links(graph.edges)
+                .linkDistance(this.options.linkDistance)
+                .linkStrength(this.options.linkStrength)
+                .friction(this.options.friction)
+                .charge(this.options.charge)
+                .theta(this.options.theta)
+                .gravity(this.options.gravity)
+                .start();
+
+            var link = svg.selectAll(&quot;line.link&quot;)
+                .data(graph.edges)
+                .enter().append(&quot;line&quot;);
+            
+            for (var k in settings.edgestyle) {
+                link.style(k,settings.edgestyle[k]);
+            }
+
+            var node = svg.selectAll(&quot;circle.node&quot;)
+                .data(graph.nodes)
+                .enter().append(&quot;circle&quot;)
+                .attr(&quot;r&quot;, settings.radius)
+                .call(force.drag);
+
+            for (var k in settings.nodestyle) {
+                node.style(k, settings.nodestyle[k]);
+            }
+
+            node.append(&quot;title&quot;)
+                .text(function(d) {return d.name;});
+
+            force.on(&quot;tick&quot;, function() {
+                link.attr(&quot;x1&quot;, function(d) { return d.source.x; })
+                    .attr(&quot;y1&quot;, function(d) { return d.source.y; })
+                    .attr(&quot;x2&quot;, function(d) { return d.target.x; })
+                    .attr(&quot;y2&quot;, function(d) { return d.target.y; });
+
+                node.attr(&quot;cx&quot;, function(d) { return d.x; })
+                    .attr(&quot;cy&quot;, function(d) { return d.y; });
+            });
+        }
+    });
+});</pre>
+</body>
+</html>

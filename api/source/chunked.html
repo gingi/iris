@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">require(['jquery', 'backbone', 'underscore', 'd3', 'util/ajaxstream'], function (JQ, Backbone, _, d3, Stream) {
+    
+    var width = JQ(&quot;#container&quot;).width();
+    var height = Math.max(JQ(&quot;#container&quot;).height(), 800);
+    var svg  = d3.select(&quot;#container&quot;).append(&quot;svg&quot;)
+        .attr(&quot;class&quot;, &quot;GnBu&quot;)
+        .attr(&quot;width&quot;, width)
+        .attr(&quot;height&quot;, height);
+    var quantize = d3.scale.quantile().domain([0, 1]).range(d3.range(9));
+        
+    var rows = 1, cols = 1;
+    var size = 8;
+    var stream = new Stream({
+        url: &quot;/data/expression&quot;,
+        chunk: function (json) {
+            if (json.meta) {
+                rows = json.meta.rows;
+                cols = json.meta.cols;
+            } else {
+                svg.append(&quot;rect&quot;)
+                    .attr(&quot;width&quot;, size).attr(&quot;height&quot;, size)
+                    .attr(&quot;x&quot;, (size + 0.5) * json[&quot;j&quot;])
+                    .attr(&quot;y&quot;, (size + 0.5) * json[&quot;i&quot;])
+                    .attr(&quot;class&quot;, &quot;q&quot; + quantize(json[&quot;value&quot;]) + &quot;-9&quot;);
+            }
+        }
+    });
+});</pre>
+</body>
+</html>

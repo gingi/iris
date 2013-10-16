@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">requirejs.config({
+    baseUrl: &quot;/js&quot;,
+    paths: {
+        columnfilter: &quot;DataTables/extras/ColumnFilterWidgets&quot;,
+        datatables:   &quot;jquery.dataTables&quot;,
+        slider:       &quot;bootstrap-slider&quot;
+    },
+    map: {
+        &quot;*&quot;:          { jquery: &quot;noconflict&quot; },
+        &quot;noconflict&quot;: { jquery: &quot;jquery&quot; }
+    },
+    shim: {
+        d3:           { exports: &quot;d3&quot;          },
+        underscore:   { exports: &quot;_&quot;           },
+        colorbrewer:  { exports: &quot;colorbrewer&quot; },
+        backbone:     { exports: &quot;Backbone&quot;, deps: [&quot;underscore&quot;, &quot;jquery&quot;] },
+        bootstrap:    { deps: [&quot;jquery&quot;] },
+        columnfilter: { deps: [&quot;datatables&quot;] },
+        &quot;backbone.localstorage&quot;:
+            { exports: &quot;Backbone&quot;, deps: [&quot;backbone&quot;] },
+        &quot;jquery-ui&quot;:  { deps: [&quot;jquery&quot;] },
+        slider:       { deps: [&quot;jquery&quot;] },
+        datatables:   { deps: [&quot;jquery&quot;], exports: &quot;jQuery.fn.dataTableExt&quot; },
+        revalidator:  { exports: &quot;window.json&quot; }
+    }
+})
+</pre>
+</body>
+</html>

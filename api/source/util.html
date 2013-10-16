@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(function () {
+    var Util = {};
+
+    Util.each = function (array, func) {
+        for (var i = 0; i &lt; array.length; i++) {
+            func(array[i]);
+        }
+        return array;
+    };
+
+    Util.extend = function (object) {
+        Util.each(arguments, function (src) {
+            for (var key in src) {
+                if (! object.hasOwnProperty(key)) {
+                    object[key] = src[key];
+                }
+            }
+        });
+        return object;
+    };
+    
+    Util.keys = function (object) {
+        if (object !== Object(object)) throw new TypeError('Invalid object');
+        var keys = [];
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) {
+                keys[keys.length] = key;
+            }
+        }
+        return keys;
+    };
+
+    // Retrieve the values of an object's properties.
+    Util.values = function (object) {
+        var values = [];
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) {
+                values[values.length] = object[key];
+            }
+        }
+        return values;
+    };
+    
+    Util.validate = function (obj, schema) {
+        return window.json.validate(obj, schema);
+    }
+
+    function capitalize(string) {
+        if (string == null || string == &quot;&quot;) return string;
+        return string[0].toUpperCase() + string.slice(1);
+    }
+
+    Util.normalizeName = function (string) {
+        // var capitalized = capitalize(string);
+        return string.split(/\s/).join('');
+    };    
+    
+    Util.syntaxHighlight = function (json) {
+        json = json
+            .replace(/&amp;/g, '&amp;amp;')
+            .replace(/&lt;/g, '&amp;lt;')
+            .replace(/&gt;/g, '&amp;gt;');
+        return json.replace(/(&quot;(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\&quot;])*&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g
+            , function (match) {
+                var cls = 'number';
+                if (/^&quot;/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '&lt;span class=&quot;' + cls + '&quot;&gt;' + match + '&lt;/span&gt;';
+            });
+    }
+
+    return Util;
+});</pre>
+</body>
+</html>

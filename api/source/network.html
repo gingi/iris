@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore',
+    'util/dock', 'util/eventemitter', 'util/hud', 'revalidator'],
+function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
+    &quot;use strict&quot;;
+    var FIX_NODE_DELAY = 2000;
+    var defaults = {
+        dock: true,
+        joinAttribute: &quot;name&quot;,
+        nodeLabel: {},
+        highlightNeighbors: true,
+        searchTerms: function (node, indexMe) { indexMe(node.name); },
+        edgeStroke: function () { return 2; }
+    };
+    var visCounter = 1;
+    var Schema = { properties: {
+        nodes: {
+            description: &quot;List of nodes&quot;,
+            type:        &quot;array&quot;,
+            required:    true
+        },
+        edges: {
+            description: &quot;A list of edges&quot;,
+            type:        &quot;array&quot;,
+            items: {
+                properties: {
+                    source: {
+                        description: &quot;The source's index in 'nodes'&quot;,
+                        type: &quot;number&quot;,
+                        required: true
+                    },
+                    target: {
+                        description: &quot;The target's index in 'nodes'&quot;,
+                        type: &quot;number&quot;,
+                        required: true
+                    }
+                }
+            }
+        }
+    }};
+    
+    var Physics = {
+        GENE:    { charge: -70 },
+        CLUSTER: { charge: -70 },
+        &quot;GENE:GENE&quot;: {
+            linkDistance:  60,
+            linkStrength:  0.6
+        },
+        &quot;CLUSTER:GENE&quot;: {
+            linkDistance:  80,
+            linkStrength:  1,
+        },
+        &quot;CLUSTER:CLUSTER&quot;: {
+            linkDistance:   80,
+            linkStrength:   1
+        },
+        default: {
+            linkDistance:   80,
+            linkStrength:    1,
+            charge:        -70
+        }
+    };
+    var GRAVITY = 0.1;
+    var THETA   = 0.8;
+    
+    var NODE_SIZE  = { GENE: 8, CLUSTER: 12 };
+    var HIGHLIGHT_COLOR = &quot;rgba(255,255,70,0.9)&quot;;
+    var EDGE_COLOR = &quot;#999&quot;;
+    var SELECT_FILL_COLOR    = &quot;#444&quot;;
+    var SELECT_STROKE_COLOR  = &quot;#222&quot;;
+    
+<span id='Network-method-constructor'><span id='Network'>    /**
+</span></span>     * @constructor
+     * @param infoOn {String} (all|click|hover)
+     * @param nodeFilter {Object} { type: &quot;CLUSTER&quot; }
+     * @param highlightNeighbors {Boolean}
+     * @param nodeInfo {Function}
+     * @param searchTerms {Function} searchTerms(node, indexMe) {
+     *      indexMe(node.name)
+     * }
+     */
+    var Network = function (options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        var $element = JQ(options.element);
+        var _idSequence = 1;
+        var _autoUpdate = false;
+        var _initialized = false;
+        var nodeFilter, edgeFilter, filterCache = {};
+
+        var _linkCache = {};
+        var _paused = false;
+        var vis, dock;
+        var svgNodes, svgLinks, svgLabels;
+        var linkG, nodeG, labelG;
+        var force, nodes, links;
+
+        var groupColor = {};
+        var hiddenNodes = {};
+        var color;
+        var visId = &quot;network-vis-&quot; + visCounter++;
+        var width, height;
+        var Delta = {
+            charge: 0,
+            distance: 0,
+            strength: 0,
+            gravity: 0,
+            theta: 0
+        };
+        
+        if (options.infoOn !== undefined) {
+            var clickNode = function (event, node, element) {
+                self.clickNode(node, element);
+            };
+            if (options.infoOn == &quot;all&quot; || options.infoOn == &quot;click&quot;) {
+                self.on(&quot;click-node&quot;, clickNode);
+            }
+            if (options.infoOn == &quot;all&quot; || options.infoOn == &quot;hover&quot;) {
+                self.on(&quot;mouseover-node&quot;, clickNode);
+            }
+        }
+        
+        if (options.nodeFilter !== undefined) {
+            nodeFilter = function (d) {
+                var passed = true;
+                for (var key in options.nodeFilter) {
+                    if (d[key] != options.nodeFilter[key])
+                        passed = false;
+                }
+                return passed;
+            };
+            edgeFilter = function (edge) {
+                return nodeFilter(edge.source) &amp;&amp; nodeFilter(edge.target);
+            };
+        } else if (options.edgeFilter !== undefined) {
+            edgeFilter = function (edge) {
+                var filtered = options.edgeFilter(edge);
+                if (filtered) {
+                    if (typeof edge.source === &quot;object&quot;)
+                        filterCache[edge.source.id] =
+                        filterCache[edge.target.id] = true;
+                    else
+                        filterCache[edge.source] =
+                        filterCache[edge.target] = true; 
+                }
+                return filtered;
+            };
+            nodeFilter = function (d) { 
+                return filterCache[parseInt(d.id, 0)] !== undefined;
+            };
+        } else {
+            nodeFilter = function () { return true; };
+            edgeFilter = function () { return true; };
+        }
+        
+        var Foci = {
+            CLUSTER: {
+                x: Math.round($element.width() / 2),
+                y: Math.round($element.height() * 5 / 6),
+            },
+            GENE:    {
+                x: Math.round($element.width() / 2),
+                y: Math.round($element.height() * 1 / 6),
+            }
+        };
+        
+        function setColor(node) {
+            if (!node.hasOwnProperty(&quot;group&quot;)) {
+                groupColor[node.id] = color(null);
+            } else if (!groupColor.hasOwnProperty(node.id)) {
+                groupColor[node.id] = color(node.group);
+            }
+        }
+        
+        self.findOrCreateNode = function (node, idKey) {
+            var ret;
+            var existing = self.findNode(node[idKey], idKey);
+            if (existing) {
+                var tmp = _.extend({}, node, existing);
+                ret = _.extend(existing, tmp);
+            } else {
+                node.id = _idSequence++;
+                nodes.push(node);
+                ret = node;
+                labelStatus(node);
+                setColor(node);
+            }
+            return ret;
+        };
+        
+        function labelStatus(node) {
+            var label = true;
+            for (var prop in options.nodeLabel) {
+                if (!node.hasOwnProperty(prop) ||
+                    node[prop] != options.nodeLabel[prop]) {
+                    label = false;
+                }
+            }
+            if (label) node.hasLabel = true;
+        }
+        
+        self.addNode = self.findOrCreateNode;
+
+        self.removeNode = function (id, splicedEdges) {
+            splicedEdges = splicedEdges || [];
+            var i = 0;
+            var n = self.findNode(id);
+            if (n === null) return;
+            while (i &lt; links.length) {
+                if (links[i].source == n || links[i].target == n) {
+                    var linkKey =
+                        _hashKey([links[i].source.id, links[i].target.id]);
+                    _linkCache[linkKey] = undefined;
+                    splicedEdges.push.apply(splicedEdges, links.splice(i,1));
+                }
+                else i++;
+            }
+            nodes.splice(findNodeIndex(id), 1);
+            for (var k in _nodeCache) {
+                if (_nodeCache[k] == n) _nodeCache[k] = undefined;
+            }
+            if (_autoUpdate) update();
+            return this;
+        };
+        
+        self.setData  = function (data) {
+            if (data !== null) {
+                var validation = Revalidator.validate(data, Schema);
+                if (!validation.valid) {
+                    var errors = _.uniq(_.map(validation.errors, function (e) {
+                        return [e.property, e.message].join(&quot; &quot;);
+                    }));
+                    throw {
+                        message: &quot;Data is not valid&quot;,
+                        errors: errors
+                    };
+                }
+                this.setNodes(data.nodes);
+                this.setEdges(data.edges);
+            }
+            return this;
+        };
+        self.getData = function () {
+            return {
+                nodes: nodes,
+                edges: links
+            };
+        };
+        
+        this.setNodes = function (input) {
+            initialize();
+            force.nodes(input);
+            nodes = force.nodes();
+            nodes.forEach(function (node) { setColor(node); });
+            _idSequence = d3.max(nodes, function (n) { return n.id; }) + 1;
+            return this;
+        };
+        
+        this.setEdges = function (input) {
+            initialize();
+            force.links(input);
+            links = force.links();
+            return this;
+        };
+
+        this.addEdge = function (edge) {
+            edge.source = this.findNode(edge.source);
+            edge.target = this.findNode(edge.target);
+            links.push(edge);
+            if (_autoUpdate) update();
+            return this;
+        };
+        
+        self.addLink = function (sourceId, targetId, params) {
+            var key = _hashKey([sourceId, targetId]);
+            if (_linkCache[key] !== null) {
+                return;
+            }
+            var edge = {
+                source: this.findNode(sourceId),
+                target: this.findNode(targetId),
+            };
+            if (edge.source === null || edge.target === null) {
+                console.log(&quot;Cannot find edge for [%d %d]&quot;,
+                    sourceId, targetId, edge.source, edge.target);
+            }
+            for (var p in params) {
+                if (edge.hasOwnProperty(p))
+                    edge[p] = params[p];
+            }
+            links.push(edge);
+            _linkCache[key] = edge;
+            if (_autoUpdate) update();
+            return this;
+        };
+        
+        function _highlight(element) {
+            element
+                .style(&quot;stroke&quot;, HIGHLIGHT_COLOR)
+                .style(&quot;stroke-width&quot;, 3)
+                .style(&quot;stroke-location&quot;, &quot;outside&quot;);
+        }
+        
+        function _unhighlight(element) {
+            element
+                .style(&quot;stroke&quot;, null)
+                .style(&quot;stroke-width&quot;, null)
+                .style(&quot;stroke-location&quot;, null);
+        }
+        
+        self.highlight = function (name) {
+            var node = self.findNode(name, &quot;name&quot;);
+            if (node) {
+                _highlight(d3.select(&quot;#&quot; + node.elementId));
+            }
+            return this;
+        };
+
+        self.updateSearch = function (searchTerm) {
+            searchRegEx = new RegExp(searchTerm.toLowerCase());
+            return svgNodes.each(function (d) {
+                var element, match = -1;
+                var searchContents = [];
+                options.searchTerms(d, function (text) {
+                    searchContents.push(text);
+                });
+                element = d3.select(this);
+                _.each(searchContents, function (text) {
+                    match =
+                        _.max([match, text.toLowerCase().search(searchRegEx)]);
+                });
+                if (searchTerm.length &gt; 0 &amp;&amp; match &gt;= 0) {
+                    _highlight(element);
+                    d.searched = true;
+                    return d.searched;
+                } else {
+                    d.searched = false;
+                    _unhighlight(element);
+                }
+            });
+        };
+
+        self.unhighlightAll = function () {
+            _unhighlight(nodeG.selectAll(&quot;.node&quot;));
+            return this;
+        };
+        
+        function _hashKey(arr) { return arr.join(&quot;-&quot;); }
+        
+        self.render = function () {
+            initialize();
+            width =  $element.width();
+            height = $element.height();
+            $element.empty();
+            if (width === 0 &amp;&amp; height === 0) {
+                return this;
+            }
+            force.size([width, height]);
+            vis = this.vis = d3.select($element[0]).append(&quot;svg:svg&quot;)
+                .attr(&quot;width&quot;, width).attr(&quot;height&quot;, height);
+            if (options.dock) dock.setParent(vis);
+
+            // This order matters (nodes painted on top of links)
+            linkG =  vis.append(&quot;g&quot;).attr(&quot;id&quot;, &quot;networkLinks&quot;);
+            nodeG =  vis.append(&quot;g&quot;).attr(&quot;id&quot;, &quot;networkNodes&quot;);
+            labelG = vis.append(&quot;g&quot;).attr(&quot;id&quot;, &quot;networkLabels&quot;);
+            force.on(&quot;tick&quot;, tick);
+            force.start();
+            update();
+            _autoUpdate = true;
+            return this;
+        };
+
+        var _nodeCache = {};
+        self.findNode = function(key, type) {
+            type = (type || 'id');
+            var equalToKey;
+            if (typeof key === 'string') {
+                key = key.toUpperCase();
+                equalToKey = function (val) {
+                    return val !== null &amp;&amp;
+                        key === new String(val).toUpperCase();
+                };
+            } else {
+                equalToKey = function (val) {
+                    return val === key;
+                };
+            }
+            var hash = _hashKey([key, type]);
+            if (_nodeCache[hash] !== undefined) return _nodeCache[hash];
+            for (var i in nodes) {
+                if (equalToKey(nodes[i][type])) {
+                    _nodeCache[hash] = nodes[i];
+                    return nodes[i];
+                }
+            }
+            for (var id in hiddenNodes) {
+                var n = hiddenNodes[id].node;
+                if (equalToKey(n[type])) {
+                    _nodeCache[hash] = n;
+                    return n;
+                }
+            }
+            return null;
+        };
+        this.findEdge = function (source, target) {
+            for (var i in links) {
+                if ((links[i].source.id == source.id &amp;&amp;
+                     links[i].target.id == target.id) ||
+                    (links[i].source.id == target.id &amp;&amp;
+                     links[i].target.id == source.id))
+                    return links[i];
+            }
+            return null;
+        };
+        
+        this.find = function (key, type) {
+            type = (type || 'id');
+            var result = [];
+            for (var i in nodes) {
+                if (nodes[i][type] === key) result.push(nodes[i]);
+            }
+            return result;
+        };
+
+        function findNodeIndex(id) {
+            for (var i in nodes) { if (nodes[i].id === id) return i; }
+        }
+        
+        var physics = function (key, prop) {
+            if (!Physics.hasOwnProperty(key)) key = &quot;default&quot;;
+            var ret = Physics[key].hasOwnProperty(prop) ?
+                Physics[key][prop] : Physics[&quot;default&quot;][prop];
+            return ret;
+        };
+        
+        function nodePhysics(node, prop) {
+            return physics(node.type || &quot;default&quot;, prop);
+        }
+        
+        function linkPhysics(link, prop) {
+            var key =
+                _.pluck([link.source, link.target], &quot;type&quot;).sort().join(&quot;:&quot;);
+            return physics(key, prop);
+        }
+        
+        function nodeCharge(d)   {
+            return Delta.charge + nodePhysics(d, &quot;charge&quot;);
+        }
+        function linkDistance(d) {
+            return Delta.distance + linkPhysics(d, &quot;linkDistance&quot;);
+        }
+        function linkStrength(d) {
+            return Delta.strength + linkPhysics(d, &quot;linkStrength&quot;);
+        }
+
+        if (options.dock) { dock = new Dock(); }
+            
+        color = d3.scale.category20();
+        
+        function initialize() {
+            if (_initialized) return;
+            _initialized = true;
+            force = d3.layout.force()
+                .linkDistance(linkDistance)
+                .linkStrength(linkStrength)
+                .charge(nodeCharge)
+                .size([width, height]);
+            nodes = force.nodes();
+            links = force.links();
+
+            if (options.dock) {
+                dock.on(&quot;dragstart.dock&quot;, function () { force.stop(); })
+                    .on(&quot;dragmove.dock&quot;,  function () { tick(); })
+                    .on(&quot;dragend.dock&quot;,   function (evt, d) {
+                        if (!isDocked(d)) toggleFixed(d);
+                        tick();
+                        force.resume();
+                    })
+                    .on(&quot;dock&quot;, function (evt, d, element) {
+                        element
+                            .style(&quot;stroke&quot;, HIGHLIGHT_COLOR)
+                            .style(&quot;stroke-width&quot;, 3)
+                            .style(&quot;stroke-location&quot;, &quot;outside&quot;);   
+                    })
+                    .on(&quot;undock&quot;, function (evt, d, element) {
+                        element
+                            .style(&quot;stroke&quot;, null)
+                            .style(&quot;stroke-width&quot;, null)
+                            .style(&quot;stroke-location&quot;, null);
+                    });
+            } else {
+                force.drag().on(&quot;dragend&quot;, function (d) {
+                    toggleFixed(d);
+                });
+            }
+        }
+            
+        function tick (e) {
+            if (e &amp;&amp; options.dock) {
+                var k = 1 * e.alpha;
+                nodes.forEach(function (o, i) {
+                    if (o.fixed) return;
+                    var f = Foci[o.type];
+                    if (!f) return;
+                    o.y += (f.y - o.y) * k;
+                });
+            }
+            svgLinks.attr(&quot;x1&quot;, function (d) { return d.source.x; })
+                    .attr(&quot;y1&quot;, function (d) { return d.source.y; })
+                    .attr(&quot;x2&quot;, function (d) { return d.target.x; })
+                    .attr(&quot;y2&quot;, function (d) { return d.target.y; });
+            svgNodes.attr(&quot;cx&quot;, function (d) { return d.x; })
+                    .attr(&quot;cy&quot;, function (d) { return d.y; });
+            svgLabels.attr(&quot;transform&quot;, function (d) {
+                return &quot;translate(&quot; + d.x + &quot;,&quot; + d.y + &quot;)&quot;;
+            });
+        }
+        
+        function hasLabel(d) { return d.hasLabel; }
+        function isDocked(d) {
+            if (!dock) return false;
+            var docked = dock.get();
+            for (var id in docked) {
+                if (docked.hasOwnProperty(id)) {
+                    var n = docked[id];
+                    if (d[options.joinAttribute] == n[options.joinAttribute]) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        function update() {
+            filterCache = {};
+            var filteredEdges = _.filter(links, edgeFilter);
+            var filteredNodes = _.filter(nodes, nodeFilter);
+            if (svgLinks) svgLinks.remove();
+            svgLinks = linkG.selectAll(&quot;line.link&quot;).data(filteredEdges);
+            var linkEnter = svgLinks.enter()
+                .append(&quot;line&quot;)
+                .attr(&quot;class&quot;, &quot;link&quot;)
+                .style(&quot;stroke&quot;, function (d) { return EDGE_COLOR; })
+                .style(&quot;stroke-width&quot;, options.edgeStroke);
+            svgLinks.exit().remove();
+
+            if (svgNodes) svgNodes.remove();
+            svgNodes = nodeG.selectAll(&quot;circle.node&quot;).data(filteredNodes);
+            var clickbuffer = false, fixNodeTimer = null;
+            var nodeEnter = svgNodes.enter().append(&quot;circle&quot;)
+                .attr(&quot;class&quot;, &quot;node&quot;)
+                .attr(&quot;id&quot;,     function (d) {
+                    d.elementId = &quot;node-&quot; + d.id;
+                    return d.elementId;
+                })
+                .attr(&quot;r&quot;,       function (d) { return nodeSize(d); })
+                .style(&quot;fill&quot;,   function (d) { return groupColor[d.id]; })
+                .style(&quot;stroke&quot;, function (d) {
+                    return isDocked(d) ? HIGHLIGHT_COLOR : &quot;#666&quot;;
+                })
+                .style(&quot;stroke-width&quot;, function (d) {
+                    return isDocked(d) ? 3 : null;
+                })
+                
+                .on(&quot;click&quot;,    function (d) {
+                    var el = this;
+                    d3.event.stopPropagation();
+                    clickbuffer = true;
+                    setTimeout(function () {
+                        if (clickbuffer) {
+                            clickbuffer = false;
+                            self.emit(&quot;click-node&quot;, [d, el]);
+                        }
+                    }, 100);
+                })
+                .on(&quot;dblclick&quot;, function (d) {
+                    clickbuffer = false;
+                    d3.event.stopPropagation();
+                    self.emit(&quot;dblclick-node&quot;, [d, this]);
+                })
+                .on(&quot;mouseover&quot;, function (d) {
+                    self.emit(&quot;mouseover-node&quot;, [d, this]);
+                })
+                .on(&quot;mousedown&quot;, function (d) {
+                    fixNodeTimer = {
+                        time: new Date().getTime(),
+                        node: d
+                    };
+                })
+                .on(&quot;mouseup&quot;, function (d) {
+                    if (fixNodeTimer) {
+                        if (fixNodeTimer.node == d) {
+                            var timenow = new Date().getTime();
+                            if (timenow - fixNodeTimer.time &gt; FIX_NODE_DELAY) {
+                                if (!dock || !isDocked(d)) toggleFixed(d);
+                            }
+                        }
+                    }
+                    fixNodeTimer = null;
+                });
+            if (svgLabels) svgLabels.remove();
+            svgLabels = labelG.selectAll(&quot;text&quot;)
+                .data(_.filter(nodes, hasLabel));
+            var labelEnter = svgLabels.enter().append(&quot;svg:text&quot;)
+                .attr(&quot;y&quot;, &quot;.35em&quot;)
+                .attr(&quot;text-anchor&quot;, &quot;middle&quot;)
+                .style(&quot;fill&quot;, &quot;white&quot;)
+                .text(function (d) { return d.name.substring(0,6); });
+            nodeEnter.call(options.dock ? dock.drag() : force.drag);
+            svgLabels.exit().remove();
+            svgNodes.exit().remove();
+
+            if (!_paused) force.start();
+        }
+        
+        function toggleFixed(d) {
+            d.fixed = !d.fixed;
+        }
+        
+        function nodeSize(d) {
+            var size = NODE_SIZE[d.type] || 8;
+            return size;
+        }
+
+        var originalFill,
+            hud = new HUD({
+                position: { bottom: 20, left: 20 },
+                width: 300,
+                title: &quot;Node Properties&quot;,
+                z: 2000
+            });
+        self.clickNode = function (d, element) {
+            var neighborSelect = { nodes: {}, links: {} };
+
+            if (options.highlightNeighbors) {
+                var neighs = self.neighbors(d);
+                _.each(neighs, function (n) {
+                    neighborSelect.links[n[1].id] = true;
+                    neighborSelect.nodes[n[0].id] = true;
+                });
+            }
+            neighborSelect.nodes[d.id] = true;
+            function updateStyle() {
+                svgLinks.style(&quot;stroke&quot;, function (n) {
+                    return neighborSelect.links[n.id] ?
+                        SELECT_STROKE_COLOR : EDGE_COLOR;
+                });
+                svgNodes.style(&quot;fill&quot;, function (n) {
+                    return neighborSelect.nodes[n.id] ?
+                        SELECT_FILL_COLOR : groupColor[n.id];
+                });
+            }
+            updateStyle();
+        
+            hud.empty().append(nodeInfo(d));
+            hud.show();
+            hud.on(&quot;dismiss&quot;, function () {
+                neighborSelect = { nodes: {}, links: {} };
+                updateStyle();
+            });
+        };
+
+        function nodeInfo(d) {
+            var $table =
+                JQ(&quot;&lt;table/&gt;&quot;, {
+                    id: &quot;nodeInfo&quot;,
+                    class: &quot;table table-condensed&quot;
+                })
+                .append(JQ(&quot;&lt;tbody/&gt;&quot;));
+            function row(key, val) {
+                if (!val) return;
+                $table.find(&quot;tbody&quot;).append(JQ(&quot;&lt;tr&gt;&quot;)
+                    .append(JQ(&quot;&lt;th&gt;&quot;).text(key))
+                    .append(JQ(&quot;&lt;td&gt;&quot;).html(val))
+                );
+            }
+            if (options.nodeInfo === undefined) {
+                row(&quot;Name&quot;, d.name);
+                row(&quot;Type&quot;, d.type);
+                row(&quot;KBase ID&quot;, d.entityId);
+                row(&quot;Neighbors&quot;, self.neighbors(d).length);
+            } else {
+                options.nodeInfo(d, row);
+            }
+            return $table;
+        }
+        
+        // Get neighbors for a given node.
+        self.neighbors = function (node, args) {
+            args = args || {};
+            var neigh = [];
+            
+            function addNeighbor(link) {
+                var n;
+                if (link.source.id == node.id) {
+                    n = link.target;
+                    for (var prop in args) {
+                        if (n[prop] != args[prop])
+                            n = null;
+                    }
+                } else if (link.target.id == node.id) {
+                    n = link.source;
+                    for (var prop in args) {
+                        if (n[prop] != args[prop])
+                            n = null;
+                    }
+                }
+                if (n !== undefined &amp;&amp; n !== node)
+                    neigh.push([ n, link ]);
+            }
+            _.each(links, addNeighbor);
+            _.each(_.values(hiddenNodes), function (hidden) {
+                _.each(hidden.edges, addNeighbor);
+            });
+            return neigh;
+        };
+                
+        self.collapse = function (node) {
+            var collapsed = node._collapsed = {};
+            var neighbors = self.neighbors(node);
+            // Create hash of primary neighbors
+            var seen = {};
+            for (var i = 0; i &lt; neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                seen[n.id] = true;
+            }
+            for (var i = 0; i &lt; neighbors.length; i++) {
+                neighbor = neighbors[i];
+                var n = neighbor[0];
+                
+                var seconds = self.neighbors(n);
+                var secondEdges = [];
+                var j = 0;
+                
+                // Handle neighbors to the collapsing nodes that
+                // link with each other. Filter out all seen nodes.
+                while (j &lt; seconds.length) {
+                    if (seen[seconds[j][0].id]) {
+                        var edge = _.clone(seconds[j][1]);
+                        edge.source = edge.source.id;
+                        edge.target = edge.target.id;
+                        secondEdges.push(edge);
+                        seconds.splice(j, 1);
+                    } else j++;
+                }
+                // Collapse nodes if not implicated with other nodes.
+                if (seconds.length &lt;= 1) {
+                    var edge = _.clone(neighbor[1]);
+                    edge.source = edge.source.id;
+                    edge.target = edge.target.id;
+                    collapsed[n.id] = {
+                        node: n,
+                        edges: _.flatten([edge, secondEdges])
+                    };
+                }
+            }
+            for (var id in collapsed) {
+                if (collapsed.hasOwnProperty(id))
+                    self.hideNode(collapsed[id].node);
+            }
+            return this;
+        };
+        
+        self.uncollapse = function (node) {
+            if (!node._collapsed) return this;
+            var origAutoUpdate = _autoUpdate;
+            _autoUpdate = false;
+            for (var id in node._collapsed) {
+                if (node._collapsed.hasOwnProperty(id)) {
+                    var d = node._collapsed[id];
+                    self.unhideNode(d.node);
+                }
+            }
+            
+            self.render();
+            _autoUpdate = true;
+            delete node._collapsed;
+            return this;
+        };
+        
+        self.merge = function (data, args) {
+            args = args ? _.clone(args) : {};
+            args.hidden = args.hidden !== null ? args.hidden : false;
+            if (nodes.length === 0 &amp;&amp; links.length === 0) {
+                self.setData(data).render();
+                return this;
+            }
+            var origAutoUpdate = _autoUpdate;
+            _autoUpdate = false;
+            var nodeMap = {};
+            if (data.nodes === null) data.nodes = [];
+            if (data.edges === null) data.edges = [];
+            var addedNodes = [];
+            for (var i = 0; i &lt; data.nodes.length; i++) {
+                var node = data.nodes[i];
+                node = self.findOrCreateNode(node, options.joinAttribute);
+                nodeMap[i] = node.id;
+                if (args.hidden) addedNodes.push(node);
+            }
+            data.edges.forEach(function (e) {
+                var sourceIndex = e.source;
+                var targetIndex = e.target;
+                delete e.source;
+                delete e.target;
+                self.addLink(
+                    nodeMap[sourceIndex], nodeMap[targetIndex], e
+                );
+            });
+            if (args.hidden) {
+                addedNodes.forEach(function (node) {
+                    self.hideNode(node);
+                });
+            }
+            self.render();
+            _autoUpdate = origAutoUpdate;
+            return this;
+        };
+        self.reset = function () {
+            if (nodes) nodes.length = 0;
+            if (links) links.length = 0;
+            _nodeCache = {};
+            if (options.dock) { dock.reset(); }
+            _initialized = false;
+            initialize();
+            self.render();
+            return self;
+        };
+        self.dockNodes = function (names) {
+            var nodes = [];
+            for (var i = 0; i &lt; names.length; i++) {
+                var node = self.findNode(names[i], 'name');
+                if (node) nodes.push(node);
+            }
+            dock.set(nodes);
+        };
+        self.dockedNodes = function () {
+            return dock.get();
+        };
+        self.addDockAction = function (callback) {
+            dock.addUpdateAction(callback);
+        };
+        self.dockHudContent = function (callback) {
+            dock.hudContent(callback);
+        };
+        self.nodeProperty = function (node, prop) {
+            var element = d3.select(&quot;#&quot; + node.elementId);
+            return element.style(prop);
+        };
+        self.isHidden = function (node) {
+            return hiddenNodes[node.id] !== undefined;
+        }
+        self.hideNode = function (node) {
+            var hNode = hiddenNodes[node.id];
+            if (hNode !== undefined) {
+                return node;
+            } else {
+                hNode = hiddenNodes[node.id] = { node: node, edges: [] };
+            }
+            var splicedEdges = [];
+            self.removeNode(node.id, splicedEdges);
+            splicedEdges.forEach(function (edge) {
+                hNode.edges.push(edge);
+            });
+            if (_autoUpdate) update();
+            return node;
+        };
+        self.unhideNode = function (node) {
+            var hNode = hiddenNodes[node.id];
+            if (hNode === undefined)
+                return node;
+            node = hNode.node;
+            nodes.push(node);
+            _.each(hNode.edges, function (edge) {
+                // Only unhide edge if neighbor is unhidden
+                var neighbor = edge.source.id == node.id ?
+                    edge.target : edge.source;
+                if (!self.isHidden(neighbor))
+                    links.push(edge);
+            });
+            delete hiddenNodes[node.id];
+            if (_autoUpdate) update();
+            return node;
+        };
+        self.toggleHidden = function (node) {
+            return self.findNode(node.id) !== null ?
+                self.hideNode(node) : self.unhideNode(node);
+        };
+        self.setElement = function (element) {
+            options.element = element;
+            $element = JQ(options.element);
+        };
+        self.dock = dock;
+        self.update = update;
+        self.pause = function () {
+            force.stop();
+            _paused = true;
+        }
+        self.resume = function () {
+            _paused = false;
+            force.resume();
+        }
+        self.forceDelta = function (property, value) {
+            if (Delta.hasOwnProperty(property)) {
+                Delta[property] += value;
+            }
+            if (property === &quot;gravity&quot;) {
+                force.gravity(GRAVITY + value);
+            }
+            if (property === &quot;theta&quot;) {
+                force.theta(THETA + value);
+            }
+        };
+        
+        return self;
+    };
+    JQ.extend(Network.prototype, EventEmitter);
+    return Network;
+});</pre>
+</body>
+</html>

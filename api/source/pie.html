@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'colorbrewer'], function (JQ, d3, colorbrewer) {
+    function PieChart(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        options.padding = (options.padding || 20);
+        options.categories = (options.categories || 9);
+        options.colorscheme = (options.colorscheme || 'Spectral'); 
+        
+        var $el = JQ(options.element);
+        var data;
+        self.setData = function (inData) {
+            data = inData;
+        };
+        self.getData = function () {
+            return data;
+        };
+        self.render = function () {
+            var w = $el.width() - options.padding / 2;
+            var h = $el.height() - options.padding / 2;
+            $el.empty();
+            var r = Math.min(w, h) / 2 - options.padding;
+            var color = d3.scale.ordinal().range(
+                colorbrewer[options.colorscheme][options.categories]);
+            
+            var piedata = [];
+            for (i = 0; i &lt; data.length; i++) {
+                piedata.push({
+                    label: data[i][0],
+                    value: data[i][1]
+                });
+            }
+            piedata.sort(function (a, b) { return a.value - b.value; });
+            var vis = d3.select($el[0])
+                .append(&quot;svg:svg&quot;).data([piedata])
+                    .attr(&quot;width&quot;, w)
+                    .attr(&quot;height&quot;, h)
+                .append(&quot;svg:g&quot;)
+                    .attr(&quot;transform&quot;, &quot;translate(&quot; + w/2 + &quot;,&quot; + h/2 + &quot;)&quot;);
+
+            var arc = d3.svg.arc().outerRadius(r);
+
+            var pie = d3.layout.pie().value(function(d) {
+                return d.value;
+            });
+
+            var arcs = vis.selectAll(&quot;g.slice&quot;)
+                .data(pie).enter().append(&quot;svg:g&quot;)
+                .attr(&quot;class&quot;, &quot;slice&quot;);
+
+            arcs.append(&quot;svg:path&quot;).attr(&quot;fill&quot;, function (d, i) {
+                return color(i);
+            }).attr(&quot;d&quot;, arc);
+
+            arcs.append(&quot;svg:text&quot;)
+                .attr(&quot;transform&quot;, function (d) {
+                    d.innerRadius = r - 90;
+                    d.outerRadius = r;
+                    d.angle = (d.endAngle + d.startAngle) / 2;
+                    return &quot;translate(&quot; + arc.centroid(d) + &quot;)rotate(&quot;+
+                        (d.angle * 180 / Math.PI - 90)+&quot;)&quot;;
+                })
+                .attr(&quot;text-anchor&quot;, &quot;middle&quot;)
+                .attr(&quot;font-size&quot;, &quot;10px&quot;)
+                .text(function (d, i) { return piedata[i].label; });
+            arcs.append(&quot;title&quot;).text(function (d) { return d.data.value; });
+        }
+    }
+    return PieChart;
+});
+</pre>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['api'], function (API) {
+    var STORAGE_KEY = 'networks';
+    var Data = function () {
+        this.api = new API();
+        this.writeToStorage();
+        this.readFromStorage();
+        this.indexData();
+    };
+    
+    Data.prototype.updateFromServer = function (key, callback) {
+        var self = this;
+        var success = function (data) {
+            self.networks[key] = data;
+            self.indexData();
+            if (callback) { callback(); }
+        };
+        var failure = function () {
+            if (callback) { callback(); }
+        }
+        self.api.getNetwork(key, success, failure);
+    };
+    
+    Data.prototype.readFromStorage = function () {
+        try {
+            var n = JSON.parse(window.localStorage.getItem(STORAGE_KEY));
+        } catch (e) {};
+        this.networks = n || [];
+    };
+    
+    Data.prototype.writeToStorage = function () {
+        window.localStorage.setItem(STORAGE_KEY,
+            JSON.stringify(this.networks)
+        );
+    };
+    
+    Data.prototype.indexData = function () {};
+    
+    Data.prototype.getNetwork = function (networkName) {
+        return this.networks[networkName];
+    };
+    
+    return Data;
+});</pre>
+</body>
+</html>

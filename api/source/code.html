@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;app/renderer&quot;, &quot;CodeMirror&quot;, &quot;app/event&quot;], function (Renderer, CodeMirror, Observable) {
+	var renderer = new Renderer;
+	renderer.jscode = new Observable;
+	renderer.about = {
+		name: &quot;code&quot;,
+		author: &quot;Andrew Olson&quot;,
+		description: &quot;JSON/javascript code editor&quot;
+	};
+	renderer.schema = {
+		properties: {
+			element: { type: 'any', required: true },
+			data: { type: 'any', required: true },
+		}
+	};
+	renderer.exampleData = function () {
+		return {
+			Employees: [
+				{
+					firstName: &quot;Steve&quot;,
+					lastName: &quot;Jobs&quot;
+				},
+				{
+					firstName: &quot;Bill&quot;,
+					lastName: &quot;Gates&quot;
+				}
+			],
+			sqrt: function(x) {return Math.sqrt(x)}
+		};
+	};
+	renderer.setup = function (settings) {
+		var link = document.createElement(&quot;link&quot;);
+		link.type = &quot;text/css&quot;;
+		link.rel = &quot;stylesheet&quot;;
+		link.href = &quot;/js/lib/CodeMirror/lib/codemirror.css&quot;;
+		document.getElementsByTagName(&quot;head&quot;)[0].appendChild(link);
+	};
+	renderer.stringify = function (obj,p) {
+		var t = typeof (obj);
+		if (t != &quot;object&quot; || obj === null) {
+			// simple data type
+			if (t == &quot;string&quot;) obj = '&quot;'+obj+'&quot;';
+			return String(obj);
+		}
+		else {
+			// recurse array or object
+			var n, v, json = [], arr = (obj &amp;&amp; obj.constructor == Array);
+			for (n in obj) {
+				if (!(p === 0 &amp;&amp; n === &quot;element&quot;)) { // avoid DOM cycles
+					v = obj[n]; t = typeof(v);
+					if (t == &quot;string&quot;) v = '&quot;'+v+'&quot;';
+					else if (t == &quot;object&quot; &amp;&amp; v !== null) v = this.stringify(v,n);
+					json.push((arr ? &quot;&quot; : '&quot;' + n + '&quot;:') + String(v));
+				}
+			}
+			return (arr ? &quot;[&quot; : &quot;{&quot;) + String(json) + (arr ? &quot;]&quot; : &quot;}&quot;);
+		}
+	};
+	// implement JSON.parse de-serialization
+	renderer.parse = function (str) {
+		if (str === &quot;&quot;) str = '&quot;&quot;';
+		eval(&quot;var p=&quot; + str + &quot;;&quot;);
+		renderer.jscode.update(p);
+	};
+	renderer.render = function (settings) {
+		var element = $(settings.element);
+		element.empty();
+		var width = (element.width() || 800);
+		var height = (element.height() || 500);
+		var code = this;
+		require([&quot;CM_mode/javascript/javascript&quot;,&quot;CM_util/formatting&quot;,&quot;CM_util/foldcode&quot;], function(CM_mode,fmt,foldcode) {
+			var textarea = document.createElement(&quot;textarea&quot;);
+			textarea.setAttribute(&quot;id&quot;,&quot;code&quot;);
+			textarea.setAttribute(&quot;name&quot;,&quot;code&quot;);
+			textarea.value = code.stringify(settings.data,0);
+			settings.element.appendChild(textarea);
+			var foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
+			var editor;
+			editor = CodeMirror.fromTextArea(textarea, {
+				mode: &quot;javascript&quot;,
+				lineNumbers: true,
+				lineWrapping: true,
+				onGutterClick: foldFunc,
+				onKeyEvent: function() {
+					clearTimeout(code.delay);
+					code.delay = setTimeout( function()
+					{
+						var val = editor.getValue();
+						code.parse(val);
+					}, 300);
+				}
+			});
+			editor.setSize(width,height);
+			CodeMirror.commands[&quot;selectAll&quot;](editor);
+			editor.autoFormatRange(editor.getCursor(true), editor.getCursor(false));
+			editor.setCursor(0,0);
+		});
+	};
+	return renderer;
+});</pre>
+</body>
+</html>

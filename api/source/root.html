@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Root'>/**
+</span> * @class Root
+ * 
+ * Root class for all Iris classes.
+ * 
+ * @singleton
+ */
+define([&quot;backbone&quot;, &quot;underscore&quot;], function (Backbone, _) {
+<span id='Root-method-constructor'><span id='Root'>    /** 
+</span></span>     * @constructor
+     * @param {Object} options Constructor options.
+     */
+    var Root = function (options) {
+        this.options = options ? _.clone(options) : {};
+        var args = _.toArray(arguments);
+        if (this.defaults) {
+            _.defaults(this.options, this.defaults);
+            args[0] = this.options;
+        }
+        this.initialize.apply(this, args);
+    };
+    _.extend(Root.prototype, Backbone.Events, {
+        initialize: function () {},
+        about: {}
+    });
+
+<span id='Root-method-extend'>    /**
+</span>     * Extends the class.
+     * @method extend
+     * @param {Object} object
+     *        A hash of functions and object that extend the class
+     * @return {Object} A new subclass of this class.
+     */
+    Root.extend = Backbone.View.extend;
+    return Root;
+});
+</pre>
+</body>
+</html>

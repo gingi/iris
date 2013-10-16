@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
+    var defaults = {
+        yTitle: 'Y Axis',
+        axisLabelFontSize: 10,
+        padding: 10
+    };
+
+    function labelFontHeight(svg) {
+        var text = svg.append(&quot;g&quot;).attr(&quot;class&quot;, &quot;x axis&quot;)
+            .append(&quot;svg:text&quot;).text(&quot;M&quot;);
+        var height = text.node().getBBox().height;
+        text.remove();
+        return height;
+    }
+
+    function BarChart(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        var $el = JQ(options.element);
+        var data;
+        self.setData = function (inData) {
+            if (typeof inData === &quot;object&quot;) {
+                data = [];
+                for (var key in inData) {
+                    data.push(inData[key]);
+                }
+            } else {
+                // It's a plain list
+                data = inData;
+            }
+            return self;
+        };
+        self.getData = function () {
+            return data;
+        };
+        self.render = function () {
+            var margin = {
+                top: 20,
+                right: 20,
+                bottom: 40,
+                left: 40
+            },
+            width  =
+                $el.width()  - margin.left - margin.right - options.padding,
+            height =
+                $el.height() - margin.top  - margin.bottom - options.padding;
+            $el.empty();
+
+            var format = d3.format(&quot;.0&quot;);
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+            var y = d3.scale.linear().range([height, 0]);
+
+            var xAxis = d3.svg.axis().scale(x).orient(&quot;bottom&quot;);
+            var yAxis =
+                 d3.svg.axis().scale(y).orient(&quot;left&quot;).tickFormat(format);
+
+            var svg = d3.select($el[0])
+                .append(&quot;svg&quot;)
+                .attr(&quot;width&quot;, $el.width() - options.padding)
+                .attr(&quot;height&quot;, height)
+                .style(&quot;margin&quot;, options.padding / 2)
+                .append(&quot;g&quot;)
+                .attr(&quot;transform&quot;,
+                    &quot;translate(&quot; + margin.left + &quot;,&quot; + margin.top + &quot;)&quot;);
+
+
+            x.domain(_.map(data, function (d) {return d.x; }));
+            y.domain([0, d3.max(data, function (d) { return d.y; }) ]);
+
+            function drawXAxis(elem) {
+                if (x.rangeBand() &gt; labelFontHeight(svg)) {
+                    elem.call(xAxis)
+                        .selectAll(&quot;text&quot;)
+                        .attr(&quot;transform&quot;, function (d) {
+                            var bbox = this.getBBox();
+                            return [&quot;translate(&quot;,
+                                -bbox.height, &quot;,&quot;,
+                                bbox.width / 2 + 5, &quot;)&quot;,
+                                &quot;rotate(-90)&quot;].join(&quot;&quot;);
+                        });
+                }
+                return elem;
+            }
+
+            drawXAxis(svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;x axis&quot;)
+                .attr(&quot;transform&quot;, &quot;translate(0,&quot; + height +&quot;)&quot;))
+
+            svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;y axis&quot;)
+                .call(yAxis)
+                .append(&quot;text&quot;)
+                .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+                .attr(&quot;y&quot;, 6)
+                .attr(&quot;dy&quot;, &quot;.71em&quot;)
+                .style(&quot;text-anchor&quot;, &quot;end&quot;)
+                .text(options.yTitle);
+
+            svg.selectAll(&quot;.bar&quot;)
+                .data(data)
+                .enter()
+                .append(&quot;rect&quot;)
+                .attr(&quot;class&quot;, &quot;bar&quot;)
+                .attr(&quot;x&quot;, function (d) { return x(d.x); })
+                .attr(&quot;width&quot;, x.rangeBand())
+                .attr(&quot;y&quot;, function (d) { return y(d.y); })
+                .attr(&quot;height&quot;, function (d) { return height - y(d.y); })
+                .append(&quot;title&quot;).text(function (d) { return d.title });
+
+            svg.on(&quot;click&quot;, change);
+
+            function change() {
+                var clone = _.clone(data);
+                var x0 = x.domain(_.chain(clone).sort(this.checked
+                    ? function(a, b) { return d3.ascending(a.x, b.x); }
+                    : function(a, b) { return b.y - a.y; })
+                    .map(function(d) { return d.x; })
+                    .value());
+
+                var transition = svg.transition()
+                    .duration(750),
+                    delay = function(d, i) {return i * 50; };
+
+                transition.selectAll(&quot;.bar&quot;)
+                    .delay(delay)
+                    .attr(&quot;x&quot;, function(d) {
+                    return x0(d.x);
+                });
+
+                drawXAxis(transition.select(&quot;.x.axis&quot;))
+                    .selectAll(&quot;g&quot;)
+                    .delay(delay);
+                    
+                this.checked = !this.checked;
+            }
+            return self;
+        }
+    }
+    return BarChart;
+})
+</pre>
+</body>
+</html>

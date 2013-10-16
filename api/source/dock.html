@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'util/eventemitter', 'util/hud'],
+function (JQ, d3, EventEmitter, HUD) {
+    
+    var DOCK_HEIGHT = 30;
+    var Dock = function (parentElement) {  
+        var self = this;
+
+        var parent;
+        var dock;
+        var dockDims;
+        var docked = {};
+        var updateActions = [];
+        if (parent) { setParent(parent) }
+        var dockRenderPromise = JQ.Deferred();
+        
+        var dockHudContentCallback = function (nodes) {
+            var dock = this;
+            var list = JQ(&quot;&lt;ul&gt;&quot;);
+            dock.hud.append(list);
+            nodes.forEach(function (d) {
+                list.append(&quot;&lt;li&gt;&quot; + d.name + &quot;&lt;/li&gt;&quot;);
+            });
+        }
+        
+        function dockDragStart() {
+            this._elemOffsets = [];
+            this._yoffset = d3.event.sourceEvent.pageY - dockDims.y1;
+            for (var key in docked) {
+                this._elemOffsets[key] = docked[key][0].py - dockDims.y1;
+            }
+        }
+        
+        function dockDrag() {
+            dock.attr(&quot;y&quot;, dockDims.y1 = d3.event.y - this._yoffset);
+            for (var key in docked) {
+                var el = docked[key];
+                var y = dockDims.y1 + this._elemOffsets[key];
+                el[1].attr(&quot;cy&quot;, y);
+                el[0].py = el[0].y = y;
+            }
+        }
+        
+        function dockDragEnd() {
+            for (var key in docked) {
+                var el = docked[key];
+                var y = dockDims.y1 + this._elemOffsets[key];
+                el[1].attr(&quot;cy&quot;, y);
+                el[0].py = el[0].y = y;
+            }
+            dockDims.y2 = dockDims.y1 + dockDims.h;
+        }
+
+        self.setParent = function (parentElement) {
+            parent = parentElement;
+            var w = parent.attr(&quot;width&quot;);
+            var h = parent.attr(&quot;height&quot;);
+            dockDims = { x1: w / 4, y1: h / 2, w: w / 2, h: DOCK_HEIGHT };
+            dockDims.x2 = dockDims.x1 + dockDims.w; // For convenience
+            dockDims.y2 = dockDims.y1 + dockDims.h; // For convenience
+            dock = parent.append(&quot;rect&quot;)
+                .attr(&quot;id&quot;, &quot;networkDock&quot;)
+                .attr(&quot;width&quot;,  dockDims.w)
+                .attr(&quot;height&quot;, dockDims.h)
+                .attr(&quot;rx&quot;, 5)
+                .attr(&quot;ry&quot;, 5)
+                .attr(&quot;x&quot;, dockDims.x1)
+                .attr(&quot;y&quot;, dockDims.y1)
+                .style(&quot;fill&quot;, &quot;black&quot;)
+                .style(&quot;opacity&quot;, &quot;0.1&quot;)
+                .call(d3.behavior.drag()
+                    .on(&quot;dragstart&quot;, dockDragStart)
+                    .on(&quot;drag&quot;, dockDrag)
+                    .on(&quot;dragend&quot;, dockDragEnd)
+                );
+            
+            dock
+                .on(&quot;mouseover&quot;, function () { dock.style(&quot;opacity&quot;, 0.2); })
+                .on(&quot;mouseout&quot;,  function () { dock.style(&quot;opacity&quot;, 0.1); })
+                .on(&quot;click&quot;, dockhud);
+
+            self.changedState = false;
+            dockRenderPromise.resolve();
+            return self;
+        }
+        
+        var hud = self.hud = new HUD({
+            width: 300,
+            position: { top: 120, right: 20 },
+            title: &quot;Dock&quot;,
+            draggable: true
+        });
+        
+        self.updateHud = function () {
+            hud.empty();
+            var nodes = [];
+            for (var key in docked) {
+                nodes.push(docked[key][0]);
+            }
+            dockHudContentCallback.call(self, nodes);
+            updateActions.forEach(function (callback) {
+                callback.call(self, nodes);
+            });
+        }
+        
+        function dockhud() {
+            self.updateHud();
+            hud.show();
+        }
+        
+        self.drag = function () {
+            return d3.behavior.drag()
+                .on(&quot;dragstart&quot;, nodeDragstart)
+                .on(&quot;drag&quot;,      nodeDragmove)
+                .on(&quot;dragend&quot;,   nodeDragend);
+        }
+
+        function nodeDragstart() {
+            self.emit(&quot;dragstart.dock&quot;);
+        }
+        
+        function nodeDragmove(d) {
+            d.px += d3.event.dx;
+            d.py += d3.event.dy;
+            d.x += d3.event.dx;
+            d.y += d3.event.dy; 
+            self.emit(&quot;dragmove.dock&quot;, d);
+        }
+        
+        function nodeDragend(d) {
+            var draggedNode = this;
+            var selected = d3.select(draggedNode);
+            if (intersects(d)) {
+                self.dockElement(d, selected);
+            } else {
+                self.undockElement(d, selected);
+            }
+            self.emit(&quot;dragend.dock&quot;, d);
+        }
+        
+        function intersects(d, a) {
+            a = (a || &quot;&quot;);
+            var x = a + &quot;x&quot;;
+            var y = a + &quot;y&quot;;
+            return d[x] &gt;= dockDims.x1 &amp;&amp;
+                   d[x] &lt;= dockDims.x2 &amp;&amp;
+                   d[y] &gt;= dockDims.y1 &amp;&amp;
+                   d[y] &lt;= dockDims.y2
+        }
+        
+        self.dockElement = function (d, element) {
+            if (d == null) {
+                throw Error(&quot;Cannot dock a null element&quot;);
+            }
+            d.fixed = true;
+            docked[d.id] = [d, element];
+            self.updateHud();
+            self.emit(&quot;dock&quot;, [d, element]);             
+        }
+        
+        self.undockElement = function (d, element) {
+            if (d == null) {
+                throw Error(&quot;Cannot undock a null element&quot;);
+            }
+            d.fixed = false;
+            delete docked[d.id];
+            self.updateHud();
+            self.emit(&quot;undock&quot;, [d, element]);
+        }
+        
+        self.reset = function () {
+            hud.empty().dismiss();
+            docked = {};
+        }
+        
+        self.set = function (nodes) {
+            self.reset();
+            dockRenderPromise.then(function () {
+                var interval = dock.attr('width') / (nodes.length + 1);
+                for (var i = 0; i &lt; nodes.length; i++) {
+                    var element = parent.select(&quot;#&quot; + nodes[i].elementId);
+                    self.dockElement(nodes[i], element);
+                    nodes[i].px = dockDims.x1 + (i+1) * interval
+                    nodes[i].py = (dockDims.y1 + dockDims.y2) / 2;
+                }
+            })
+        }
+        self.get = function () {
+            var nodes = [];
+            for (var key in docked) {
+                nodes.push(docked[key][0]);
+            }
+            return nodes;
+        }
+        self.addUpdateAction = function (callback) {
+            updateActions.push(callback);
+        }
+        self.hudContent = function (callback) {
+            dockHudContentCallback = callback;
+        }
+        self.showHUD = dockhud;
+    };
+    
+    JQ.extend(Dock.prototype, EventEmitter);
+    return Dock;
+});</pre>
+</body>
+</html>

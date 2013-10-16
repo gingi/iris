@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore', 'util/dragbox'],
+function (JQ, d3, _, DragBox) {
+    var MAX_CELLS = 24000;
+    var MIN_CELL_SIZE = 4;
+    var MAX_CELL_SIZE = 60;
+    var M = { y: 65, x: 70 };
+
+    var defaults = {
+        borderWidth: 1,
+        colorscheme: 'RdYlBu',
+        element: 'body'
+    };
+    function Heatmap(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        var element = JQ(options.element);
+        
+        var matrix = [], row, columns;
+        var maxScore;
+
+        var cellSize = options.cellSize || 5;
+
+        var width, height, minDim;
+        
+        function maxStrLen(strarr) {
+            return _.reduce(strarr, function (m, str) {
+                return Math.max(m, str.length)
+            }, 0);
+        }
+        
+        self.setData = function (data) {
+            if (data == null) return;
+            function requiredProperty(prop) {
+                if (!data.hasOwnProperty(prop)) {
+                    throw new Error(&quot;setData(): Required property '&quot;
+                        + prop + &quot;' not found&quot;);
+                }
+            }
+            requiredProperty('matrix');
+            requiredProperty('rows');
+            rows = data.rows;
+            if (!data.hasOwnProperty('columns')) {
+                columns = rows;
+            } else {
+                columns = data.columns;
+            }
+            matrix = data.matrix;
+            if (matrix == null) {
+                throw new Error(&quot;Empty matrix&quot;);
+            }
+            if (matrix.length &gt; MAX_CELLS) {
+                throw new Error(&quot;Too many cells&quot;);
+            }
+            M.x = Math.max(M.x, 6 * maxStrLen(rows));
+            M.y = Math.max(M.y, 6 * maxStrLen(columns));
+            maxScore = data.maxScore || 1;
+        };
+        self.getData = function () {
+            return {
+                rows: rows,
+                columns: columns,
+                matrix: matrix
+            };
+        }
+        
+        function adjustedDim(arr) {
+            return Math.floor(arr.length * (cellSize + options.borderWidth));
+        }
+        self.render = function () {
+            width = element.width();
+            height = element.height();
+            minDim = Math.min(width, height);
+            element.empty();
+            element.css(&quot;position&quot;, &quot;relative&quot;);
+            cellSize = Math.min(MAX_CELL_SIZE,
+                Math.max(MIN_CELL_SIZE,
+                    (minDim - Math.min(M.y, M.x) -
+                        options.borderWidth * (rows.length+1)) / rows.length)
+                );
+            var adjWidth  = adjustedDim(columns);
+            var adjHeight = adjustedDim(rows);
+            var containerId = element.attr('id') + &quot;-container&quot;;
+            var container = JQ(&quot;&lt;div&gt;&quot;).attr(&quot;id&quot;, containerId)
+                .css(&quot;position&quot;, &quot;relative&quot;)
+                .width(width)
+                .height(height);
+            element.append(container);
+
+            var svg  = d3.select(&quot;#&quot; + containerId).append(&quot;svg&quot;)
+                .attr(&quot;width&quot;, width)
+                .attr(&quot;height&quot;, height);
+
+            var xLabels = d3.scale.ordinal()
+                .domain(columns).rangeBands([0, adjWidth]);
+            var yLabels = d3.scale.ordinal()
+                .domain(rows).rangeBands([0, adjHeight]);
+            var xAxis =d3.svg.axis().scale(xLabels)
+                .ticks(columns.length).orient(&quot;top&quot;);
+            var yAxis = d3.svg.axis().scale(yLabels)
+                .ticks(rows.length).orient(&quot;left&quot;);
+            
+            var plot = svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, options.colorscheme)
+                .attr(&quot;id&quot;, element.attr('id') + &quot;-plotarea&quot;)
+                .attr(&quot;width&quot;, adjWidth)
+                .attr(&quot;height&quot;, adjHeight)
+                .attr(&quot;transform&quot;, &quot;translate(&quot; + M.x + &quot;,&quot; + M.y +&quot;)&quot;);
+
+            var yAxisG = svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;y axis&quot;)
+                .attr(&quot;transform&quot;, &quot;translate(&quot; + M.x + &quot;,&quot; + M.y + &quot;)&quot;)
+                .call(yAxis);
+            var xAxisG = svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;x axis&quot;)
+                .attr(&quot;transform&quot;, &quot;translate(&quot; + M.x +&quot;,&quot; + M.y + &quot;)&quot;)
+                .call(xAxis).selectAll(&quot;text&quot;)
+                    .attr(&quot;transform&quot;, function (d, i) {
+                        var bbox = this.getBBox();
+                        return [
+                            &quot;rotate(-90)translate(&quot;, bbox.width/2 + 6,
+                            &quot;,&quot;, bbox.height,&quot;)&quot;
+                        ].join(&quot;&quot;)
+                    });
+            
+
+            var quantize = d3.scale
+                .quantile().domain([0, maxScore]).range(d3.range(9));
+            var dragbox =
+                new DragBox(JQ(&quot;#&quot; + element.attr('id') + &quot;-plotarea&quot;));
+            dragbox.textHandler(function (x, y, w, h) {
+                return [w, h].join(&quot; &quot;);
+            })
+
+            for (var i = 0; i &lt; matrix.length; i++) {
+                var cell = matrix[i];
+                var row = cell[0];
+                var col = cell[1];
+                plot.append(&quot;rect&quot;)
+                    .attr(&quot;width&quot;, cellSize).attr(&quot;height&quot;, cellSize)
+                    .attr(&quot;x&quot;, options.borderWidth * (row + 1) + cellSize * row)
+                    .attr(&quot;y&quot;, options.borderWidth * (col + 1) + cellSize * col)
+                    .attr(&quot;class&quot;, &quot;q&quot; + quantize(cell[2]) + &quot;-9&quot;)
+                    .append(&quot;title&quot;).text(cell[2]);
+            }
+            var schemeIndex = 0;
+            var schemes = 'RdYlBu Spectral BrBG YlGnBu'.split(&quot; &quot;);
+            for (var i in schemes) {
+                if (schemes[i] == options.colorscheme) {
+                    schemes.splice(i, 1);
+                    break;
+                }
+            }
+            schemes.unshift(options.colorscheme);
+        }
+        return self;
+    }
+    return Heatmap;
+});</pre>
+</body>
+</html>

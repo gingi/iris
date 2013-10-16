@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define(['jquery', 'backbone', 'underscore',
+    'util/progress', 'backbone.localstorage'],
+function(JQ, Backbone, _, Progress) {
+    var defaults = {
+        container:    &quot;body&quot;,
+        listTemplate: &quot;#ddListTemplate&quot;,
+        itemTemplate: &quot;#ddItemTemplate&quot;,
+        copyTemplate: &quot;#ddCopyTemplate&quot;,
+        copyTarget:   null
+    };
+    
+    function DropDownMenu(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        options.container    = JQ(options.container);
+        options.listTemplate = JQ(options.listTemplate);
+        options.itemTemplate = JQ(options.itemTemplate);
+        options.copyTemplate = JQ(options.copyTemplate);
+        options.parseItem = (options.parseItem || function (data, item) {
+            item.id    = data[0];
+            item.title = data[1];
+        });
+        options.itemLink  = (options.itemLink  || function (item) {
+            return &quot;#&quot; + item.id;
+        });
+        
+        if (!options.itemTemplate.html()) {
+            options.itemTemplate =
+                JQ(&quot;&lt;script&gt;&quot;).attr(&quot;type&quot;, &quot;text/template&quot;).html(
+                    '&lt;a href=&quot;&lt;%= link %&gt;&quot;&gt;&lt;%= title %&gt;&lt;/a&gt;'
+                );
+        }
+        if (!options.listTemplate.html()) {
+            options.listTemplate = JQ(&quot;&lt;script&gt;&quot;)
+                .attr(&quot;type&quot;, &quot;text/template&quot;).html(
+                '&lt;li class=&quot;dropdown&quot;&gt;' +
+                '&lt;a class=&quot;dropdown-toggle&quot; id=&quot;&lt;%= label %&gt;&quot; ' +
+                'data-toggle=&quot;dropdown&quot;data-target=&quot;#&quot; href=&quot;#&quot;&gt;' +
+                '&lt;%= title %&gt; &lt;b class=&quot;caret&quot;&gt;&lt;/b&gt;&lt;/a&gt;' +
+                '&lt;ul id=&quot;&lt;%= listId %&gt;&quot; class=&quot;dropdown-menu&quot; ' + 
+                'role=&quot;menu&quot; aria-labelledby=&quot;&lt;%= label %&gt;&quot;&gt;&lt;/ul&gt;&lt;/li&gt;');
+        }
+        if (!options.copyTemplate.html()) {
+            options.copyTemplate = JQ(&quot;&lt;script&gt;&quot;).attr(&quot;type&quot;, &quot;text/template&quot;)
+                .html('&lt;br/&gt;&lt;small id=&quot;copy&quot; class=&quot;muted&quot;&gt;&lt;/small&gt;');
+        }
+        var DDItem = Backbone.Model.extend({
+            defaults: {
+                title: null,
+                link: null
+            },
+            parse: function (data) {
+                this.parseItem(data, this);
+                this.link = options.itemLink(this);
+                return data;
+            },
+            parseItem: options.parseItem
+        });
+        var DDItemView = Backbone.View.extend({
+            tagName: &quot;li&quot;,
+            template: _.template(options.itemTemplate.html()),
+            events: {
+                &quot;click&quot;: &quot;selectItem&quot;
+            },
+            selectItem: function () {
+                this.$el.parent().children().removeClass('active');
+                this.$el.addClass('active');
+                JQ(this.options.copyTarget).text(this.$el.text());
+            },
+            render: function() {
+                this.$el.append(this.template(this.model));
+                if (this.model.link == null) {
+                    this.$el.addClass(&quot;disabled&quot;);
+                }
+                return this;
+            }
+        });
+
+        var DDListView = Backbone.View.extend({
+            el: options.container,
+            itemView: DDItemView,
+            template: _.template(options.listTemplate.html()),
+            initialize: function() {
+                this.collection.bind(&quot;sync&quot;, this.renderItems, this);
+                if (this.options.copyTarget == null) {
+                    JQ(&quot;#&quot; + this.options.label)
+                        .append(_.template(options.copyTemplate.html())());
+                    this.options.copyTarget =
+                        JQ(&quot;#&quot; + this.options.label).find(&quot;#copy&quot;);
+                }
+                this.render();
+            },
+            render: function() {
+                this.container = JQ(this.template({
+                    label:  this.options.label,
+                    listId: this.options.listId,
+                    title:  this.options.title
+                }));
+                this.$el.append(this.container);
+            },
+            updateCopy: function (text) {
+                JQ(this.options.copyTarget).text(text);
+            },
+            renderItems: function () {
+                var $topics = this.$el.find(&quot;#&quot; + this.options.listId);
+                $topics.empty();
+                if (this.collection.length) {
+                    var items = options.sortBy
+                        ? _.sortBy(this.collection.models, options.sortBy)
+                        : this.collection.models;
+                    _.each(items, function (item) {
+                        var itemView = new this.itemView({
+                            model: item, copyTarget: this.options.copyTarget
+                        });
+                        $topics.append(itemView.render().el);
+                    }, this);
+                } else {
+                    $topics.append(JQ(&quot;&lt;li&gt;&quot;)
+                        .css(&quot;padding&quot;, &quot;5px&quot;)
+                        .addClass(&quot;text-warning&quot;)
+                        .text('No ' + this.options.name));
+                }
+            }
+        });
+
+        self.create = function (args) {
+            args = args ? _.clone(args) : {};
+            args.label = (args.label || args.name + &quot;-label&quot;);
+            args.title = (args.title || args.name);
+            
+            var itemParams = { type: args.itemType };
+            if (args.parseItem) { itemParams.parseItem = args.parseItem; }
+            var TypedDDItem = DDItem.extend(itemParams);
+            TypedDDItem.type = args.itemType;
+            
+            var listParams = { model: TypedDDItem };
+            listParams.parse = function (response) {
+                if (args.listParse) { response = args.listParse(response) }
+                return args.array &amp;&amp; response != null
+                    ? response[args.array] : response;
+            }
+            var ddList = new (Backbone.Collection.extend(listParams));
+            var copyTarget = args.copyTarget || options.copyTarget;
+            ddList.url = args.url;
+            var ddListView = new DDListView({
+                collection: ddList,
+                label:      args.label,
+                title:      args.title,
+                name:       args.name,
+                listId:     args.name + '-select',
+                copyTarget: copyTarget
+                
+            });
+            ddListView.fetch = function (options) {
+                options = options ? _.clone(options) : {};
+                var fetched = false;
+                var spinTarget =
+                    ddListView.$el.find(&quot;#&quot; + this.options.listId).parent();
+                var progress = new Progress({ element: spinTarget });
+                setTimeout(function () {
+                    if (!fetched) progress.show();
+                }, 500);
+                for (var opt in options.data) {
+                    ddList[opt] = options.data[opt];
+                }
+                ddList.fetch({
+                    success: function (collection, response, opts) {
+                        progress.dismiss();
+                        fetched = true;
+                        if (options.success) {
+                            options.success(collection, response, opts)
+                        };
+                        return collection;
+                    },
+                    error: function (collection, xhr) {
+                        progress.dismiss();
+                        throw new Error(xhr.responseText);
+                    },
+                    data: args.fetchData
+                });
+                return this;
+            };
+            ddListView.select = function (selected) {
+                function doSelect() {
+                    var item = ddList.get(selected);
+                    if (item) 
+                        ddListView.updateCopy(item.title);
+                }
+                doSelect();
+                ddList.once(&quot;all&quot;, doSelect);
+                return this;
+            };
+            return ddListView;
+        }
+    }
+    return DropDownMenu;
+});
+</pre>
+</body>
+</html>

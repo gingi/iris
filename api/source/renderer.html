@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js"><span id='Renderer'>/**
+</span> * @class Renderer
+ * @extends Root
+ *
+ * A base class that handles the display of specific data.
+ *
+ *     @example
+ *     // Create instance
+ *     var renderer = new Iris.Renderer({ foo: &quot;bar&quot; });
+ * Or:
+ *
+ *     @example
+ *     // Extend Iris.Renderer
+ *     var MyRenderer = Iris.Renderer.extend({
+ *         render: function () {}
+ *     });
+ *     var renderer = new MyRenderer({ element: &quot;#datavis&quot; }); 
+ * 
+ * @singleton
+ */
+define([&quot;iris/root&quot;, &quot;iris/util&quot;, &quot;underscore&quot;], function (Root, Util, _) {
+    var renderer = {
+        schema: { // uses revalidator.js to check args
+            properties: {
+                data:    { required: true, type: 'any' },
+                element: { required: true, type: 'any' }
+            }
+        },
+        defaults: {
+            element: &quot;body&quot;
+        },
+
+<span id='Renderer-method-exampleData'>        /**
+</span>         * Returns example data, used to demo renderer.
+         * @method exampleData
+         * @deprecated
+         */
+        exampleData: function () {
+            console.log(this.about.name +
+                &quot;: exampleData() function not implemented&quot;);
+        },
+
+        setup: function (args) {
+            // renderer specific initialization code such as loading css
+        },
+
+<span id='Renderer-method-render'>        /**
+</span>         * Renders a data visualization.
+         * @method render
+         * @param {Object} args Runtime rendering arguments.
+         */
+        render: function (args) {
+            console.log(this.about.name +
+                &quot;: render() function not implemented&quot;);
+        },
+
+<span id='Renderer-method-update'>        /**
+</span>         * Updates the visualization. Used for handling changes to underlying
+         * data.
+         * @method update
+         * @param {Object} args Runtime update arguments.
+         */
+        update: function (args) {
+            console.log(this.about.name +
+                &quot;: update() function not implemented&quot;);
+        },
+
+        setData: function (data) {
+            this.data = data;
+        },
+
+<span id='Renderer-method-getData'>        /**
+</span>         * Get the data used for rendering.
+         * @method getData
+         * @return {object} data - The data
+         */
+        getData: function () {
+            return this.data;
+        },
+
+<span id='Renderer-method-set'>        /**
+</span>         * Set renderer options.
+         * @method set
+         * @param {Object} args - key-value pair of options.
+         */
+        set: function (args) {
+            
+        },
+
+<span id='Renderer-method-prepare'>        /**
+</span>         * Prepare for rendering.
+         * 
+         *     @example
+         *     // minimum usage
+         *     renderer.render(renderer.prepare(args));
+         * 
+         * @param {Object} [args] Prepare arguments
+         * @deprecated
+         */
+        prepare: function (args) {
+            var renderer = this;
+            args = (args || {});
+            // extend args with default values
+            _.defaults(args, renderer.defaults);
+            // use example data if not defined
+            if (args.data === null) {
+                args.data = renderer.exampleData();
+            }
+            // validate args
+            if (renderer.schema) {
+                var check = Util.validate(args, renderer.schema);
+                if (check.valid) {
+                } else {
+                    console.log(&quot;validation failed&quot;,check.errors);
+                    throw Error(check.errors);
+                }
+            }
+            // renderer specific initialization
+            renderer.setup(args);
+            return args;
+        }
+    };
+
+    return Root.extend(renderer);
+});</pre>
+</body>
+</html>

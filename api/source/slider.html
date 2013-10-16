@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;underscore&quot;, &quot;text!templates/slider.html&quot;],
+function (JQ, _, template) {
+    &quot;use strict&quot;;
+    var defaults = {
+        title: null,
+        slide: function () {},
+        min: 0,
+        max: 100,
+        step: 1,
+        value: 50,
+        element: null,
+        width: &quot;100%&quot;,
+        placement: &quot;bottom&quot;
+    };
+    function Slider(options) {
+        var self = this;
+        options = options ? _.clone(options) : {};
+        _.defaults(options, defaults);
+        var datum = options.value;
+        var tiptext = options.title ?
+            function () { return options.title + &quot;: &quot; + datum.toFixed(2); } :
+            function () { return datum.toFixed(2) };
+        if (options.label === undefined) {
+            options.label = options.title;
+        }
+        var callback = options.slide;
+        function onSlide(event, ui) {
+            datum = ui.value;
+            callback(datum);
+            self.$wrapper.find(&quot;.tooltip-inner&quot;).text(tiptext());
+        }
+        options.slide = onSlide;
+        self.$wrapper = JQ(_.template(template, options));
+        if (options.element !== undefined) {
+            JQ(options.element).append(self.$wrapper);
+        }
+        self.$wrapper.find(&quot;.slider-label&quot;).append(options.label);
+        self.$slider = self.$wrapper.find(&quot;.slider&quot;);
+        self.$slider.tooltip({
+            title: tiptext(),
+            placement: options.placement
+        });
+        self.$slider.slider(options);
+        return self;
+    }
+    Slider.prototype.element = function () { return this.$wrapper; };
+    return Slider;
+});</pre>
+</body>
+</html>

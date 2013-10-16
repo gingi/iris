@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">require([&quot;jquery&quot;, &quot;underscore&quot;, &quot;backbone&quot;, &quot;util/viewport&quot;],
+function ($, _, Backbone, Viewport) {
+    function li(content) { return $(&quot;&lt;li&gt;&quot;).append(content); }
+    function a(link, text) { return $(&quot;&lt;a&gt;&quot;, { href: link }).html(text); }
+    
+    $(&quot;#nav&quot;)
+        .append(li(a(&quot;#renderer/manhattan&quot;, &quot;Manhattan&quot;)))
+        .append(li(a(&quot;#renderer/pcoords&quot;, &quot;Pcoords&quot;)))
+        .append(li(a(&quot;#widget/RegulatoryNetwork&quot;, &quot;Regulatory Network&quot;)))
+        .append(li(a(&quot;#renderer/forceDirectedGraph&quot;, &quot;Force-directed Graph&quot;)))
+        .append(li(a(&quot;#widget/hypomethylation&quot;, &quot;Conservation vs. Hypomethylation&quot;)));
+
+    function pair(k, v) {
+        var str =
+            $(&quot;&lt;span&gt;&quot;).html(&quot;&lt;strong&gt;&quot; + k + &quot;&lt;/strong&gt; &quot;)
+                .append($(&quot;&lt;span&gt;&quot;).addClass(&quot;muted&quot;).text(v)).append(&quot;&lt;br/&gt;&quot;);
+        return str;
+    }
+    function header(about) {
+        return $(&quot;&lt;div&gt;&quot;).addClass(&quot;well&quot;)
+            .append(pair(&quot;Widget&quot;, about.title))
+            .append(pair(&quot;Author&quot;, about.author))
+            .append(pair(&quot;Description&quot;, about.description));
+    }
+
+    function show(Component, fn) {
+        $(&quot;#content&quot;).empty();
+        var viewport = new Viewport({
+            parent: $(&quot;#content&quot;)
+        });
+        var component = new Component({ element: viewport });
+        
+        $(&quot;#content&quot;).prepend(header(component.about));
+        fn(component);
+    }
+
+    var Router = Backbone.Router.extend({
+        routes: {
+            &quot;widget/:name&quot;   : &quot;widget&quot;,
+            &quot;renderer/:name&quot; : &quot;renderer&quot;,
+            &quot;*action&quot;        : &quot;default&quot;
+        },
+        widget: function (name) {
+            require([&quot;/js/widgets/&quot; + name + &quot;.js&quot;], function (Widget) {
+                show(Widget, function (widget) { widget.display(); });
+            });
+        },
+        renderer: function (name) {
+            require([&quot;renderers/&quot; + name], function (Renderer) {
+                show(Renderer, function (renderer) {
+                    var exampleData = renderer.exampleData();
+                    if (exampleData) {
+                        renderer.setData(exampleData);
+                    }
+                    renderer.render();
+                });
+            });
+        },
+        default: function () {
+        }
+    });
+
+    var router = new Router();
+    Backbone.history.start();
+});</pre>
+</body>
+</html>
