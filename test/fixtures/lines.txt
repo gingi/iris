@@ -1,8 +1,0 @@
-abcd
-efg
-hijklmn
-opqrs
-tuvw
-
-x
-yz

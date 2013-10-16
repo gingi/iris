@@ -1,1 +1,0 @@
-../../../external/jquery-ui-1.8.18.custom.min.js
