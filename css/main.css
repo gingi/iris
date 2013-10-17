@@ -7,18 +7,19 @@ html, body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    /* Negative indent footer by it's height */
+    /* Negative indent footer by its height */
     margin: 0 auto -60px;
+    /* Pad bottom by footer height */
+    padding: 0 0 60px;
 }
 
-#push, #footer {
+#footer {
     height: 60px;
 }
 #footer {
     background-color: #eeeeee;
     font-size: 10pt;
     padding-top: 10px;
-    bottom:0;
 }
 
 .btn {
@@ -40,7 +41,10 @@ html, body {
 #sidebar {
     background-color: #eeeeee;
     border-radius: 12px;
-    padding: 8px inherit;
+    padding: 10px 0;
+}
+#sidebar li > a:hover {
+    background-color: #ddd;
 }
 .affix {
     position: static;
