@@ -1,54 +1,93 @@
+---
+layout: page
+version: 0.1.2
+---
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" media="screen" />
+    <title>Iris</title>
+</head>
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+<body>
+<div id="wrap">
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">
+                    <img align="left" src="images/iris-logo.png" width="120px"/>
+                </div>
+                <div class="col-md-8">
+                    <h1>Iris <small>v{{ page.version }}</small></h1>
+                    <p>A web library for data visualization and exploration</p>
+                </div>
+                <div class="col-md-2">
+                    <a href="https://github.com/gingi/iris" class="btn btn-primary">
+                        <i style="font-size:32pt" class="icon-github"></i>
+                        <span style="display:inline-block">
+                            <small>View project on</small><br/>GitHub
+                        </span>
+                    </a>
+                </div>
+            </div><!-- div.row -->
+        </div><!-- div.container -->
+    </div><!-- div.jumbotron -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="sidebar">
+                    <ul class="nav" id="sidebar-menu">
+                    </ul>
+                    <hr/>
+                    <div style="text-align: center">
+                        <a href="https://github.com/gingi/iris/zipball/master" class="btn btn-primary download-btn">
+                            <i class="icon-download-alt"></i>
+                            <span style="display:inline-block">
+                                <small>Download</small><br/>.zip file
+                            </span>
+                        </a>
+                        <a href="https://github.com/gingi/iris/tarball/master" class="btn btn-primary download-btn">
+                            <i class="icon-download-alt"></i>
+                            <span style="display:inline-block">
+                                <small>Download</small><br/>.tar.gz file
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div id="main-content" class="col-md-9">
+                <h1 id="introduction">Introduction</h1>
+                <p>Iris is a library for visualizing scientific data.</p>
+                <h1 id="documentation">Documentation</h1>
+                <a href="api/">API docs</a>
+                <h1 id="maintainers">Maintainers</h1>
+                The code was developed and is mainained by
+                <ul>
+                    <li>Shiran Pasternak <a href="https://github.com/gingi"><i class="icon-github"></i></a> <a href="https://twitter.com/gingi"><i class="icon-twitter"></i></a></li>
+                    <li>Andrew Olson <a href="https://github.com/ajo2995"><i class="icon-github"></i></a> <a href="https://twitter.com/ajo2995"><i class="icon-twitter"></i></a></li>
+                    <li>Jer-Ming Chia <a href="https://github.com/jermth"><i class="icon-github"></i></a> <a href="https://twitter.com/jermth"><i class="icon-twitter"></i></a></li>
+                </ul>
+            </div>
+        </div>
 
-    <title>Iris by gingi</title>
-  </head>
-
-  <body>
-    <header>
-      <div class="inner">
-          <img src="images/iris-logo.png" class="logo" width="120px"/>
-        <h1>Iris</h1>
-        <h2>A web library for data visualization and exploration.</h2>
-        <a href="https://github.com/gingi/iris" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <p><a href="api/">API documentation</a></p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/gingi/iris/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/gingi/iris/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/gingi/iris"></a> is maintained by <a href="https://github.com/gingi">gingi</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
       </div>
     </div>
+</div><!-- #wrap -->
+<div id="footer">
+        <div class="container">
+            <p class="text-muted credit">Work on Iris is made possible by funding from <a href="http://www.nsf.gov/" title="National Science Foundation">the National Science Foundation</a> for <a href="http://www.gramene.org/" title="Gramene">the Gramene Project</a>.</p>
+        </div>
+    </div>
+</div>
 
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
   
-  </body>
+</body>
 </html>
