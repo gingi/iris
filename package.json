@@ -27,6 +27,7 @@
       , "requirejs"        : "=2.1.5"
       , "revalidator"      : ">=0.1.5"
       , "should"           : ">=2.0.1"
+      , "uglify-js"        : ">=2.4.3"
       , "underscore"       : ">=1.5.2"
       , "web-cache"        : ">=0.0.3"
       , "xmlhttprequest"   : ">=1.6.0"

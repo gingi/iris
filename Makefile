@@ -2,6 +2,7 @@ PACKAGE  = iris
 NODEBIN  = ./node_modules/.bin
 MOCHA    = $(NODEBIN)/mocha
 RJS      = $(NODEBIN)/r.js
+UGLIFY   = $(NODEBIN)/uglifyjs
 NPM      = npm
 GIT      = git
 
@@ -12,18 +13,16 @@ DISTDIR   = ./dist
 MOCHAOPTS ?= 
 APIDOC  = $(DISTDIR)/doc/api
 TESTDIR ?= test
-BUILD   ?= $(DISTDIR)/app.build.js
-DISTLIB ?= $(DISTDIR)/iris.js
-DISTCSS ?= $(DISTDIR)/iris.css
-MINIFY  ?= 1
+BUILD      ?= $(DISTDIR)/app.build.js
+DISTLIB    ?= $(DISTDIR)/iris.js
+MINDISTLIB ?= $(DISTDIR)/iris.min.js
+DISTCSS    ?= $(DISTDIR)/iris.css
+MINDISTCSS ?= $(DISTDIR)/iris.min.css
 
 BUILDDIR = ./build
 SOURCES  = $(shell find $(DOCROOT)/js -name "*.js")
 CSS_SOURCES = $(shell find $(DOCROOT)/css -name "*.css")
 
-ifeq ($(MINIFY),0)
-	RJSOPTS = "optimize=none"
-endif
 
 all: test dist docs
 
@@ -38,11 +37,19 @@ init-submodules:
 init: init-npm init-submodules
 
 $(DISTCSS): $(CSS_SOURCES)
-	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
+	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS) optimize=none
 	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 
+$(MINDISTCSS):
+	@ $(RJS) -o out=$(MINDISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
+	@ perl -pi -e 's|\.\./public|..|g' $(MINDISTCSS)
+
 $(DISTLIB): $(SOURCES) $(BUILD)
-	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)\
+	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS) optimize=none
+	@ $(UGLIFY) $(DISTLIB) --beautify --output $(DISTLIB)
+
+$(MINDISTLIB): $(DISTLIB)
+	@ $(UGLIFY) $(DISTLIB) --comments --compress --mangle --output $(MINDISTLIB)
 
 $(APIDOC)/index.html: $(SOURCES)
 ifndef JSDUCK
@@ -61,7 +68,7 @@ endif
 		-- $(DOCROOT)/js
 
 
-dist: init $(DISTLIB) $(DISTCSS)
+dist: init $(DISTLIB) $(MINDISTLIB) $(DISTCSS) $(MINDISTCSS)
 
 build: init
 	@ $(RJS) -o $(BUILD) \
