@@ -11,6 +11,13 @@
     paths: {
         requireLib: "require"
     },
+    optimize: "uglify2",
+    uglify2: {
+        output: {
+            beautify: true,
+            comments: "all"
+        }
+    },
     include: [
         "requireLib",
         "renderers/heatmap",
