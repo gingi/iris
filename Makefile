@@ -2,28 +2,36 @@ PACKAGE  = iris
 NODEBIN  = ./node_modules/.bin
 MOCHA    = $(NODEBIN)/mocha
 RJS      = $(NODEBIN)/r.js
+UGLIFY   = $(NODEBIN)/uglifyjs
 NPM      = npm
 GIT      = git
 
 JSDUCK  := $(shell which jsduck)
 
-DOCROOT  = ./public
-DISTDIR   = ./dist
-MOCHAOPTS ?= 
-APIDOC  = $(DISTDIR)/doc/api
-TESTDIR ?= test
-BUILD   ?= $(DISTDIR)/app.build.js
-DISTLIB ?= $(DISTDIR)/iris.js
-DISTCSS ?= $(DISTDIR)/iris.css
-MINIFY  ?= 1
+DOCROOT     = ./public
+DISTDIR     = ./dist
+MOCHAOPTS  ?= 
+APIDOC      = $(DISTDIR)/doc/api
+TESTDIR    ?= ./test
+BUILDJS    ?= ./dist/app.build.js
+BUILDCSS   ?= ./dist/app.build.css
+DISTLIB    ?= $(DISTDIR)/iris.js
+MINDISTLIB ?= $(DISTDIR)/iris.min.js
+DISTCSS    ?= $(DISTDIR)/iris.css
+MINDISTCSS ?= $(DISTDIR)/iris.min.css
 
 BUILDDIR = ./build
 SOURCES  = $(shell find $(DOCROOT)/js -name "*.js")
 CSS_SOURCES = $(shell find $(DOCROOT)/css -name "*.css")
 
-ifeq ($(MINIFY),0)
-	RJSOPTS = "optimize=none"
-endif
+PREAMBLE = $(shell node ./dist/preamble.js)
+
+add-preamble = \
+	node ./dist/preamble.js > tmpfile.preamb; \
+	cat "$(1)" >> tmpfile.preamb; \
+	mv tmpfile.preamb $(1);
+
+RJSOPTS=
 
 all: test dist docs
 
@@ -37,12 +45,23 @@ init-submodules:
 
 init: init-npm init-submodules
 
-$(DISTCSS): $(CSS_SOURCES)
-	@ $(RJS) -o out=$(DISTCSS) cssIn=dist/app.build.css $(RJSOPTS)
+$(DISTCSS): $(CSS_SOURCES) $(BUILDCSS)
+	@ $(RJS) -o out=$(DISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) optimize=none
 	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
+	@ $(call add-preamble,$(DISTCSS))
 
-$(DISTLIB): $(SOURCES) $(BUILD)
-	@ $(RJS) -o $(BUILD) out=$(DISTLIB) $(RJSOPTS)\
+$(MINDISTCSS):  $(CSS_SOURCES) $(BUILDCSS)
+	@ $(RJS) -o out=$(MINDISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) \
+		optimizeCss=standard
+	@ perl -pi -e 's|\.\./public|..|g' $(MINDISTCSS)
+	@ $(call add-preamble,$(MINDISTCSS))
+
+$(DISTLIB): $(SOURCES) $(BUILDJS)
+	@ $(RJS) -o $(BUILDJS) out=$(DISTLIB) $(RJSOPTS)
+	@ $(call add-preamble,$(DISTLIB))
+
+$(MINDISTLIB): $(DISTLIB)
+	@ $(UGLIFY) $(DISTLIB) --comments --compress --mangle --output $(MINDISTLIB)
 
 $(APIDOC)/index.html: $(SOURCES)
 ifndef JSDUCK
@@ -61,10 +80,10 @@ endif
 		-- $(DOCROOT)/js
 
 
-dist: init $(DISTLIB) $(DISTCSS)
+dist: init $(DISTLIB) $(MINDISTLIB) $(DISTCSS) $(MINDISTCSS)
 
 build: init
-	@ $(RJS) -o $(BUILD) \
+	@ $(RJS) -o $(BUILDJS) \
 		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
 
 test: init
