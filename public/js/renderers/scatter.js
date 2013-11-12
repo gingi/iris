@@ -21,7 +21,6 @@ define([
             height: 600
         },
         initialize: function () {
-            this.columns      = _.range(4),
             this.infoBox      = null;
             this.width        = null;
             this.height       = null;
@@ -38,8 +37,21 @@ define([
             this.data         = null;
         },
         setData: function (data) {
-            this.headings = data.columns;
-            this.data     = data.data;
+            var self = this;
+            self.headings = data.columns;
+            self.data     = data.data;
+            var labels = []
+            self.colIndex = [];
+            for (var i = 0; i < self.headings.length; i++) {
+                if (self.headings[i].role === "dimension") {
+                    self.colIndex.push(i);
+                } else if (self.headings[i].role === "label") {
+                    labels.push(i);
+                }
+            }
+            self.labeler = function (d) {
+                return _.map(labels, function (i) { return d[i] }).join(", ");
+            }
         },
         render: function () {
             var margin = this.options.margin;
@@ -74,17 +86,17 @@ define([
             return this;
         },
         setDimension: function (oldColumn, newColumn) {
-            this.columns[oldColumn] = newColumn;
+            this.colIndex[oldColumn] = newColumn;
         },
         update: function () {
             var self = this;
             var domainExtent = function (scale, i) {
                 scale.domain(d3.extent(
-                    self.data, function (d) { return d[self.columns[i]]; }
+                    self.data, function (d) { return d[self.colIndex[i]]; }
                 ));
             };
             var toRange = function (scale, i) {
-                return function (d) { return scale(d[self.columns[i]]); }
+                return function (d) { return scale(d[self.colIndex[i]]); }
             };
             
             domainExtent(self.x,      0);
@@ -104,7 +116,7 @@ define([
                             d3.select(this).attr("cx") + "," +  
                             d3.select(this).attr("cy") + ")")
                         .select("text")
-                            .text("[" + d.join(", ") + "]")
+                            .text(self.labeler(d))
                 })
                 .on("mouseout", function (d) {
                     self.infoBox.style("display", "none");
@@ -128,7 +140,7 @@ define([
                 .attr("class", "title")
                 .attr("transform", "translate(" + self.width + ",-6)")
                 .style("text-anchor", "end")
-                .text(self.headings[self.columns[0]]);
+                .text(self.headings[self.colIndex[0]].name);
 
             if (self.yAxisElement) {
                 self.yAxisElement.transition()
@@ -143,7 +155,7 @@ define([
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text(self.headings[self.columns[1]]);
+                .text(self.headings[self.colIndex[1]].name);
                 
             return self;
         }
