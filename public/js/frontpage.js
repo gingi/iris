@@ -6,7 +6,7 @@ function ($, _, Backbone, Viewport) {
     $("#nav")
         .append(li(a("#renderer/manhattan", "Manhattan")))
         .append(li(a("#renderer/pcoords", "Pcoords")))
-        .append(li(a("#widget/RegulatoryNetwork", "Regulatory Network")))
+        .append(li(a("#widget/bubbles", "Bubble Plot")))
         .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
         .append(li(a("#widget/hypomethylation", "Conservation vs. Hypomethylation")));
 
@@ -25,9 +25,6 @@ function ($, _, Backbone, Viewport) {
 
     function show(Component, fn) {
         $("#content").empty();
-        var viewport = new Viewport({
-            parent: $("#content")
-        });
         var component = new Component({ element: viewport });
         
         $("#content").prepend(header(component.about));
@@ -42,18 +39,26 @@ function ($, _, Backbone, Viewport) {
         },
         widget: function (name) {
             require(["/js/widgets/" + name + ".js"], function (Widget) {
-                show(Widget, function (widget) { widget.display(); });
+                $("#content").empty();
+                var widget = new Widget({ element: $("#content") });
+                $("#content").prepend(header(widget.about));
+                var exampleData = widget.exampleData();
+                if (exampleData !== undefined) {
+                    widget.setData(exampleData);
+                }
+                widget.display();
             });
         },
         renderer: function (name) {
             require(["renderers/" + name], function (Renderer) {
-                show(Renderer, function (renderer) {
-                    var exampleData = renderer.exampleData();
-                    if (exampleData) {
-                        renderer.setData(exampleData);
-                    }
-                    renderer.render();
-                });
+                $("#content").empty();
+                var viewport = new Viewport({ parent: $("#content") });
+                var renderer = new Renderer({ element: viewport });
+                var exampleData = renderer.exampleData();
+                if (exampleData !== undefined) {
+                    renderer.setData(exampleData);
+                }
+                renderer.render();
             });
         },
         default: function () {

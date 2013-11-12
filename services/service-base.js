@@ -280,7 +280,7 @@ exports.findService = function (args) {
 
 exports.startService = function () {
     // Needs to be called after service-specific routes:
-    setErrorRoutes();
+    // setErrorRoutes();
     
     if (!process.env.NODE_TEST_MODE) {
         liveServer = app.listen(configuration.appPort);

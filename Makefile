@@ -9,7 +9,7 @@ GIT      = git
 JSDUCK  := $(shell which jsduck)
 
 DOCROOT     = ./public
-DISTDIR     = ./dist
+DISTDIR    ?= ./dist
 MOCHAOPTS  ?= 
 APIDOC      = $(DISTDIR)/doc/api
 TESTDIR    ?= ./test
