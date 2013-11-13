@@ -10,9 +10,6 @@
 [submodule "examples"]
 	path = examples
 	url = git://github.com/silvn/iris-examples
-[submodule "external/snapdragon"]
-	path = external/snapdragon
-	url = git://github.com/silvn/snapdragon
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
 	url = git://github.com/jeromegn/Backbone.localStorage.git
