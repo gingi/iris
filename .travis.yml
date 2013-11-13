@@ -1,6 +1,3 @@
 language: "node_js"
-before_install:
-    - "source iris.env"
-    - "sudo apt-get install libcairo2-dev"
-install: "iris install modules"
-script: "iris check"
+before_install: "sudo apt-get install libcairo2-dev"
+script: "make test"
