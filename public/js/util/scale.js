@@ -1,9 +1,9 @@
 define(function () {
     /**
-     * Map between two numerical coordinate systems.
      * @class Scale
+     * Map between two numerical coordinate systems.
+     *
      * @constructor
-     * @module util
      */
     function Scale() {
         var self = this;
@@ -18,8 +18,10 @@ define(function () {
         }
         /**
          * @method domain
-         * @param {array} args A pair of start and end values for the domain
-         * @return the domain array
+         * Converts a range into its domain values.
+         * 
+         * @param {Number[]} args A pair of start and end values for the domain
+         * @return {Number[]} the domain array
          */
         self.domain = function (args) {
             if (args != null) {

@@ -54,6 +54,10 @@ define([
             }
         },
         render: function () {
+            if (this.svg !== null) {
+                this.update();
+                return;
+            }
             var margin = this.options.margin;
             this.width = this.options.width - margin.left - margin.right;
             this.height = this.options.height - margin.top - margin.bottom;

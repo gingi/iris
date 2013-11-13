@@ -47,6 +47,10 @@ define([
         .on('selectstart', false);
 
     /**
+     * @class Viewport
+     * A visual container for graphic elements. Includes a configurable toolbox
+     * with various default functions, like maximization.
+     * 
      * @constructor
      * 
      * @param {String|Number} id
@@ -140,7 +144,7 @@ define([
         };
         var viewportState;
         MaximizeModal.on("shown.bs.modal", function () {
-            var placeholder = $("<div>", { style: "display:none"});
+            var placeholder = JQ("<div>", { style: "display:none"});
             $viewport.before(placeholder);
             viewportState = {
                 placeholder: placeholder,

@@ -15,6 +15,7 @@
  *         var widget = Widget.extend({});
  *     });
  *
+ * @extends Root
  * @singleton
  */
 define(["iris/root"], function (Root) {
@@ -22,6 +23,10 @@ define(["iris/root"], function (Root) {
         defaults: {
             element: "body"
         },
+        /**
+         * @method initialize
+         * @inheritdoc Root#initialize
+         */
         initialize: function (options) {
             this.element = options.element;
         }

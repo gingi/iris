@@ -20,6 +20,11 @@ define(["backbone", "underscore"], function (Backbone, _) {
         this.initialize.apply(this, args);
     };
     _.extend(Root.prototype, Backbone.Events, {
+        /**
+         * @method initialize
+         * Initializes the object. Invoked after constructor has already
+         * processed parameters.
+         */
         initialize: function () {},
         about: {}
     });

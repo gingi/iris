@@ -2,6 +2,15 @@ define(["iris", "underscore", "jquery", "renderers/scatter", "util/viewport",
     "text!templates/dropdown.html"],
 function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
     var bubbleCounter = 1;
+    
+    /**
+     * @class BubblePlot
+     * An interactive scatterplot for exploring four-dimensional data.
+     * 
+     * @extends Widget
+     * 
+     * @constructor
+     */
     var BubblePlot = Iris.Widget.extend({
         about: {
             title: "Bubble Plot",
@@ -12,6 +21,10 @@ function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
         defaults: {
             element: "body"
         },
+        /**
+         * @method initialize
+         * @inheritdoc Widget#initialize
+         */
         initialize: function () {
             this.viewportId = "bubble-plot-" + bubbleCounter++;
         },

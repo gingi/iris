@@ -1,9 +1,12 @@
-/**
- * Manhattan Plot
- * @module renderers/manhattan
- */
-define(['jquery', 'iris', 'util/dragbox', 'util/scale', 'underscore'],
-function ($, Iris, DragBox, Scale, _) {
+define([
+    'jquery',
+    'iris',
+    'util/dragbox',
+    'util/scale',
+    'underscore',
+    "text!examples/3396.json"
+],
+function ($, Iris, DragBox, Scale, _, ExampleData) {
     function createCanvas(container, options) {
         options = (options || {});
         var canvas = $("<canvas>")
@@ -31,12 +34,22 @@ function ($, Iris, DragBox, Scale, _) {
         { max: [255, 0, 0], min: [255, 165, 0],   range: [0, 165, 0] }
     ];
 
+    /**
+     * @class Manhattan
+     * Manhattan Plot
+     * 
+     * @extends Renderer
+     */
     var Manhattan = Iris.Renderer.extend({
         about: {
             title: "Manhattan Plot",
-            name: "manhattan",
+            name: "ManhattanPlot",
             author: "Andrew Olson"
         },
+        /**
+         * @method initialize
+         * @inheritdoc Widget#initialize
+         */
         initialize: function (options) {
             options = options || {};
             options.filterContig =
@@ -106,14 +119,7 @@ function ($, Iris, DragBox, Scale, _) {
             self.plotArea.width(self.canvasWidth).height(self.canvasHeight);
             self.ctx = createCanvas(self.plotArea, { z: 5 });
             self.$element.append(self.plotArea);
-            if (self.waitingForData) {
-                self.waitingForData.done(function (data) {
-                    self.setData(data);
-                    self.drawManhattan();
-                });
-            } else {
-                self.drawManhattan();
-            }
+            self.drawManhattan();
         },
         highlight: function (loci) {
             var self = this;
@@ -373,12 +379,7 @@ function ($, Iris, DragBox, Scale, _) {
         }
     });
     Manhattan.prototype.exampleData = function () {
-        var self = this;
-        self.waitingForData = $.Deferred();
-        require(["text!examples/3396.json"], function (json) {
-            self.waitingForData.resolve(JSON.parse(json));
-        });
-        return {}; // Dummy object
-    }
+        return JSON.parse(ExampleData);
+    };
     return Manhattan;
 });
