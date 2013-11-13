@@ -1,0 +1,72 @@
+/* VIEWPORT */
+.viewport {
+    display: inline-block;
+    position: relative;
+    padding: 30px 0 5px;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 5px;
+    ::after {
+        content: attr(data-title);
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        padding: 3px 7px;
+        font-size: 12px;
+        font-weight: bold;
+        background-color: #e5e5e5;
+        border: 1px solid #ddd;
+        color: #9da0a4;
+        -webkit-border-radius: 4px 0 4px 0;
+           -moz-border-radius: 4px 0 4px 0;
+                border-radius: 4px 0 4px 0;
+    }
+}
+.viewport-content {
+    margin: auto 5px;
+    overflow: auto;
+}
+.viewport-toolbox {
+    margin: 0;
+    top:2px;
+    min-height:20px;
+    .dropdown-menu {
+        left: auto;
+        right: 0;
+        min-width: 120px;
+        li {
+            font-size: 85%;
+        }
+    }
+}
+.viewport-toolbox, .control-panel {
+    position:absolute;
+    float:right;
+    z-index:100;
+    right:2px;
+}
+.control-panel {
+    top: 30px;
+}
+.control-item {
+    margin: 5px 0;
+    button {
+        width: 150px;
+        text-align: left;
+        > .title {
+            max-width: 110px;
+            text-overflow: ellipsis;
+            overflow-x: hidden;
+            display: inline-block;
+        }
+        > .caret {
+            float: right;
+            margin-top: 0.5em;
+        }
+    }
+}
