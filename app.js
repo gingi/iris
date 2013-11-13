@@ -85,7 +85,7 @@ app.configure(function() {
     app.use(express.methodOverride());
     app.use(app.router);
     app.use(require("less-middleware")({
-        src: PUBLIC_DIR + "/less",
+        src:  PUBLIC_DIR + "/less",
         dest: PUBLIC_DIR + "/css",
         prefix: "/css",
         compress: true,

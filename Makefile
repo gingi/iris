@@ -50,7 +50,7 @@ $(DISTCSS): $(CSS_SOURCES) $(BUILDCSS)
 	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 	@ $(call add-preamble,$(DISTCSS))
 
-$(MINDISTCSS):  $(CSS_SOURCES) $(BUILDCSS)
+$(MINDISTCSS): $(CSS_SOURCES) $(BUILDCSS)
 	@ $(RJS) -o out=$(MINDISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) \
 		optimizeCss=standard
 	@ perl -pi -e 's|\.\./public|..|g' $(MINDISTCSS)
@@ -87,9 +87,10 @@ endif
 
 dist: init $(DISTLIB) $(MINDISTLIB) $(DISTCSS) $(MINDISTCSS)
 
-build: init
+build: init $(SOURCES)
 	@ $(RJS) -o $(BUILDJS) \
-		appDir=./public dir=$(BUILDDIR) baseUrl=js namespace=
+		appDir=./public dir=$(BUILDDIR) optimizeCss=none baseUrl=js namespace= \
+		name=iris-bundle optimize=uglify
 
 test: init
 	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
