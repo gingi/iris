@@ -1,5 +1,5 @@
 exports.index = function (req, res) {
-    res.render('index', { title: "Homepage", version: "0.1.3" });
+    res.render('index', { title: "Homepage", version: "0.1.4" });
 };
 
 exports.widget = function (req, res, args) {

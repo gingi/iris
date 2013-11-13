@@ -45,8 +45,8 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         },
 
         /**
-         * Renders a data visualization.
          * @method render
+         * Renders a data visualization.
          * @param {Object} args Runtime rendering arguments.
          */
         render: function (args) {
@@ -55,9 +55,9 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         },
 
         /**
+         * @method update
          * Updates the visualization. Used for handling changes to underlying
          * data.
-         * @method update
          * @param {Object} args Runtime update arguments.
          */
         update: function (args) {
@@ -70,54 +70,21 @@ define(["iris/root", "iris/util", "underscore"], function (Root, Util, _) {
         },
 
         /**
-         * Get the data used for rendering.
          * @method getData
-         * @return {object} data - The data
+         * Get the data used for rendering.
+         * @return {Object} The data
          */
         getData: function () {
             return this.data;
         },
 
         /**
-         * Set renderer options.
          * @method set
+         * Set renderer options.
          * @param {Object} args - key-value pair of options.
          */
         set: function (args) {
             
-        },
-
-        /**
-         * Prepare for rendering.
-         * 
-         *     @example
-         *     // minimum usage
-         *     renderer.render(renderer.prepare(args));
-         * 
-         * @param {Object} [args] Prepare arguments
-         * @deprecated
-         */
-        prepare: function (args) {
-            var renderer = this;
-            args = (args || {});
-            // extend args with default values
-            _.defaults(args, renderer.defaults);
-            // use example data if not defined
-            if (args.data === null) {
-                args.data = renderer.exampleData();
-            }
-            // validate args
-            if (renderer.schema) {
-                var check = Util.validate(args, renderer.schema);
-                if (check.valid) {
-                } else {
-                    console.log("validation failed",check.errors);
-                    throw Error(check.errors);
-                }
-            }
-            // renderer specific initialization
-            renderer.setup(args);
-            return args;
         }
     };
 

@@ -1,7 +1,3 @@
-/**
-  * Parallel Coordinates Plot
-  * @module renderers/pcoords
-  */
 define(["iris", "jquery", "underscore"], function (Iris, $, _) {
     var PADDING_TOP = 40;
     var PADDING_BOTTOM = 40;
@@ -13,12 +9,22 @@ define(["iris", "jquery", "underscore"], function (Iris, $, _) {
         return "total > 3.0";
     }
 
+    /**
+      * @class ParallelCoordinatesPlot
+      * Parallel Coordinates Plot.
+      * 
+      * @extends Renderer
+      */
     return Iris.Renderer.extend({
         about: {
             title: "Parallel Coordinate Plot",
-            name: "pcoords",
+            name: "ParallelCoordinatesPlot",
             author: "Andrew Olson",
         },
+        /**
+         * @method initialize
+         * @inheritdoc Renderer#initialize
+         */
         initialize: function (options) {
             this.colorByDensity = true;
             this.containerNode = null;

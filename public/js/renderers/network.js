@@ -69,12 +69,16 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
     var SELECT_STROKE_COLOR  = "#222";
     
     /**
+     * @class Network
+     * Renders a force-directed network.
+     * 
      * @constructor
-     * @param infoOn {String} (all|click|hover)
-     * @param nodeFilter {Object} { type: "CLUSTER" }
-     * @param highlightNeighbors {Boolean}
-     * @param nodeInfo {Function}
-     * @param searchTerms {Function} searchTerms(node, indexMe) {
+     * @param {Object} options A set of input options
+     * @param {String} options.infoOn (all|click|hover)
+     * @param {Object} options.nodeFilter { type: "CLUSTER" }
+     * @param {Boolean} options.highlightNeighbors
+     * @param {Function} options.nodeInfo
+     * @param {Function} options.searchTerms searchTerms(node, indexMe) {
      *      indexMe(node.name)
      * }
      */

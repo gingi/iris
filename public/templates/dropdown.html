@@ -1,0 +1,16 @@
+<div class="dropdown">
+    <button class="btn dropdown-toggle" type="button"
+        data-toggle="dropdown">
+        <span class="title"><%= title %></span>
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+        <% _.each(items, function (item) { %>
+            <li role="presentation">
+                <a role="menuitem" tabindex="-1" href="#">
+                    <%= item %>
+                </a>
+            </li>
+        <% }) %>
+    </ul>
+</div>

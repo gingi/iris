@@ -2,7 +2,7 @@
     <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
-**Version 0.1.3**
+**Version 0.1.4**
 
 A web library for data visualization and exploration.
 
@@ -112,6 +112,11 @@ TODO
 
 ##Changelog
 
+####v0.1.4
+
+* New Bubble Plot
+* Documentation
+* Bug fixes and improvements
 
 ####v0.1.3
 

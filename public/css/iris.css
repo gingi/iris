@@ -253,10 +253,6 @@ canvas.dragbox:active {
   fill-opacity: .9;
 }
 
-.x.axis path {
-  display: none;
-}
-
 .mini, .mini * {
     font-size: 85%;
 }
@@ -1099,4 +1095,79 @@ div.box {
 	overflow: auto;
 	border: 1px solid #8080FF;
 	background-color: #E5E5FF;
+}
+
+/* VIEWPORT */
+.viewport {
+    display: inline-block;
+    position: relative;
+    padding: 30px 0 5px;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.viewport::after {
+    content: attr(data-title);
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #e5e5e5;
+    border: 1px solid #ddd;
+    color: #9da0a4;
+    -webkit-border-radius: 4px 0 4px 0;
+       -moz-border-radius: 4px 0 4px 0;
+            border-radius: 4px 0 4px 0;
+}
+.viewport-content {
+    margin: auto 5px;
+    overflow: auto;
+}
+.viewport .viewport-toolbox {
+    margin: 0;
+}
+.viewport-toolbox .dropdown-menu {
+    left: auto;
+    right: 0;
+    min-width: 120px;
+}
+.viewport-toolbox .dropdown-menu li {
+    font-size: 85%;
+}
+.viewport-toolbox, .control-panel {
+    position:absolute;
+    float:right;
+    z-index:100;
+    right:2px;
+}
+.viewport-toolbox {
+    top:2px;
+    min-height:20px;
+}
+.control-panel {
+    top: 30px;
+}
+.control-item {
+    margin: 5px 0;
+}
+.control-item button {
+    width: 150px;
+    text-align: left;
+}
+.control-item button > .title {
+    max-width: 110px;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    display: inline-block;
+}
+.control-item button > .caret {
+    float: right;
+    margin-top: 0.5em;
 }
