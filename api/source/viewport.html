@@ -20,8 +20,7 @@
     &quot;underscore&quot;,
     &quot;util/progress&quot;,
     &quot;util/syntax&quot;,
-    &quot;util/modal&quot;,
-    &quot;jquery-ui&quot;
+    &quot;util/modal&quot;
 ], function (JQ, _, Progress, Syntax, Modal) {
     var viewportCounter = 1;
     var defaults = {
@@ -36,8 +35,8 @@
     };
     var MaximizeModal = new Modal({
         backdrop: true,
-        height: JQ(&quot;body&quot;).height() - 100,
-        width: JQ(&quot;body&quot;).width() - 100
+        height: JQ(document).height() - 100,
+        width:  JQ(document).width()  - 100
     });
     MaximizeModal.init();
     var ExportModal = new Modal({
@@ -47,7 +46,7 @@
     ExportModal.footer(
         JQ(&quot;&lt;a&gt;&quot;, { href: &quot;#&quot;, download: &quot;export.json&quot; })
             .addClass(&quot;btn btn-primary&quot;)
-            .append(JQ(&quot;&lt;i&gt;&quot;).addClass(&quot;icon-download-alt&quot;))
+            .append(JQ(&quot;&lt;i&gt;&quot;).addClass(&quot;fa fa-download-alt&quot;))
             .append(&quot; Download&quot;).click(function (e) {
                 e.preventDefault();
                 var uriContent =
@@ -65,7 +64,11 @@
         .on('selectstart', false);
 
 <span id='Viewport-method-constructor'><span id='Viewport'>    /**
-</span></span>     * @constructor
+</span></span>     * @class Viewport
+     * A visual container for graphic elements. Includes a configurable toolbox
+     * with various default functions, like maximization.
+     * 
+     * @constructor
      * 
      * @param {String|Number} id
      * @param {String|Object} parent
@@ -78,37 +81,37 @@
         var self = this;
         options = options ? _.clone(options) : {};
         options.parent = JQ(options.parent);
-        if (!options.height &amp;&amp; options.parent.height() &gt; 0)
-            options.height = options.parent.height();
         _.defaults(options, defaults);
         options.id = options.id || [&quot;viewport&quot;, viewportCounter].join(&quot;-&quot;);
         viewportCounter++;
         
-        var div = JQ(&quot;&lt;div&gt;&quot;)
+        var $viewport = JQ(&quot;&lt;div&gt;&quot;)
             .addClass(&quot;viewport&quot;)
             .attr(&quot;data-title&quot;, options.title)
             .attr(&quot;id&quot;, options.id + &quot;-wrapper&quot;)
             .css(&quot;min-height&quot;, options.height)
             .css(&quot;min-width&quot;, options.width);
-        if (options.classes) { div.addClass(options.classes); }
+        if (options.classes !== undefined) {
+            $viewport.addClass(options.classes);
+        }
         var content = JQ(&quot;&lt;div&gt;&quot;)
             .addClass(&quot;viewport-content&quot;)
             .attr(&quot;id&quot;, options.id);
         content.progress = new Progress({ element: content });
-        options.parent.append(div);
-        div.append(content);
+        options.parent.append($viewport);
+        $viewport.append(content);
         content
-            .css(&quot;min-height&quot;, div.height())
-            .css(&quot;min-width&quot;, div.width());
-        div.css(&quot;width&quot;, &quot;99%&quot;);
-        div.css(&quot;height&quot;, &quot;99%&quot;);
+            .css(&quot;min-height&quot;, $viewport.height())
+            .css(&quot;min-width&quot;, $viewport.width());
+        $viewport.css(&quot;width&quot;, &quot;99%&quot;);
+        $viewport.css(&quot;height&quot;, &quot;99%&quot;);
 
         if (options.toolbox) {
             self.toolbox = createToolbox(options);
-            div.append(self.toolbox);
+            $viewport.append(self.toolbox);
             if (options.toolboxHides) {
                 self.toolbox.hide();
-                div.on(&quot;mouseenter&quot;, function (e) {
+                $viewport.on(&quot;mouseenter&quot;, function (e) {
                     e.preventDefault();
                     if (self.toolbox._isShown) return;
                     self.toolbox._isShown = true;
@@ -124,14 +127,14 @@
             }
             if (options.sortContainer !== null) {
                 var target = JQ(options.sortContainer);
-                target.sortable({
-                    containment: target,
-                    handle: &quot;.drag-button&quot;,
-                    cancel: &quot;&quot;,
-                    tolerance: &quot;pointer&quot;,
-                    helper: &quot;clone&quot;
-                });
-                target.disableSelection();
+                // target.sortable({
+                //     containment: target,
+                //     handle: &quot;.drag-button&quot;,
+                //     cancel: &quot;&quot;,
+                //     tolerance: &quot;pointer&quot;,
+                //     helper: &quot;clone&quot;
+                // });
+                // target.disableSelection();
             }
         }
         content.showError = function (params) {
@@ -148,27 +151,54 @@
             );
         };
         content.renderer = function (r) {
-            self.renderer = r;
+            if (r !== undefined) {
+                self.renderer = r;
+            }
+            return self.renderer;
         };
         content.toolbox = function () {
             return self.toolbox;
-        };        
-        return content;
+        };
+        var viewportState;
+        MaximizeModal.on(&quot;shown.bs.modal&quot;, function () {
+            var placeholder = JQ(&quot;&lt;div&gt;&quot;, { style: &quot;display:none&quot;});
+            $viewport.before(placeholder);
+            viewportState = {
+                placeholder: placeholder,
+                height:      $viewport.height(),
+                width:       $viewport.width()
+            };
+            $viewport.height(MaximizeModal.body().height() - 42);
+            MaximizeModal.body($viewport);
+            self.toolbox.find(&quot;#btn-maximize&quot;).find(&quot;i&quot;)
+                .removeClass().addClass(&quot;fa fa-expand&quot;);
+            resetRendererBounds();
+        });
+        MaximizeModal.on(&quot;hidden.bs.modal&quot;, function () {
+            $viewport.width(viewportState.width);
+            $viewport.height(viewportState.height);
+            viewportState.placeholder.before($viewport);
+            viewportState.placeholder.remove();
+            MaximizeModal.emptyBody();
+            self.toolbox.find(&quot;#btn-maximize&quot;).find(&quot;i&quot;)
+                .removeClass().addClass(&quot;fa fa-expand&quot;);
+            resetRendererBounds();
+        });
         
         function createToolbox(options) {
-            var div = JQ(&quot;&lt;div&gt;&quot;)
+            var $toolbox = JQ(&quot;&lt;div&gt;&quot;)
                 .addClass(&quot;viewport-toolbox btn-group btn-group-sm&quot;);
-            div.append(JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;btn-group btn-group-sm&quot;)
+            $toolbox.append(JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;btn-group btn-group-sm&quot;)
                 .append(JQ(&quot;&lt;a&gt;&quot;, { href: &quot;#&quot;, &quot;data-toggle&quot;: &quot;dropdown&quot; })
                     .addClass(&quot;btn btn-default&quot;)
-                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;icon icon-cog&quot; }))
+                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;fa fa-cog&quot; }))
                     .dropdown()
                 ).append(JQ(&quot;&lt;ul&gt;&quot;, {
                     id: &quot;viewport-toolbox&quot;,
                     class: &quot;dropdown-menu&quot;
                 }).append(JQ(&quot;&lt;li&gt;&quot;)
                     .append(JQ(&quot;&lt;a&gt;&quot;, { href: &quot;#&quot; + window.location.hash })
-                        .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;icon icon-download-alt&quot; })
+                        .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;fa fa-download&quot; })
                             .append(&quot; Export data&quot;)))
                     .click(function (event) {
                         event.preventDefault();
@@ -183,49 +213,32 @@
                 )
             );
             if (options.maximize) {
-                div.append(JQ(&quot;&lt;div&gt;&quot;, { id: &quot;btn-maximize&quot; })
+                $toolbox.append(JQ(&quot;&lt;div&gt;&quot;, { id: &quot;btn-maximize&quot; })
                     .addClass(&quot;btn btn-default&quot;)
-                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;icon-resize-full&quot; }))
-                    .click(toggleMaximize));
+                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;fa fa-expand&quot; }))
+                    .click(function () {
+                        MaximizeModal.toggle();
+                    }));
             }
             if (options.sortContainer !== null) {
-                div.append(JQ(&quot;&lt;div&gt;&quot;)
+                $toolbox.append(JQ(&quot;&lt;div&gt;&quot;)
                     .addClass(&quot;btn btn-default drag-button&quot;)
-                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;icon-move&quot; })));
+                    .html(JQ(&quot;&lt;i&gt;&quot;, { class: &quot;fa fa-arrows&quot; })));
             }
-            return div;
+            return $toolbox;
         }
-        function toggleMaximize() {
-            MaximizeModal.toggle();
-            function minimize () {
-                div.outerHeight(options.parent.height() - 10);
-                div.outerWidth(options.parent.width()   - 10);
-                options.parent.append(div);
-                MaximizeModal.emptyBody();
-                MaximizeModal.shown = false;
-                self.toolbox.find(&quot;#btn-maximize&quot;).find(&quot;i&quot;)
-                    .removeClass().addClass(&quot;icon-resize-full&quot;);
-            }
-            if (MaximizeModal.shown) {
-                minimize();
-            } else {
-                div.height(MaximizeModal.body().height() - 42);
-                MaximizeModal.body(div);
-                MaximizeModal.shown = true;
-                MaximizeModal.on(&quot;hidden&quot;, minimize);
-                self.toolbox.find(&quot;#btn-maximize&quot;).find(&quot;i&quot;)
-                    .removeClass().addClass(&quot;icon-resize-small&quot;);
-            }
+        function resetRendererBounds() {
             if (self.renderer) {
-                setTimeout(function () {
-                    content.outerHeight(div.height());
-                    content.outerWidth(div.width());
-                    self.renderer.render();
-                }, 1000);
+                content.outerHeight($viewport.height());
+                content.outerWidth($viewport.width());
+                self.renderer.render();
             }
         }
+        return content;
     }
     return Viewport;
-});</pre>
+});
+
+</pre>
 </body>
 </html>

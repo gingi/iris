@@ -32,6 +32,7 @@
  *         var widget = Widget.extend({});
  *     });
  *
+ * @extends Root
  * @singleton
  */
 define([&quot;iris/root&quot;], function (Root) {
@@ -39,6 +40,10 @@ define([&quot;iris/root&quot;], function (Root) {
         defaults: {
             element: &quot;body&quot;
         },
+<span id='Widget-method-initialize'>        /**
+</span>         * @method initialize
+         * @inheritdoc Root#initialize
+         */
         initialize: function (options) {
             this.element = options.element;
         }

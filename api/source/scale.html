@@ -17,10 +17,10 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">define(function () {
 <span id='Scale-method-constructor'><span id='Scale'>    /**
-</span></span>     * Map between two numerical coordinate systems.
-     * @class Scale
+</span></span>     * @class Scale
+     * Map between two numerical coordinate systems.
+     *
      * @constructor
-     * @module util
      */
     function Scale() {
         var self = this;
@@ -35,8 +35,10 @@
         }
 <span id='Scale-method-domain'>        /**
 </span>         * @method domain
-         * @param {array} args A pair of start and end values for the domain
-         * @return the domain array
+         * Converts a range into its domain values.
+         * 
+         * @param {Number[]} args A pair of start and end values for the domain
+         * @return {Number[]} the domain array
          */
         self.domain = function (args) {
             if (args != null) {

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">define([
+    &quot;iris&quot;,
+    &quot;d3&quot;,
+    &quot;underscore&quot;,
+    &quot;util/eventemitter&quot;
+], function (Iris, d3, _, EventEmitter, DropdownTmpl) {
+    var RADIUS_RANGE        = [3, 60];
+    var PADDING             = RADIUS_RANGE[1];
+    var TRANSITION_DURATION = 400;
+    var Scatter = Iris.Renderer.extend({
+        about: {
+            title: &quot;Scatter Plot&quot;,
+            name: &quot;scatter&quot;,
+            author: &quot;Shiran Pasternak&quot;,
+            description: &quot;A scatterplot&quot;
+        },
+        defaults: {
+            element: &quot;body&quot;,
+            margin: { top: 10, right: 40, bottom: 20, left: 60 },
+            width: 800,
+            height: 600
+        },
+        initialize: function () {
+            this.infoBox      = null;
+            this.width        = null;
+            this.height       = null;
+            this.svg          = null;
+            this.x            = null;
+            this.y            = null;
+            this.radius       = null;
+            this.color        = null;
+            this.headings     = null;
+            this.xAxis        = null;
+            this.yAxis        = null;
+            this.xAxisElement = null;
+            this.yAxisElement = null;
+            this.data         = null;
+        },
+        setData: function (data) {
+            var self = this;
+            self.headings = data.columns;
+            self.data     = data.data;
+            var labels = []
+            self.colIndex = [];
+            for (var i = 0; i &lt; self.headings.length; i++) {
+                if (self.headings[i].role === &quot;dimension&quot;) {
+                    self.colIndex.push(i);
+                } else if (self.headings[i].role === &quot;label&quot;) {
+                    labels.push(i);
+                }
+            }
+            self.labeler = function (d) {
+                return _.map(labels, function (i) { return d[i] }).join(&quot;, &quot;);
+            }
+        },
+        render: function () {
+            if (this.svg !== null) {
+                this.update();
+                return;
+            }
+            var margin = this.options.margin;
+            this.width = this.options.width - margin.left - margin.right;
+            this.height = this.options.height - margin.top - margin.bottom;
+
+            this.svg = d3.select(this.options.element)
+                .append(&quot;svg&quot;)
+                .attr(&quot;width&quot;,  this.width  + margin.left + margin.right)
+                .attr(&quot;height&quot;, this.height + margin.top  + margin.bottom)
+                .append(&quot;g&quot;).attr(&quot;transform&quot;,
+                    &quot;translate(&quot; + margin.left + &quot;,&quot; + margin.top + &quot;)&quot;);
+            this.bubbleG = this.svg.append(&quot;g&quot;);
+
+            this.x = d3.scale.linear().range([PADDING, this.width-PADDING]);
+            this.y = d3.scale.linear().range([this.height-PADDING, PADDING]);
+            this.radius = d3.scale.linear().range(RADIUS_RANGE);
+            this.color  = d3.scale.linear().range([&quot;steelblue&quot;, &quot;#BD0026&quot;]);
+
+            this.xAxis = d3.svg.axis().scale(this.x).orient(&quot;bottom&quot;);
+            this.yAxis = d3.svg.axis().scale(this.y).orient(&quot;left&quot;);
+
+            this.infoBox = this.svg.append(&quot;g&quot;)
+                .style(&quot;display&quot;, &quot;none&quot;);
+            this.infoBox.append(&quot;text&quot;)
+                .attr(&quot;dy&quot;, &quot;.35em&quot;)
+                .attr(&quot;text-anchor&quot;, &quot;middle&quot;)
+                .style(&quot;fill&quot;, &quot;black&quot;)
+                .style(&quot;fill-opacity&quot;, 1);
+            
+            this.update();
+            return this;
+        },
+        setDimension: function (oldColumn, newColumn) {
+            this.colIndex[oldColumn] = newColumn;
+        },
+        update: function () {
+            var self = this;
+            var domainExtent = function (scale, i) {
+                scale.domain(d3.extent(
+                    self.data, function (d) { return d[self.colIndex[i]]; }
+                ));
+            };
+            var toRange = function (scale, i) {
+                return function (d) { return scale(d[self.colIndex[i]]); }
+            };
+            
+            domainExtent(self.x,      0);
+            domainExtent(self.y,      1);
+            domainExtent(self.radius, 2);
+            domainExtent(self.color,  3);
+
+            var circles = self.bubbleG.selectAll(&quot;circle&quot;).data(self.data);
+                
+            circles.enter().append(&quot;circle&quot;)
+                .style(&quot;stroke&quot;, &quot;black&quot;)
+                .style(&quot;stroke-width&quot;, 0.5)
+                .style(&quot;fill-opacity&quot;, 0.6)
+                .on(&quot;mouseover&quot;, function (d) {
+                    self.infoBox.style(&quot;display&quot;, null)
+                        .attr(&quot;transform&quot;, &quot;translate(&quot; +
+                            d3.select(this).attr(&quot;cx&quot;) + &quot;,&quot; +  
+                            d3.select(this).attr(&quot;cy&quot;) + &quot;)&quot;)
+                        .select(&quot;text&quot;)
+                            .text(self.labeler(d))
+                })
+                .on(&quot;mouseout&quot;, function (d) {
+                    self.infoBox.style(&quot;display&quot;, &quot;none&quot;);
+                });
+            circles.exit().remove();
+            circles.transition().duration(400)
+                .attr(&quot;cx&quot;,    toRange(self.x,      0))
+                .attr(&quot;cy&quot;,    toRange(self.y,      1))
+                .attr(&quot;r&quot;,     toRange(self.radius, 2))
+                .style(&quot;fill&quot;, toRange(self.color,  3));
+                
+            if (self.xAxisElement) {
+                self.xAxisElement.transition()
+                    .duration(TRANSITION_DURATION).remove();
+            }
+            self.xAxisElement = self.svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;x axis&quot;)
+                .attr(&quot;transform&quot;, &quot;translate(0,&quot; + self.height + &quot;)&quot;)
+                .call(self.xAxis);
+            self.xAxisElement.append(&quot;text&quot;)
+                .attr(&quot;class&quot;, &quot;title&quot;)
+                .attr(&quot;transform&quot;, &quot;translate(&quot; + self.width + &quot;,-6)&quot;)
+                .style(&quot;text-anchor&quot;, &quot;end&quot;)
+                .text(self.headings[self.colIndex[0]].name);
+
+            if (self.yAxisElement) {
+                self.yAxisElement.transition()
+                    .duration(TRANSITION_DURATION).remove();
+            }
+            self.yAxisElement = self.svg.append(&quot;g&quot;)
+                .attr(&quot;class&quot;, &quot;y axis&quot;)
+                .call(self.yAxis);
+            self.yAxisElement.append(&quot;text&quot;)
+                .attr(&quot;class&quot;, &quot;title&quot;)
+                .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+                .attr(&quot;y&quot;, 6)
+                .attr(&quot;dy&quot;, &quot;.71em&quot;)
+                .style(&quot;text-anchor&quot;, &quot;end&quot;)
+                .text(self.headings[self.colIndex[1]].name);
+                
+            return self;
+        }
+    });
+    return Scatter;
+});
+</pre>
+</body>
+</html>

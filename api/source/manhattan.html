@@ -15,12 +15,15 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='global-property-'>/**
-</span> * Manhattan Plot
- * @module renderers/manhattan
- */
-define(['jquery', 'iris', 'util/dragbox', 'util/scale', 'underscore'],
-function ($, Iris, DragBox, Scale, _) {
+  <pre class="prettyprint lang-js">define([
+    'jquery',
+    'iris',
+    'util/dragbox',
+    'util/scale',
+    'underscore',
+    &quot;text!data/manhattan.json&quot;
+],
+function ($, Iris, DragBox, Scale, _, ExampleData) {
     function createCanvas(container, options) {
         options = (options || {});
         var canvas = $(&quot;&lt;canvas&gt;&quot;)
@@ -48,12 +51,22 @@ function ($, Iris, DragBox, Scale, _) {
         { max: [255, 0, 0], min: [255, 165, 0],   range: [0, 165, 0] }
     ];
 
+<span id='Manhattan'>    /**
+</span>     * @class Manhattan
+     * Manhattan Plot
+     * 
+     * @extends Renderer
+     */
     var Manhattan = Iris.Renderer.extend({
         about: {
             title: &quot;Manhattan Plot&quot;,
-            name: &quot;manhattan&quot;,
+            name: &quot;ManhattanPlot&quot;,
             author: &quot;Andrew Olson&quot;
         },
+<span id='Manhattan-method-initialize'>        /**
+</span>         * @method initialize
+         * @inheritdoc Widget#initialize
+         */
         initialize: function (options) {
             options = options || {};
             options.filterContig =
@@ -123,14 +136,7 @@ function ($, Iris, DragBox, Scale, _) {
             self.plotArea.width(self.canvasWidth).height(self.canvasHeight);
             self.ctx = createCanvas(self.plotArea, { z: 5 });
             self.$element.append(self.plotArea);
-            if (self.waitingForData) {
-                self.waitingForData.done(function (data) {
-                    self.setData(data);
-                    self.drawManhattan();
-                });
-            } else {
-                self.drawManhattan();
-            }
+            self.drawManhattan();
         },
         highlight: function (loci) {
             var self = this;
@@ -390,13 +396,8 @@ function ($, Iris, DragBox, Scale, _) {
         }
     });
     Manhattan.prototype.exampleData = function () {
-        var self = this;
-        self.waitingForData = $.Deferred();
-        require([&quot;text!examples/3396.json&quot;], function (json) {
-            self.waitingForData.resolve(JSON.parse(json));
-        });
-        return {}; // Dummy object
-    }
+        return JSON.parse(ExampleData);
+    };
     return Manhattan;
 });</pre>
 </body>

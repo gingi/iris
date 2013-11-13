@@ -37,6 +37,11 @@ define([&quot;backbone&quot;, &quot;underscore&quot;], function (Backbone, _) {
         this.initialize.apply(this, args);
     };
     _.extend(Root.prototype, Backbone.Events, {
+<span id='Root-method-initialize'>        /**
+</span>         * @method initialize
+         * Initializes the object. Invoked after constructor has already
+         * processed parameters.
+         */
         initialize: function () {},
         about: {}
     });
