@@ -4,3 +4,4 @@ dist/iris.*
 dist/doc/api
 logs
 build
+public/css/iris.css

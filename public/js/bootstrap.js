@@ -1,1 +1,0 @@
-../../external/bootstrap/dist/js/bootstrap.js

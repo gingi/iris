@@ -4,7 +4,7 @@ define([
     'util/dragbox',
     'util/scale',
     'underscore',
-    "text!data/manhattan.json"
+    "text!examples/manhattan.json"
 ],
 function ($, Iris, DragBox, Scale, _, ExampleData) {
     function createCanvas(container, options) {
