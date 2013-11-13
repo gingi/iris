@@ -1,4 +1,4 @@
-define(["iris", "d3", "underscore"], function (Iris, d3, _) {
+define(["iris", "jquery", "d3", "underscore"], function (Iris, $, d3, _) {
     return Iris.Renderer.extend({
         about: {
             name: "forceDirectedGraph",
