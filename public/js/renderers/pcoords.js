@@ -1,4 +1,4 @@
-define(["iris", "jquery", "underscore", "text!/data/pcoords.json"],
+define(["iris", "jquery", "underscore", "text!data/pcoords.json"],
 function (Iris, $, _, ExampleData) {
     var PADDING_TOP = 40;
     var PADDING_BOTTOM = 40;
