@@ -1,9 +1,17 @@
 requirejs.config({
     baseUrl: "/js",
     paths: {
-        columnfilter: "DataTables/extras/ColumnFilterWidgets",
-        datatables:   "jquery.dataTables",
-        slider:       "bootstrap-slider"
+        columnfilter: "lib/DataTables/extras/ColumnFilterWidgets",
+        datatables:   "lib/jquery.dataTables",
+        slider:       "lib/bootstrap-slider",
+        jquery:       "lib/jquery",
+        d3:           "lib/d3",
+        underscore:   "lib/underscore",
+        revalidator:  "lib/revalidator",
+        backbone:     "lib/backbone",
+        "backbone.localstorage": "lib/backbone.localstorage",
+        "jquery-ui":  "lib/jquery-ui",
+        bootstrap:    "lib/bootstrap"
     },
     map: {
         "*":          { jquery: "noconflict" },
