@@ -25,8 +25,13 @@ function isJS(s) {
     return false;
 }
 
+var packageJson = require(path.join(__dirname, "/../package.json"));
+var appVersion = packageJson.version;
+
 // Routes
-app.get('/', routes.index);
+app.get('/', function (req, res) {
+    routes.index(req, res, { version: appVersion })
+});
 
 app.get('/about', function (req, res) {
     res.render('about', { title : 'About' });

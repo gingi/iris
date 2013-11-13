@@ -36,7 +36,7 @@ function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
             this.viewport = new Viewport({
                 parent: this.options.element,
                 id: this.viewportId,
-                title: "Bubble Plot"
+                title: this.data.title || "Bubble Plot"
             });
             this.scatter = new Scatter({
                 element: "#" + this.viewportId
@@ -151,7 +151,8 @@ function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
                     { name: "Walks", role: "dimension" },
                     { name: "Strikeouts", role: "dimension" },
                     { name: "Win/Loss", role: "dimension" },
-                ]
+                ],
+                title: "2013 Major League Baseball Pitching Stats"
             }
         }
     });

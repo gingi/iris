@@ -27,7 +27,6 @@ head
         .content .col-md-4 {
             min-height: 300px;
         }
-        /* Give a quick and non-cross-browser friendly divider */
         .content .col-md-4 {
             margin-left: 0;
             padding-left: 19px;
@@ -39,11 +38,16 @@ head
         });
     block scripts
 body
-    .navbar.navbar-default.navbar-fixed-top
-        .navbar-header
-            a.navbar-brand(href="/") Iris
-        .collapse.navbar-collapse.navbar-ex1-collapse
-            ul.nav.navbar-nav(id="nav")
+    nav.navbar.navbar-default.navbar-fixed-top(role="navigation")
+        .container
+            .navbar-header
+                a.navbar-brand(href="/") Iris
+            .collapse.navbar-collapse.navbar-ex1-collapse
+                ul.nav.navbar-nav(id="nav")
+                p.navbar-text.navbar-right
+                    a.navbar-link(href="http://github.com/silvn/iris")
+                        i.fa.fa-github.fa-lg
+                        span.small  #{version}
 
     #container.container
         .content
