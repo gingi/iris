@@ -7,12 +7,6 @@
 [submodule "external/d3"]
 	path = external/d3
 	url = git://github.com/mbostock/d3.git
-[submodule "examples"]
-	path = examples
-	url = git://github.com/silvn/iris-examples
-[submodule "external/snapdragon"]
-	path = external/snapdragon
-	url = git://github.com/silvn/snapdragon
 [submodule "external/backbone.localstorage"]
 	path = external/backbone.localstorage
 	url = git://github.com/jeromegn/Backbone.localStorage.git
