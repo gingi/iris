@@ -1,60 +1,82 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" charset="utf-8"
-        href="/css/font-awesome.css">
-    <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" 
-        href="/css/iris.css">
-    <style type="text/css" media="screen">
-    .col-md-3 { position: relative; height: 150px ;}
-    .col-md-3 a.btn { position: absolute; bottom: 0; }
-    .logo { float: right; margin-top: 20px; }
+<head>
+    <title>Iris</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/font-awesome.css">
+    <link rel="stylesheet" href="/css/iris.css">
+    <style>
+        html, body { background-color: #eee; }
+        body { padding-top: 50px; }
+        .content {
+            background-color: white;
+            padding: 20px; margin: 0 -20px;
+            -webkit-border-radius: 0 0 6px 6px;
+               -moz-border-radius: 0 0 6px 6px;
+                    border-radius: 0 0 6px 6px;
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+               -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+        }
+        .page-header {
+            background-color: #f5f5f5;
+            padding: 20px 20px 10px;
+            margin: -20px -20px 20px;
+        }
+        .content .col-md-4 {
+            margin-left: 0;
+            padding-left: 19px;
+        }
+        .logo {
+            vertical-align: middle;
+        }
     </style>
-  </head>
-  <body>
-      <div id="wrap" style="padding:50px 10px">
-      <div class="container">
-          <div class="jumbotron">
-              <img width="200px" align="right" src="/img/kbase-logo.png"/>
-              <div>
-                  <h1>Iris <small><%= version %></small></h1>
-                  <h4>A web library for data visualization and exploration.</h4>
-              </div>
-          </div>
-          <div class="row">
-              <div class="col-md-3">
-                  <h3>The Network Workbench</h3>
-                  <p>A workbench for network exploration.</p>
-                  <a class="btn" href="/network">Launch »</a>
-              </div>
-              <div class="col-md-3">
-                  <h3>The G2P Workbench</h3>
-                  <p>Explore genotype-to-phenotype relationships through
-                  visualizations of genomic diversity a</p>
-                  <p><a class="btn" href="/g2p">Launch »</a></p>
-              </div>
-              <div class="col-md-3">
-                  <h3>Heatmap</h3>
-                  <p>Expression profile heatmaps. There&#x27;s also <a href="/heatmap-chunking">an example</a> demonstrating HTTP chunking.</p>
-                  <p><a class="btn" href="/heatmap">Launch »</a></p>
-              </div>
-              <div class="col-md-3">
-                  <h3>Charts</h3>
-                  <p>Basic charts for KBase data.</p>
-                  <p><a class="btn" href="/charts">Launch »</a></p>
-              </div>
-              <div class="col-md-3">
-                  <h3>Filtered Network</h3>
-                  <p>Make sense of network hairballs with filter and search
-                  controls.</p>
-                  <p><a class="btn" href="/filtered-network">Launch »</a></p>
-              </div>
-          </div>
-      </div>
-      </div><!-- div#wrap -->
-      <% include layout/footer %>
-  </body>
+</head>
+    <body>
+        <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a href="/" class="navbar-brand">Iris</a>
+                </div>
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <ul id="nav" class="nav navbar-nav"></ul>
+                    <p class="navbar-text navbar-right">
+                        <a href="http://github.com/silvn/iris"
+                           class="navbar-link">
+                            <i class="fa fa-github fa-lg"></i> <%= version %>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </nav>
+    <div id="container" class="container">
+        <div id="content" class="content">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col-md-2">
+                        <img src="/img/iris-logo-tiny.png"/>
+                    </div>
+                    <div class="col-md-8">
+                        <h1 style="font-family:'Rockwell'">
+                            Iris<small>&nbsp;v<%= version %></small>
+                        </h1>
+                        <p class="lead">
+                            A web library for data visualization and exploration
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/js/require.js"></script>
+    <script type="text/javascript">
+        require(['/js/config.js'], function () {
+            require(['/js/frontpage.js']);
+        });
+    </script>
+</body>
 </html>

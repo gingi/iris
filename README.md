@@ -2,7 +2,7 @@
     <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
-**Version 0.1.4**
+**Version 0.2.0**
 
 A web library for data visualization and exploration.
 
@@ -16,77 +16,30 @@ The following tools need to be installed separately (e.g., with [Homebrew](http:
 * [Cairo](http://cairographics.org) (*for testing only*)
 
 ##Overview
-Iris is equipped with a command-line tool, quaintly named `iris`, to manage the project. It can be used to install dependencies, start Iris and it services, monitor Iris, and shut it down.
+Iris is a browser-side library for data visualization widgets written in JavaScript. In addition to a set of widgets, it also includes an API for extending them or building new ones.
 
-To use the tool, run:
+The Iris module is equipped with several directives:
 
-    source iris.env
+* Ensure Iris dependencies are installed:
 
-##Installation
-To install Iris, along with its dependencies, run:
+        make init
 
-    iris install
+* Run the Iris unit-test suite:
 
-To check the installation, and execute project tests, run:
+        iris check
 
-    iris check
+* To run Iris:
 
-To install example data used by the demo, run:
-
-    iris examples
-
-##Configuration
-Iris services are configured in a simple configuration file in `conf/services.json` listing an HTTP port, the name of the service, the Node.js control file, and a configuration file. A sample services configuration is available at `conf/services-sample.json`. To get started:
-
-    cp conf/services-sample.json conf/services.json
-
-##Running Iris
-To start Iris, run:
-
-    iris start
-
-All the services configured in `conf/services.json` are started. Their process IDs and network ports are listed.
-
-To stop Iris, run:
-
-    iris stop
-
-To restart Iris, run:
-
-    iris restart
-
-To determine whether Iris and its services are running, run:
-
-    iris status
-
-Each of the above management commands can be run on individual services by supplying the service name as an argument:
-
-    iris {start,stop,restart,status} <service-name>
-
-##More Help
-The `iris` tool has a general and command-specific help facility. To find out more about it, run:
-
-    iris help [<command>]
-
-##Project Structure
-The Iris server is run out of `/nodejs`. `/nodejs` also contains the Express
-routes (`app.js` and `routes/`) and Jade templates (`views/`).
-
-Client-side rendering code (HTML, CSS, Javascript) is organized under `/root`. All client-side Javascript is in `/root/js`. The `widgets/` directory contains the widget code, while all utility, administrative, and external scripts (`jquery.js`, `bootstrap`) should be placed at the Javascript root.
-
-The Snapdragon source code, including pristine and Iris-specific is under the `/snapdragon` directory, but compiled artifacts are placed in folders at the root directory (`/bin`, `/lib`, `/share`, `/include`).
+        node app
 
 ## Library Deployment
-The client-side JavaScript libraries that drive all the visualizations are managed in separate module files using RequireJS, but they can be packaged into a single library that can be dropped into any page. To build that library, run
+The JavaScript libraries are managed in separate module files using [RequireJS](http://requirejs.org), but they can be packaged into a single library that can be dropped into any page. To build that library, run
 
     make dist
 
-Which will, by default, create a minified library as '`dist/iris.js`'. To specify a different output file for the library, use the `DISTLIB=/path/to/target.js`. To avoid minification (useful for debugging), add `MINIFY=0`. For example, to create a non-optimized library as `/tmp/foo.js`, run:
+Which will, by default, create a minified library as '`dist/iris.js`'. To specify a different output file for the library, use the `DISTLIB=/path/to/target.js`.
 
-    make dist MINIFY=0 DISTLIB=/tmp/foo.js
-
-
-## Visualization Example
+## Widget Example
 The client-side library can be used on the browser as in the following example:
 
     <!DOCTYPE html>
@@ -112,28 +65,16 @@ TODO
 
 ##Changelog
 
-####v0.1.4
+####v0.2
 
-* New Bubble Plot
+* Bubble Plot widget
+* Simplified server deployment
 * Documentation
-* Bug fixes and improvements
-
-####v0.1.3
-
-* Improved distribution files
-
-####v0.1.2
-
 * Bootstrap 3.0
-* Extended viewport toolbox capabilities
-* Improved Network renderer
-* Bugs and fixes 
-
-####v0.1.1
-
+* Bug fixes and improvements
 * Improved API
 
-####v0.1.0
+####v0.1
 
 * Server-side and client-side error handling.
 * Inline help documentation for the workbench apps.

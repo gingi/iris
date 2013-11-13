@@ -8,7 +8,7 @@ function ($, _, Backbone, Viewport) {
         .append(li(a("#renderer/pcoords", "Pcoords")))
         .append(li(a("#widget/bubbles", "Bubble Plot")))
         .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
-        .append(li(a("#widget/hypomethylation", "Conservation vs. Hypomethylation")));
+        // .append(li(a("#widget/hypomethylation", "Conservation vs. Hypomethylation")));
 
     function pair(k, v) {
         var str =
@@ -54,6 +54,7 @@ function ($, _, Backbone, Viewport) {
                 $("#content").empty();
                 var viewport = new Viewport({ parent: $("#content") });
                 var renderer = new Renderer({ element: viewport });
+                $("#content").prepend(header(renderer.about));
                 var exampleData = renderer.exampleData();
                 if (exampleData !== undefined) {
                     renderer.setData(exampleData);

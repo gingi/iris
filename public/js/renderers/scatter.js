@@ -68,12 +68,12 @@ define([
                 .attr("height", this.height + margin.top  + margin.bottom)
                 .append("g").attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
+            this.bubbleG = this.svg.append("g");
 
             this.x = d3.scale.linear().range([PADDING, this.width-PADDING]);
             this.y = d3.scale.linear().range([this.height-PADDING, PADDING]);
             this.radius = d3.scale.linear().range(RADIUS_RANGE);
             this.color  = d3.scale.linear().range(["steelblue", "#BD0026"]);
-
 
             this.xAxis = d3.svg.axis().scale(this.x).orient("bottom");
             this.yAxis = d3.svg.axis().scale(this.y).orient("left");
@@ -108,7 +108,7 @@ define([
             domainExtent(self.radius, 2);
             domainExtent(self.color,  3);
 
-            var circles = self.svg.selectAll("circle").data(self.data);
+            var circles = self.bubbleG.selectAll("circle").data(self.data);
                 
             circles.enter().append("circle")
                 .style("stroke", "black")

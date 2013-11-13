@@ -12,4 +12,3 @@ perl -pi -e \
     package.json
 perl -pi -e "s/^\*\*Version $old_version\*\*$/**Version $new_version**/" \
     README.md
-perl -pi -e "s/(version\:\s*\")$old_version/\${1}$new_version/" routes/index.js
