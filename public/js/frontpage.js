@@ -54,6 +54,7 @@ function ($, _, Backbone, Viewport) {
                 $("#content").empty();
                 var viewport = new Viewport({ parent: $("#content") });
                 var renderer = new Renderer({ element: viewport });
+                $("#content").prepend(header(renderer.about));
                 var exampleData = renderer.exampleData();
                 if (exampleData !== undefined) {
                     renderer.setData(exampleData);

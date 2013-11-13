@@ -2,7 +2,7 @@
     <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
-**Version 0.1.4**
+**Version 0.2.0**
 
 A web library for data visualization and exploration.
 
@@ -65,28 +65,16 @@ TODO
 
 ##Changelog
 
-####v0.1.4
+####v0.2
 
-* New Bubble Plot
+* Bubble Plot widget
+* Simplified server deployment
 * Documentation
-* Bug fixes and improvements
-
-####v0.1.3
-
-* Improved distribution files
-
-####v0.1.2
-
 * Bootstrap 3.0
-* Extended viewport toolbox capabilities
-* Improved Network renderer
-* Bugs and fixes 
-
-####v0.1.1
-
+* Bug fixes and improvements
 * Improved API
 
-####v0.1.0
+####v0.1
 
 * Server-side and client-side error handling.
 * Inline help documentation for the workbench apps.
