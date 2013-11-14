@@ -190,7 +190,8 @@ function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
             });
         };
         updateTitle(active.index);
-        items.on("click", function () {
+        items.on("click", function (event) {
+            event.preventDefault();
             var i = $(this).data("index");
             plot.scatter.setDimension(index, i);
             updateTitle(i);
