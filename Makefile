@@ -68,16 +68,8 @@ ifndef JSDUCK
 	$(error JSDuck not found (install with `gem install jsduck`).)
 endif
 	@ $(JSDUCK) --builtin-classes --output $(APIDOC) \
-		--exclude $(DOCROOT)/js/d3.js \
-		--exclude $(DOCROOT)/js/bootstrap.js \
-		--exclude $(DOCROOT)/js/backbone.localstorage.js \
 		--exclude $(DOCROOT)/js/require.js \
 		--exclude $(DOCROOT)/js/text.js \
-		--exclude $(DOCROOT)/js/revalidator.js \
-		--exclude $(DOCROOT)/js/jquery.js \
-		--exclude $(DOCROOT)/js/jquery-ui.js \
-		--exclude $(DOCROOT)/js/jquery.dataTables.js \
-		--exclude $(DOCROOT)/js/DataTables \
 		--exclude $(DOCROOT)/js/lib \
 		--exclude $(DOCROOT)/js/util/spin.js \
 		--exclude $(DOCROOT)/js/renderers/old \
@@ -93,7 +85,7 @@ build: init $(SOURCES)
 		name=iris-bundle optimize=uglify
 
 test: init
-	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
+	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js 2> /dev/null
 
 docs: init $(APIDOC)/index.html
 

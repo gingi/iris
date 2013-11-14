@@ -10,6 +10,12 @@
     <style>
         body { padding-top: 50px; }
     </style>
+    <script type="text/javascript" src="/js/require.js"></script>
+    <script type="text/javascript">
+        require(['/js/config.js'], function () {
+            require(['/js/frontpage.js']);
+        });
+    </script>
 </head>
     <body>
         <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
@@ -30,29 +36,25 @@
         </nav>
     <div id="container" class="container">
         <div id="content" class="content">
-            <div class="jumbotron">
-                <div class="row">
-                    <div class="col-md-3">
-                        <img class="logo" align="right"
-                            src="/img/iris-logo.png"/>
-                    </div>
-                    <div class="col-md-8">
-                        <h1>
-                            Iris<small>&nbsp;v<%= version %></small>
-                        </h1>
-                        <p class="lead">
-                            A web library for data visualization and exploration
-                        </p>
-                    </div>
+        </div>
+    </div>
+    <script type="text/template" id="index-template">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-3">
+                    <img class="logo" align="right"
+                        src="/img/iris-logo-small.png"/>
+                </div>
+                <div class="col-md-8">
+                    <h1>
+                        Iris<small>&nbsp;v<%= version %></small>
+                    </h1>
+                    <p class="lead">
+                        A web library for data visualization and exploration
+                    </p>
                 </div>
             </div>
         </div>
-    </div>
-    <script src="/js/require.js"></script>
-    <script>
-        require(['/js/config.js'], function () {
-            require(['/js/frontpage.js']);
-        });
     </script>
 </body>
 </html>
