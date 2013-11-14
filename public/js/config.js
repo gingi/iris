@@ -9,7 +9,7 @@ requirejs.config({
         underscore:   "lib/underscore",
         revalidator:  "lib/revalidator",
         backbone:     "lib/backbone",
-        "backbone.localstorage": "lib/backbone.localstorage",
+        "backbone.localstorage": "lib/backbone.localStorage",
         "jquery-ui":  "lib/jquery-ui",
         bootstrap:    "lib/bootstrap"
     },
