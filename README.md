@@ -2,7 +2,7 @@
     <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
 </div>
 # Iris
-**Version 0.2.2**
+**Version 0.2.3**
 
 A web library for data visualization and exploration.
 
@@ -64,6 +64,10 @@ The client-side library can be used on the browser as in the following example:
 TODO
 
 ##Changelog
+
+####v0.2.3
+
+* Page load optimizations
 
 ####v0.2.2
 
