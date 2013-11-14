@@ -63,6 +63,7 @@ function ($, _, Backbone, Viewport) {
             });
         },
         default: function () {
+            $("#content").empty().append($("#index-template").html())
         }
     });
 
