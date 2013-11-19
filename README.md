@@ -1,19 +1,18 @@
-<div style="float:right">
-    <img src="https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png" title="Iris logo" />
-</div>
 # Iris
+![Iris Logo][logo]
+
 **Version 0.2.5**
 
 A web library for data visualization and exploration.
 
-[![Build Status](https://travis-ci.org/gingi/iris.png)](https://travis-ci.org/gingi/iris)
+[![Build Status][status-img]][status]
 
 ##External Dependencies
-The following tools need to be installed separately (e.g., with [Homebrew](http://mxcl.github.com/homebrew/)) before Iris and its dependencies can be installed:
+The following tools need to be installed separately (e.g., with [Homebrew][brew]) before Iris and its dependencies can be installed:
 
-* [Node.js](nodejs.org)
-* [Git](git-scm.com)
-* [Cairo](http://cairographics.org) (*for testing only*)
+* [Node.js][node]
+* [Git][git]
+* [Cairo][cairo] (*for testing only*)
 
 ##Overview
 Iris is a browser-side library for data visualization widgets written in JavaScript. In addition to a set of widgets, it also includes an API for extending them or building new ones.
@@ -33,7 +32,7 @@ The Iris module is equipped with several directives:
         node app
 
 ## Library Deployment
-The JavaScript libraries are managed in separate module files using [RequireJS](http://requirejs.org), but they can be packaged into a single library that can be dropped into any page. To build that library, run
+The JavaScript libraries are managed in separate module files using [RequireJS][requirejs], but they can be packaged into a single library that can be dropped into any page. To build that library, run
 
     make dist
 
@@ -124,3 +123,12 @@ TODO
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
+
+ [logo]: https://raw.github.com/gingi/iris/master/public/img/iris-logo-tiny.png
+ [status-img]: https://travis-ci.org/gingi/iris.png
+ [status]: https://travis-ci.org/gingi/iris
+ [brew]: http://mxcl.github.com/homebrew
+ [node]: http://nodejs.org
+ [git]: http://git-scm.com
+ [cairo]: http://cairographics.org
+ [requirejs]: http://requirejs.org

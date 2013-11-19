@@ -10,7 +10,6 @@ requirejs.config({
         revalidator:  "lib/revalidator",
         backbone:     "lib/backbone",
         "backbone.localstorage": "lib/backbone.localStorage",
-        "jquery-ui":  "lib/jquery-ui",
         bootstrap:    "lib/bootstrap"
     },
     map: {
@@ -26,7 +25,6 @@ requirejs.config({
         columnfilter: { deps: ["datatables"] },
         "backbone.localstorage":
             { exports: "Backbone", deps: ["backbone"] },
-        "jquery-ui":  { deps: ["jquery"] },
         slider:       { deps: ["jquery"] },
         datatables:   { deps: ["jquery"], exports: "jQuery.fn.dataTableExt" },
         revalidator:  { exports: "window.json" }

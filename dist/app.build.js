@@ -1,23 +1,17 @@
 ({
     baseUrl:        "../public/js",
     mainConfigFile: "../public/js/config.js",
-    namespace:      "iris",
+    namespace:      "Iris",
     name:           "iris",
     create:         true,
     wrap: {
         start: "(function () {",
-        end: "window.Iris = Iris; jQuery.noConflict(true); }());"
+        end: "console.log(Iris); window.Iris = Iris; jQuery.noConflict(true); }());"
     },
     paths: {
         requireLib: "require"
     },
-    optimize: "uglify2",
-    uglify2: {
-        output: {
-            beautify: true,
-            comments: "all"
-        }
-    },
+    optimize: "none",
     include: [
         "requireLib",
         "renderers/heatmap",
