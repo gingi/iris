@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "jquery-ui"], function(JQ, _) {
+define(["jquery", "underscore"], function(JQ, _) {
     var defaults = {
         position: { top: 20, left: 20 },
         element: "body",
