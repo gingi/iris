@@ -85,8 +85,7 @@ build: init $(SOURCES)
 		name=iris-bundle optimize=uglify
 
 test: init
-	@ { $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js \
-		2>&1 1>&3 | grep -v "Shim config" 1>&2; } 3>&1
+	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
 
 docs: init $(APIDOC)/index.html
 

@@ -6,7 +6,7 @@
     create:         true,
     wrap: {
         start: "(function () {",
-        end: "console.log(Iris); window.Iris = Iris; jQuery.noConflict(true); }());"
+        end: "window.Iris = Iris; jQuery.noConflict(true); }());"
     },
     paths: {
         requireLib: "require"

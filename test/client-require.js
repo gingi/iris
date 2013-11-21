@@ -5,8 +5,6 @@ var jsdom     = require('jsdom');
 
 global.document  = jsdom.jsdom("<html><head></head><body></body></html>");
 global.window    = global.document.createWindow();
-// global.requirejs = requirejs;
-// global.define    = requirejs.define;
 
 var BASE_DIR  = __dirname + '/../public/js';
 var CONF_FILE = BASE_DIR + '/config.js';
@@ -18,6 +16,7 @@ function getAppConfig() {
     context.requirejs = {
         config: function (cfg) {
             _cfg = cfg;
+            _cfg.suppress = { nodeShim: true };
         }
     };
     vm.runInContext(config, context, CONF_FILE);

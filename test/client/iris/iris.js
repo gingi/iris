@@ -1,3 +1,4 @@
+var assert = require("assert");
 var requirejs = require('../../client-require')();
 
 describe('Iris', function () {
@@ -44,6 +45,9 @@ describe('Iris.Renderer', function () {
         requirejs(['iris'], function (Iris) {
             Iris.Renderer.should.have.property("extend");
             Iris.Renderer.extend.should.be.a.Function;
+            
+            var renderer = Iris.Renderer.extend();
+            new renderer().should.be.an.instanceof(Iris.Renderer);
             done();
         });
     });
@@ -88,6 +92,20 @@ describe('Iris.Renderer', function () {
             var renderer = new Iris.Renderer({ element: "#element-id" });
             renderer.options.element.should.equal("#element-id");
             done();
-        })
+        });
+    });
+    it("should allow extending of sub-renderers", function (done) {
+        requirejs(['iris'], function (Iris) {
+            var VirtualRenderer =
+                Iris.Renderer.extend({ about: { name: "base" } });
+            var SubRenderer =
+                VirtualRenderer.extend({ about: { name: "sub" } });
+            var vRenderer = new VirtualRenderer();
+            vRenderer.about.should.eql({ name: "base" });
+            var subRenderer = new SubRenderer()
+            subRenderer.should.be.an.instanceOf(Iris.Renderer);
+            subRenderer.about.should.eql({ name: "sub" });
+            done();
+        });
     });
 });
