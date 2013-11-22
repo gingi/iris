@@ -1,4 +1,4 @@
-var requirejs = require('../../client-require')();
+var requirejs = require('../client-require')();
 
 describe('Pcoords', function () {
     it("should be a function", function (done) {

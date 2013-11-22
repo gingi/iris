@@ -48,7 +48,7 @@ function ($, Iris, DragBox, Scale, _, ExampleData) {
         },
         /**
          * @method initialize
-         * @inheritdoc Widget#initialize
+         * @inheritdoc Renderer#initialize
          */
         initialize: function (options) {
             options = options || {};

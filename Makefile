@@ -85,7 +85,7 @@ build: init $(SOURCES)
 		name=iris-bundle optimize=uglify
 
 test: init
-	@ $(MOCHA) $(MOCHAOPTS) test/client/*/*.js test/universal/*.js
+	@ $(MOCHA) $(MOCHAOPTS) test/*/*.js
 
 docs: init $(APIDOC)/index.html
 

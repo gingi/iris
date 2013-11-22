@@ -1,5 +1,5 @@
 var assert = require("assert");
-var requirejs = require("../../client-require")();
+var requirejs = require("../client-require")();
 
 describe("Iris", function () {
     it("should be an object", function (done) {

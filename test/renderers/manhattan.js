@@ -1,4 +1,4 @@
-var requirejs = require('../../client-require')();
+var requirejs = require('../client-require')();
 
 function runtest(fn) {
     requirejs(['renderers/manhattan'], function (Manhattan) {

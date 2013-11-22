@@ -1,4 +1,4 @@
-var requirejs = require('../../client-require')();
+var requirejs = require('../client-require')();
 
 function wrapRequire(callback) {
     requirejs(['util/progress'], callback);

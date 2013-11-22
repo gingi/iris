@@ -7,6 +7,12 @@ define(["iris", "jquery", "d3", "underscore"], function (Iris, JQ, d3, _) {
         return height;
     }
 
+    /**
+     * @class BarChart
+     * A standard bar chart
+     * 
+     * @extends Renderer
+     */
     var BarChart = Iris.Renderer.extend({
         defaults: {
             yTitle: 'Y Axis',
@@ -14,6 +20,10 @@ define(["iris", "jquery", "d3", "underscore"], function (Iris, JQ, d3, _) {
             padding: 10,
             margin: { top: 20, right: 20, bottom: 40, left: 40 }
         },
+        /**
+         * @method setData
+         * @inheritdoc Renderer#setData
+         */
         setData: function (inData) {
             if (typeof inData === "object") {
                 this.data = [];
@@ -26,6 +36,10 @@ define(["iris", "jquery", "d3", "underscore"], function (Iris, JQ, d3, _) {
             }
             return this;
         },
+        /**
+         * @method render
+         * @inheritdoc Renderer#render
+         */
         render: function () {
             var self = this;
             var margin = self.options.margin;
