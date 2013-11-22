@@ -1,10 +1,4 @@
-define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
-    var defaults = {
-        yTitle: 'Y Axis',
-        axisLabelFontSize: 10,
-        padding: 10
-    };
-
+define(["iris", "jquery", "d3", "underscore"], function (Iris, JQ, d3, _) {
     function labelFontHeight(svg) {
         var text = svg.append("g").attr("class", "x axis")
             .append("svg:text").text("M");
@@ -13,38 +7,32 @@ define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
         return height;
     }
 
-    function BarChart(options) {
-        var self = this;
-        options = options ? _.clone(options) : {};
-        _.defaults(options, defaults);
-        var $el = JQ(options.element);
-        var data;
-        self.setData = function (inData) {
+    var BarChart = Iris.Renderer.extend({
+        defaults: {
+            yTitle: 'Y Axis',
+            axisLabelFontSize: 10,
+            padding: 10,
+            margin: { top: 20, right: 20, bottom: 40, left: 40 }
+        },
+        setData: function (inData) {
             if (typeof inData === "object") {
-                data = [];
+                this.data = [];
                 for (var key in inData) {
-                    data.push(inData[key]);
+                    this.data.push(inData[key]);
                 }
             } else {
                 // It's a plain list
-                data = inData;
+                this.data = inData;
             }
-            return self;
-        };
-        self.getData = function () {
-            return data;
-        };
-        self.render = function () {
-            var margin = {
-                top: 20,
-                right: 20,
-                bottom: 40,
-                left: 40
-            },
-            width  =
-                $el.width()  - margin.left - margin.right - options.padding,
-            height =
-                $el.height() - margin.top  - margin.bottom - options.padding;
+            return this;
+        },
+        render: function () {
+            var self = this;
+            var margin = self.options.margin;
+            var padding = self.options.padding;
+            var $el = JQ(self.options.element);
+            var width  = $el.width()  - margin.left - margin.right - padding;
+            var height = $el.height() - margin.top  - margin.bottom - padding;
             $el.empty();
 
             var format = d3.format(".0");
@@ -58,16 +46,16 @@ define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
 
             var svg = d3.select($el[0])
                 .append("svg")
-                .attr("width", $el.width() - options.padding)
+                .attr("width", $el.width() - padding)
                 .attr("height", height)
-                .style("margin", options.padding / 2)
+                .style("margin", padding / 2)
                 .append("g")
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
 
 
-            x.domain(_.map(data, function (d) {return d.x; }));
-            y.domain([0, d3.max(data, function (d) { return d.y; }) ]);
+            x.domain(_.map(self.data, function (d) {return d.x; }));
+            y.domain([0, d3.max(self.data, function (d) { return d.y; }) ]);
 
             function drawXAxis(elem) {
                 if (x.rangeBand() > labelFontHeight(svg)) {
@@ -96,10 +84,10 @@ define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text(options.yTitle);
+                .text(self.options.yTitle);
 
             svg.selectAll(".bar")
-                .data(data)
+                .data(self.data)
                 .enter()
                 .append("rect")
                 .attr("class", "bar")
@@ -112,7 +100,7 @@ define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
             svg.on("click", change);
 
             function change() {
-                var clone = _.clone(data);
+                var clone = _.clone(self.data);
                 var x0 = x.domain(_.chain(clone).sort(this.checked
                     ? function(a, b) { return d3.ascending(a.x, b.x); }
                     : function(a, b) { return b.y - a.y; })
@@ -137,6 +125,6 @@ define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
             }
             return self;
         }
-    }
+    });
     return BarChart;
 })
