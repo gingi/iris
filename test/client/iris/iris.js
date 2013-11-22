@@ -1,15 +1,15 @@
 var assert = require("assert");
-var requirejs = require('../../client-require')();
+var requirejs = require("../../client-require")();
 
-describe('Iris', function () {
+describe("Iris", function () {
     it("should be an object", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             Iris.should.be.an.Object;
             done();
         });
     });
     it("should have widget and renderer", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             Iris.should.have.property("Widget");
             Iris.should.have.property("Renderer");
             done();
@@ -17,16 +17,16 @@ describe('Iris', function () {
     });
 });
 
-describe('Iris.Widget', function () {
+describe("Iris.Widget", function () {
     it("should allow extending", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             Iris.Widget.should.have.property("extend");
             Iris.Widget.extend.should.be.a.Function;
             done();
         });
     });
     it("should allow instantiation with element", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var Widget = Iris.Widget.extend({
                 foo: function () {
                     this.element.should.equal("myeye");
@@ -37,12 +37,20 @@ describe('Iris.Widget', function () {
             var widget = new Widget({ element: "myeye", otherProp: "hi" });
             widget.foo();
         });
-    })
+    });
+    it("should support registering of new Widgets", function (done) {
+        requirejs(["iris"], function (Iris) {
+            var Widget = Iris.Widget.extend();
+            Iris.Widget.register("MyFunkyWidget", Widget);
+            Iris.Widget.MyFunkyWidget.should.equal(Widget);
+            done();
+        })
+    });    
 });
 
-describe('Iris.Renderer', function () {
+describe("Iris.Renderer", function () {
     it("should allow extending", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             Iris.Renderer.should.have.property("extend");
             Iris.Renderer.extend.should.be.a.Function;
             
@@ -52,7 +60,7 @@ describe('Iris.Renderer', function () {
         });
     });
     it("should call 'initialize()' on new", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var called = false;
             var Renderer2 = Iris.Renderer.extend({
                 initialize: function () { called = true; }
@@ -63,7 +71,7 @@ describe('Iris.Renderer', function () {
         });
     });
     it("should have getData and setData", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var renderer = new Iris.Renderer();
             renderer.setData.should.be.a.Function;
             renderer.getData.should.be.a.Function;
@@ -71,7 +79,7 @@ describe('Iris.Renderer', function () {
         });
     });
     it("should have an about object", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var MyRenderer = Iris.Renderer.extend({
                 about: { foo: "bar" }
             });
@@ -81,21 +89,21 @@ describe('Iris.Renderer', function () {
         })
     });
     it("should use body element by default", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var renderer = new Iris.Renderer();
             renderer.options.element.should.equal("body");
             done();
         });
     });
     it("should allow target element to be overridden", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var renderer = new Iris.Renderer({ element: "#element-id" });
             renderer.options.element.should.equal("#element-id");
             done();
         });
     });
     it("should allow extending of sub-renderers", function (done) {
-        requirejs(['iris'], function (Iris) {
+        requirejs(["iris"], function (Iris) {
             var VirtualRenderer =
                 Iris.Renderer.extend({ about: { name: "base" } });
             var SubRenderer =
@@ -107,5 +115,13 @@ describe('Iris.Renderer', function () {
             subRenderer.about.should.eql({ name: "sub" });
             done();
         });
+    });
+    it("should support registering of new Renderers", function (done) {
+        requirejs(["iris"], function (Iris) {
+            var Renderer = Iris.Renderer.extend();
+            Iris.Renderer.register("MyFunkyRenderer", Renderer);
+            Iris.Renderer.MyFunkyRenderer.should.equal(Renderer);
+            done();
+        })
     });
 });

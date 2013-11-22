@@ -6,19 +6,19 @@
  * @singleton
  */
 define(function (require) {
-    var Iris      = {};
+    var Core = {};
 
     /**
      * The Widget container
      * @property {Widget}
      */
-    Iris.Widget   = require('iris/widget');
+    Core.Widget = require("iris/widget");
 
     /**
      * The Renderer container
      * @property {Renderer}
      */
-    Iris.Renderer = require('iris/renderer');
+    Core.Renderer = require("iris/renderer");
 
-    return Iris;
+    return Core;
 });

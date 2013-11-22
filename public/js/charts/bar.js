@@ -126,5 +126,6 @@ define(["iris", "jquery", "d3", "underscore"], function (Iris, JQ, d3, _) {
             return self;
         }
     });
+    Iris.Renderer.register("BarChart", BarChart);
     return BarChart;
 })

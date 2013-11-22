@@ -3,8 +3,9 @@ define([
     "underscore",
     "util/progress",
     "util/syntax",
-    "util/modal"
-], function (JQ, _, Progress, Syntax, Modal) {
+    "util/modal",
+    "iris"
+], function (JQ, _, Progress, Syntax, Modal, Iris) {
     var viewportCounter = 1;
     var defaults = {
         height: 400,
@@ -221,4 +222,3 @@ define([
     }
     return Viewport;
 });
-

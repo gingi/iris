@@ -30,5 +30,11 @@ define(["iris/root"], function (Root) {
         initialize: function (options) {
             this.element = options.element;
         }
+        /**
+         * @method register
+         * @inheritdoc Root#register
+         * @param {String} name The name of the widget
+         * @param {Object} widget The widget to register
+         */
     });
 });
