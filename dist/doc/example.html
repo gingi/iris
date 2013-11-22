@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Datavis Documentation</title>
-    <link href="../iris.css" rel="stylesheet" type="text/css" charset="utf-8">
-    <script src="../iris.js" type="text/javascript" charset="utf-8"></script>
+    <title>Iris Documentation</title>
+    <link href="css/iris.css" rel="stylesheet" type="text/css" charset="utf-8">
+    <script src="js/iris.js" type="text/javascript" charset="utf-8"></script>
     <script>
-        Iris.require(["charts/bar", "util/viewport"], function (Bar, Viewport) {
-            var viewport = new Viewport({
+        Iris(function () {
+            var viewport = new Iris.Viewport({
                 minHeight: "500px",
-                parent: "#datavis",
+                parent: "#widget",
                 title: "example"
             });
-            var chart = new Bar({
+            var chart = new Iris.Renderer.BarChart({
                 element: viewport,
-                yTitle: "Kbase-devel emails per day"
+                yTitle: "Emails per day"
             });
             chart.setData([
                 { x: "Sunday",    y: Math.floor(Math.random() * 20) },
@@ -34,6 +34,6 @@
 <body>
     <h1>Example</h1>
     <div id="container">
-        <div id="datavis"></div>
+        <div id="widget"></div>
     </div>
 </body>

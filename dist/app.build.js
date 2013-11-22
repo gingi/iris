@@ -6,7 +6,24 @@
     create:         true,
     wrap: {
         start: "(function () {",
-        end: "console.log(Iris); window.Iris = Iris; jQuery.noConflict(true); }());"
+        end: [
+            "    var wrapper = function (callback) {",
+            "        wrapper.require   = Iris.require;",
+            "        wrapper.requirejs = Iris.requirejs;",
+            "        wrapper.define    = Iris.define;",
+            "        Iris.require([",
+            "    'iris/renderer','iris/widget','util/viewport','charts/bar'",
+            "        ], function (Renderer, Widget, Viewport) {",
+            "             wrapper.Widget   = Widget;",
+            "             wrapper.Renderer = Renderer;",
+            "             wrapper.Viewport = Viewport;",
+            "             callback(wrapper);",
+            "        });",
+            "    };",
+            "    window.Iris = wrapper;",
+            "    jQuery.noConflict(true);",
+            " }());"
+        ].join("\n")
     },
     paths: {
         requireLib: "require"

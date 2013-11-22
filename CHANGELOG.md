@@ -1,3 +1,8 @@
+####v0.2.7
+
+* Ability to use Iris in a non-AMD context. Needs to be wrapped with "Iris(function () {})".
+* Cleanup
+
 ####v0.2.6
 
 * Bug fixes to distribution files

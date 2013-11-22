@@ -30,12 +30,22 @@ define(["backbone", "underscore"], function (Backbone, _) {
     });
 
     /**
-     * Extends the class.
      * @method extend
+     * Extends the class.
      * @param {Object} object
      *        A hash of functions and object that extend the class
      * @return {Object} A new subclass of this class.
      */
     Root.extend = Backbone.View.extend;
+    
+    /**
+     * @method register
+     * Registers an object within this namespace.
+     * @param {String} name The name of the object
+     * @param {Object} object The object to register
+     */
+    Root.register = function (name, object) {
+        this[name] = object;
+    };
     return Root;
 });
