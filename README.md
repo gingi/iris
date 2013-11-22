@@ -3,7 +3,7 @@ A web library for data visualization and exploration
 
 ![Iris Logo][logo]
 
-**Version 0.2.6**
+**Version 0.2.7**
 
 [![Build Status][status-img]][status]
 
