@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Graph = require(__dirname + '/../../src/graph.js');
+var Graph = require(__dirname + '/../../public/js/graph.js');
 
 describe("Graph", function () {
     it("should have neighbors", function (done) {
