@@ -9,7 +9,6 @@ requirejs.config({
         underscore:   "lib/underscore",
         revalidator:  "lib/revalidator",
         backbone:     "lib/backbone",
-        "backbone.localstorage": "lib/backbone.localStorage",
         bootstrap:    "lib/bootstrap"
     },
     map: {
@@ -21,12 +20,10 @@ requirejs.config({
         underscore:   { exports: "_"           },
         colorbrewer:  { exports: "colorbrewer" },
         backbone:     { exports: "Backbone", deps: ["underscore", "jquery"] },
-        bootstrap:    { deps: ["jquery"] },
-        columnfilter: { deps: ["datatables"] },
-        "backbone.localstorage":
-            { exports: "Backbone", deps: ["backbone"] },
-        slider:       { deps: ["jquery"] },
-        datatables:   { deps: ["jquery"], exports: "jQuery.fn.dataTableExt" },
+        bootstrap:    {                      deps: ["jquery"] },
+        columnfilter: {                      deps: ["datatables"] },
+        slider:       {                      deps: ["jquery"] },
+        datatables:   { exports: "jQuery.fn.dataTableExt", deps: ["jquery"] },
         revalidator:  { exports: "window.json" }
     }
 })

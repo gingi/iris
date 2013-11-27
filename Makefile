@@ -86,6 +86,9 @@ build: init $(SOURCES)
 
 test: init
 	@ $(MOCHA) $(MOCHAOPTS) test/*/*.js
+	
+test-dist: $(DISTLIB)
+	@ $(NODEBIN)/mocha-phantomjs test/test-dist.html
 
 docs: init $(APIDOC)/index.html
 

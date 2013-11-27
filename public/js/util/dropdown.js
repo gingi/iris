@@ -1,5 +1,4 @@
-define(['jquery', 'backbone', 'underscore',
-    'util/progress', 'backbone.localstorage'],
+define(["jquery", "backbone", "underscore", "util/progress"],
 function(JQ, Backbone, _, Progress) {
     var defaults = {
         container:    "body",
