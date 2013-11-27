@@ -1,3 +1,5 @@
 language: "node_js"
 before_install: "sudo apt-get install libcairo2-dev"
-script: "make test"
+script:
+    - "make test"
+    - "make test-dist"

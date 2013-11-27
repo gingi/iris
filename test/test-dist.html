@@ -1,46 +1,49 @@
 <html>
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
-  </head>
-  <body>
-    <div id="mocha"></div>
-    <script src="../node_modules/mocha/mocha.js"></script>
-    <script src="../node_modules/should/should.js"></script>
-    <script>
-      mocha.ui('bdd');
-      mocha.reporter('html');
-    </script>
-    <script src="../dist/iris.js"></script>
-    <script>
-        describe("Iris", function () {
-            it("should be a wrapper function", function (done) {
-                Iris.should.be.a.function;
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+<div id="mocha"></div>
+<script src="../node_modules/mocha/mocha.js"></script>
+<script src="../node_modules/should/should.js"></script>
+<script>
+    mocha.ui('bdd');
+    mocha.reporter('html');
+</script>
+<script src="../dist/iris.js"></script>
+<script>
+    describe("Iris", function () {
+        it("should be a wrapper function", function (done) {
+            Iris.should.be.a.function;
+            done();
+        });
+        it("should expose RequireJS methods", function (done) {
+            Iris(function () {
+                Iris.should.be.ok;
+                Iris.require.should.be.a.function;
+                Iris.requirejs.should.be.a.function;
+                Iris.define.should.be.a.function;
                 done();
             });
-            it("should expose RequireJS methods", function (done) {
-                Iris(function () {
-                    Iris.should.be.ok;
-                    Iris.require.should.be.a.function;
-                    Iris.requirejs.should.be.a.function;
-                    Iris.define.should.be.a.function;
-                    done();
-                });
-            });
-            it("should expose namespaced singletons", function (done) {
-                Iris(function () {
-                    Iris.Renderer.should.be.an.object;
-                    Iris.Widget.should.be.an.object;
-                    Iris.Root.should.be.an.object;
-                    Iris.Viewport.should.be.an.object;
-                    done();
-                });
+        });
+        it("should expose namespaced singletons", function (done) {
+            Iris(function () {
+                Iris.Renderer.should.be.an.object;
+                Iris.Widget.should.be.an.object;
+                Iris.Root.should.be.an.object;
+                Iris.Viewport.should.be.an.object;
+                done();
             });
         });
-    </script>
-    <script>
-      if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-      else { mocha.run(); }
-    </script>
-  </body>
+    });
+</script>
+<script>
+    if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+    } else {
+        mocha.run();
+    }
+</script>
+</body>
 </html>
