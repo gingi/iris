@@ -7,9 +7,6 @@
 [submodule "external/d3"]
 	path = external/d3
 	url = git://github.com/mbostock/d3.git
-[submodule "external/backbone.localstorage"]
-	path = external/backbone.localstorage
-	url = git://github.com/jeromegn/Backbone.localStorage.git
 [submodule "external/datatables"]
 	path = external/datatables
 	url = git://github.com/DataTables/DataTables.git
