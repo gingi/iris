@@ -25,7 +25,7 @@ The Iris module is equipped with several directives:
 
 * Run the Iris unit-test suite:
 
-        iris check
+        make test
 
 * To run Iris:
 
