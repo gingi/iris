@@ -1,3 +1,7 @@
+####v0.2.9
+
+* Testing Iris distribution library with PhantomJS
+
 ####v0.2.8
 
 * Bug fixes
