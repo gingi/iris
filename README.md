@@ -3,7 +3,7 @@ A web library for data visualization and exploration
 
 ![Iris Logo][logo]
 
-**Version 0.2.7**
+**Version 0.2.8**
 
 [![Build Status][status-img]][status]
 
@@ -25,7 +25,7 @@ The Iris module is equipped with several directives:
 
 * Run the Iris unit-test suite:
 
-        iris check
+        make test
 
 * To run Iris:
 

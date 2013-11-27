@@ -43,7 +43,8 @@
         "util/spin",
         "util/progress",
         "util/hud",
-        "util/viewport"
+        "util/viewport",
+        "util/graph"
     ],
     onBuildRead: function (moduleName, path, contents) {
         if (moduleName == "util/spin") {
