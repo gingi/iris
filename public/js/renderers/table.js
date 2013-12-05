@@ -1,85 +1,92 @@
-define(['jquery', 'underscore'],
-    function (JQ, _) {
-    var defaults = {
-        scrollY: 300,
-        element: "body",
-        rowCallback: function () {}
-    };
-    function Table(options) {
-        var self = this;
-        options = options ? _.clone(options) : {};
-        _.defaults(options, defaults);
-        var filterExclude = [];
-        self.setData = function (data) {
-            self.data = data;
-            data.filter = data.filter || [];
-            for (var i = 0; i < data.columns.length; i++) {
-                if (!_.contains(data.filter, data.columns[i])) {
-                    filterExclude.push(i);
+define(["jquery", "underscore", "iris", "datatables", "columnfilter"],
+    function (JQ, _, iris) {
+    var Table = iris.Renderer.extend({
+        defaults: {
+            scrollY: 300,
+            element: "body",
+            rowCallback: function () {}
+        },
+        initialize: function () {
+            this.filterExclude = [];
+        },
+        setData: function (data) {
+            if (_.isArray(data)) {
+                this.columns = _.first(data);
+                this.data = _.rest(data);
+            } else {
+                this.columns = data.columns;
+                this.data = data.data;
+            }
+            if (this.columns === undefined)
+                this.columns = [];
+            this.datafilter = this.datafilter || [];
+            for (var i = 0; i < this.columns.length; i++) {
+                if (!_.contains(this.datafilter, this.columns[i])) {
+                    this.filterExclude.push(i);
                 }
             }
-        };
-        self.getData = function () {
-            return self.data;
-        };
-        self.render = function (args) {
+        },
+        render: function (args) {
+            var self = this;
+            args = args ? _.clone(args) : {};
+            var options = self.options;
             var $element = JQ(options.element);
             var elementOffset = $element.offset();
-            args = args ? _.clone(args) : {};
-            var $table = JQ("<table>").attr("cellpadding", 0)
-                .attr("cellspacing",0).attr("border", 0)
-                .addClass('table table-striped table-bordered');
+            var $table = JQ("<table>").addClass('table table-striped table-bordered');
             $element.empty().append($table);
-            var cols = _.map(self.data.columns, function (d) {
-                return { sTitle: d };
+            var cols = _.map(self.columns, function (d) {
+                return { sTitle: d, type: "string" };
             });
             options.scrollY = Math.max($element.height()-100, options.scrollY);
-            require(['datatables'], function () {
-                require(['columnfilter'], function () {
-                    $table.dataTable({
-                        sInfo: "muted",
-                        aaData: self.data.data,
-                        aoColumns: cols,
-                        sPaginationType: "bootstrap",
-                        sScrollY: options.scrollY,
-                        bPaginate: false,
-                        aaSorting: [],
-                        oLanguage: {
-                            sLengthMenu: "_MENU_ per page",
-                            sInfoThousands: ","
-                        },
-                        oColumnFilterWidgets: {
-                            aiExclude: filterExclude,
-                            bGroupTerms: true
-                        },
-                        fnRowCallback: function (tr, data) {
-                            options.rowCallback.call(tr, data);
-                        },
-                        fnDrawCallback: args.success
-                    });
-                    adjustHeight('.dataTables_wrapper');
-                    adjustHeight('.table-wrapper');
-                    JQ(".column-filter-widget").find("select").addClass("mini");
-                    $element.offset({
-                        top: elementOffset.top, left: elementOffset.left
-                    });
-                });
-                dataTableBehavior();
+            dataTableBehavior();
+            $table.dataTable({
+                sInfo: "muted",
+                aaData: self.data,
+                aoColumns: cols,
+                sPaginationType: "bootstrap",
+                bAutoWidth: true,
+                sScrollY: options.scrollY,
+                sScrollX: "100%",
+                bPaginate: false,
+                oLanguage: {
+                    sLengthMenu: "_MENU_ per page",
+                    sInfoThousands: ","
+                },
+                fnRowCallback: function (tr, data) {
+                    options.rowCallback.call(tr, data);
+                },
+                fnDrawCallback: args.success
             });
-        };
-        function adjustHeight(selector) {
-            JQ(selector).each(function () {
-                var w = JQ(this);
-                var p = w.parent();
-                var totalHeight = 0;
-                p.children().each(function () {
-                    totalHeight += JQ(this).outerHeight(true)
+            var thead = $table.parent().prev().find("thead");
+            var theadRow = thead.find("tr");
+            var clone    = JQ("<tr>");
+            theadRow.children().each(function () {
+                clone.append(JQ(this).clone());
+            });
+            thead.append(clone);
+            $table.columnFilter({
+                sPlaceHolder: "head:after",
+                aoColumns: _.map(cols, function (d) {
+                    return { type: "text", bRegex: true }
+                })
+            });
+            thead.find("input").addClass("form-control input-xs");
+
+            thead.find("tr").filter(":last").children().each(function () {
+                var attributes = this.attributes;
+                var i = attributes.length;
+                while (i--)
+                    this.removeAttributeNode(attributes[i]);
+            });
+
+            $table.on("filter", function (event, tbl) {
+                var filtered = _.map(tbl.aiDisplay, function (index) {
+                    return self.data[index];
                 });
-                w.css("min-height",
-                    p.height() + w.outerHeight(true) - totalHeight);
+                self.emit("table:filter", [ filtered ]);
             });
         }
-    }
+    });
     
     function dataTableBehavior() {
         /* Set the defaults for DataTables initialization */
@@ -243,6 +250,7 @@ define(['jquery', 'underscore'],
             });
         }
     }
-
+    
+    iris.Renderer.register("Table", Table);
     return Table;
 });

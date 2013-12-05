@@ -13,7 +13,7 @@
             "        wrapper.define    = Iris.define;",
             "        Iris.require([",
             "            'iris/root', 'iris/renderer', 'iris/widget',",
-            "            'util/viewport', 'charts/bar'",
+            "            'util/viewport', 'charts/bar', 'renderers/table'",
             "        ], function (Root, Renderer, Widget, Viewport) {",
             "             wrapper.Widget   = Widget;",
             "             wrapper.Renderer = Renderer;",
@@ -46,7 +46,7 @@
         "util/progress",
         "util/hud",
         "util/viewport",
-        "util/graph"
+        "util/graph",
     ],
     onBuildRead: function (moduleName, path, contents) {
         if (moduleName == "util/spin") {
