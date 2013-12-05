@@ -1,5 +1,11 @@
 define(["jquery", "underscore", "iris", "datatables", "columnfilter"],
     function (JQ, _, iris) {
+    /**
+     * @class Table
+     * A table with sort, filter, and search
+     * 
+     * @extends Renderer
+     */
     var Table = iris.Renderer.extend({
         defaults: {
             scrollY: 300,
@@ -9,6 +15,11 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"],
         initialize: function () {
             this.filterExclude = [];
         },
+        /**
+         * @method setData
+         * Sets data. If the data is an {#link Array}, converts
+         * @inheritdoc Renderer#setData
+         */
         setData: function (data) {
             if (_.isArray(data)) {
                 this.columns = _.first(data);
@@ -26,6 +37,10 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"],
                 }
             }
         },
+        /**
+         * @method render
+         * @inheritdoc Renderer#render
+         */
         render: function (args) {
             var self = this;
             args = args ? _.clone(args) : {};
