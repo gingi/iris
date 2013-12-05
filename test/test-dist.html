@@ -1,10 +1,12 @@
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="stylesheet" href="../dist/iris.css" />
 <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
 <body>
 <div id="mocha"></div>
+<div id="datavis"></div>
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/should/should.js"></script>
 <script>
@@ -47,12 +49,15 @@
     describe("Iris.Renderer.Table", function () {
         it("should allow rendering of data", function (done) {
             Iris(function () {
-                var table = new Iris.Renderer.Table();
+                var table = new Iris.Renderer.Table({
+                    element: "#datavis"
+                });
                 table.setData({
                     columns: ["A", "B", "C"],
                     data: [[1, 2, 3], [2, 4, 6], [3, 6, 9]]
                 });
                 table.render();
+                done();
             });
         });
     })
