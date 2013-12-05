@@ -36,7 +36,26 @@
                 done();
             });
         });
+        it("should have renderers", function (done) {
+            Iris(function () {
+                Iris.Renderer.Table.should.be.a.function;
+                Iris.Renderer.BarChart.should.be.a.function;
+                done();
+            })
+        })
     });
+    describe("Iris.Renderer.Table", function () {
+        it("should allow rendering of data", function (done) {
+            Iris(function () {
+                var table = new Iris.Renderer.Table();
+                table.setData({
+                    columns: ["A", "B", "C"],
+                    data: [[1, 2, 3], [2, 4, 6], [3, 6, 9]]
+                });
+                table.render();
+            });
+        });
+    })
 </script>
 <script>
     if (window.mochaPhantomJS) {
