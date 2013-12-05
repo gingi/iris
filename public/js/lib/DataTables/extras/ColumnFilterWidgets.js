@@ -1,1 +1,1 @@
-../../../../../external/dt-columnfilter/media/js/ColumnFilterWidgets.js
+../../../../../external/columnfilter/media/js/ColumnFilterWidgets.js
