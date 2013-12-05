@@ -1,7 +1,4 @@
 node_modules/
-.tm_properties
-dist/iris.*
-dist/doc/api
-conf/services.json
 logs
-build
+_site
+Gemfile.lock
