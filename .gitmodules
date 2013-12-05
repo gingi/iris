@@ -22,6 +22,3 @@
 [submodule "external/spin.js"]
 	path = external/spin.js
 	url = git://github.com/fgnass/spin.js
-[submodule "external/columnfilter"]
-	path = external/columnfilter
-	url = git://github.com/cyberhobo/ColumnFilterWidgets.git
