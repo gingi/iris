@@ -83,7 +83,7 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"],
                 var filtered = _.map(tbl.aiDisplay, function (index) {
                     return self.data[index];
                 });
-                self.emit("table:filter", [ filtered ]);
+                self.trigger("table:filter", [ filtered ]);
             });
         }
     });

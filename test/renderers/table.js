@@ -21,15 +21,4 @@ describe('Table', function () {
             done();
         })
     });
-    it("should render a table", function (done) {
-        runtest(function (Table) {
-            var table = new Table();
-            table.setData({
-                columns: ["A", "B", "C"],
-                data: [[1, 2, 3], [2, 4, 6], [3, 6, 9]]
-            });
-            table.render();
-            done();
-        });
-    })
 });
