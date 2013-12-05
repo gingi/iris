@@ -23,7 +23,8 @@ requirejs.config({
         bootstrap:    {                      deps: ["jquery"] },
         columnfilter: {                      deps: ["datatables"] },
         slider:       {                      deps: ["jquery"] },
-        datatables:   { exports: "jQuery.fn.dataTableExt", deps: ["jquery"] },
-        revalidator:  { exports: "window.json" }
-    }
+        datatables:   {                      deps: ["jquery"] },
+        revalidator:  { exports: "window.json" },
+        jquery:       { exports: "jQuery" }
+    },
 })

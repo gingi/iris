@@ -12,6 +12,8 @@ describe('Iris.Root', function () {
             var object = new Root();
             object.should.have.property('bind');
             object.should.have.property('trigger');
+            object.should.have.property('on');
+            object.should.have.property('off');
             done();
         })
     })

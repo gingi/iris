@@ -2,9 +2,11 @@ var requirejs = require('requirejs');
 var vm        = require('vm');
 var fs        = require('fs');
 var jsdom     = require('jsdom');
+var jquery    = require('jquery');
 
 global.document  = jsdom.jsdom("<html><head></head><body></body></html>");
 global.window    = global.document.createWindow();
+global.jQuery    = jquery;
 
 var BASE_DIR  = __dirname + '/../public/js';
 var CONF_FILE = BASE_DIR + '/config.js';

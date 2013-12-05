@@ -124,4 +124,18 @@ describe("Iris.Renderer", function () {
             done();
         })
     });
+    it("should allow new extended methods", function (done) {
+        requirejs(["iris"], function (Iris) {
+            var invoked = false;
+            var Renderer = Iris.Renderer.extend({
+                extendedMethod: function () {
+                    invoked = true;
+                }
+            });
+            var r = new Renderer();
+            r.extendedMethod();
+            invoked.should.be.true;
+            done();
+        })
+    });
 });
