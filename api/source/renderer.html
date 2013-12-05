@@ -57,10 +57,6 @@ define([&quot;iris/root&quot;, &quot;iris/util&quot;, &quot;underscore&quot;], f
                 &quot;: exampleData() function not implemented&quot;);
         },
 
-        setup: function (args) {
-            // renderer specific initialization code such as loading css
-        },
-
 <span id='Renderer-method-render'>        /**
 </span>         * @method render
          * Renders a data visualization.
@@ -82,6 +78,11 @@ define([&quot;iris/root&quot;, &quot;iris/util&quot;, &quot;underscore&quot;], f
                 &quot;: update() function not implemented&quot;);
         },
 
+<span id='Renderer-method-setData'>        /**
+</span>         * @method setData
+         * Sets the data used for rendering.
+         * @param {Object} The data
+         */
         setData: function (data) {
             this.data = data;
         },
@@ -101,8 +102,13 @@ define([&quot;iris/root&quot;, &quot;iris/util&quot;, &quot;underscore&quot;], f
          * @param {Object} args - key-value pair of options.
          */
         set: function (args) {
-            
         }
+<span id='Renderer-method-register'>        /**
+</span>         * @method register
+         * @inheritdoc Root#register
+         * @param {String} name The name of the renderer
+         * @param {Object} renderer The renderer to register
+         */
     };
 
     return Root.extend(renderer);

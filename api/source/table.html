@@ -15,88 +15,110 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'underscore'],
-    function (JQ, _) {
-    var defaults = {
-        scrollY: 300,
-        element: &quot;body&quot;,
-        rowCallback: function () {}
-    };
-    function Table(options) {
-        var self = this;
-        options = options ? _.clone(options) : {};
-        _.defaults(options, defaults);
-        var filterExclude = [];
-        self.setData = function (data) {
-            self.data = data;
-            data.filter = data.filter || [];
-            for (var i = 0; i &lt; data.columns.length; i++) {
-                if (!_.contains(data.filter, data.columns[i])) {
-                    filterExclude.push(i);
+  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;underscore&quot;, &quot;iris&quot;, &quot;datatables&quot;, &quot;columnfilter&quot;],
+    function (JQ, _, iris) {
+<span id='Table'>    /**
+</span>     * @class Table
+     * A table with sort, filter, and search
+     * 
+     * @extends Renderer
+     */
+    var Table = iris.Renderer.extend({
+        defaults: {
+            scrollY: 300,
+            element: &quot;body&quot;,
+            rowCallback: function () {}
+        },
+        initialize: function () {
+            this.filterExclude = [];
+        },
+<span id='Table-method-setData'>        /**
+</span>         * @method setData
+         * Sets data. If the data is an {#link Array}, converts
+         * @inheritdoc Renderer#setData
+         */
+        setData: function (data) {
+            if (_.isArray(data)) {
+                this.columns = _.first(data);
+                this.data = _.rest(data);
+            } else {
+                this.columns = data.columns;
+                this.data = data.data;
+            }
+            if (this.columns === undefined)
+                this.columns = [];
+            this.datafilter = this.datafilter || [];
+            for (var i = 0; i &lt; this.columns.length; i++) {
+                if (!_.contains(this.datafilter, this.columns[i])) {
+                    this.filterExclude.push(i);
                 }
             }
-        };
-        self.getData = function () {
-            return self.data;
-        };
-        self.render = function (args) {
+        },
+<span id='Table-method-render'>        /**
+</span>         * @method render
+         * @inheritdoc Renderer#render
+         */
+        render: function (args) {
+            var self = this;
+            args = args ? _.clone(args) : {};
+            var options = self.options;
             var $element = JQ(options.element);
             var elementOffset = $element.offset();
-            args = args ? _.clone(args) : {};
-            var $table = JQ(&quot;&lt;table&gt;&quot;).attr(&quot;cellpadding&quot;, 0)
-                .attr(&quot;cellspacing&quot;,0).attr(&quot;border&quot;, 0)
-                .addClass('table table-striped table-bordered');
+            var $table = JQ(&quot;&lt;table&gt;&quot;).addClass('table table-striped table-bordered');
             $element.empty().append($table);
-            var cols = _.map(self.data.columns, function (d) {
-                return { sTitle: d };
+            var cols = _.map(self.columns, function (d) {
+                return { sTitle: d, type: &quot;string&quot; };
             });
             options.scrollY = Math.max($element.height()-100, options.scrollY);
-            require(['datatables'], function () {
-                require(['columnfilter'], function () {
-                    $table.dataTable({
-                        sInfo: &quot;muted&quot;,
-                        aaData: self.data.data,
-                        aoColumns: cols,
-                        sPaginationType: &quot;bootstrap&quot;,
-                        sScrollY: options.scrollY,
-                        bPaginate: false,
-                        aaSorting: [],
-                        oLanguage: {
-                            sLengthMenu: &quot;_MENU_ per page&quot;,
-                            sInfoThousands: &quot;,&quot;
-                        },
-                        oColumnFilterWidgets: {
-                            aiExclude: filterExclude,
-                            bGroupTerms: true
-                        },
-                        fnRowCallback: function (tr, data) {
-                            options.rowCallback.call(tr, data);
-                        },
-                        fnDrawCallback: args.success
-                    });
-                    adjustHeight('.dataTables_wrapper');
-                    adjustHeight('.table-wrapper');
-                    JQ(&quot;.column-filter-widget&quot;).find(&quot;select&quot;).addClass(&quot;mini&quot;);
-                    $element.offset({
-                        top: elementOffset.top, left: elementOffset.left
-                    });
-                });
-                dataTableBehavior();
+            dataTableBehavior();
+            $table.dataTable({
+                sInfo: &quot;muted&quot;,
+                aaData: self.data,
+                aoColumns: cols,
+                sPaginationType: &quot;bootstrap&quot;,
+                bAutoWidth: true,
+                sScrollY: options.scrollY,
+                sScrollX: &quot;100%&quot;,
+                bPaginate: false,
+                oLanguage: {
+                    sLengthMenu: &quot;_MENU_ per page&quot;,
+                    sInfoThousands: &quot;,&quot;
+                },
+                fnRowCallback: function (tr, data) {
+                    options.rowCallback.call(tr, data);
+                },
+                fnDrawCallback: args.success
             });
-        };
-        function adjustHeight(selector) {
-            JQ(selector).each(function () {
-                var w = JQ(this);
-                var p = w.parent();
-                var totalHeight = 0;
-                p.children().each(function () {
-                    totalHeight += JQ(this).outerHeight(true)
+            var thead = $table.parent().prev().find(&quot;thead&quot;);
+            var theadRow = thead.find(&quot;tr&quot;);
+            var clone    = JQ(&quot;&lt;tr&gt;&quot;);
+            theadRow.children().each(function () {
+                clone.append(JQ(this).clone());
+            });
+            thead.append(clone);
+            $table.columnFilter({
+                sPlaceHolder: &quot;head:after&quot;,
+                aoColumns: _.map(cols, function (d) {
+                    return { type: &quot;text&quot;, bRegex: true }
+                })
+            });
+            thead.find(&quot;input&quot;).addClass(&quot;form-control input-xs&quot;);
+
+            thead.find(&quot;tr&quot;).filter(&quot;:last&quot;).children().each(function () {
+                var attributes = this.attributes;
+                var i = attributes.length;
+                while (i--)
+                    this.removeAttributeNode(attributes[i]);
+            });
+
+            $table.on(&quot;filter&quot;, function (event, tbl) {
+                var filtered = _.map(tbl.aiDisplay, function (index) {
+                    return self.data[index];
                 });
-                w.css(&quot;min-height&quot;,
-                    p.height() + w.outerHeight(true) - totalHeight);
+                self.trigger(&quot;table:filter&quot;, [ filtered ]);
             });
         }
-    }
+    });
     
     function dataTableBehavior() {
         /* Set the defaults for DataTables initialization */
@@ -260,7 +282,8 @@
             });
         }
     }
-
+    
+    iris.Renderer.register(&quot;Table&quot;, Table);
     return Table;
 });</pre>
 </body>

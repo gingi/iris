@@ -15,13 +15,7 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore'], function (JQ, d3, _) {
-    var defaults = {
-        yTitle: 'Y Axis',
-        axisLabelFontSize: 10,
-        padding: 10
-    };
-
+  <pre class="prettyprint lang-js">define([&quot;iris&quot;, &quot;jquery&quot;, &quot;d3&quot;, &quot;underscore&quot;], function (Iris, JQ, d3, _) {
     function labelFontHeight(svg) {
         var text = svg.append(&quot;g&quot;).attr(&quot;class&quot;, &quot;x axis&quot;)
             .append(&quot;svg:text&quot;).text(&quot;M&quot;);
@@ -30,38 +24,46 @@
         return height;
     }
 
-    function BarChart(options) {
-        var self = this;
-        options = options ? _.clone(options) : {};
-        _.defaults(options, defaults);
-        var $el = JQ(options.element);
-        var data;
-        self.setData = function (inData) {
+<span id='BarChart'>    /**
+</span>     * @class BarChart
+     * A standard bar chart
+     * 
+     * @extends Renderer
+     */
+    var BarChart = Iris.Renderer.extend({
+        defaults: {
+            yTitle: 'Y Axis',
+            axisLabelFontSize: 10,
+            padding: 10,
+            margin: { top: 20, right: 20, bottom: 40, left: 40 }
+        },
+<span id='BarChart-method-setData'>        /**
+</span>         * @method setData
+         * @inheritdoc Renderer#setData
+         */
+        setData: function (inData) {
             if (typeof inData === &quot;object&quot;) {
-                data = [];
+                this.data = [];
                 for (var key in inData) {
-                    data.push(inData[key]);
+                    this.data.push(inData[key]);
                 }
             } else {
                 // It's a plain list
-                data = inData;
+                this.data = inData;
             }
-            return self;
-        };
-        self.getData = function () {
-            return data;
-        };
-        self.render = function () {
-            var margin = {
-                top: 20,
-                right: 20,
-                bottom: 40,
-                left: 40
-            },
-            width  =
-                $el.width()  - margin.left - margin.right - options.padding,
-            height =
-                $el.height() - margin.top  - margin.bottom - options.padding;
+            return this;
+        },
+<span id='BarChart-method-render'>        /**
+</span>         * @method render
+         * @inheritdoc Renderer#render
+         */
+        render: function () {
+            var self = this;
+            var margin = self.options.margin;
+            var padding = self.options.padding;
+            var $el = JQ(self.options.element);
+            var width  = $el.width()  - margin.left - margin.right - padding;
+            var height = $el.height() - margin.top  - margin.bottom - padding;
             $el.empty();
 
             var format = d3.format(&quot;.0&quot;);
@@ -75,16 +77,16 @@
 
             var svg = d3.select($el[0])
                 .append(&quot;svg&quot;)
-                .attr(&quot;width&quot;, $el.width() - options.padding)
+                .attr(&quot;width&quot;, $el.width() - padding)
                 .attr(&quot;height&quot;, height)
-                .style(&quot;margin&quot;, options.padding / 2)
+                .style(&quot;margin&quot;, padding / 2)
                 .append(&quot;g&quot;)
                 .attr(&quot;transform&quot;,
                     &quot;translate(&quot; + margin.left + &quot;,&quot; + margin.top + &quot;)&quot;);
 
 
-            x.domain(_.map(data, function (d) {return d.x; }));
-            y.domain([0, d3.max(data, function (d) { return d.y; }) ]);
+            x.domain(_.map(self.data, function (d) {return d.x; }));
+            y.domain([0, d3.max(self.data, function (d) { return d.y; }) ]);
 
             function drawXAxis(elem) {
                 if (x.rangeBand() &gt; labelFontHeight(svg)) {
@@ -113,10 +115,10 @@
                 .attr(&quot;y&quot;, 6)
                 .attr(&quot;dy&quot;, &quot;.71em&quot;)
                 .style(&quot;text-anchor&quot;, &quot;end&quot;)
-                .text(options.yTitle);
+                .text(self.options.yTitle);
 
             svg.selectAll(&quot;.bar&quot;)
-                .data(data)
+                .data(self.data)
                 .enter()
                 .append(&quot;rect&quot;)
                 .attr(&quot;class&quot;, &quot;bar&quot;)
@@ -129,7 +131,7 @@
             svg.on(&quot;click&quot;, change);
 
             function change() {
-                var clone = _.clone(data);
+                var clone = _.clone(self.data);
                 var x0 = x.domain(_.chain(clone).sort(this.checked
                     ? function(a, b) { return d3.ascending(a.x, b.x); }
                     : function(a, b) { return b.y - a.y; })
@@ -154,7 +156,8 @@
             }
             return self;
         }
-    }
+    });
+    Iris.Renderer.register(&quot;BarChart&quot;, BarChart);
     return BarChart;
 })
 </pre>

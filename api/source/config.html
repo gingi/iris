@@ -18,9 +18,15 @@
   <pre class="prettyprint lang-js">requirejs.config({
     baseUrl: &quot;/js&quot;,
     paths: {
-        columnfilter: &quot;DataTables/extras/ColumnFilterWidgets&quot;,
-        datatables:   &quot;jquery.dataTables&quot;,
-        slider:       &quot;bootstrap-slider&quot;
+        columnfilter: &quot;lib/DataTables/extras/ColumnFilterWidgets&quot;,
+        datatables:   &quot;lib/jquery.dataTables&quot;,
+        slider:       &quot;lib/bootstrap-slider&quot;,
+        jquery:       &quot;lib/jquery&quot;,
+        d3:           &quot;lib/d3&quot;,
+        underscore:   &quot;lib/underscore&quot;,
+        revalidator:  &quot;lib/revalidator&quot;,
+        backbone:     &quot;lib/backbone&quot;,
+        bootstrap:    &quot;lib/bootstrap&quot;
     },
     map: {
         &quot;*&quot;:          { jquery: &quot;noconflict&quot; },
@@ -31,15 +37,13 @@
         underscore:   { exports: &quot;_&quot;           },
         colorbrewer:  { exports: &quot;colorbrewer&quot; },
         backbone:     { exports: &quot;Backbone&quot;, deps: [&quot;underscore&quot;, &quot;jquery&quot;] },
-        bootstrap:    { deps: [&quot;jquery&quot;] },
-        columnfilter: { deps: [&quot;datatables&quot;] },
-        &quot;backbone.localstorage&quot;:
-            { exports: &quot;Backbone&quot;, deps: [&quot;backbone&quot;] },
-        &quot;jquery-ui&quot;:  { deps: [&quot;jquery&quot;] },
-        slider:       { deps: [&quot;jquery&quot;] },
-        datatables:   { deps: [&quot;jquery&quot;], exports: &quot;jQuery.fn.dataTableExt&quot; },
-        revalidator:  { exports: &quot;window.json&quot; }
-    }
+        bootstrap:    {                      deps: [&quot;jquery&quot;] },
+        columnfilter: {                      deps: [&quot;datatables&quot;] },
+        slider:       {                      deps: [&quot;jquery&quot;] },
+        datatables:   {                      deps: [&quot;jquery&quot;] },
+        revalidator:  { exports: &quot;window.json&quot; },
+        jquery:       { exports: &quot;jQuery&quot; }
+    },
 })
 </pre>
 </body>

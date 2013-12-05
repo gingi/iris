@@ -21,7 +21,7 @@
     'util/dragbox',
     'util/scale',
     'underscore',
-    &quot;text!data/manhattan.json&quot;
+    &quot;text!examples/manhattan.json&quot;
 ],
 function ($, Iris, DragBox, Scale, _, ExampleData) {
     function createCanvas(container, options) {
@@ -65,7 +65,7 @@ function ($, Iris, DragBox, Scale, _, ExampleData) {
         },
 <span id='Manhattan-method-initialize'>        /**
 </span>         * @method initialize
-         * @inheritdoc Widget#initialize
+         * @inheritdoc Renderer#initialize
          */
         initialize: function (options) {
             options = options || {};

@@ -15,8 +15,12 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define([&quot;jquery&quot;], function (JQ) {
-	return JQ.noConflict(false);
-})</pre>
+  <pre class="prettyprint lang-js">var fs   = require(&quot;fs&quot;);
+var argv = require(&quot;optimist&quot;).argv;
+
+console.dir(argv._[0]);
+
+
+</pre>
 </body>
 </html>

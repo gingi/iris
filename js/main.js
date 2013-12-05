@@ -1,9 +1,11 @@
 $(function () {
-    $("#main-content > h1").each(function () {
+    $("#main-content > :header").each(function () {
         $("#sidebar-menu").append(
             $("<li>").append(
-                $("<a>", { href: "#" + $(this).prop("id") })
-                    .append($(this).text())
+                $("<a>", {
+                    href: "#" + $(this).prop("id"),
+                    class: "menu-item-" + this.nodeName.toLowerCase()
+                }).append($(this).text())
             )
         );
     });

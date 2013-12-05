@@ -105,3 +105,7 @@ html, body {
     width: 263px;
   }
 }
+.menu-item-h3 {
+    font-size: 75%;
+    margin-left: 1.5em;
+}

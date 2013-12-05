@@ -207,7 +207,8 @@ function (Iris, _, $, Scatter, Viewport, DropdownTmpl) {
             });
         };
         updateTitle(active.index);
-        items.on(&quot;click&quot;, function () {
+        items.on(&quot;click&quot;, function (event) {
+            event.preventDefault();
             var i = $(this).data(&quot;index&quot;);
             plot.scatter.setDimension(index, i);
             updateTitle(i);

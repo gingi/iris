@@ -47,13 +47,23 @@ define([&quot;backbone&quot;, &quot;underscore&quot;], function (Backbone, _) {
     });
 
 <span id='Root-method-extend'>    /**
-</span>     * Extends the class.
-     * @method extend
+</span>     * @method extend
+     * Extends the class.
      * @param {Object} object
      *        A hash of functions and object that extend the class
      * @return {Object} A new subclass of this class.
      */
     Root.extend = Backbone.View.extend;
+    
+<span id='Root-method-register'>    /**
+</span>     * @method register
+     * Registers an object within this namespace.
+     * @param {String} name The name of the object
+     * @param {Object} object The object to register
+     */
+    Root.register = function (name, object) {
+        this[name] = object;
+    };
     return Root;
 });
 </pre>
