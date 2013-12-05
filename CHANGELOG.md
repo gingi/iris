@@ -1,3 +1,7 @@
+####v0.2.10
+
+* Iris.Renderer.Table, plus tests.
+
 ####v0.2.9
 
 * Testing Iris distribution library with PhantomJS
