@@ -1,0 +1,44 @@
+@hud-background-color: black;
+@hud-foreground-color: #eee;
+@hud-emph-color:       #ddd;
+@hud-hover-color:      black;
+
+.hud {
+    z-index: 1000;
+    position: fixed;
+    background-color: @hud-background-color;
+    opacity: 0.6;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    padding: 5px 0 0 0;
+    color: @hud-foreground-color;
+    -webkit-box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
+       -moz-box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
+    .close {
+        color: @hud-emph-color;
+        margin-right: 10px;
+        opacity: 0.8;
+        filter: alpha(opacity=80);
+        text-shadow: none;
+        :hover {
+            color: @hud-hover-color;
+            text-shadow: 0 1px 0 @hud-emph-color;
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+    }
+    .table td, .table th {
+        border: none;
+        padding: 2px 3px;
+    }
+    #title {
+        font-family: "HelveticaNeue-CondensedBold", "Helvetica Neue", Helvetica;
+        color: @hud-emph-color;
+        padding: 0 0 5px 10px;
+        margin-top: 5px;
+        border-bottom: 1px dotted #aaa;
+        font-weight: normal;
+    }
+}

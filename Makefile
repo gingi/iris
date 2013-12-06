@@ -20,9 +20,12 @@ MINDISTLIB ?= $(DISTDIR)/iris.min.js
 DISTCSS    ?= $(DISTDIR)/iris.css
 MINDISTCSS ?= $(DISTDIR)/iris.min.css
 
-BUILDDIR = ./build
-SOURCES  = $(shell find $(DOCROOT)/js -name "*.js")
-CSS_SOURCES = $(shell find $(DOCROOT)/css -name "*.css")
+BUILDDIR    = ./build
+SOURCES     = $(shell find $(DOCROOT)/js -name "*.js")
+CSSFILES    = $(shell find $(DOCROOT)/css -name "*.css")
+LESSFILES   = $(shell find $(DOCROOT)/less -name "*.less")
+IRISCSS     = ./public/css/iris.css
+IRISLESS    = ./public/less/iris.less
 
 PREAMBLE = $(shell node ./dist/preamble.js)
 
@@ -44,13 +47,16 @@ init-submodules:
 	@ $(GIT) submodule update --init
 
 init: init-npm init-submodules
+	
+$(IRISCSS): $(LESSFILES)
+	@ lessc --compress --clean-css -O2 $(IRISLESS) $(IRISCSS)
 
-$(DISTCSS): $(CSS_SOURCES) $(BUILDCSS)
+$(DISTCSS): $(CSSFILES) $(BUILDCSS) $(IRISCSS)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) optimize=none
 	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 	@ $(call add-preamble,$(DISTCSS))
 
-$(MINDISTCSS): $(CSS_SOURCES) $(BUILDCSS)
+$(MINDISTCSS): $(CSSFILES) $(BUILDCSS)
 	@ $(RJS) -o out=$(MINDISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) \
 		optimizeCss=standard
 	@ perl -pi -e 's|\.\./public|..|g' $(MINDISTCSS)
@@ -76,10 +82,9 @@ endif
 		--exclude $(DOCROOT)/js/widgets/old \
 		-- $(DOCROOT)/js
 
-
 dist: init $(DISTLIB) $(MINDISTLIB) $(DISTCSS) $(MINDISTCSS)
 
-build: init $(SOURCES)
+build: init $(SOURCES) $(IRISCSS)
 	@ $(RJS) -o $(BUILDJS) \
 		appDir=./public dir=$(BUILDDIR) optimizeCss=none baseUrl=js namespace= \
 		name=iris-bundle optimize=uglify
@@ -93,9 +98,9 @@ test-dist: $(DISTLIB)
 docs: init $(APIDOC)/index.html
 
 clean:
-	rm -rf $(DISTLIB) $(BUILDDIR) $(APIDOC)
+	rm -rf $(DISTLIB) $(DISTCSS) $(MINDISTLIB) $(MINDISTCSS) $(BUILDDIR) $(APIDOC) $(IRISCSS)
 
-dist-clean: clean
+distclean: clean
 	rm -rf node_modules/
 
 .PHONY: test all dist
