@@ -51,17 +51,9 @@ table.table {
     margin-top: 6px !important;
     margin-bottom: 6px !important;
     max-width: none !important;
-    thead {
-        .sorting, .sorting_asc, .sorting_desc, .sorting_asc_disabled, .sorting_desc_disabled {
-            cursor: pointer;
-            padding-right: 2px;
-            background: no-repeat center right;
-        }
-        .sorting { background-image: url('/img/sort_both.png'); }
-        .sorting_asc { background-image: url('/img/sort_asc.png'); } 
-        .sorting_desc { background-image: url('/img/sort_desc.png'); } 
-        .sorting_asc_disabled { background-image: url('/img/sort_asc_disabled.png'); } 
-        .sorting_desc_disabled { background-image: url('/img/sort_desc_disabled.png'); } 
+    thead th i.fa {
+        padding: 3px 3px;
+        float: right;
     }
 }
 
