@@ -321,7 +321,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
 
         self.updateSearch = function (searchTerm) {
-            searchRegEx = new RegExp(searchTerm.toLowerCase());
+            var searchRegEx = new RegExp(searchTerm.toLowerCase());
             return svgNodes.each(function (d) {
                 var element, match = -1;
                 var searchContents = [];
@@ -682,7 +682,6 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             if (options.nodeInfo === undefined) {
                 row("Name", d.name);
                 row("Type", d.type);
-                row("KBase ID", d.entityId);
                 row("Neighbors", self.neighbors(d).length);
             } else {
                 options.nodeInfo(d, row);

@@ -1,3 +1,9 @@
+####v0.2.11
+
+* CSS/LESS refactoring and cleanup
+* Remove artifacts from older projects
+* Minor fixes and improvements
+
 ####v0.2.10
 
 * Iris.Renderer.Table, plus tests.
