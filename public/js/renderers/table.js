@@ -14,10 +14,13 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
         defaults: {
             scrollY: 300,
             element: "body",
-            rowCallback: function () {}
+            rowCallback: function () {},
+            filter: true
         },
         initialize: function () {
             this.filterExclude = [];
+            this.$table = JQ("<table>").addClass('table table-striped table-bordered');
+            dataTableBehavior();
         },
         /**
          * @method setData
@@ -51,14 +54,12 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
             var options = self.options;
             var $element = JQ(options.element);
             var elementOffset = $element.offset();
-            var $table = JQ("<table>").addClass('table table-striped table-bordered');
-            $element.empty().append($table);
+            $element.empty().append(self.$table);
             var cols = _.map(self.columns, function (d) {
                 return { sTitle: d, type: "string" };
             });
             options.scrollY = Math.max($element.height()-100, options.scrollY);
-            dataTableBehavior();
-            $table.dataTable({
+            var dataTable = self.$table.dataTable({
                 sInfo: "muted",
                 aaData: self.data,
                 aoColumns: cols,
@@ -81,21 +82,22 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
                 },
                 fnDrawCallback: args.success
             });
-            var thead = $table.parent().prev().find("thead");
+            var thead = self.$table.parent().prev().find("thead");
             var theadRow = thead.find("tr");
             var clone    = JQ("<tr>");
             theadRow.children().each(function () {
                 clone.append(JQ(this).clone());
             });
             thead.append(clone);
-            $table.columnFilter({
+            self.$table.columnFilter({
+                bUseColVis: true,
                 sPlaceHolder: "head:after",
                 aoColumns: _.map(cols, function (d) {
                     return { type: "text", bRegex: true }
                 })
             });
             theadRow = thead.find("tr").filter(":first");
-            $table.on("order.dt", function (event, settings, sorting, columns) {
+            self.$table.on("order.dt", function (event, settings, sorting, columns) {
                 var n = sorting[0].col;
                 thead.find("th").each(function (i) {
                     var $th = JQ(this);
@@ -116,12 +118,20 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
                 JQ(this).append(JQ("<i>", { class: "fa fa-sort" }));
             });
 
-            $table.on("filter", function (event, tbl) {
+            self.$table.on("filter", function (event, tbl) {
                 var filtered = _.map(tbl.aiDisplay, function (index) {
                     return self.data[index];
                 });
                 self.trigger("table:filter", [ filtered ]);
             });
+            self.$table.dataTableExt.afnFiltering.push(function (settings, data, index) {
+                console.log("Filtering index", index);
+                return index % 2 === 0;
+            });
+            self.filter();
+        },
+        filter: function () {
+            this.$table.fnDraw();
         },
         exampleData: function () {
             return {
