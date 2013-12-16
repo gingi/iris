@@ -15,11 +15,12 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
             scrollY: 300,
             element: "body",
             rowCallback: function () {},
-            filter: true
+            filter: false
         },
         initialize: function () {
             this.filterExclude = [];
-            this.$table = JQ("<table>").addClass('table table-striped table-bordered');
+            this.$table =
+                JQ("<table>").addClass('table table-striped table-bordered');
             dataTableBehavior();
         },
         /**
@@ -72,11 +73,6 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
                     sLengthMenu: "_MENU_ per page",
                     sInfoThousands: ","
                 },
-                oClasses: {
-                    // sSortAsc:  "fa fa-sort-asc",
-                    // sSortDesc: "fa fa-sort-desc",
-                    // sSortable: "fa fa-sort"
-                },
                 fnRowCallback: function (tr, data) {
                     options.rowCallback.call(tr, data);
                 },
@@ -84,33 +80,34 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
             });
             var thead = self.$table.parent().prev().find("thead");
             var theadRow = thead.find("tr");
-            var clone    = JQ("<tr>");
-            theadRow.children().each(function () {
-                clone.append(JQ(this).clone());
-            });
-            thead.append(clone);
-            self.$table.columnFilter({
-                bUseColVis: true,
-                sPlaceHolder: "head:after",
-                aoColumns: _.map(cols, function (d) {
-                    return { type: "text", bRegex: true }
-                })
-            });
-            theadRow = thead.find("tr").filter(":first");
-            self.$table.on("order.dt", function (event, settings, sorting, columns) {
-                var n = sorting[0].col;
-                thead.find("th").each(function (i) {
-                    var $th = JQ(this);
-                    var $btn = $th.find("i");
-                    $btn.removeClass(function (j, css) {
-                        return (css.match(/fa-sort\S*/g) || []).join(" ");
-                    });
-                    if (i == n) {
-                        $btn.addClass("fa-sort-" + columns[n]);
-                    } else {
-                        $btn.addClass("fa-sort");
-                    }
+            if (options.filter) {
+                var clone    = JQ("<tr>");
+                theadRow.children().each(function () {
+                    clone.append(JQ(this).clone());
                 });
+                thead.append(clone);
+                self.$table.columnFilter({
+                    bUseColVis: true,
+                    sPlaceHolder: "head:after",
+                    aoColumns: _.map(cols, function (d) {
+                        return { type: "text", bRegex: true }
+                    })
+                });
+            }
+            theadRow = thead.find("tr").filter(":first");
+            
+            // Control FontAwesome buttons
+            theadRow.children().click(function (event) {
+                var $elem = JQ(this);
+                theadRow.find("i").removeClass(function (j, css) {
+                    return (css.match(/fa-sort-\S*/g) || []).join(" ");
+                });
+                var sortClass = $elem.attr("class");
+                if (sortClass == "sorting_asc") {
+                    $elem.find("i").addClass("fa-sort-asc");
+                } else {
+                    $elem.find("i").addClass("fa-sort-desc");
+                }
             });
             thead.find("input").addClass("form-control input-xs");
 
@@ -124,9 +121,10 @@ define(["jquery", "underscore", "iris", "datatables", "columnfilter"], function 
                 });
                 self.trigger("table:filter", [ filtered ]);
             });
-            self.$table.dataTableExt.afnFiltering.push(function (settings, data, index) {
-                console.log("Filtering index", index);
-                return index % 2 === 0;
+            self.$table.dataTableExt.afnFiltering.push(
+            function (settings, data, index) {
+                // TODO: Apply user-supplied filter
+                return true;
             });
             self.filter();
         },
