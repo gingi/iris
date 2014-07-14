@@ -59,6 +59,10 @@ function (JQ, _, iris) {
             });
         },
 
+        /**
+         * @method render
+         * @inheritdoc Renderer#getData
+         */
         getData: function () {
             return {
                 data: this.data.data,
@@ -72,6 +76,7 @@ function (JQ, _, iris) {
          */
         render: function (args) {
             var self = this;
+            var options = this.options;
             var $element = JQ(options.element);
             var elementOffset = $element.offset();
             args = args ? _.clone(args) : {};
