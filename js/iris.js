@@ -1,5 +1,5 @@
 /** 
- * Iris 0.3.0
+ * Iris 0.3.2
  *
  * @license Copyright (c) 2012-2013 The Silvan Group
  * For more information, see: http://github.com/silvn/iris
