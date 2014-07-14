@@ -59,40 +59,38 @@ fs.exists(PUBLIC_DIR, function (exists) {
         process.exit(1);
     }
 });
-app.configure(function() {
-    app.set('port', argv.port);
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'ejs');
-    app.use(express.static(PUBLIC_DIR));
-    if (argv.env === 'production') {
-        var stream = fs.createWriteStream('logs/access.log', {flags: 'a'});
-        app.use(express.logger({ stream: stream }));
-    } else {
-        app.use(express.logger('dev'));
-        app.use(express.cookieParser('your secret here'));
-        app.use(express.session());
-        app.use(express.errorHandler());
-    }
-    app.use(express.compress());
-    if (argv.cache) {
-        console.log("Using web cache.");
-        app.use(cache.middleware({
-            path: '/',
-            expire: ONE_DAY
-        }));
-    }
-    app.use(express.json());
-    app.use(express.urlencoded());
-    app.use(express.methodOverride());
-    app.use(app.router);
-    app.use(require("less-middleware")({
-        src:  PUBLIC_DIR + "/less",
-        dest: PUBLIC_DIR + "/css",
-        prefix: "/css",
-        compress: true,
-        optimization: 2
+
+// Configure the app
+app.set('port', argv.port);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(express.static(PUBLIC_DIR));
+if (argv.env === 'production') {
+    var stream = fs.createWriteStream('logs/access.log', { flags: 'a' });
+    app.use(express.logger({ stream: stream }));
+} else {
+    app.use(express.logger('dev'));
+    app.use(express.errorHandler());
+}
+app.use(express.compress());
+if (argv.cache) {
+    console.log("Using web cache.");
+    app.use(cache.middleware({
+        path: '/',
+        expire: ONE_DAY
     }));
-});
+}
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(app.router);
+app.use(require("less-middleware")(PUBLIC_DIR, {
+    destDir: PUBLIC_DIR + "/css",
+    parser:   { optimization: 2 },
+    preprocess: {
+        path: function (p) { return p.replace(/\/css\//, "/less/"); }
+    },
+    compiler: { compress: true },
+}));
 
 http.createServer(app).listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));

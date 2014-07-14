@@ -60,7 +60,7 @@ function (JQ, _, iris) {
         },
 
         /**
-         * @method render
+         * @method getData
          * @inheritdoc Renderer#getData
          */
         getData: function () {
