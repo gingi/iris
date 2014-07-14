@@ -1,3 +1,12 @@
+####v0.3.2
+
+* Distribution fixes
+
+####v0.3.1
+
+* Fixed installer script
+* Updated deprecated APIs
+
 ####v0.3.0
 
 * Adopting Bower for web component management
