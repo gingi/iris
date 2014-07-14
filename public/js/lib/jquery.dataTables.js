@@ -1,1 +1,1 @@
-../../../external/datatables/media/js/jquery.dataTables.js
+../../../bower_components/datatables/media/js/jquery.dataTables.js

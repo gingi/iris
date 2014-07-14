@@ -1,1 +1,1 @@
-../../../node_modules/backbone/backbone.js
+../../../bower_components/backbone/backbone.js

@@ -1,1 +1,1 @@
-../../external/requirejs-text/text.js
+../../bower_components/requirejs-text/text.js
