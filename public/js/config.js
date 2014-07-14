@@ -1,7 +1,6 @@
 requirejs.config({
     baseUrl: "/js",
     paths: {
-        columnfilter: "lib/DataTables/extras/ColumnFilterWidgets",
         datatables:   "lib/jquery.dataTables",
         slider:       "lib/bootstrap-slider",
         jquery:       "lib/jquery",
@@ -9,7 +8,8 @@ requirejs.config({
         underscore:   "lib/underscore",
         revalidator:  "lib/revalidator",
         backbone:     "lib/backbone",
-        bootstrap:    "lib/bootstrap"
+        bootstrap:    "lib/bootstrap",
+        colorbrewer:  "lib/colorbrewer"
     },
     map: {
         "*":          { jquery: "noconflict" },
