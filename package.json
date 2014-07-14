@@ -16,7 +16,7 @@
     "http-proxy": "^0.10.3",
     "jquery": "^1.8.3",
     "less": "^1.7.3",
-    "less-middleware": "^0.1.14",
+    "less-middleware": "^1.0.3",
     "optimist": "^0.6.0",
     "revalidator": "^0.1.5",
     "uglify-js": "^2.4.3",
@@ -25,9 +25,10 @@
   "devDependencies": {
     "canvas-win": "^0.1.7",
     "jsdom": "^0.8.8",
-    "mocha": "^1.14.0",
+    "mocha": "^1.20.1",
     "mocha-phantomjs": "^3.1.6",
     "phantomjs": "^1.9.2",
+    "requirejs": "^2.1.14",
     "should": "^2.1.0",
     "xmlhttprequest": "^1.6.0"
   },
