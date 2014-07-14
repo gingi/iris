@@ -22,6 +22,7 @@ function (JQ, _, iris) {
         initialize: function () {
             this.filterExclude = [];
         },
+
         /**
          * @method setData
          * Sets data. If the data is an {#link Array}, converts
@@ -37,6 +38,8 @@ function (JQ, _, iris) {
             } else {
                 self.data = _.clone(data);
             }
+            if (self.data.columns === undefined)
+                self.data.columns = [];
             if (self.data.data === undefined) {
                 throw new Error("Setting undefined data");
             }
@@ -44,7 +47,7 @@ function (JQ, _, iris) {
             self.data.filter = data.filter || [];
             for (var i = 0; i < self.data.columns.length; i++) {
                 if (!_.contains(self.data.filter, self.data.columns[i])) {
-                    filterExclude.push(i);
+                    self.filterExclude.push(i);
                 }
             }
 
@@ -55,6 +58,14 @@ function (JQ, _, iris) {
                         row[j] = null;
             });
         },
+
+        getData: function () {
+            return {
+                data: this.data.data,
+                columns: this.data.columns
+            };
+        },
+
         /**
          * @method render
          * @inheritdoc Renderer#render
