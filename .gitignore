@@ -5,3 +5,4 @@ dist/doc/api
 logs
 build
 public/css/iris.css
+bower_components

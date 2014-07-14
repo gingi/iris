@@ -20,5 +20,16 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "bootstrap": "~3.2.0",
+    "jquery": "~2.1.1",
+    "requirejs": "~2.1.14",
+    "d3": "~3.4.10",
+    "underscore": "~1.6.0",
+    "fontawesome": "~4.1.0",
+    "datatables": "~1.10.0",
+    "requirejs-text": "~2.0.12",
+    "spinjs": "~2.0.1"
+  }
 }
