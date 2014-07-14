@@ -55,21 +55,21 @@ init-bower: bower_components
 
 init: init-npm init-submodules init-bower
 
-$(IRISCSS): $(LESSFILES)
+$(IRISCSS): init $(LESSFILES)
 	@ $(LESS) --compress --clean-css -O2 $(IRISLESS) $(IRISCSS)
 
-$(DISTCSS): $(CSSFILES) $(BUILDCSS) $(IRISCSS)
+$(DISTCSS): init $(CSSFILES) $(BUILDCSS) $(IRISCSS)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) optimize=none
 	@ perl -pi -e 's|\.\./public|..|g' $(DISTCSS)
 	@ $(call add-preamble,$(DISTCSS))
 
-$(MINDISTCSS): $(CSSFILES) $(BUILDCSS)
+$(MINDISTCSS): init $(CSSFILES) $(BUILDCSS)
 	@ $(RJS) -o out=$(MINDISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) \
 		optimizeCss=standard
 	@ perl -pi -e 's|\.\./public|..|g' $(MINDISTCSS)
 	@ $(call add-preamble,$(MINDISTCSS))
 
-$(DISTLIB): $(SOURCES) $(BUILDJS)
+$(DISTLIB): init $(SOURCES) $(BUILDJS)
 	@ $(RJS) -o $(BUILDJS) out=$(DISTLIB) $(RJSOPTS)
 	@ $(call add-preamble,$(DISTLIB))
 

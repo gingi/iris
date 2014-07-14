@@ -1,16 +1,14 @@
 ({
     baseUrl:        "../public/js",
     mainConfigFile: "../public/js/config.js",
-    namespace:      "Iris",
     name:           "iris",
-    create:         true,
     wrap: {
         start: "(function () {",
         end: [
             "    var wrapper = function (callback) {",
-            "        wrapper.require   = Iris.require;",
-            "        wrapper.requirejs = Iris.requirejs;",
-            "        wrapper.define    = Iris.define;",
+            "        wrapper.require   = require;",
+            "        wrapper.requirejs = requirejs;",
+            "        wrapper.define    = define;",
             "        Iris.require([",
             "            'iris/root', 'iris/renderer', 'iris/widget',",
             "            'util/viewport', 'charts/bar', 'renderers/table'",
@@ -47,11 +45,5 @@
         "util/hud",
         "util/viewport",
         "util/graph",
-    ],
-    onBuildRead: function (moduleName, path, contents) {
-        if (moduleName == "util/spin") {
-            return contents.replace(/\bdefine\b/g, "Iris.define");
-        }
-        return contents;
-    }
+    ]
 })
