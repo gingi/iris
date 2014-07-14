@@ -1,6 +1,6 @@
 PACKAGE  = iris
 NODEBIN  = ./node_modules/.bin
-MOCHA    = $(NODEBIN)/mocha
+MOCHA    = ./node_modules/mocha/bin/mocha
 RJS      = $(NODEBIN)/r.js
 UGLIFY   = $(NODEBIN)/uglifyjs
 BOWER    = $(NODEBIN)/bower
@@ -12,7 +12,7 @@ JSDUCK  := $(shell which jsduck)
 
 DOCROOT     = ./public
 DISTDIR    ?= ./dist
-MOCHAOPTS  ?= 
+MOCHAOPTS  ?=
 APIDOC      = $(DISTDIR)/doc/api
 TESTDIR    ?= ./test
 BUILDJS    ?= ./dist/app.build.js
@@ -48,11 +48,13 @@ init-npm: node_modules
 init-submodules:
 	@ $(GIT) submodule update --init
 
-init-bower: bower_components
+bower_components:
 	@ $(BOWER) install
 
+init-bower: bower_components
+
 init: init-npm init-submodules init-bower
-	
+
 $(IRISCSS): $(LESSFILES)
 	@ $(LESS) --compress --clean-css -O2 $(IRISLESS) $(IRISCSS)
 
@@ -96,7 +98,7 @@ build: init $(SOURCES) $(IRISCSS)
 
 test: init
 	@ $(MOCHA) $(MOCHAOPTS) test/*/*.js
-	
+
 test-dist: $(DISTLIB)
 	@ $(NODEBIN)/mocha-phantomjs test/test-dist.html
 
