@@ -8,6 +8,7 @@ function ($, _, Backbone, Viewport) {
         .append(li(a("#renderer/pcoords", "Pcoords")))
         .append(li(a("#widget/bubbles", "Bubble Plot")))
         .append(li(a("#renderer/forceDirectedGraph", "Force-directed Graph")))
+        .append(li(a("#renderer/table", "Table")))
         // .append(li(a("#widget/hypomethylation", "Conservation vs. Hypomethylation")));
 
     function pair(k, v) {

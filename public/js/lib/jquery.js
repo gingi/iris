@@ -1,1 +1,1 @@
-../../../node_modules/jquery/tmp/jquery.js
+../../../bower_components/jquery/dist/jquery.js

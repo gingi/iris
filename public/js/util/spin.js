@@ -1,1 +1,1 @@
-../../../external/spin.js/spin.js
+../../../bower_components/spinjs/spin.js

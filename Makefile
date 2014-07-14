@@ -3,6 +3,8 @@ NODEBIN  = ./node_modules/.bin
 MOCHA    = $(NODEBIN)/mocha
 RJS      = $(NODEBIN)/r.js
 UGLIFY   = $(NODEBIN)/uglifyjs
+BOWER    = $(NODEBIN)/bower
+LESS     = $(NODEBIN)/lessc
 NPM      = npm
 GIT      = git
 
@@ -46,10 +48,13 @@ init-npm: node_modules
 init-submodules:
 	@ $(GIT) submodule update --init
 
-init: init-npm init-submodules
+init-bower: bower_components
+	@ $(BOWER) install
+
+init: init-npm init-submodules init-bower
 	
 $(IRISCSS): $(LESSFILES)
-	@ lessc --compress --clean-css -O2 $(IRISLESS) $(IRISCSS)
+	@ $(LESS) --compress --clean-css -O2 $(IRISLESS) $(IRISCSS)
 
 $(DISTCSS): $(CSSFILES) $(BUILDCSS) $(IRISCSS)
 	@ $(RJS) -o out=$(DISTCSS) cssIn=$(BUILDCSS) $(RJSOPTS) optimize=none
