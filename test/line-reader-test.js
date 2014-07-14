@@ -1,4 +1,4 @@
-var lineReader = require(__dirname + '/../src/parsers/line-reader');
+var lineReader = require(__dirname + '/../public/js/parsers/line-reader');
 var fixture    = __dirname + '/fixtures/lines.txt';
 
 exports['read 8 lines'] = function (test) {

@@ -1,4 +1,4 @@
-var Graph = require(__dirname + '/../src/graph.js');
+var Graph = require(__dirname + '/../public/js/util/graph.js');
 
 exports.neighbors = function (test) {
 	var g = new Graph;

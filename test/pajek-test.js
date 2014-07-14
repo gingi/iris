@@ -1,4 +1,4 @@
-var pajek = require(__dirname + '/../src/parsers/pajek');
+var pajek = require(__dirname + '/../public/js/parsers/pajek');
 
 exports.realParse = function (test) {
     var fixture = __dirname + '/fixtures/example.pajek';

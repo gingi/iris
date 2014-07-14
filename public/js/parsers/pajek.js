@@ -1,5 +1,5 @@
 var reader   = require('./line-reader');
-var Graph    = require('../graph');
+var Graph    = require('../util/graph');
 
 function lineParser(network) {
     var parseMode = null;
