@@ -1,3 +1,10 @@
+####v0.3.0
+
+* Adopting Bower for web component management
+* Improved table renderer
+* Bug fixes
+* Cleanup of old cruft
+
 ####v0.2.11
 
 * CSS/LESS refactoring and cleanup

@@ -10,5 +10,8 @@ fi
 perl -pi -e \
     "s/^(\s*[\s\W]*\"version\"\s*:\s*)\"$old_version\"/\$1\"$new_version\"/" \
     package.json
+perl -pi -e \
+    "s/^(\s*[\s\W]*\"version\"\s*:\s*)\"$old_version\"/\$1\"$new_version\"/" \
+    bower.json
 perl -pi -e "s/^\*\*Version $old_version\*\*$/**Version $new_version**/" \
     README.md
