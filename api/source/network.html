@@ -15,8 +15,8 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore',
-    'util/dock', 'util/eventemitter', 'util/hud', 'revalidator'],
+  <pre class="prettyprint lang-js">define([&#39;jquery&#39;, &#39;d3&#39;, &#39;underscore&#39;,
+    &#39;util/dock&#39;, &#39;util/eventemitter&#39;, &#39;util/hud&#39;, &#39;revalidator&#39;],
 function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
     &quot;use strict&quot;;
     var FIX_NODE_DELAY = 2000;
@@ -41,12 +41,12 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             items: {
                 properties: {
                     source: {
-                        description: &quot;The source's index in 'nodes'&quot;,
+                        description: &quot;The source&#39;s index in &#39;nodes&#39;&quot;,
                         type: &quot;number&quot;,
                         required: true
                     },
                     target: {
-                        description: &quot;The target's index in 'nodes'&quot;,
+                        description: &quot;The target&#39;s index in &#39;nodes&#39;&quot;,
                         type: &quot;number&quot;,
                         required: true
                     }
@@ -338,7 +338,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
 
         self.updateSearch = function (searchTerm) {
-            searchRegEx = new RegExp(searchTerm.toLowerCase());
+            var searchRegEx = new RegExp(searchTerm.toLowerCase());
             return svgNodes.each(function (d) {
                 var element, match = -1;
                 var searchContents = [];
@@ -394,9 +394,9 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
 
         var _nodeCache = {};
         self.findNode = function(key, type) {
-            type = (type || 'id');
+            type = (type || &#39;id&#39;);
             var equalToKey;
-            if (typeof key === 'string') {
+            if (typeof key === &#39;string&#39;) {
                 key = key.toUpperCase();
                 equalToKey = function (val) {
                     return val !== null &amp;&amp;
@@ -436,7 +436,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         };
         
         this.find = function (key, type) {
-            type = (type || 'id');
+            type = (type || &#39;id&#39;);
             var result = [];
             for (var i in nodes) {
                 if (nodes[i][type] === key) result.push(nodes[i]);
@@ -699,7 +699,6 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
             if (options.nodeInfo === undefined) {
                 row(&quot;Name&quot;, d.name);
                 row(&quot;Type&quot;, d.type);
-                row(&quot;KBase ID&quot;, d.entityId);
                 row(&quot;Neighbors&quot;, self.neighbors(d).length);
             } else {
                 options.nodeInfo(d, row);
@@ -851,7 +850,7 @@ function (JQ, d3, _, Dock, EventEmitter, HUD, Revalidator) {
         self.dockNodes = function (names) {
             var nodes = [];
             for (var i = 0; i &lt; names.length; i++) {
-                var node = self.findNode(names[i], 'name');
+                var node = self.findNode(names[i], &#39;name&#39;);
                 if (node) nodes.push(node);
             }
             dock.set(nodes);

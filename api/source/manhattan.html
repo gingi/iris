@@ -16,11 +16,11 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">define([
-    'jquery',
-    'iris',
-    'util/dragbox',
-    'util/scale',
-    'underscore',
+    &#39;jquery&#39;,
+    &#39;iris&#39;,
+    &#39;util/dragbox&#39;,
+    &#39;util/scale&#39;,
+    &#39;underscore&#39;,
     &quot;text!examples/manhattan.json&quot;
 ],
 function ($, Iris, DragBox, Scale, _, ExampleData) {
@@ -32,13 +32,13 @@ function ($, Iris, DragBox, Scale, _, ExampleData) {
             .css(&quot;position&quot;, &quot;absolute&quot;)
             .css(&quot;z-index&quot;, options.z || 1);
         container.append(canvas);
-        return canvas[0].getContext('2d');
+        return canvas[0].getContext(&#39;2d&#39;);
     }
 
     function color(r, cc, c) { return cc.min[c] - Math.floor(r * cc.range[c]); }
 
     var PI2          = Math.PI * 2;
-    var AXIS_COLOR   = '#CCC';
+    var AXIS_COLOR   = &#39;#CCC&#39;;
     var RADIUS       = 2;
     var DRAW_DISCS   = true;
     var XGUTTER      = 10;
@@ -132,7 +132,7 @@ function ($, Iris, DragBox, Scale, _, ExampleData) {
             self.canvasWidth  = containerWidth  - YAXIS_WIDTH;
             self.$element.css(&quot;position&quot;, &quot;relative&quot;);
             self.plotArea =
-                $('&lt;div&gt;').css(&quot;position&quot;, &quot;absolute&quot;).css(&quot;left&quot;, YAXIS_WIDTH);
+                $(&#39;&lt;div&gt;&#39;).css(&quot;position&quot;, &quot;absolute&quot;).css(&quot;left&quot;, YAXIS_WIDTH);
             self.plotArea.width(self.canvasWidth).height(self.canvasHeight);
             self.ctx = createCanvas(self.plotArea, { z: 5 });
             self.$element.append(self.plotArea);

@@ -25,8 +25,8 @@
 	};
 	renderer.schema = {
 		properties: {
-			element: { type: 'any', required: true },
-			data: { type: 'any', required: true },
+			element: { type: &#39;any&#39;, required: true },
+			data: { type: &#39;any&#39;, required: true },
 		}
 	};
 	renderer.exampleData = function () {
@@ -55,7 +55,7 @@
 		var t = typeof (obj);
 		if (t != &quot;object&quot; || obj === null) {
 			// simple data type
-			if (t == &quot;string&quot;) obj = '&quot;'+obj+'&quot;';
+			if (t == &quot;string&quot;) obj = &#39;&quot;&#39;+obj+&#39;&quot;&#39;;
 			return String(obj);
 		}
 		else {
@@ -64,9 +64,9 @@
 			for (n in obj) {
 				if (!(p === 0 &amp;&amp; n === &quot;element&quot;)) { // avoid DOM cycles
 					v = obj[n]; t = typeof(v);
-					if (t == &quot;string&quot;) v = '&quot;'+v+'&quot;';
+					if (t == &quot;string&quot;) v = &#39;&quot;&#39;+v+&#39;&quot;&#39;;
 					else if (t == &quot;object&quot; &amp;&amp; v !== null) v = this.stringify(v,n);
-					json.push((arr ? &quot;&quot; : '&quot;' + n + '&quot;:') + String(v));
+					json.push((arr ? &quot;&quot; : &#39;&quot;&#39; + n + &#39;&quot;:&#39;) + String(v));
 				}
 			}
 			return (arr ? &quot;[&quot; : &quot;{&quot;) + String(json) + (arr ? &quot;]&quot; : &quot;}&quot;);
@@ -74,7 +74,7 @@
 	};
 	// implement JSON.parse de-serialization
 	renderer.parse = function (str) {
-		if (str === &quot;&quot;) str = '&quot;&quot;';
+		if (str === &quot;&quot;) str = &#39;&quot;&quot;&#39;;
 		eval(&quot;var p=&quot; + str + &quot;;&quot;);
 		renderer.jscode.update(p);
 	};

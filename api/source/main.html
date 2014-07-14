@@ -16,14 +16,14 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">require([
-    'jquery',
-    'backbone',
-    'underscore',
-    'charts/bar',
-    'charts/pie',
-    'renderers/table',
-    'util/viewport',
-    'util/dropdown'
+    &#39;jquery&#39;,
+    &#39;backbone&#39;,
+    &#39;underscore&#39;,
+    &#39;charts/bar&#39;,
+    &#39;charts/pie&#39;,
+    &#39;renderers/table&#39;,
+    &#39;util/viewport&#39;,
+    &#39;util/dropdown&#39;
 ], function (JQ, Backbone, _, BarChart, PieChart, Table, Viewport, DropDown) {
     var Genome = Backbone.Model.extend({
         defaults: { name: &quot;&quot; },
@@ -36,10 +36,10 @@
                     contigs[data.contigs[id].name] = len;
                 }
             }
-            this.set('name',    data.info[&quot;scientific_name&quot;]);
-            this.set('genes',   data.info[&quot;pegs&quot;]);
-            this.set('length',  data.info[&quot;dna_size&quot;]);
-            this.set('contigs', contigs);
+            this.set(&#39;name&#39;,    data.info[&quot;scientific_name&quot;]);
+            this.set(&#39;genes&#39;,   data.info[&quot;pegs&quot;]);
+            this.set(&#39;length&#39;,  data.info[&quot;dna_size&quot;]);
+            this.set(&#39;contigs&#39;, contigs);
         }
     });
 
@@ -57,14 +57,14 @@
     
     var ChartView = Backbone.View.extend({
         initialize: function () {
-            _.bindAll(this, 'render');
-            this.model.on('sync', this.render);
+            _.bindAll(this, &#39;render&#39;);
+            this.model.on(&#39;sync&#39;, this.render);
         },
         dataSpec: function (data) { return data; },
         render: function () {
             this.$el.empty();
             var chartData = [];
-            var contigs = this.model.get('contigs');
+            var contigs = this.model.get(&#39;contigs&#39;);
             for (var chr in contigs) {
                 chartData.push(this.dataPoint(contigs, chr));
             }
@@ -98,8 +98,8 @@
             dataSpec: function (data) {
                 return {
                     data: data,
-                    columns: ['Contig', 'Length'],
-                    filter: ['Contig']
+                    columns: [&#39;Contig&#39;, &#39;Length&#39;],
+                    filter: [&#39;Contig&#39;]
                 }
             }
         }
@@ -114,7 +114,7 @@
             var row = JQ(&quot;&lt;div&gt;&quot;).addClass(&quot;row&quot;);
             JQ(&quot;#datavis&quot;).append(row);
             var genome = new Genome;
-            genomeId = genomeId || 'kb|g.3899';
+            genomeId = genomeId || &#39;kb|g.3899&#39;;
             genome.set({ id: genomeId });
             dropdown.select(genomeId);
             for (var elementId in charts) {
@@ -148,7 +148,7 @@
                     } else {
                         content
                             .append(JQ(&quot;&lt;p&gt;&quot;)
-                                .text(&quot;Couldn't get genome &quot; + model.get('id'))
+                                .text(&quot;Couldn&#39;t get genome &quot; + model.get(&#39;id&#39;))
                             )
                             .append(JQ(&quot;&lt;h5&gt;&quot;).text(&quot;Technical details&quot;))
                             .append(JQ(&quot;&lt;pre&gt;&quot;).css(&quot;font-size&quot;, &quot;65%&quot;)

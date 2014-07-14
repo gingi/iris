@@ -44,22 +44,22 @@ function(JQ, Backbone, _, Progress) {
         if (!options.itemTemplate.html()) {
             options.itemTemplate =
                 JQ(&quot;&lt;script&gt;&quot;).attr(&quot;type&quot;, &quot;text/template&quot;).html(
-                    '&lt;a href=&quot;&lt;%= link %&gt;&quot;&gt;&lt;%= title %&gt;&lt;/a&gt;'
+                    &#39;&lt;a href=&quot;&lt;%= link %&gt;&quot;&gt;&lt;%= title %&gt;&lt;/a&gt;&#39;
                 );
         }
         if (!options.listTemplate.html()) {
             options.listTemplate = JQ(&quot;&lt;script&gt;&quot;)
                 .attr(&quot;type&quot;, &quot;text/template&quot;).html(
-                '&lt;li class=&quot;dropdown&quot;&gt;' +
-                '&lt;a class=&quot;dropdown-toggle&quot; id=&quot;&lt;%= label %&gt;&quot; ' +
-                'data-toggle=&quot;dropdown&quot;data-target=&quot;#&quot; href=&quot;#&quot;&gt;' +
-                '&lt;%= title %&gt; &lt;b class=&quot;caret&quot;&gt;&lt;/b&gt;&lt;/a&gt;' +
-                '&lt;ul id=&quot;&lt;%= listId %&gt;&quot; class=&quot;dropdown-menu&quot; ' + 
-                'role=&quot;menu&quot; aria-labelledby=&quot;&lt;%= label %&gt;&quot;&gt;&lt;/ul&gt;&lt;/li&gt;');
+                &#39;&lt;li class=&quot;dropdown&quot;&gt;&#39; +
+                &#39;&lt;a class=&quot;dropdown-toggle&quot; id=&quot;&lt;%= label %&gt;&quot; &#39; +
+                &#39;data-toggle=&quot;dropdown&quot;data-target=&quot;#&quot; href=&quot;#&quot;&gt;&#39; +
+                &#39;&lt;%= title %&gt; &lt;b class=&quot;caret&quot;&gt;&lt;/b&gt;&lt;/a&gt;&#39; +
+                &#39;&lt;ul id=&quot;&lt;%= listId %&gt;&quot; class=&quot;dropdown-menu&quot; &#39; + 
+                &#39;role=&quot;menu&quot; aria-labelledby=&quot;&lt;%= label %&gt;&quot;&gt;&lt;/ul&gt;&lt;/li&gt;&#39;);
         }
         if (!options.copyTemplate.html()) {
             options.copyTemplate = JQ(&quot;&lt;script&gt;&quot;).attr(&quot;type&quot;, &quot;text/template&quot;)
-                .html('&lt;br/&gt;&lt;small id=&quot;copy&quot; class=&quot;muted&quot;&gt;&lt;/small&gt;');
+                .html(&#39;&lt;br/&gt;&lt;small id=&quot;copy&quot; class=&quot;muted&quot;&gt;&lt;/small&gt;&#39;);
         }
         var DDItem = Backbone.Model.extend({
             defaults: {
@@ -80,8 +80,8 @@ function(JQ, Backbone, _, Progress) {
                 &quot;click&quot;: &quot;selectItem&quot;
             },
             selectItem: function () {
-                this.$el.parent().children().removeClass('active');
-                this.$el.addClass('active');
+                this.$el.parent().children().removeClass(&#39;active&#39;);
+                this.$el.addClass(&#39;active&#39;);
                 JQ(this.options.copyTarget).text(this.$el.text());
             },
             render: function() {
@@ -135,7 +135,7 @@ function(JQ, Backbone, _, Progress) {
                     $topics.append(JQ(&quot;&lt;li&gt;&quot;)
                         .css(&quot;padding&quot;, &quot;5px&quot;)
                         .addClass(&quot;text-warning&quot;)
-                        .text('No ' + this.options.name));
+                        .text(&#39;No &#39; + this.options.name));
                 }
             }
         });
@@ -164,7 +164,7 @@ function(JQ, Backbone, _, Progress) {
                 label:      args.label,
                 title:      args.title,
                 name:       args.name,
-                listId:     args.name + '-select',
+                listId:     args.name + &#39;-select&#39;,
                 copyTarget: copyTarget
                 
             });

@@ -15,7 +15,7 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'underscore', 'util/dragbox'],
+  <pre class="prettyprint lang-js">define([&#39;jquery&#39;, &#39;d3&#39;, &#39;underscore&#39;, &#39;util/dragbox&#39;],
 function (JQ, d3, _, DragBox) {
     var MAX_CELLS = 24000;
     var MIN_CELL_SIZE = 4;
@@ -24,8 +24,8 @@ function (JQ, d3, _, DragBox) {
 
     var defaults = {
         borderWidth: 1,
-        colorscheme: 'RdYlBu',
-        element: 'body'
+        colorscheme: &#39;RdYlBu&#39;,
+        element: &#39;body&#39;
     };
     function Heatmap(options) {
         var self = this;
@@ -50,14 +50,14 @@ function (JQ, d3, _, DragBox) {
             if (data == null) return;
             function requiredProperty(prop) {
                 if (!data.hasOwnProperty(prop)) {
-                    throw new Error(&quot;setData(): Required property '&quot;
-                        + prop + &quot;' not found&quot;);
+                    throw new Error(&quot;setData(): Required property &#39;&quot;
+                        + prop + &quot;&#39; not found&quot;);
                 }
             }
-            requiredProperty('matrix');
-            requiredProperty('rows');
+            requiredProperty(&#39;matrix&#39;);
+            requiredProperty(&#39;rows&#39;);
             rows = data.rows;
-            if (!data.hasOwnProperty('columns')) {
+            if (!data.hasOwnProperty(&#39;columns&#39;)) {
                 columns = rows;
             } else {
                 columns = data.columns;
@@ -97,7 +97,7 @@ function (JQ, d3, _, DragBox) {
                 );
             var adjWidth  = adjustedDim(columns);
             var adjHeight = adjustedDim(rows);
-            var containerId = element.attr('id') + &quot;-container&quot;;
+            var containerId = element.attr(&#39;id&#39;) + &quot;-container&quot;;
             var container = JQ(&quot;&lt;div&gt;&quot;).attr(&quot;id&quot;, containerId)
                 .css(&quot;position&quot;, &quot;relative&quot;)
                 .width(width)
@@ -119,7 +119,7 @@ function (JQ, d3, _, DragBox) {
             
             var plot = svg.append(&quot;g&quot;)
                 .attr(&quot;class&quot;, options.colorscheme)
-                .attr(&quot;id&quot;, element.attr('id') + &quot;-plotarea&quot;)
+                .attr(&quot;id&quot;, element.attr(&#39;id&#39;) + &quot;-plotarea&quot;)
                 .attr(&quot;width&quot;, adjWidth)
                 .attr(&quot;height&quot;, adjHeight)
                 .attr(&quot;transform&quot;, &quot;translate(&quot; + M.x + &quot;,&quot; + M.y +&quot;)&quot;);
@@ -144,7 +144,7 @@ function (JQ, d3, _, DragBox) {
             var quantize = d3.scale
                 .quantile().domain([0, maxScore]).range(d3.range(9));
             var dragbox =
-                new DragBox(JQ(&quot;#&quot; + element.attr('id') + &quot;-plotarea&quot;));
+                new DragBox(JQ(&quot;#&quot; + element.attr(&#39;id&#39;) + &quot;-plotarea&quot;));
             dragbox.textHandler(function (x, y, w, h) {
                 return [w, h].join(&quot; &quot;);
             })
@@ -161,7 +161,7 @@ function (JQ, d3, _, DragBox) {
                     .append(&quot;title&quot;).text(cell[2]);
             }
             var schemeIndex = 0;
-            var schemes = 'RdYlBu Spectral BrBG YlGnBu'.split(&quot; &quot;);
+            var schemes = &#39;RdYlBu Spectral BrBG YlGnBu&#39;.split(&quot; &quot;);
             for (var i in schemes) {
                 if (schemes[i] == options.colorscheme) {
                     schemes.splice(i, 1);

@@ -23,7 +23,7 @@
 	};
 	var codeDiv, renderDiv, csettings, rsettings;
 	var refresh = function(value) {
-		require(['renderers/'+value], function(demo) {
+		require([&#39;renderers/&#39;+value], function(demo) {
 			rsettings = demo.prepare({element: renderDiv});
 			csettings.data = rsettings;
 			code.render(csettings);

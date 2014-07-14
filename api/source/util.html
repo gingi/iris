@@ -37,7 +37,7 @@
     };
     
     Util.keys = function (object) {
-        if (object !== Object(object)) throw new TypeError('Invalid object');
+        if (object !== Object(object)) throw new TypeError(&#39;Invalid object&#39;);
         var keys = [];
         for (var key in object) {
             if (object.hasOwnProperty(key)) {
@@ -47,7 +47,7 @@
         return keys;
     };
 
-    // Retrieve the values of an object's properties.
+    // Retrieve the values of an object&#39;s properties.
     Util.values = function (object) {
         var values = [];
         for (var key in object) {
@@ -69,29 +69,29 @@
 
     Util.normalizeName = function (string) {
         // var capitalized = capitalize(string);
-        return string.split(/\s/).join('');
+        return string.split(/\s/).join(&#39;&#39;);
     };    
     
     Util.syntaxHighlight = function (json) {
         json = json
-            .replace(/&amp;/g, '&amp;amp;')
-            .replace(/&lt;/g, '&amp;lt;')
-            .replace(/&gt;/g, '&amp;gt;');
+            .replace(/&amp;/g, &#39;&amp;amp;&#39;)
+            .replace(/&lt;/g, &#39;&amp;lt;&#39;)
+            .replace(/&gt;/g, &#39;&amp;gt;&#39;);
         return json.replace(/(&quot;(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\&quot;])*&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g
             , function (match) {
-                var cls = 'number';
+                var cls = &#39;number&#39;;
                 if (/^&quot;/.test(match)) {
                     if (/:$/.test(match)) {
-                        cls = 'key';
+                        cls = &#39;key&#39;;
                     } else {
-                        cls = 'string';
+                        cls = &#39;string&#39;;
                     }
                 } else if (/true|false/.test(match)) {
-                    cls = 'boolean';
+                    cls = &#39;boolean&#39;;
                 } else if (/null/.test(match)) {
-                    cls = 'null';
+                    cls = &#39;null&#39;;
                 }
-                return '&lt;span class=&quot;' + cls + '&quot;&gt;' + match + '&lt;/span&gt;';
+                return &#39;&lt;span class=&quot;&#39; + cls + &#39;&quot;&gt;&#39; + match + &#39;&lt;/span&gt;&#39;;
             });
     }
 

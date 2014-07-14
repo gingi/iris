@@ -16,22 +16,17 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">require.config({
-    baseUrl: '/js/lib',
+    baseUrl: &#39;/js/lib&#39;,
     paths: {
-        require:      '../require',
-        jquery:       'require-jquery',
-        app:          '../app',
-        iris:         '../iris',
-        widgets:      '../widgets',
-        renderers:    '../renderers',
-        colorbrewer:  'd3/colorbrewer/colorbrewer',
-        CM_mode:      'CodeMirror/mode',
-        CM_util:      'CodeMirror/lib/util',
-        CodeMirror:   'CodeMirror/lib/codemirror',
+        require:      &#39;../require&#39;,
+        jquery:       &#39;require-jquery&#39;,
+        app:          &#39;../app&#39;,
+        iris:         &#39;../iris&#39;,
+        widgets:      &#39;../widgets&#39;,
+        renderers:    &#39;../renderers&#39;
     },
     shim: {
-        d3: { exports: 'd3' },
-        CodeMirror: { exports: 'CodeMirror' }
+        d3: { exports: &#39;d3&#39; },
     }
 });</pre>
 </body>

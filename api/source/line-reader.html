@@ -15,21 +15,21 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">var fs     = require('fs');
-var events = require('events');
-var util   = require('util');
+  <pre class="prettyprint lang-js">var fs     = require(&#39;fs&#39;);
+var events = require(&#39;events&#39;);
+var util   = require(&#39;util&#39;);
 
 function LineReader(filename, options) {
 	var self = this;
 	options = (options || {});
 	var reader = fs.createReadStream(filename, options);
-	var remainder = '';
-	reader.on('data', function (data) {
+	var remainder = &#39;&#39;;
+	reader.on(&#39;data&#39;, function (data) {
 		var start = 0;
 		for (var i = 0; i &lt; data.length; i++) {
 			if (data[i] === 10) {
-				self.emit('line', remainder + data.slice(start, i).toString());
-				remainder = '';
+				self.emit(&#39;line&#39;, remainder + data.slice(start, i).toString());
+				remainder = &#39;&#39;;
 				start = i + 1;
 			}
 		}
@@ -37,8 +37,8 @@ function LineReader(filename, options) {
 			remainder = data.slice(start);
 		}
 	});
-	reader.on('end', function () {
-		self.emit('end');
+	reader.on(&#39;end&#39;, function () {
+		self.emit(&#39;end&#39;);
 	});
 }
 

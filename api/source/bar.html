@@ -32,7 +32,7 @@
      */
     var BarChart = Iris.Renderer.extend({
         defaults: {
-            yTitle: 'Y Axis',
+            yTitle: &#39;Y Axis&#39;,
             axisLabelFontSize: 10,
             padding: 10,
             margin: { top: 20, right: 20, bottom: 40, left: 40 }
@@ -48,7 +48,7 @@
                     this.data.push(inData[key]);
                 }
             } else {
-                // It's a plain list
+                // It&#39;s a plain list
                 this.data = inData;
             }
             return this;

@@ -15,7 +15,7 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'util/eventemitter'], function (JQ, EventEmitter) {
+  <pre class="prettyprint lang-js">define([&#39;jquery&#39;, &#39;util/eventemitter&#39;], function (JQ, EventEmitter) {
     var FGCOLOR = &quot;red&quot;;
     function DragBox(element, options) {
         var self = this;
@@ -41,20 +41,20 @@
             .addClass(&quot;dragbox&quot;);
         element.append(canvas);
         
-        canvas.on('mousedown', startDrag);
-        canvas.on('mousemove', moveDragEvent);
-        canvas.on('mouseup',   releaseDragEvent);
+        canvas.on(&#39;mousedown&#39;, startDrag);
+        canvas.on(&#39;mousemove&#39;, moveDragEvent);
+        canvas.on(&#39;mouseup&#39;,   releaseDragEvent);
         
         var offset = element.offset();
-        var context = canvas[0].getContext('2d');
+        var context = canvas[0].getContext(&#39;2d&#39;);
         context.strokeStyle = FGCOLOR;
         context.lineWidth = 0.5;
         context.fillStyle = &quot;rgba(255,0,0,0.2)&quot;;
 
         function boxInfo(text, x, y) {
             context.save();
-            context.textBaseline = 'middle';
-            context.textAlign = 'center';
+            context.textBaseline = &#39;middle&#39;;
+            context.textAlign = &#39;center&#39;;
             context.fillStyle = FGCOLOR;
             context.fillText(text, x, y);
             context.restore();
@@ -64,7 +64,7 @@
             context.clearRect(0, 0, element.width(), element.height());
             context.fillRect(x, y, w, h);
             context.strokeRect(x, y, w, h);
-            if (handlers.text &amp;&amp; typeof(handlers.text) === 'function') {
+            if (handlers.text &amp;&amp; typeof(handlers.text) === &#39;function&#39;) {
                 var text = handlers.text(x, y, w, h);
                 boxInfo(text, x + w / 2, y + h / 2);
             }

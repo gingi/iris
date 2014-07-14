@@ -15,15 +15,22 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;underscore&quot;, &quot;iris&quot;, &quot;datatables&quot;, &quot;columnfilter&quot;],
-    function (JQ, _, iris) {
+  <pre class="prettyprint lang-js">define([&quot;jquery&quot;, &quot;underscore&quot;, &quot;iris&quot;, &quot;datatables&quot;],
+function (JQ, _, iris) {
+    &quot;use strict&quot;;
+
 <span id='Table'>    /**
 </span>     * @class Table
      * A table with sort, filter, and search
-     * 
+     *
      * @extends Renderer
      */
     var Table = iris.Renderer.extend({
+        about: {
+            title: &quot;Table&quot;,
+            author: &quot;Shiran Pasternak&quot;,
+            description: &quot;A table with sort, filter, and search features&quot;
+        },
         defaults: {
             scrollY: 300,
             element: &quot;body&quot;,
@@ -32,257 +39,188 @@
         initialize: function () {
             this.filterExclude = [];
         },
+
 <span id='Table-method-setData'>        /**
 </span>         * @method setData
          * Sets data. If the data is an {#link Array}, converts
          * @inheritdoc Renderer#setData
          */
         setData: function (data) {
-            if (_.isArray(data)) {
-                this.columns = _.first(data);
-                this.data = _.rest(data);
+            var self = this;
+            if (JQ.isArray(data)) {
+                self.data = {
+                    columns: _.first(data),
+                    data:    _.rest(data)
+                }
             } else {
-                this.columns = data.columns;
-                this.data = data.data;
+                self.data = _.clone(data);
             }
-            if (this.columns === undefined)
-                this.columns = [];
-            this.datafilter = this.datafilter || [];
-            for (var i = 0; i &lt; this.columns.length; i++) {
-                if (!_.contains(this.datafilter, this.columns[i])) {
-                    this.filterExclude.push(i);
+            if (self.data.columns === undefined)
+                self.data.columns = [];
+            if (self.data.data === undefined) {
+                throw new Error(&quot;Setting undefined data&quot;);
+            }
+
+            self.data.filter = data.filter || [];
+            for (var i = 0; i &lt; self.data.columns.length; i++) {
+                if (!_.contains(self.data.filter, self.data.columns[i])) {
+                    self.filterExclude.push(i);
                 }
             }
+
+            // Ensure non-sparse array
+            self.data.data.forEach(function (row) {
+                for (var j = 0; j &lt; row.length; j++)
+                    if (row[j] === undefined)
+                        row[j] = null;
+            });
         },
+
+<span id='Table-method-getData'>        /**
+</span>         * @method getData
+         * @inheritdoc Renderer#getData
+         */
+        getData: function () {
+            return {
+                data: this.data.data,
+                columns: this.data.columns
+            };
+        },
+
 <span id='Table-method-render'>        /**
 </span>         * @method render
          * @inheritdoc Renderer#render
          */
         render: function (args) {
             var self = this;
-            args = args ? _.clone(args) : {};
-            var options = self.options;
+            var options = this.options;
             var $element = JQ(options.element);
             var elementOffset = $element.offset();
-            var $table = JQ(&quot;&lt;table&gt;&quot;).addClass('table table-striped table-bordered');
+            args = args ? _.clone(args) : {};
+            var $table = JQ(&quot;&lt;table&gt;&quot;)
+                .addClass(&#39;table table-striped table-bordered&#39;);
             $element.empty().append($table);
-            var cols = _.map(self.columns, function (d) {
-                return { sTitle: d, type: &quot;string&quot; };
+            var cols = _.map(self.data.columns, function (d) {
+                return { title: d, type: &quot;string&quot;, defaultContent: &quot;&quot; };
             });
             options.scrollY = Math.max($element.height()-100, options.scrollY);
-            dataTableBehavior();
-            $table.dataTable({
-                sInfo: &quot;muted&quot;,
-                aaData: self.data,
-                aoColumns: cols,
-                sPaginationType: &quot;bootstrap&quot;,
-                bAutoWidth: true,
-                sScrollY: options.scrollY,
-                sScrollX: &quot;100%&quot;,
-                bPaginate: false,
-                oLanguage: {
-                    sLengthMenu: &quot;_MENU_ per page&quot;,
-                    sInfoThousands: &quot;,&quot;
-                },
-                fnRowCallback: function (tr, data) {
-                    options.rowCallback.call(tr, data);
-                },
+            var table = $table.DataTable({
+                data:           self.data.data,
+                columns:        cols,
+                autoWidth:      true,
+                scrollY:        options.scrollY,
+                scrollX:        &quot;100%&quot;,
+                paginate:       false,
+                fnRowCallback:  options.rowCallback,
                 fnDrawCallback: args.success
             });
-            var thead = $table.parent().prev().find(&quot;thead&quot;);
-            var theadRow = thead.find(&quot;tr&quot;);
-            var clone    = JQ(&quot;&lt;tr&gt;&quot;);
-            theadRow.children().each(function () {
-                clone.append(JQ(this).clone());
-            });
-            thead.append(clone);
-            $table.columnFilter({
-                sPlaceHolder: &quot;head:after&quot;,
-                aoColumns: _.map(cols, function (d) {
-                    return { type: &quot;text&quot;, bRegex: true }
-                })
-            });
-            thead.find(&quot;input&quot;).addClass(&quot;form-control input-xs&quot;);
-
-            thead.find(&quot;tr&quot;).filter(&quot;:last&quot;).children().each(function () {
-                var attributes = this.attributes;
-                var i = attributes.length;
-                while (i--)
-                    this.removeAttributeNode(attributes[i]);
-            });
-
-            $table.on(&quot;filter&quot;, function (event, tbl) {
+            $table.on(&quot;search.dt&quot;, function (event, tbl) {
                 var filtered = _.map(tbl.aiDisplay, function (index) {
-                    return self.data[index];
+                    return self.data.data[index];
                 });
-                self.trigger(&quot;table:filter&quot;, [ filtered ]);
+                self.emit(&quot;table:filter&quot;, [ filtered ]);
             });
+            self.$table = $table;
+        },
+        exampleData: function () {
+            return {
+                data: [
+                    [&quot;Clayton Kershaw&quot;, 236.0, 164, 55, 48, 52, 232, 1.77778],
+                    [&quot;Jose Fernandez&quot;, 172.2, 111, 47, 42, 58, 187, 2],
+                    [&quot;Matt Harvey&quot;, 178.1, 135, 46, 45, 31, 191, 1.8],
+                    [&quot;Anibal Sanchez&quot;, 182.0, 156, 56, 52, 54, 202, 1.75],
+                    [&quot;Zack Greinke&quot;, 177.2, 152, 54, 52, 46, 148, 3.75],
+                    [&quot;Bartolo Colon&quot;, 190.1, 193, 60, 56, 29, 117, 3],
+                    [&quot;Hisashi Iwakuma&quot;, 219.2, 179, 69, 65, 42, 185, 2.33333],
+                    [&quot;Madison Bumgarner&quot;, 201.1, 146, 68, 62, 62, 199, 1.44444],
+                    [&quot;Yu Darvish&quot;, 209.2, 145, 68, 66, 80, 277, 1.44444],
+                    [&quot;Cliff Lee&quot;, 222.2, 193, 77, 71, 32, 222, 1.75],
+                    [&quot;Max Scherzer&quot;, 214.1, 152, 73, 69, 56, 240, 7],
+                    [&quot;Adam Wainwright&quot;, 241.2, 223, 83, 79, 35, 219, 2.11111],
+                    [&quot;Stephen Strasburg&quot;, 183.0, 136, 71, 61, 56, 191, 0.888889],
+                    [&quot;Hyun-Jin Ryu&quot;, 192.0, 182, 67, 64, 49, 154, 1.75],
+                    [&quot;Felix Hernandez&quot;, 204.1, 185, 74, 69, 46, 216, 1.2],
+                    [&quot;Shelby Miller&quot;, 173.1, 152, 65, 59, 57, 169, 1.66667],
+                    [&quot;Chris Sale&quot;, 214.1, 184, 81, 73, 46, 226, 0.785714],
+                    [&quot;Andrew Cashner&quot;, 175.0, 151, 68, 60, 47, 128, 1.11111],
+                    [&quot;Travis Wood&quot;, 200.0, 163, 73, 69, 66, 144, 0.75],
+                    [&quot;Kris Medlen&quot;, 197.0, 194, 77, 68, 47, 157, 1.25],
+                    [&quot;James Shields&quot;, 228.2, 215, 82, 80, 68, 196, 1.44444],
+                    [&quot;Mat Latos&quot;, 210.2, 197, 82, 74, 58, 187, 2],
+                    [&quot;Julio Teheran&quot;, 185.2, 173, 69, 66, 45, 170, 1.75],
+                    [&quot;Mike Minor&quot;, 204.2, 177, 79, 73, 46, 181, 1.44444],
+                    [&quot;Ervin Santana&quot;, 211.0, 190, 85, 76, 51, 161, 0.9],
+                    [&quot;Jordan Zimmermann&quot;, 213.1, 192, 81, 77, 40, 161, 2.11111],
+                    [&quot;A.J. Burnett&quot;, 191.0, 165, 79, 70, 67, 209, 0.909091],
+                    [&quot;Ubaldo Jimenez&quot;, 182.2, 163, 75, 67, 80, 194, 1.44444],
+                    [&quot;Hiroki Kuroda&quot;, 201.1, 191, 79, 74, 43, 150, 0.846154],
+                    [&quot;David Price&quot;, 186.2, 178, 78, 69, 27, 151, 1.25],
+                    [&quot;Kyle Lohse&quot;, 198.2, 196, 78, 74, 36, 125, 1.1],
+                    [&quot;Gio Gonzalez&quot;, 195.2, 169, 79, 73, 76, 192, 1.375],
+                    [&quot;Mike Leake&quot;, 192.1, 193, 78, 72, 48, 122, 2],
+                    [&quot;C.J. Wilson&quot;, 212.1, 200, 93, 80, 85, 188, 2.42857],
+                    [&quot;Patrick Corbin&quot;, 208.1, 189, 81, 79, 54, 178, 1.75],
+                    [&quot;Derek Holland&quot;, 213.0, 210, 90, 81, 64, 189, 1.11111],
+                    [&quot;Justin Masterson&quot;, 193.0, 156, 75, 74, 76, 195, 1.4],
+                    [&quot;Justin Verlander&quot;, 218.1, 212, 94, 84, 75, 217, 1.08333],
+                    [&quot;Jhoulys Chacin&quot;, 197.1, 188, 82, 76, 61, 126, 1.4],
+                    [&quot;Homer Bailey&quot;, 209.0, 181, 85, 81, 54, 199, 0.916667],
+                    [&quot;Jorge De La Rosa&quot;, 167.2, 170, 70, 65, 62, 112, 2.66667],
+                    [&quot;Jose Quintana&quot;, 200.0, 188, 83, 78, 56, 164, 1.28571],
+                    [&quot;Jeff Locke&quot;, 166.1, 146, 69, 65, 84, 125, 1.42857],
+                    [&quot;John Lackey&quot;, 189.1, 179, 80, 74, 40, 161, 0.769231],
+                    [&quot;Wade Miley&quot;, 202.2, 201, 88, 80, 66, 147, 1],
+                    [&quot;Cole Hamels&quot;, 220.0, 205, 94, 88, 50, 202, 0.571429],
+                    [&quot;Dillon Gee&quot;, 199.0, 208, 84, 80, 47, 142, 1.09091],
+                    [&quot;Doug Fister&quot;, 208.2, 229, 91, 85, 44, 159, 1.55556],
+                    [&quot;Ricky Nolasco&quot;, 199.1, 195, 90, 82, 46, 165, 1.18182],
+                    [&quot;Chris Tillman&quot;, 206.1, 184, 87, 85, 68, 179, 2.28571],
+                    [&quot;Andy Pettitte&quot;, 185.1, 198, 85, 77, 48, 128, 1],
+                    [&quot;Jon Lester&quot;, 213.1, 209, 94, 89, 67, 177, 1.875],
+                    [&quot;Miguel Gonzalez&quot;, 171.1, 157, 81, 72, 53, 120, 1.375],
+                    [&quot;Bronson Arroyo&quot;, 202.0, 199, 88, 85, 34, 124, 1.16667],
+                    [&quot;A.J. Griffin&quot;, 200.0, 171, 91, 85, 54, 171, 1.4],
+                    [&quot;Scott Feldman&quot;, 181.2, 159, 87, 78, 56, 132, 1],
+                    [&quot;Eric Stults&quot;, 203.2, 219, 97, 89, 40, 131, 0.846154],
+                    [&quot;Lance Lynn&quot;, 201.2, 189, 92, 89, 76, 198, 1.5],
+                    [&quot;Jarrod Parker&quot;, 197.0, 178, 92, 87, 63, 134, 1.5],
+                    [&quot;Matt Cain&quot;, 184.1, 158, 85, 82, 55, 158, 0.8],
+                    [&quot;Jeremy Guthrie&quot;, 211.2, 236, 99, 95, 59, 111, 1.25],
+                    [&quot;Mark Buehrle&quot;, 203.2, 223, 100, 94, 51, 139, 1.2],
+                    [&quot;Kevin Correia&quot;, 185.1, 218, 89, 86, 45, 101, 0.692308],
+                    [&quot;Bud Norris&quot;, 176.2, 196, 89, 82, 67, 147, 0.833333],
+                    [&quot;Yovani Gallardo&quot;, 180.2, 180, 92, 84, 66, 144, 1.2],
+                    [&quot;R.A. Dickey&quot;, 224.2, 207, 113, 105, 71, 177, 1.07692],
+                    [&quot;Rick Porcello&quot;, 177.0, 185, 87, 85, 42, 142, 1.625],
+                    [&quot;Felix Doubront&quot;, 162.1, 161, 84, 78, 71, 139, 1.83333],
+                    [&quot;Jeff Samardzija&quot;, 213.2, 210, 109, 103, 78, 214, 0.615385],
+                    [&quot;Wily Peralta&quot;, 183.1, 187, 107, 89, 73, 129, 0.733333],
+                    [&quot;Tim Lincecum&quot;, 197.2, 184, 102, 96, 76, 193, 0.714286],
+                    [&quot;Ryan Dempster&quot;, 171.1, 170, 97, 87, 79, 157, 0.888889],
+                    [&quot;Jerome Williams&quot;, 169.1, 181, 93, 86, 55, 107, 0.9],
+                    [&quot;Dan Haren&quot;, 169.2, 179, 92, 88, 31, 151, 0.714286],
+                    [&quot;Kyle Kendrick&quot;, 182.0, 207, 104, 95, 47, 110, 0.769231],
+                    [&quot;CC Sabathia&quot;, 211.0, 224, 122, 112, 65, 175, 1.07692],
+                    [&quot;Ian Kennedy&quot;, 181.1, 180, 108, 99, 73, 163, 0.7],
+                    [&quot;Edwin Jackson&quot;, 175.1, 197, 110, 97, 59, 135, 0.444444],
+                    [&quot;Jeremy Hellickson&quot;, 174.0, 185, 103, 100, 50, 135, 1.2],
+                    [&quot;Joe Saunders&quot;, 183.0, 232, 117, 107, 61, 107, 0.6875],
+                ],
+                columns: [
+                    &quot;Name&quot;,
+                    &quot;Innings Pitched&quot;,
+                    &quot;Hits&quot;,
+                    &quot;Runs&quot;,
+                    &quot;Earned Runs&quot;,
+                    &quot;Walks&quot;,
+                    &quot;Strikeouts&quot;,
+                    &quot;Win/Loss&quot;,
+                ],
+                title: &quot;2013 Major League Baseball Pitching Stats&quot;
+            }
         }
     });
-    
-    function dataTableBehavior() {
-        /* Set the defaults for DataTables initialization */
-        JQ.extend(true, JQ.fn.dataTable.defaults, {
-            sDom: &quot;&lt;'dt-top'Wlfr&gt;&quot; +
-                 &quot;&lt;'table-wrapper't&gt;&lt;'dt-bottom'ip&gt;&quot;,
-            fnInitComplete: function (table) {
-                JQ('.dataTables_length').find(&quot;select&quot;).addClass(&quot;col-md-2&quot;);
-                JQ('.dataTables_filter').find(&quot;:input&quot;)
-                    .addClass(&quot;input-small search-query&quot;)
-                    .attr(&quot;placeholder&quot;, &quot;Search&quot;);
-                JQ('.dataTables_length &gt; label').contents().filter(function() {
-                    return this.nodeType != 1;
-                }).wrap(&quot;&lt;span class='mini help-inline'&gt;&quot;);
-            },
-            sPaginationType: &quot;bootstrap&quot;,
-            oLanguage: {
-                sLengthMenu: &quot;_MENU_ records per page&quot;,
-                sInfo: &quot;&lt;b&gt;_START_-_END_&lt;/b&gt; of &lt;b&gt;_TOTAL_&lt;/b&gt; entries&quot;,
-                sSearch: &quot;&quot;
-            }
-        });
 
-
-        /* Default class modification */
-        JQ.extend(JQ.fn.dataTableExt.oStdClasses, {
-            sWrapper: &quot;dataTables_wrapper form-inline&quot;,
-            sInfo: &quot;mini muted dt-info&quot;
-        });
-
-        /* API method to get paging information */
-        JQ.fn.dataTableExt.oApi.fnPagingInfo = function (opts) {
-            return {
-                iStart:         opts._iDisplayStart,
-                iEnd:           opts.fnDisplayEnd(),
-                iLength:        opts._iDisplayLength,
-                iTotal:         opts.fnRecordsTotal(),
-                iFilteredTotal: opts.fnRecordsDisplay(),
-                iPage:
-                    Math.ceil(opts._iDisplayStart / opts._iDisplayLength),
-                iTotalPages:
-                    Math.ceil(opts.fnRecordsDisplay() / opts._iDisplayLength)
-            };
-        };
-
-
-        /* Bootstrap style pagination control */
-        JQ.extend(JQ.fn.dataTableExt.oPagination, {
-            bootstrap: {
-                fnInit: function (opts, nPaging, fnDraw) {
-                    var oLang = opts.oLanguage.oPaginate;
-                    var fnClickHandler = function (e) {
-                        e.preventDefault();
-                        if (opts.oApi._fnPageChange(opts, e.data.action)) {
-                            fnDraw(opts);
-                        }
-                    };
-                    JQ(nPaging).addClass('pagination pagination-mini').append(_.template(
-                        '&lt;ul&gt;' +
-                            '&lt;li class=&quot;prev disabled&quot;&gt;' +
-                            '&lt;a href=&quot;#&quot;&gt;&amp;larr;&lt;/a&gt;&lt;/li&gt;'+
-                            '&lt;li class=&quot;next disabled&quot;&gt;'+
-                            '&lt;a href=&quot;#&quot;&gt;&amp;rarr;&lt;/a&gt;&lt;/li&gt;'+
-                        '&lt;/ul&gt;', { prev: oLang.sPrevious, next: oLang.sNext })
-                    );
-                    var els = JQ('a', nPaging);
-                    JQ(els[0]).bind('click.DT',
-                        { action: &quot;previous&quot; }, fnClickHandler);
-                    JQ(els[1]).bind('click.DT',
-                        { action: &quot;next&quot; }, fnClickHandler);
-                },
-                fnUpdate: function (opts, fnDraw) {
-                    var iListLength = 5;
-                    var oPaging = opts.oInstance.fnPagingInfo();
-                    var an = opts.aanFeatures.p;
-                    var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
-
-                    if ( oPaging.iTotalPages &lt; iListLength) {
-                        iStart = 1;
-                        iEnd = oPaging.iTotalPages;
-                    }
-                    else if (oPaging.iPage &lt;= iHalf) {
-                        iStart = 1;
-                        iEnd = iListLength;
-                    } else if (oPaging.iPage &gt;= (oPaging.iTotalPages-iHalf)) {
-                        iStart = oPaging.iTotalPages - iListLength + 1;
-                        iEnd = oPaging.iTotalPages;
-                    } else {
-                        iStart = oPaging.iPage - iHalf + 1;
-                        iEnd = iStart + iListLength - 1;
-                    }
-
-                    for (i=0, iLen=an.length ; i&lt;iLen ; i++) {
-                        // Remove the middle elements
-                        JQ('li:gt(0)', an[i]).filter(':not(:last)').remove();
-
-                        // Add the new list items and their event handlers
-                        for (j=iStart ;j&lt;=iEnd ;j++) {
-                            sClass = (j==oPaging.iPage+1) ? 'class=&quot;active&quot;' : '';
-                            JQ('&lt;li '+sClass+'&gt;&lt;a href=&quot;#&quot;&gt;'+j+'&lt;/a&gt;&lt;/li&gt;')
-                                .insertBefore(JQ('li:last', an[i])[0])
-                                .bind('click', function (e) {
-                                    e.preventDefault();
-                                    opts._iDisplayStart = (parseInt(JQ('a', this).text(),10)-1) * oPaging.iLength;
-                                    fnDraw(opts);
-                                } );
-                        }
-
-                        // Add / remove disabled classes from the static elements
-                        if (oPaging.iPage === 0) {
-                            JQ('li:first', an[i]).addClass('disabled');
-                        } else {
-                            JQ('li:first', an[i]).removeClass('disabled');
-                        }
-
-                        if (oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0) {
-                            JQ('li:last', an[i]).addClass('disabled');
-                        } else {
-                            JQ('li:last', an[i]).removeClass('disabled');
-                        }
-                    }
-                }
-            }
-        });
-
-
-        /*
-         * TableTools Bootstrap compatibility
-         * Required TableTools 2.1+
-         */
-        if (JQ.fn.DataTable.TableTools) {
-            // Set the classes that TableTools uses to something suitable for Bootstrap
-            JQ.extend(true, JQ.fn.DataTable.TableTools.classes, {
-                container: &quot;DTTT btn-group&quot;,
-                buttons: {
-                    normal: &quot;btn&quot;,
-                    disabled: &quot;disabled&quot;
-                },
-                collection: {
-                    container: &quot;DTTT_dropdown dropdown-menu&quot;,
-                    buttons: {
-                        normal: &quot;&quot;,
-                        disabled: &quot;disabled&quot;
-                    }
-                },
-                print: {
-                    info: &quot;DTTT_print_info modal&quot;
-                },
-                select: {
-                    row: &quot;active&quot;
-                }
-            });
-
-            // Have the collection use a bootstrap compatible dropdown
-            JQ.extend(true, JQ.fn.DataTable.TableTools.DEFAULTS.oTags, {
-                collection: {
-                    container: &quot;ul&quot;,
-                    button: &quot;li&quot;,
-                    liner: &quot;a&quot;
-                }
-            });
-        }
-    }
-    
     iris.Renderer.register(&quot;Table&quot;, Table);
     return Table;
 });</pre>

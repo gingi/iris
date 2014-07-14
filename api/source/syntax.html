@@ -17,24 +17,24 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">define(function () {
 	var Syntax = function (json) {
-	    if (typeof json != 'string') {
+	    if (typeof json != &#39;string&#39;) {
 	         json = JSON.stringify(json, undefined, 2);
 	    }
-	    json = json.replace(/&amp;/g, '&amp;amp;').replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;');
+	    json = json.replace(/&amp;/g, &#39;&amp;amp;&#39;).replace(/&lt;/g, &#39;&amp;lt;&#39;).replace(/&gt;/g, &#39;&amp;gt;&#39;);
 	    return json.replace(/(&quot;(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\&quot;])*&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-	        var cls = 'number';
+	        var cls = &#39;number&#39;;
 	        if (/^&quot;/.test(match)) {
 	            if (/:$/.test(match)) {
-	                cls = 'key';
+	                cls = &#39;key&#39;;
 	            } else {
-	                cls = 'string';
+	                cls = &#39;string&#39;;
 	            }
 	        } else if (/true|false/.test(match)) {
-	            cls = 'boolean';
+	            cls = &#39;boolean&#39;;
 	        } else if (/null/.test(match)) {
-	            cls = 'null';
+	            cls = &#39;null&#39;;
 	        }
-	        return '&lt;span class=&quot;' + cls + '&quot;&gt;' + match + '&lt;/span&gt;';
+	        return &#39;&lt;span class=&quot;&#39; + cls + &#39;&quot;&gt;&#39; + match + &#39;&lt;/span&gt;&#39;;
 	    });
 	}
     return Syntax;

@@ -15,8 +15,8 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">if (typeof define !== 'function') {
-    var define = require('amdefine')(module);
+  <pre class="prettyprint lang-js">if (typeof define !== &#39;function&#39;) {
+    var define = require(&#39;amdefine&#39;)(module);
 }
 
 define(function (require) {
@@ -96,12 +96,12 @@ define(function (require) {
             var node;
             if (isNode(obj)) {
                 node = new Node(this, obj.meta());
-                if (obj.get('id')) {
-                    lookup[obj.get('id')] = node;
+                if (obj.get(&#39;id&#39;)) {
+                    lookup[obj.get(&#39;id&#39;)] = node;
                 }
             } else {
                 node = new Node(this);
-                if (typeof obj === &quot;object&quot;) { // We're passed an assoc. list
+                if (typeof obj === &quot;object&quot;) { // We&#39;re passed an assoc. list
                     node.meta(obj);
                 } else if (obj != null) { // obj is an id (some scalar)
                     lookup[obj] = node;

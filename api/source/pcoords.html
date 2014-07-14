@@ -51,34 +51,34 @@ function (Iris, $, _, ExampleData) {
             var args = {};
             args = args ? _.clone(args) : {};
             var div = $(self.options.element);
-            div.text('');
+            div.text(&#39;&#39;);
             this.containerNode = div;
             var canvasHeight = Math.max(div.parent().height(), 250);
             var canvasWidth = Math.max(div.width(), 400);
             div.height(canvasHeight);
             div.width(canvasWidth);
             function createCanvas(args) {
-                var canvasId = ['pcrd_cnvs', args.suffix, pcoordId].join(&quot;_&quot;);
+                var canvasId = [&#39;pcrd_cnvs&#39;, args.suffix, pcoordId].join(&quot;_&quot;);
                 var style = [
                     &quot;position:absolute&quot;,
                     &quot;left:0&quot;,
                     &quot;top:0&quot;,
                     &quot;z-index:&quot; + args.z,
-                    &quot;width:&quot; + canvasWidth + 'px',
-                    &quot;height:&quot; + canvasHeight + 'px'
-                ].join(';');
-                div.append('&lt;canvas id=&quot;' + canvasId + '&quot;' +
-                    ' width=&quot;' + canvasWidth + '&quot;' +
-                    ' height=&quot;' + canvasHeight + '&quot;' +
-                    ' style=&quot;' + style + '&quot;&gt;&lt;/canvas&gt;');
+                    &quot;width:&quot; + canvasWidth + &#39;px&#39;,
+                    &quot;height:&quot; + canvasHeight + &#39;px&#39;
+                ].join(&#39;;&#39;);
+                div.append(&#39;&lt;canvas id=&quot;&#39; + canvasId + &#39;&quot;&#39; +
+                    &#39; width=&quot;&#39; + canvasWidth + &#39;&quot;&#39; +
+                    &#39; height=&quot;&#39; + canvasHeight + &#39;&quot;&#39; +
+                    &#39; style=&quot;&#39; + style + &#39;&quot;&gt;&lt;/canvas&gt;&#39;);
                 return document.getElementById(canvasId);
             }
-            var canvas  = createCanvas({ z: 0, suffix: '' });
-            var canvasf = createCanvas({ z: 1, suffix: 'f' });
-            var canvasi = createCanvas({ z: 2, suffix: 'i' });
-            var ctx = canvas.getContext('2d');
-            var ctxf = canvasf.getContext('2d');
-            var ctxi = canvasi.getContext('2d');
+            var canvas  = createCanvas({ z: 0, suffix: &#39;&#39; });
+            var canvasf = createCanvas({ z: 1, suffix: &#39;f&#39; });
+            var canvasi = createCanvas({ z: 2, suffix: &#39;i&#39; });
+            var ctx = canvas.getContext(&#39;2d&#39;);
+            var ctxf = canvasf.getContext(&#39;2d&#39;);
+            var ctxi = canvasi.getContext(&#39;2d&#39;);
             ctx.strokeStyle = &quot;black&quot;;
             //    ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctxf.strokeStyle = &quot;black&quot;;

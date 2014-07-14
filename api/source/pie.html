@@ -15,13 +15,13 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">define(['jquery', 'd3', 'colorbrewer'], function (JQ, d3, colorbrewer) {
+  <pre class="prettyprint lang-js">define([&#39;jquery&#39;, &#39;d3&#39;, &#39;colorbrewer&#39;], function (JQ, d3, colorbrewer) {
     function PieChart(options) {
         var self = this;
         options = options ? _.clone(options) : {};
         options.padding = (options.padding || 20);
         options.categories = (options.categories || 9);
-        options.colorscheme = (options.colorscheme || 'Spectral'); 
+        options.colorscheme = (options.colorscheme || &#39;Spectral&#39;); 
         
         var $el = JQ(options.element);
         var data;

@@ -60,9 +60,9 @@
     );
     ExportModal.init();
     JQ(&quot;.viewport&quot;)
-        .attr('unselectable', 'on')
-        .css('user-select', 'none')
-        .on('selectstart', false);
+        .attr(&#39;unselectable&#39;, &#39;on&#39;)
+        .css(&#39;user-select&#39;, &#39;none&#39;)
+        .on(&#39;selectstart&#39;, false);
 
 <span id='Viewport-method-constructor'><span id='Viewport'>    /**
 </span></span>     * @class Viewport
@@ -116,11 +116,11 @@
                     e.preventDefault();
                     if (self.toolbox._isShown) return;
                     self.toolbox._isShown = true;
-                    self.toolbox.show('fast');
+                    self.toolbox.show(&#39;fast&#39;);
                 }).on(&quot;mouseleave&quot;, function (e) {
                     e.preventDefault();
                     self.toolbox._isShown = false;
-                    self.toolbox.hide('fast');
+                    self.toolbox.hide(&#39;fast&#39;);
                 }).on(&quot;click&quot;, function (e) {
                     JQ(this).find(&quot;.dropdown-menu&quot;).toggle();
                     e.stopPropagation();

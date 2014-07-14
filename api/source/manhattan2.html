@@ -52,19 +52,19 @@
     widget.display = function (element, args) {
         args = (args || {});
         var myDiv = $(element);
-        myDiv.append('&lt;div id=&quot;' + element.id + '_man&quot;&gt;');
+        myDiv.append(&#39;&lt;div id=&quot;&#39; + element.id + &#39;_man&quot;&gt;&#39;);
         var div = $(document.getElementById(element.id + &quot;_man&quot;));
         var canvasHeight = Math.max(div.height(), $(&quot;body&quot;).height());
         var canvasWidth = Math.max(div.parent().width(), $(&quot;body&quot;).width());
         GOWidth = Math.min(Math.floor(canvasWidth/2), 300);
-        div.append('&lt;canvas id=&quot;' + element.id + '_canvas&quot;, width=' + canvasWidth + ' height=' + canvasHeight + ' style=&quot;position:absolute;left:0;top:0;z-index:0;&quot;&gt;&lt;/canvas&gt;');
-        div.append('&lt;canvas id=&quot;' + element.id + '_canvasi&quot;, width=' + canvasWidth + ' height=' + canvasHeight + ' style=&quot;position:absolute;left:0;top:0;z-index:1;&quot;&gt;&lt;/canvas&gt;');
+        div.append(&#39;&lt;canvas id=&quot;&#39; + element.id + &#39;_canvas&quot;, width=&#39; + canvasWidth + &#39; height=&#39; + canvasHeight + &#39; style=&quot;position:absolute;left:0;top:0;z-index:0;&quot;&gt;&lt;/canvas&gt;&#39;);
+        div.append(&#39;&lt;canvas id=&quot;&#39; + element.id + &#39;_canvasi&quot;, width=&#39; + canvasWidth + &#39; height=&#39; + canvasHeight + &#39; style=&quot;position:absolute;left:0;top:0;z-index:1;&quot;&gt;&lt;/canvas&gt;&#39;);
         div.height(canvasHeight);
 
-        // myDiv.append('&lt;div id=&quot;' + element.id + '_goTable&quot; style=&quot;position:absolute;left:0px;top:' + canvasHeight + 'px;z-index:0;&quot;&gt;');
-        // myDiv.append('&lt;div id=&quot;' + element.id + '_goPie&quot; style=&quot;position:absolute;left:' + GOWidth + 'px;top:' + canvasHeight + 'px;z-index:0;&quot;&gt;');
-        myDiv.append('&lt;div id=&quot;' + element.id + '_goTable&quot;&gt;');
-        myDiv.append('&lt;div id=&quot;' + element.id + '_goPie&quot;&gt;');
+        // myDiv.append(&#39;&lt;div id=&quot;&#39; + element.id + &#39;_goTable&quot; style=&quot;position:absolute;left:0px;top:&#39; + canvasHeight + &#39;px;z-index:0;&quot;&gt;&#39;);
+        // myDiv.append(&#39;&lt;div id=&quot;&#39; + element.id + &#39;_goPie&quot; style=&quot;position:absolute;left:&#39; + GOWidth + &#39;px;top:&#39; + canvasHeight + &#39;px;z-index:0;&quot;&gt;&#39;);
+        myDiv.append(&#39;&lt;div id=&quot;&#39; + element.id + &#39;_goTable&quot;&gt;&#39;);
+        myDiv.append(&#39;&lt;div id=&quot;&#39; + element.id + &#39;_goPie&quot;&gt;&#39;);
         goDiv1 = document.getElementById(element.id + &quot;_goPie&quot;);
         goDiv2 = document.getElementById(element.id + &quot;_goTable&quot;);
         
@@ -73,11 +73,11 @@
 
         var canvas = document.getElementById(element.id + &quot;_canvas&quot;);
         canvasi = document.getElementById(element.id + &quot;_canvasi&quot;);
-        ctx = canvas.getContext('2d');
-        ctxi = canvasi.getContext('2d');
+        ctx = canvas.getContext(&#39;2d&#39;);
+        ctxi = canvasi.getContext(&#39;2d&#39;);
 
-        study = (args.hasOwnProperty('study')) ? args['study'] : 3396;
-        var species = (args.hasOwnProperty('species')) ? args['species'] : 'at';
+        study = (args.hasOwnProperty(&#39;study&#39;)) ? args[&#39;study&#39;] : 3396;
+        var species = (args.hasOwnProperty(&#39;species&#39;)) ? args[&#39;species&#39;] : &#39;at&#39;;
 
 
         // fetch the list of chromosomes and their lengths
@@ -134,9 +134,9 @@
         ctxi.fillStyle = &quot;rgba(255,0,0,0.3)&quot;;
 
         // add event listeners
-        canvasi.addEventListener('mousedown', startDragEvent(), false);
-        canvasi.addEventListener('mousemove', moveDragEvent(), false);
-        canvasi.addEventListener('mouseup', releaseDragEvent(), false);
+        canvasi.addEventListener(&#39;mousedown&#39;, startDragEvent(), false);
+        canvasi.addEventListener(&#39;mousemove&#39;, moveDragEvent(), false);
+        canvasi.addEventListener(&#39;mouseup&#39;, releaseDragEvent(), false);
 
         var offset = XGUTTER;
         var ysize = ctx.canvas.height;
@@ -326,14 +326,14 @@
     }
     
     function build_where(json) {
-        var where = json[0] + ' &lt;= score &lt;= ' + json[1] + ' and (';
+        var where = json[0] + &#39; &lt;= score &lt;= &#39; + json[1] + &#39; and (&#39;;
         for (var i=0; i &lt; json[2].length; i++) {
             if (i&gt;0) {
-                where += ' or ';
+                where += &#39; or &#39;;
             }
-            where += '( chr == \'' + json[2][i][0] + '\' and ' + json[2][i][1] + ' &lt;= pos &lt;= ' + json[2][i][2] + ')';
+            where += &#39;( chr == \&#39;&#39; + json[2][i][0] + &#39;\&#39; and &#39; + json[2][i][1] + &#39; &lt;= pos &lt;= &#39; + json[2][i][2] + &#39;)&#39;;
         }
-        where += ')';
+        where += &#39;)&#39;;
         return encodeURIComponent(where);
     }
 
