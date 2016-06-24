@@ -41,23 +41,25 @@ Which will, by default, create a minified library as '`dist/iris.js`'. To specif
 ## Widget Example
 The client-side library can be used on the browser as in the following example:
 
-    <!DOCTYPE html>
-    <head>
-        <link rel="stylesheet" href="iris.css" type="text/css">
-        <script src="iris.js" type="text/javascript"></script>
-        <script>
-            iris.require(['charts/bar'], function (Chart) {
-                var chart = new Chart({
-                    element: "body",
-                    // other options
-                });
-                chart.setData([ /* Data here */ ]);
-                chart.render();
+```html
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="iris.css" type="text/css">
+    <script src="iris.js" type="text/javascript"></script>
+    <script>
+        iris.require(['charts/bar'], function (Chart) {
+            var chart = new Chart({
+                element: "body",
+                // other options
             });
-        </script>
-    </head>
-    <body>
-    </body>
+            chart.setData([ /* Data here */ ]);
+            chart.render();
+        });
+    </script>
+</head>
+<body>
+</body>
+```
 
 ##Coding Style and Conventions
 TODO
