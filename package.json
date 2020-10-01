@@ -14,7 +14,7 @@
     "express": "^3.4.4",
     "grunt": "^0.4.5",
     "hiredis": "^0.1.15",
-    "http-proxy": "^0.10.3",
+    "http-proxy": "^1.18.1",
     "jquery": "^1.8.3",
     "less": "^1.7.3",
     "less-middleware": "^1.0.3",
